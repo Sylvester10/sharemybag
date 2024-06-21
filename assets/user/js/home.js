@@ -61,9 +61,11 @@ jQuery(document).ready(function ($) {
 						$("#search-spinner").addClass("d-none");
 					}, 4000);
 				} else {
-					// Handle case when response.status is falsy (e.g., no results found)
+					// Handle case when response.status is false (e.g., no results found)
 					var noResultsHtml = `<section id="section-1">
-					<h5>No traveller Available</h5>
+					<h5>No traveler Available</h5>
+					<br>
+					<a href="${base_url}home/join_waitlist" class="btn_1 gradient">Join Wait List</a>
 					</section>`;
 					setTimeout(function () {
 						$("#search-results").html(noResultsHtml);

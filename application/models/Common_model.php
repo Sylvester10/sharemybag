@@ -119,6 +119,19 @@ class Common_model extends CI_Model
 	}
 
 
+	/* =================== Waitlist ====================== */
+	public function get_waitlist_details_by_id($id)
+	{ //get waitlist details by id
+		return $this->db->get_where('waitlist', array('id' => $id))->row();
+	}
+
+
+	public function get_waitlist()
+	{ //get all waitlist
+		return $this->db->get_where('waitlist')->result();
+	}
+
+
 	/* =================== Bookings ====================== */
 	public function get_traveller_booking($email)
 	{ //get booking info by email

@@ -508,7 +508,7 @@
 .header-video {
 	position: relative;
 	overflow: hidden;
-	height: 866px !important;
+	height: 916px !important;
 }
 
 .header-video h1,
@@ -519,7 +519,7 @@
 	font-size: 2.625rem;
 	margin: 0;
 	font-weight: 500;
-    margin-top: -50px;
+	margin-top: -50px;
 }
 
 @media (max-width: 767px) {

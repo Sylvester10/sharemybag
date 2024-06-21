@@ -34,8 +34,7 @@
 			<div class="col-md-3 left_col">
 				<div class="left_col scroll-view">
 					<div class="navbar nav_title" style="border: 0;">
-						<a href="<?php echo base_url(); ?>" class="site_title" target="_blank"><i
-								class="fa fa-graduation-cap"></i> <span><?php echo business_initials; ?></span></a>
+						<a href="<?php echo base_url(); ?>" class="site_title" target="_blank"><i class="fa fa-graduation-cap"></i> <span><?php echo business_initials; ?></span></a>
 					</div>
 
 					<div class="clearfix"></div>
@@ -45,8 +44,7 @@
 						<div class="profile_pic">
 							<?php
 							if ($admin_details->photo != NULL) { ?>
-								<img src="<?php echo base_url('assets/uploads/photos/admins/' . $admin_details->photo_thumb); ?>"
-									alt="..." class="img-circle profile_img">
+								<img src="<?php echo base_url('assets/uploads/photos/admins/' . $admin_details->photo_thumb); ?>" alt="..." class="img-circle profile_img">
 							<?php } else { ?>
 								<img src="<?php echo user_avatar; ?>" alt="..." class="img-circle profile_img">
 							<?php } ?>
@@ -77,8 +75,10 @@
 									</ul>
 								</li>
 
-								<li><a><i class="fa fa-plane"></i> Travellers <span
-											class="fa fa-chevron-down"></span></a>
+								<li><a href="<?php echo base_url('waitlist'); ?>"><i class="fa fa-clock"></i>
+										Wait List</a></li>
+
+								<li><a><i class="fa fa-plane"></i> Travellers <span class="fa fa-chevron-down"></span></a>
 									<ul class="nav child_menu">
 										<li><a href="<?php echo base_url('travellers'); ?>">Approved Travellers</a></li>
 										<li><a href="<?php echo base_url('travellers/pending'); ?>">Pending
@@ -93,15 +93,14 @@
 										<li><a href="<?php echo base_url('bookings'); ?>">All Bookings</a></li>
 									</ul>
 								</li>
-								
+
 								<li><a><i class="fa fa-coins"></i> Finances <span class="fa fa-chevron-down"></span></a>
 									<ul class="nav child_menu">
 										<li><a href="<?php echo base_url('finances'); ?>">All Naira Finances</a></li>
 									</ul>
 								</li>
 
-								<li><a><i class="fa fa-bullhorn"></i> Adverts <span
-											class="fa fa-chevron-down"></span></a>
+								<li><a><i class="fa fa-bullhorn"></i> Adverts <span class="fa fa-chevron-down"></span></a>
 									<ul class="nav child_menu">
 										<li><a href="<?php echo base_url('adverts'); ?>">All Adverts</a></li>
 									</ul>
@@ -121,19 +120,16 @@
 				<div class="nav_menu">
 					<nav>
 						<div class="nav toggle">
-							<a id="menu_toggle" title="Toggle Sidebar Menu"><i class="fa fa-bars"></i><span
-									class="text-bold f-s-22"> MENU</span></a>
+							<a id="menu_toggle" title="Toggle Sidebar Menu"><i class="fa fa-bars"></i><span class="text-bold f-s-22"> MENU</span></a>
 						</div>
 
 						<ul class="nav navbar-nav navbar-right">
 
 							<li class="">
-								<a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown"
-									aria-expanded="false">
+								<a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 									<?php
 									if ($admin_details->photo != NULL) { ?>
-										<img src="<?php echo base_url('assets/uploads/photos/admins/' . $admin_details->photo_thumb); ?>"
-											alt="...">
+										<img src="<?php echo base_url('assets/uploads/photos/admins/' . $admin_details->photo_thumb); ?>" alt="...">
 									<?php } else { ?>
 										<img src="<?php echo user_avatar; ?>">
 									<?php } ?>
@@ -141,10 +137,8 @@
 									<span class=" fa fa-angle-down"></span>
 								</a>
 								<ul class="dropdown-menu dropdown-usermenu pull-right">
-									<li><a href="<?php echo base_url('admin/profile'); ?>"><i
-												class="fa fa-user pull-right"></i> Profile</a></li>
-									<li><a href="<?php echo base_url('admin_logout'); ?>"><i
-												class="fa fa-sign-out pull-right"></i> Log Out</a></li>
+									<li><a href="<?php echo base_url('admin/profile'); ?>"><i class="fa fa-user pull-right"></i> Profile</a></li>
+									<li><a href="<?php echo base_url('admin_logout'); ?>"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
 								</ul>
 							</li>
 
@@ -160,9 +154,9 @@
 					<div class="col-md-12" style="border-bottom: 1px solid #f2f2f2;">
 						<div class="row">
 							<div class="col-md-8">
-								<h3 class="text-bold"><a href="<?php echo base_url('admin'); ?>" title="Dashboard"><?php echo business_initials; ?></a> &raquo; <a href="<?php echo base_url(); ?>"
-										target="_blank" title="Visit school website"><?php echo business_name; ?></a>
-									<small><i class="fa fa-user"></i> Admin</small></h3>
+								<h3 class="text-bold"><a href="<?php echo base_url('admin'); ?>" title="Dashboard"><?php echo business_initials; ?></a> &raquo; <a href="<?php echo base_url(); ?>" target="_blank" title="Visit school website"><?php echo business_name; ?></a>
+									<small><i class="fa fa-user"></i> Admin</small>
+								</h3>
 							</div>
 						</div>
 					</div>

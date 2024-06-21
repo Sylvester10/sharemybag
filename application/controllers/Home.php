@@ -20,6 +20,7 @@ class Home extends MY_Controller
 		parent::__construct();
 		$this->load->model('common_model');
 		$this->load->model('travellers_model');
+		$this->load->model('waitlist_model');
 		$this->load->model('bookings_model');
 		$this->load->model('adverts_model');
 		$this->traveller_details = $this->common_model->get_traveller_details_by_id($this->session->id);
@@ -70,7 +71,7 @@ class Home extends MY_Controller
 		$this->header('Buy Space');
 		$traveller = $this->common_model->get_traveller_details_by_id($id);
 		$data['traveller_details'] = $traveller;
-		$data['currency'] = trim(strtolower($traveller->location)) == 'nigeria' ? 'pounds' : 'naira' ;
+		$data['currency'] = trim(strtolower($traveller->location)) == 'nigeria' ? 'pounds' : 'naira';
 		$data['symbol'] = $data['currency'] == 'naira' ? '&#8358;' : '&pound;';
 		$data['one_naira'] = $this->common_model->one_naira();
 		$data['one_pound'] = $this->common_model->one_pound();
@@ -82,8 +83,6 @@ class Home extends MY_Controller
 	/* ========== Add Booking ========== */
 	public function add_booking_ajax()
 	{
-		// print_p($_FILES);
-		// return;
 
 		$errorUploadType = $statusMsg = '';
 
@@ -214,7 +213,6 @@ class Home extends MY_Controller
 					} else {
 						// Handle the upload error
 						$upload_error .= $this->upload->display_errors();
-
 					}
 				}
 
@@ -253,7 +251,6 @@ class Home extends MY_Controller
 					$res = ['status' => false, 'msg' => $upload_error . 'Image File Error: ' . $id_photo . ')'];
 					echo json_encode($res);
 					return;
-
 				}
 
 				//displaying error for selfie file, if any
@@ -262,7 +259,6 @@ class Home extends MY_Controller
 					$res = ['status' => false, 'msg' => $upload_error . 'Image File Error: ' . $selfie . ')'];
 					echo json_encode($res);
 					return;
-
 				}
 
 				if ($this->bookings_model->add_booking_to_db($id_photo, $selfie)) {
@@ -270,22 +266,63 @@ class Home extends MY_Controller
 					$res = ['status' => true];
 					echo json_encode($res);
 					return;
-
 				} else {
 
 					$res = ['status' => false, 'msg' => 'Booking could not be completed, try again later.'];
 					echo json_encode($res);
 					return;
-
 				}
 			} else {
 				$res = ['status' => false, 'msg' => validation_errors()];
 				echo json_encode($res); //show validation errors
 				return;
 			}
-
 		}
+	}
 
+
+	public function join_waitlist()
+	{
+		$this->header('Join Wait List');
+		$this->load->view('join_waitlist');
+		$this->footer();
+	}
+
+
+	public function waitlist_ajax()
+	{
+		$this->form_validation->set_rules(
+			'name',
+			'Name',
+			'trim|required',
+			array('required' => 'Please enter your full name')
+		);
+		$this->form_validation->set_rules(
+			'email',
+			'Email',
+			'trim|valid_email|required',
+			array('required' => 'Please enter your email')
+		);
+		$this->form_validation->set_rules(
+			'c_code',
+			'Country Code',
+			'trim|required',
+			array('required' => 'Please select a country code')
+		);
+		$this->form_validation->set_rules(
+			'phone',
+			'Phone Number',
+			'trim|required',
+			array('required' => 'Please enter a phone number')
+		);
+
+
+		if ($this->form_validation->run()) {
+			$this->waitlist_model->add_waitlist_to_db(); //insert the data into db
+			echo 1;
+		} else {
+			echo validation_errors();
+		}
 	}
 
 
@@ -301,9 +338,9 @@ class Home extends MY_Controller
 	public function add_traveller_ajax()
 	{
 		$this->form_validation->set_rules(
-		    'name', 
-		    'Name', 
-		    'trim|required',
+			'name',
+			'Name',
+			'trim|required',
 			array('required' => 'Please enter your full name')
 		);
 		$this->form_validation->set_rules(
@@ -313,9 +350,9 @@ class Home extends MY_Controller
 			array('required' => 'Please select your travel date')
 		);
 		$this->form_validation->set_rules(
-		    'email', 
-		    'Email', 
-		    'trim|valid_email|required',
+			'email',
+			'Email',
+			'trim|valid_email|required',
 			array('required' => 'Please enter your email')
 		);
 		$this->form_validation->set_rules(
@@ -387,7 +424,6 @@ class Home extends MY_Controller
 			}
 
 			echo json_encode($data);
-
 		} else {
 			$data = array(
 				'status' => false,
@@ -402,7 +438,8 @@ class Home extends MY_Controller
 	{
 		$this->load->view('success');
 	}
-	
+
+
 	public function coming_soon()
 	{
 		$this->load->view('coming_soon');
@@ -413,7 +450,4 @@ class Home extends MY_Controller
 	{
 		$this->load->view('mail/admin_booking_notify_email');
 	}
-
-
-
 }

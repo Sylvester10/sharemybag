@@ -205,6 +205,41 @@ jQuery(document).ready(function ($) {
 		buttons: ExportButtons,
 	});
 
+	//Waitlist
+	var csrf_hash = $("#csrf_hash").val();
+	$("#waitlist_table").DataTable({
+		paging: true,
+		pageLength: 10,
+		lengthChange: true,
+		searching: true,
+		info: true,
+		scrollX: true,
+		autoWidth: false,
+		ordering: true,
+		stateSave: true,
+		processing: false,
+		serverSide: true,
+		pagingType: "simple_numbers",
+		dom: "<'dt_len_change'l>f<'dt_buttons'B>trip",
+		order: [], //Initial no order.
+		language: {
+			search: "Search/filter Wait List: ",
+			processing: "Please wait a sec...",
+			info: "Showing _START_ to _END_ of _TOTAL_ Wait List",
+			infoFiltered: "(filtered from _MAX_ total Wait List)",
+			emptyTable: "Nothing to show.",
+			lengthMenu: "Show _MENU_ Wait List",
+		},
+		ajax: {
+			url: base_url + "waitlist/waitlist_ajax",
+			dataType: "json",
+			type: "POST",
+			data: { q2r_secure: csrf_hash }, //cross site request forgery protection
+		},
+		columnDefs: [{ targets: [0, 1], orderable: false }],
+		buttons: ExportButtons,
+	});
+
 	//Bookings
 	var csrf_hash = $("#csrf_hash").val();
 	var $bookings_table = $("#bookings_table").DataTable({

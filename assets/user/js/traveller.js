@@ -11,7 +11,7 @@ jQuery(document).ready(function ($) {
 		spinnerButton.attr("disabled", true);
 		spinnerButton.addClass("d-none");
 	}
-	
+
 	/*=========== Hide Loading Button ===========*/
 	function hideLoadingBtn() {
 		var submitButton = $("#submit");
@@ -56,6 +56,46 @@ jQuery(document).ready(function ($) {
 						.fadeOut("slow");
 					displayLoadingBtn();
 				}
+			},
+		});
+	});
+
+	//Wait List Form
+	$("#waitlist_form").submit(function (e) {
+		e.preventDefault();
+		$("#loading-spinner").removeClass("d-none");
+		var form_data = $(this).serialize();
+
+		$.ajax({
+			url: base_url + "home/waitlist_ajax",
+			type: "POST",
+			data: form_data,
+			success: function (msg) {
+				// Delay success message for 5 seconds
+				setTimeout(function () {
+					if (msg == 1) {
+						$("#status_msg")
+							.html(
+								'<div class="alert alert-success text-center" style="color: #000;"> Thank you! One of our agents will contact you shortly.</div>'
+							)
+							.fadeIn("fast")
+							.delay(5000)
+							.fadeOut("slow");
+						$("#loading-spinner").addClass("d-none");
+						$("#waitlist_form")[0].reset(); //reset form fields
+					} else {
+						$("#status_msg")
+							.html(
+								'<div class="alert alert-danger text-center" style="color: #000;">' +
+									msg +
+									"</div>"
+							)
+							.fadeIn("fast")
+							.delay(5000)
+							.fadeOut("slow");
+						$("#loading-spinner").addClass("d-none");
+					}
+				}, 2000); // 5000 milliseconds (5 seconds) delay
 			},
 		});
 	});
