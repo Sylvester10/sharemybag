@@ -1,13 +1,82 @@
 <main>
 
-	<div class="container margin_detail" id="apply">
+	<div class="container margin_detail">
 
 		<div class="row justify-content-center">
 			<div class="col-lg-6 col-md-8">
 				<div class="main_title center">
 					<span><em></em></span>
-					<h2>Traveler's Page</h2>
-					<p>Are you traveling to the UK or Nigeria? Share your luggage and make some money</p>
+					<h2>HOW IT WORKS</h2>
+					<p>It’s simple. Sharemybag connects verified senders to you. </p>
+				</div>
+			</div>
+
+			<div id="wizard_container">
+				<div id="middle-wizard">
+
+					<div class="row">
+						<div class="col-lg-3">
+							<div class="featured-box style-3">
+								<div class="featured-box-icon text-light"><span class="w-100 text-20 fw-500">1</span></div>
+								<div class="font-icon">
+									<i class="fa-solid fa-file-signature fa-2xl" style="color: #f36b24;"></i>
+								</div>
+								<h4>Register with us</h4>
+								<p class="text-3">We’ll ask you about your upcoming trip, the drop off address and account where we will pay your money.</p>
+							</div>
+						</div>
+
+						<div class="col-lg-3">
+							<div class="featured-box style-3">
+								<div class="featured-box-icon text-light"><span class="w-100 text-20 fw-500">2</span></div>
+								<div class="font-icon">
+									<i class="fa-solid fa-people-arrows fa-2xl" style="color: #f36b24;"></i>
+								</div>
+								<h4>Receive connections</h4>
+								<p class="text-3">We will connect vetted senders to you. Senders will drop off their parcels at your chosen drop off point.</p>
+							</div>
+						</div>
+
+						<div class="col-lg-3">
+							<div class="featured-box style-3">
+								<div class="featured-box-icon text-light"><span class="w-100 text-20 fw-500">3</span></div>
+								<div class="font-icon">
+									<i class="fa-solid fa-box-open fa-2xl" style="color: #f36b24;"></i>
+								</div>
+								<h4>Check packages</h4>
+								<p class="text-3">Check parcel content and weight to ensure you are happy to travel with them.</p>
+							</div>
+						</div>
+
+						<div class="col-lg-3">
+							<div class="featured-box style-3">
+								<div class="featured-box-icon text-light"><span class="w-100 text-20 fw-500">4</span></div>
+								<div class="font-icon">
+									<i class="fa-solid fa-truck-fast fa-2xl" style="color: #f36b24;"></i>
+								</div>
+								<h4>Delivery</h4>
+								<p class="text-3">Once you arrive at your destination, we will arrange local couriers to collect the parcels from you and deliver to the receiver. We will release payment to your chosen account. </p>
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+			<!-- /Wizard container -->
+		</div>
+		<!-- /row -->
+	</div>
+	<!-- /container -->
+
+	<div class="container margin_details" id="apply">
+
+		<div class="row justify-content-center">
+			<div class="col-lg-6 col-md-8">
+				<div class="main_title center">
+					<span><em></em></span>
+					<h2>Traveler's Form</h2>
+					<!-- <p>Are you traveling to the UK or Nigeria? Share your luggage and make some money</p> -->
 				</div>
 
 				<div id="wizard_container">
@@ -28,37 +97,32 @@
 								<div class="col-lg-6">
 									<i class="fa-solid fa-plane-departure"></i> From
 									<div class="form-group">
-										<input type="text" name="location" value="Nigeria" class="form-control"
-											placeholder="From Nigeria" readonly>
+										<input type="text" name="location" value="Nigeria" class="form-control" placeholder="From Nigeria" readonly>
 									</div>
 								</div>
 								<div class="col-lg-6">
 									<i class="fa-solid fa-plane-arrival"></i> To
 									<div class="form-group">
-										<input type="text" name="destination" value="United Kingdom (UK)"
-											class="form-control" placeholder="To United Kingdom (UK)" readonly>
+										<input type="text" name="destination" value="United Kingdom (UK)" class="form-control" placeholder="To United Kingdom (UK)" readonly>
 									</div>
 								</div>
 
 							</div>
-							
+
 							<!-- Name and Travel date -->
 							<div class="row">
 								<div class="col-lg-6">
 									<div class="form-group">
-										<input type="text" name="name" class="form-control"
-											placeholder="First and Last Name">
+										<input type="text" name="name" class="form-control" placeholder="Full Name">
 									</div>
 								</div>
 
 								<div class="col-lg-6">
 									<div class="form-group">
-										<input type="text" name="travel_date"
-											value="<?php echo set_value('event_date'); ?>" id="datepicker"
-											class="form-control" placeholder="Travel Date" readonly>
+										<input type="text" name="travel_date" value="<?php echo set_value('event_date'); ?>" id="datepicker" class="form-control" placeholder="Travel Date" readonly>
 									</div>
 								</div>
-							
+
 							</div>
 
 							<!-- Email -->
@@ -108,8 +172,7 @@
 
 								<div class="col-9">
 									<div class="form-group">
-										<input type="tel" name="alt_phone" class="form-control"
-											placeholder="Alternative Telephone">
+										<input type="tel" name="alt_phone" class="form-control" placeholder="Alternative Telephone">
 									</div>
 								</div>
 
@@ -124,10 +187,8 @@
 					<!-- /middle-wizard -->
 					<div id="bottom-wizard">
 						<button class="btn_1 gradient" id="submit">Share my Bag</button>
-						<button type="button" name="process" id="booking-spinner"
-							class="align-items-center  justify-content-center forward d-none">
-							<span class="spinner-border spinner-border-sm text-light" role="status"
-								aria-hidden="true"></span>
+						<button type="button" name="process" id="booking-spinner" class="align-items-center  justify-content-center forward d-none">
+							<span class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true"></span>
 						</button>
 					</div>
 					<!-- /bottom-wizard -->
@@ -182,15 +243,9 @@
 				<div class="collapse dont-collapse-sm" id="collapse_3">
 					<div class="follow_us">
 						<ul>
-							<li><a href="https://facebook.com/sharemybag/"><img
-										src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-										data-src="assets/user/img/facebook_icon.svg" alt="" class="lazy"></a></li>
-							<li><a href="https://instagram.com/sharemybag/"><img
-										src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-										data-src="assets/user/img/instagram_icon.svg" alt="" class="lazy"></a></li>
-							<li><a href="#"><img
-										src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-										data-src="assets/user/img/twitter_icon.svg" alt="" class="lazy"></a></li>
+							<li><a href="https://facebook.com/sharemybag/"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="assets/user/img/facebook_icon.svg" alt="" class="lazy"></a></li>
+							<li><a href="https://instagram.com/sharemybag/"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="assets/user/img/instagram_icon.svg" alt="" class="lazy"></a></li>
+							<li><a href="#"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="assets/user/img/twitter_icon.svg" alt="" class="lazy"></a></li>
 							<!-- <li><a href="#"><img
 										src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
 										data-src="assets/user/img/youtube_icon.svg" alt="" class="lazy"></a></li> -->

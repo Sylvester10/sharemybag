@@ -4,11 +4,11 @@ input#website {
 #wizard_container {
 	width: 100%;
 	background-color: #f5f6f7;
-	padding: 30px 20px 30px 20px;
+	padding: 30px;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 	-ms-border-radius: 5px;
-	border-radius: 5px;
+	border-radius: 15px;
 }
 #wizard_container .nice-select {
 	border: 1px solid #d2d8dd;
