@@ -1,4 +1,4 @@
-## 🔹 **Sharemybagr**
+## 🔹 **Sharemybag**
 
 ```markdown
 
@@ -30,11 +30,3 @@ Tech Stack 🛠
 - Tailwind CSS  
 - Stripe API  
 - Paystack API 
-
-**************************
-Screenshots 📸
-**************************
-
-Booking Form  
-![Booking Form](assets/website/img/home.png)
-
