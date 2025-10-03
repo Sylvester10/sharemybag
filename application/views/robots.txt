@@ -1,0 +1,13 @@
+User-agent: *
+
+Allow: /travellers
+Allow: /investors
+Allow: /prohibited-items
+Allow: /terms-of-use
+Allow: /terms-and-conditions
+Allow: /privacy-policy
+Allow: /cookies
+Allow: /traveller-agreement
+Allow: /signin
+
+Sitemap: https://sharemybag.co.uk/sitemap.xml

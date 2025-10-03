@@ -1,0 +1,31 @@
+.mr-5 {
+    margin-right: 10px !important;
+}
+
+.ml-5 {
+    margin-left: 20px !important;
+}
+
+.profile-pic img {
+	width: 100px !important;
+	height: 100px !important;
+	object-fit: cover !important;
+}
+
+.emphasis {
+    font-size: 20px !important;
+    font-weight: 800 !important;
+}
+
+.d-none {
+    display: none !important;
+}
+
+
+@media only screen and (max-width: 480px) {
+    .profile-pic img {
+        width: 100px !important;
+        height: 70px !important;
+        object-fit: cover !important;
+    }
+}

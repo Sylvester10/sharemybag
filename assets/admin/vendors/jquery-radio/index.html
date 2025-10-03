@@ -1,0 +1,135 @@
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css">
+<link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="jquery.radiosforbuttons.js"></script>
+<title>jQuery Radios For Buttons Demos</title>
+<div id="jquery-script-menu">
+<div class="jquery-script-center">
+<ul>
+<li><a href="http://www.jqueryscript.net/form/jQuery-Plugin-To-Convert-Radio-Buttons-Into-Grouped-Buttons-radios-for-buttons.html">Download This Plugin</a></li>
+<li><a href="http://www.jqueryscript.net/">Back To jQueryScript.Net</a></li>
+</ul>
+<div class="jquery-script-ads"><script type="text/javascript"><!--
+google_ad_client = "ca-pub-2783044520727903";
+/* jQuery_demo */
+google_ad_slot = "2780937993";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></div>
+<div class="jquery-script-clear"></div>
+</div>
+</div>
+<h1 style="margin-top:150px;">jQuery Radios For Buttons Demos</h1>
+<form>
+<legend>default use</legend>
+<div class="default">
+<input type="radio" name="which" value="this" id="this">
+<label for="this">this</label>
+<input type="radio" name="which" value="that" id="that">
+<label for="that">that</label>
+</div>
+</form>
+<form>
+<legend>vertical with margins of 4px</legend>
+<div class="vertical">
+<input type="radio" name="vertical" value="top" id="top">
+<label for="top">top</label>
+<input type="radio" name="vertical" value="middle" id="middle">
+<label for="middle">middle</label>
+<input type="radio" name="vertical" value="bottom" id="bottom">
+<label for="bottom">bottom</label>
+</div>
+</form>
+<form>
+<legend>color and margins defined at call time and and option <code>checked</code></legend>
+<div class="letters">
+<input type="radio" name="letter" value="a" id="oa">
+<label for="oa">letter a</label>
+<input type="radio" name="letter" value="b" id="ob" checked>
+<label for="ob">letter b</label>
+<input type="radio" name="letter" value="c" id="oc">
+<label for="oc">letter c</label>
+</div>
+</form>
+<form>
+<legend>vertical with color defined at call time and a discordant color</legend>
+<div class="numbers">
+<input type="radio" name="number" value="1" id="o1">
+<label for="o1">number 1</label>
+<input type="radio" name="number" value="2" id="o2">
+<label for="o2">number 2</label>
+<input type="radio" name="number" value="3" id="o3">
+<label for="o3">number 3</label>
+<input type="radio" name="number" value="4" id="o4">
+<label for="o4">number 4</label>
+<input type="radio" name="number" value="5" id="o5" data-button-color="yellow">
+<label for="o5">number 5</label>
+<input type="radio" name="number" value="6" id="o6">
+<label for="o6">number 6</label>
+</div>
+</form>
+<form>
+<legend>color assigning via the <code>data</code> properties</legend>
+<div class="colors">
+<input type="radio" data-button-color="blue" name="color" value="blue" id="blue">
+<label for="blue">blue</label>
+<input type="radio" data-button-color="white" name="color" value="white" id="white">
+<label for="white">white</label>
+<input type="radio" data-button-bootstrap-class="btn-warning" name="color" value="yellow" id="yellow">
+<label for="yellow">yellow</label>
+<input type="radio" data-button-color="black" name="color" value="black" id="black">
+<label for="black">black</label>
+<input type="radio" data-button-bootstrap-class="success" name="color" value="green" id="green">
+<label for="green">green</label>
+<input type="radio" data-button-bootstrap-class="btn-danger" name="color" value="red" id="red">
+<label for="red">red</label>
+<input type="radio" data-button-color="lightblue" name="color" value="lightblue" id="lightblue">
+<label for="lightblue">light blue</label>
+</div>
+</form>
+<form>
+<legend>ungrouped buttons with margin</legend>
+<div class="ungrouped">
+<input type="radio" name="independent" value="antisocial" id="antisocial">
+<label for="antisocial">I'm antisocial</label>
+<input type="radio" name="independent" value="uncompanionable" id="uncompanionable">
+<label for="uncompanionable">I'm uncompanionable</label>
+</div>
+</form>
+<script>
+$('.default').radiosforbuttons();
+$('.vertical').radiosforbuttons({
+  vertical: true,
+  margin: 3,
+});
+$('.letters').radiosforbuttons({
+  buttonstyle: 'btn-danger',
+});
+$('.numbers').radiosforbuttons({
+  vertical: true,
+  color: 'lightblue',
+});
+$('.colors').radiosforbuttons();
+$('.ungrouped').radiosforbuttons({
+  group: false,
+  margin: 10,
+})
+</script> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-36251023-1']);
+  _gaq.push(['_setDomainName', 'jqueryscript.net']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>

@@ -1,0 +1,141 @@
+/* @tailwind base; */
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+
+ .tw-debug{
+    @apply tw-border tw-border-red-500;
+  }
+
+  .tw-horizontal{
+      @apply tw-flex tw-flex-row tw-items-center; 
+  }
+
+  .tw-vertical{
+      @apply tw-flex tw-flex-col tw-items-start;
+  }
+
+  .tw-center-v{
+      @apply tw-justify-center;
+  }
+
+  .tw-center-h{
+      @apply tw-items-center;
+  }
+
+  .tw-flex-center{
+      @apply tw-flex tw-items-center tw-justify-center;
+  }
+
+  .tw-grid-center{
+      @apply tw-grid tw-place-items-center;
+  }
+
+  .tw-abs-center-x{
+      left: 50%;
+      transform: translateX(-50%);
+  }
+
+  .tw-abs-center-y{
+      top: 50%;
+      transform: translateY(-50%);
+  }
+
+  .tw-abs-center-xy{
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+  }
+
+  .tw-w-unset{
+      width: unset;
+  }
+
+  .tw-h-unset{
+      height: unset;
+  }
+
+  .tw-max-w-unset{
+      max-width: unset;
+  }
+
+  .tw-max-h-unset{
+      max-height: unset;
+  }
+
+  .tw-min-h-unset{
+      min-height: unset;
+  }
+
+  .tw-min-w-unset{
+      min-width: unset;
+  }
+  
+  .tw-noselect{
+      -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+      -khtml-user-select: none; /* Konqueror HTML */
+      -moz-user-select: none; /* Old versions of Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+      user-select: none; /* Non-prefixed version, currently
+                          supported by Chrome, Edge, Opera and Firefox */
+  }
+
+  .tw-bg-color-primary {
+    background-color: #f36b24;
+  }
+
+  .tw-text-color-primary {
+    color: #f36b24;
+  }
+
+  .tw-d-sm-none {
+    
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
