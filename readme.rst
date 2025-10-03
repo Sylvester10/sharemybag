@@ -2,8 +2,9 @@
 ShareMyBag
 ###################
 
-A parcel delivery and courier platform that connects senders with travelers going to Nigeria and the UK.  
-Built with PHP/Laravel and integrated with Stripe (GBP) and Paystack (NGN) for secure payments. 
+ShareMyBag is a person-2-person luggage sharing service that connects users seeking to send items abroad with trusted travellers who offer available bag spaces. seamlessly purchase bag spaces, and watch as your parcels are safely delivered to their recipients.
+
+Built with PHP/Codeigniter and integrated with Stripe (GBP) and Paystack (NGN) for secure payments. 
 
 *******************
 Features 🚀
