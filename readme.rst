@@ -35,7 +35,7 @@ Screenshots 📸
 **************************
 
 Booking Form  
-![Booking Form](./screenshots/booking.png)
+![Booking Form](.assets/website/img/home.png)
 
 Admin Dashboard  
 ![Admin Dashboard](./screenshots/dashboard.png)
