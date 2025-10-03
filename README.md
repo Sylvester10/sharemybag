@@ -31,5 +31,10 @@ Tech Stack 🛠
 - Stripe API  
 - Paystack API 
 
+**************************
+Screenshots 📸
+**************************
 
+Booking Form  
+![Booking Form](assets/website/img/home.png)
 
