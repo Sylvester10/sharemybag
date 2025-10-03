@@ -6,7 +6,7 @@ A parcel delivery and courier platform that connects senders with travelers goin
 Built with PHP/Laravel and integrated with Stripe (GBP) and Paystack (NGN) for secure payments. 
 
 *******************
-Features
+Features 🚀
 *******************
 
 - Item booking form with dynamic category/weight-based pricing  
@@ -16,7 +16,7 @@ Features
 - Mobile-responsive UI with Tailwind CSS 
 
 **************************
-Tech Stack 📸 
+Tech Stack 🛠 
 **************************
  
 - HTML   
@@ -30,17 +30,5 @@ Tech Stack 📸
 - Stripe API  
 - Paystack API 
 
-**************************
-Screenshots 📸 
-**************************
-
-Booking Form  
-![Booking Form](.assets/website/img/home.png)
-
-Admin Dashboard  
-![Admin Dashboard](./screenshots/dashboard.png)
-
-Mobile View  
-![Mobile View](./screenshots/mobile-view.png)
 
 
