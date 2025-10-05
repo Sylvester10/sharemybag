@@ -176,6 +176,20 @@
                                             </div>
                                         </div>
 
+                                        <div class="col-sm-6">
+                                            <label for="password" class="mb-1">Captcha code</label>
+                                            <div class="input-group mb-3">
+                                                <input type="tel" class="form-control otp-input" name="captcha_code" id="captcha_code" value="<?php echo $captcha_code; ?>">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <label for="password" class="mb-1">Enter captcha code <span class="text-danger">*</span></label>
+                                            <div class="input-group mb-3">
+                                                <input type="tel" class="form-control otp-input" placeholder="Enter code here" name="c_captcha_code" value="<?php echo set_value('c_captcha_code'); ?>" required>
+                                            </div>
+                                        </div>
+
                                         <div class="col-12">
                                             <div class="form-check d-flex mb-2">
                                                 <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckChecked" required>
