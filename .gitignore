@@ -1,0 +1,10 @@
+# Ignore system and editor files
+.git
+.vscode/
+.htaccess
+
+# Archives
+*.zip
+
+# Dependencies
+node_modules/
