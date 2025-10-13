@@ -225,7 +225,7 @@ class User_bookings extends MY_Controller
                     try {
 
                         // $stripeSecretKey = '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';
-                        $stripeSecretKey = paystack_key_live();
+                        $stripeSecretKey = stripe_key_live();
                         // $stripeSecretKey = stripe_key_test();
                         \Stripe\Stripe::setApiKey($stripeSecretKey); // Use your Stripe secret key
 
