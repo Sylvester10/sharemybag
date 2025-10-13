@@ -248,6 +248,18 @@ class Bookings_model extends MY_Model
 	}
 
 
+	public function decline_booking($id)
+	{
+		$data = array(
+			'status' => 'Booking Declined',
+		);
+		$this->db->where('id', $id);
+		$this->db->update('bookings', $data);
+
+		return;
+	}
+	
+	
 	public function confirm_booking($id)
 	{
 		$data = array(
@@ -289,8 +301,8 @@ class Bookings_model extends MY_Model
 
 		return;
 	}
-
-
+	
+	
 	public function cancel_booking($id)
 	{
 		$data = array(
@@ -336,6 +348,7 @@ class Bookings_model extends MY_Model
 
 		return;
 	}
+	
 
 	public function bulk_actions_booking($selected_rows)
 	{
@@ -344,7 +357,7 @@ class Bookings_model extends MY_Model
 		if (is_array($selected_rows)) {
 			foreach ($selected_rows as $id) {
 				switch ($bulk_action_type) {
-					case 'confirm':
+				    case 'confirm':
 						$this->confirm_booking($id);
 						break;
 					case 'cancel':

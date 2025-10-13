@@ -2,9 +2,9 @@
 //select options bulk actions 
 $options_array = array(
     //'value' => 'Caption'
-    'confirm' => 'Confirm',
-    'cancel' => 'Cancel',
-    'delete' => 'Delete'
+	'confirm' => 'Confirm',
+	'cancel' => 'Cancel',
+	'delete' => 'Delete'
 );
 echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
 

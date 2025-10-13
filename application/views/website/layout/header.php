@@ -5,18 +5,17 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
-
     <meta name="description" content="<?php echo business_description; ?>">
     <meta name="author" content="ShareMyBag">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="<?= current_url(); ?>">
 
-    <title><?php echo $title; ?> - <?php echo sub_tagline; ?></title>
-
+    <title><?php echo $title; ?> - <?php echo sub_tagline; ?></title> 
+    
     <!-- Open Graph Tags -->
     <meta property="og:title" content="<?php echo $title; ?>" />
     <meta property="og:description" content="<?php echo business_description; ?>" />
-    <meta property="og:image" content="<?php echo base_url('assets/website/img/home.png'); ?>" />
+    <meta property="og:image" content="<?php echo base_url('assets/website/img/home.jpg'); ?>" />
     <meta property="og:url" content="<?php echo current_url(); ?>" />
     <meta property="og:type" content="website" />
 
@@ -24,14 +23,13 @@
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="<?php echo $title; ?>" />
     <meta name="twitter:description" content="<?php echo business_description; ?>" />
-    <meta name="twitter:image" content="<?php echo base_url('assets/website/img/home.png'); ?>" />
+    <meta name="twitter:image" content="<?php echo base_url('assets/website/img/home.jpg'); ?>" />
     <meta name="twitter:url" content="<?php echo current_url(); ?>" />
 
     <meta name="mswebdialog-title" content="<?php echo $title; ?>" />
     <meta name="mswebdialog-logo" content="<?php echo business_logo; ?>" />
     <meta name="mswebdialog-header-color" content="#FFF" />
     <meta name="mswebdialog-newwindowurl" content="*" />
-
 
     <!--Favicon-->
     <link rel="icon" href="<?php echo business_favicon; ?>" type="image/png" />
@@ -72,6 +70,13 @@
 
     <!-- Tailwind -->
     <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/general/css/tw-output.css" />
+    
+    <!-- schema -->
+    <?php if (isset($schema)): ?>
+        <script type="application/ld+json">
+            <?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); ?>
+        </script>
+    <?php endif; ?>
 </head>
 
 <body>
@@ -123,7 +128,7 @@
                                 <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
                                     <ul class="navbar-nav m-auto">
                                         <li class="nav-item">
-                                            <a class="nav-link" href="<?php echo base_url('travellers'); ?>">I am a Traveller</a>
+                                            <a class="nav-link" href="<?php echo base_url('travellers'); ?>">I'm a Traveller</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" href="<?php echo base_url('investors'); ?>">Investors</a>

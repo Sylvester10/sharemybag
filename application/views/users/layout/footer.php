@@ -108,19 +108,6 @@
 	};
 </script>
 
-
-<!-- schema -->
-<script>
-	fetch("<?= base_url('seo/schema') ?>")
-		.then(response => response.text())
-		.then(json => {
-			const script = document.createElement("script");
-			script.type = "application/ld+json";
-			script.text = json;
-			document.head.appendChild(script); // or document.body if you prefer
-		});
-</script>
-
 <!-- solar icons -->
 <script src="<?php echo base_url(); ?>assets/users/libs/cdn.jsdelivr.net/iconify-icon.min.js"></script>
 <!-- <script src="<?php echo base_url(); ?>assets/users/libs/apexcharts/dist/apexcharts.min.js"></script> -->

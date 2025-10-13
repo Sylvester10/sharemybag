@@ -142,6 +142,69 @@ function hideFormLoader() {
 }
 
 // form validation with wizard
+// $(".form-wizard-ajax").each(function () {
+// 	let advanced_form = $(this).show();
+
+// 	advanced_form
+// 		.steps({
+// 			headerTag: "h3",
+// 			bodyTag: "fieldset",
+// 			transitionEffect: "slideLeft",
+// 			onStepChanging: function (event, currentIndex, newIndex) {
+// 				// Allways allow previous action even if the current form is not valid!
+// 				if (currentIndex > newIndex) {
+// 					return true;
+// 				}
+// 				// Forbid next action on "Warning" step if the user is to young
+// 				if (newIndex === 3 && Number($("#age-2").val()) < 18) {
+// 					return false;
+// 				}
+// 				// Needed in some cases if the user went back (clean up)
+// 				if (currentIndex < newIndex) {
+// 					// To remove error styles
+// 					advanced_form.find(".body:eq(" + newIndex + ") label.error").remove();
+// 					advanced_form
+// 						.find(".body:eq(" + newIndex + ") .error")
+// 						.removeClass("error");
+// 				}
+// 				advanced_form.validate().settings.ignore = ":disabled,:hidden";
+// 				return advanced_form.valid();
+// 			},
+// 			onStepChanged: function (event, currentIndex, priorIndex) {
+// 				// Used to skip the "Warning" step if the user is old enough.
+// 				if (currentIndex === 2 && Number($("#age-2").val()) >= 18) {
+// 					advanced_form.steps("next");
+// 				}
+// 				// Used to skip the "Warning" step if the user is old enough and wants to the previous step.
+// 				if (currentIndex === 2 && priorIndex === 3) {
+// 					advanced_form.steps("previous");
+// 				}
+// 				autoLoadPageHelpers();
+// 			},
+// 			onFinishing: function (event, currentIndex) {
+// 				advanced_form.validate().settings.ignore = ":disabled";
+// 				return advanced_form.valid();
+// 			},
+// 			onFinished: function (event, currentIndex) {
+// 				// console.log("Submitted!", event.target, event);
+// 				submitFormAjax(event.target);
+// 			},
+// 			onInit: function (event, currentIndex) {
+// 				autoLoadPageHelpers();
+// 			},
+// 		})
+// 		.validate({
+// 			errorPlacement: function errorPlacement(error, element) {
+// 				element.before(error);
+// 			},
+// 			rules: {
+// 				confirm: {
+// 					equalTo: "#password-2",
+// 				},
+// 			},
+// 		});
+// });
+
 $(".form-wizard-ajax").each(function () {
 	let advanced_form = $(this).show();
 
@@ -203,7 +266,11 @@ $(".form-wizard-ajax").each(function () {
 				}
 				autoLoadPageHelpers();
 			},
-			onFinishing: function (event, currentIndex) {
+// 			onFinishing: function (event, currentIndex) {
+// 				advanced_form.validate().settings.ignore = ":disabled";
+// 				return advanced_form.valid();
+// 			},
+            onFinishing: function (event, currentIndex) {
 				// === START: FINAL CHECK FOR BOOKING FORM ITEMS ===
 				// First, check if the item input field exists on this specific form.
 				// This ensures this logic ONLY runs on the booking page.

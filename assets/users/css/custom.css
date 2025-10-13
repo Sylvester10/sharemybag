@@ -398,4 +398,14 @@ div#default_order_info {
 
 
 
+table.dataTable thead > tr > th.sorting:after {
+	display: none;
+}
+
+table.dataTable thead > tr > th.sorting:before {
+	display: none;
+}
+
+
+
 

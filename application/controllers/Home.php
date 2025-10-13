@@ -26,13 +26,13 @@ class Home extends MY_Controller
 	}
 
 
-	public function index()
-	{
-		$this->website_header('Share My Bag');
-		$data['schema'] = $this->get_schema();
-		$this->load->view('website/home', $data);
-		$this->website_footer();
-	}
+    public function index()
+    {
+        $data['schema'] = $this->get_schema();
+        $this->website_header('Share My Bag', $data); // Schema is passed here
+        $this->load->view('website/home', $data);     // Pass it again to the main view
+        $this->website_footer();
+    }
 
 	// Search
 	public function search()
@@ -71,10 +71,10 @@ class Home extends MY_Controller
 	public function travellers()
 	{
 		$this->website_header('Travellers');
-		$this->load->view('website/travellers');
+		$data['captcha_code'] = mt_rand(111111, 999999);
+		$this->load->view('website/travellers', $data);
 		$this->website_footer();
 	}
-	
 
 	public function traveller_agreement()
 	{
@@ -101,6 +101,8 @@ class Home extends MY_Controller
 			// Optional fields without 'required' rule
 			['field' => 'c_code2', 'label' => 'Alternate Country Code', 'rules' => 'trim'],
 			['field' => 'alt_phone', 'label' => 'Alternate Phone Number', 'rules' => 'trim'],
+			['field' => 'captcha_code', 'label' => 'Captcha Code', 'rules' => 'trim'],
+			['field' => 'c_captcha_code', 'label' => 'Captcha Code', 'rules' => 'trim|required|matches[captcha_code]']
 		];
 
 		// Apply validation rules
@@ -185,6 +187,7 @@ class Home extends MY_Controller
 		$this->load->view('website/terms_use');
 		$this->website_footer();
 	}
+	
 
 	public function terms_conditions()
 	{

@@ -381,7 +381,7 @@ class Common_model extends CI_Model
 		$query = $this->db->get('bookings');
 		return $query->row()->selected_space;
 	}
-
+	
 	public function get_sum_for_nigeria()
 	{ //get sum of total_pounds_selected_price
 		$this->db->select_sum('selected_space');

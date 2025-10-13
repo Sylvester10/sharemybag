@@ -57,7 +57,7 @@ $route['translate_uri_dashes'] = FALSE;
 // Seo
 $route['sitemap.xml'] = 'seo/sitemap';
 $route['robots.txt'] = 'seo/robots';
-$route['schema.json'] = 'seo/schema';
+
 
 // Custom routes
 $route['booking/(:any)'] = 'home/booking/$1';
@@ -87,6 +87,7 @@ $route['buy-bag-space/(:any)'] = 'user_bookings/buy_bag_space/$1';
 $route['checkout'] = 'user_bookings/checkout';
 $route['create-payment-intent'] = 'user_bookings/create_payment_intent';
 $route['booking-success'] = 'user_bookings/booking_success';
+
 
 // Admin routes
 $route['admin_adverts'] = 'admin_adverts/index';

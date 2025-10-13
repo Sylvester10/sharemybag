@@ -622,7 +622,7 @@ function calculateBooking() {
 
 	let currentAvailableSpace = initialAvailableSpace - selectedSpace;
 	let subTotal = serviceCharge + selectedPrice;
-	// let vat = (7.5 / 100) * subTotal;
+// 	let vat = (7.5 / 100) * subTotal;
 	let totalAmount = subTotal + insurance + getSpecialCharge();
 	let calculatedValues = {
 		initialAvailableSpace: initialAvailableSpace,
@@ -630,7 +630,7 @@ function calculateBooking() {
 		selectedPrice: parseFloat(selectedPrice.toFixed(2)),
 		totalAmount: parseFloat(totalAmount.toFixed(2)),
 		subTotal: parseFloat(subTotal.toFixed(2)),
-		// vat: parseFloat(vat.toFixed(2)),
+// 		vat: parseFloat(vat.toFixed(2)),
 		currentAvailableSpace: currentAvailableSpace,
 		serviceCharge: parseFloat(serviceCharge.toFixed(2)),
 		insurance: parseFloat(insurance.toFixed(2)),
@@ -648,7 +648,7 @@ function updateBooking() {
 	$("#total-kgs").html(`${calculateBooking().selectedSpace}`);
 	$("#total-price").html(`${calculateBooking().totalAmount.toLocaleString()}`);
 	$("#sub-total").html(`${calculateBooking().subTotal.toLocaleString()}`);
-	// $("#vat-price").html(`${calculateBooking().vat.toLocaleString()}`);
+// 	$("#vat-price").html(`${calculateBooking().vat.toLocaleString()}`);
 	$("#insurance-value").html(
 		`${calculateBooking().insurance.toLocaleString()}`
 	);

@@ -15,27 +15,6 @@
 	<meta name="description" content="<?php echo business_description; ?>">
 	<meta name="author" content="">
 	<meta name="keywords" content="<?php echo business_keywords; ?>">
-	<meta name="robots" content="noindex, follow">
-	<link rel="canonical" href="<?= current_url(); ?>">
-
-	<!-- Open Graph Tags -->
-	<meta property="og:title" content="<?php echo $title; ?>" />
-	<meta property="og:description" content="<?php echo business_description; ?>" />
-	<meta property="og:image" content="<?php echo base_url(); ?>assets/website/img/home.png" />
-	<meta property="og:url" content="<?php echo current_url(); ?>" />
-	<meta property="og:type" content="website" />
-
-	<!-- Twitter Card Tags -->
-	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:title" content="<?php echo $title; ?>" />
-	<meta name="twitter:description" content="<?php echo business_description; ?>" />
-	<meta name="twitter:image" content="<?php echo base_url(); ?>assets/website/img/home.png" />
-	<meta name="twitter:url" content="<?php echo current_url(); ?>" />
-
-	<meta name="mswebdialog-title" content="<?php echo $title; ?>" />
-	<meta name="mswebdialog-logo" content="<?php echo business_logo; ?>" />
-	<meta name="mswebdialog-header-color" content="#FFF" />
-	<meta name="mswebdialog-newwindowurl" content="*" />
 
 	<!-- Favicon icon-->
 	<link rel="shortcut icon" type="image/png" href="<?php echo business_favicon; ?>" />

@@ -97,12 +97,12 @@ class Canceled_bookings_ajax extends CI_Model
         $y = $this->common_model->get_booking_details_by_id($id);
 
         if ($y->payment_status != 'completed') {
-            $booking_action = '<p><a type="button" href="' . base_url('admin_bookings/confirm_booking/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Confirm Booking </a></p>';
-        } else {
-            $booking_action = '<p><a type="button" href="' . base_url('admin_bookings/cancel_booking/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Cancel Booking </a></p>';
-        };
+			$booking_action = '<p><a type="button" href="' . base_url('admin_bookings/confirm_booking/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Confirm Booking </a></p>';
+		} else {
+			$booking_action = '<p><a type="button" href="' . base_url('admin_bookings/cancel_booking/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Cancel Booking </a></p>';
+		};
 
-        return '' . $booking_action . '
+		return '' . $booking_action . '
 		
 		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $id . '"> <i class="fa fa-trash" style="color: red"></i> &nbsp; Delete </a></p>';
     }

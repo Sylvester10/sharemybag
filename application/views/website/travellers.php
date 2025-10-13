@@ -211,6 +211,16 @@
                                         <input type="text" class="form-control" name="referred_by" <?php echo $refer_state; ?> value="<?php echo $refer; ?>" placeholder="example1234">
                                     </div>
 
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Captcha Code</label>
+                                        <input type="text" class="form-control" name="captcha_code" value="<?php echo $captcha_code; ?> ">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Enter Captcha code here</label>
+                                        <input type="text" class="form-control" name="c_captcha_code" placeholder="">
+                                    </div>
+
                                     <!-- <div class="col-12 col-md-6 payment_types">
                                         <label class="form-label">How do you want to be paid? (Applies to NG to UK route only)</label>
                                         <div class="d-flex">
@@ -242,7 +252,7 @@
                                         </div>
                                     </div> -->
 
-                                    <div class="col-12">
+                                    <div class="col-12 mt-3">
                                         <div class="form-check d-flex justify-content-center mb-2">
                                             <input class=" me-2" type="checkbox" value="" id="flexCheckChecked" required>
                                             <label class="form-label" for="flexCheckChecked">

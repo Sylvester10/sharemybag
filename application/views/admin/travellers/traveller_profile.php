@@ -95,6 +95,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 			<tr>
 				<th class="w-15-p"> <input type="checkbox" class="radio-box select_all" /> </th>
 				<th> Actions </th>
+				<th class="min-w-300">SMB User Details</th>
 				<th class="min-w-300">Agent Details</th>
 				<th class="min-w-300">Receiver Details</th>
 				<th class="min-w-300">Item Details</th>
@@ -156,18 +157,23 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					?>
 
 					<?php
+					
+					$user_details = $y->payment_method == 'offline'
+    				? 'N/A'
+    				: '<i class="fa-solid fa-user"></i> ' . $y->user_fullname . '<br />
+						<i class="fa-solid fa-at"></i> ' . $y->user_email;
 
-					$agent_details = $y->payment_method == 'offline'
-						? 'N/A'
-						: '<i class="fa-solid fa-user"></i> ' . $y->agent_name . '<br />
+				$agent_details = $y->payment_method == 'offline'
+					? 'N/A'
+					: '<i class="fa-solid fa-user"></i> ' . $y->agent_name . '<br />
 							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br /> 
 							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br /> 
 							<i class="fa-solid fa-location-dot"></i> ' . $y->agent_address;
 
-					// receiver details
-					$receiver_details = $y->payment_method == 'offline'
-						? 'N/A'
-						: '<i class="fa-solid fa-user"></i> ' . $y->receiver_name . ' <br />
+				// receiver details
+				$receiver_details = $y->payment_method == 'offline'
+					? 'N/A'
+					: '<i class="fa-solid fa-user"></i> ' . $y->receiver_name . ' <br />
 								<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br /> 
 								<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br /> 
 								<i class="fa-solid fa-location-dot"></i> ' . $y->receiver_address . ', ' . $y->receiver_locality . ', ' . $y->receiver_postcode . '';
@@ -205,6 +211,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 					?>
 
+					<td> <?= $user_details ?> </td>
 					<td> <?= $agent_details ?> </td>
 					<td> <?= $receiver_details ?> </td>
 					<td> <?= $items ?> </td>

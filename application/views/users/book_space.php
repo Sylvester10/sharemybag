@@ -46,21 +46,22 @@
                 <div class="card-body">
 
                     <?php
-                    if ($traveller_details->additional_info === NULL) { ?>
+                    if ($traveller_details->additional_info === NULL) {
 
+                        echo '';
+                    } else {
 
-                    <?php } else { ?>
-
-                        <div class="card !tw-bg-[#020713]">
+                        echo
+                        '<div class="card !tw-bg-[#020713]">
                             <div class="card-body p-4">
                                 <h6 class="card-text text-white text-center fw-bolder ">
                                     <i class="ti ti-alert-circle"></i> Important!!
                                 </h6>
-                                <p class="text-white text-center"> <?php echo $traveller_details->additional_info; ?> </p>
+                                <p class="text-white text-center">' . $traveller_details->additional_info . ' </p>
                             </div>
-                        </div>
-
-                    <?php } ?>
+                        </div>';
+                    }
+                    ?>
 
                     <form action="<?= base_url('user_bookings/add_booking_ajax') ?>" class="form-wizard-ajax mt-5" id="booking_form" key="<?= $traveller_details->id ?>" method="POST" enctype="multipart/form-data" target="_blank">
 
@@ -185,6 +186,7 @@
                                 </div>
                             </div>
 
+
                             <label class="form-label">Full name *</label>
                             <input name="agent_name" id="agentName" type="text" class="required form-control border border-primary mb-3" />
 
@@ -280,7 +282,7 @@
                             <div class="col-lg-6 mb-3">
                                 <select name="insurance" id="insuranceBox" class="form-select border border-primary">
                                     <option value="">Do you want parcel insurance?</option>
-                                    <option value="<?= number_format(3, 2); ?>" data-insurance="<?= number_format(3, 2); ?>">
+                                    <option value="<?= number_format(3.99, 2); ?>" data-insurance="<?= number_format(3.99, 2); ?>">
                                         Parcel Guarantee <?= $symbol ?><?= number_format(3, 2); ?>
                                     </option>
                                     <option value="<?= number_format(13.99, 2); ?>" data-insurance="<?= number_format(13.99, 2); ?>">
@@ -310,7 +312,7 @@
                         <fieldset>
                             <h4 class="card-title mb-5"> Payment Summary</h4>
                             <div class="text-center">
-
+                                
                                 <div class="card !tw-bg-[#020713]">
                                     <div class="card-body p-4">
                                         <h6 class="card-text text-white text-center fw-bolder ">
@@ -344,7 +346,7 @@
                                 </div>
 
                                 <p class="mt-2 mb-3">Select payment method and click "finish" to continue to payments </p>
-
+                                
                                 <?php
                                 if ($user_details->country == 'Nigeria') { ?>
 
@@ -356,12 +358,12 @@
                                             </label>
                                         </div>
                                     </div>
-
+                                    
                                 <?php } else { ?>
 
                                     <div class="mb-4 radio_buttons">
                                         <div class="form-check radio_check">
-                                            <input class="form-check-input" type="radio" name="payment_method" id="stripe" value="stripe">
+                                            <input class="form-check-input" type="radio" name="payment_method" id="stripe" value="stripe" checked>
                                             <label class="form-check-label d-flex align-items-center gap-2" for="stripe">
                                                 <img src="<?php echo base_url('assets/general/stripe.svg'); ?>" alt="Stripe" width="100" height="20">
                                             </label>
@@ -369,6 +371,21 @@
                                     </div>
 
                                 <?php } ?>
+
+                                <!--<div class="radio_buttons mb-4">-->
+                                <!--    <div class="form-check radio_check">-->
+                                <!--        <input class="form-check-input" type="radio" name="payment_method" id="stripe" value="stripe" checked>-->
+                                <!--        <label class="form-check-label d-flex align-items-center gap-2" for="stripe">-->
+                                <!--            <img src="<?= base_url('assets/general/stripe.svg') ?>" alt="Stripe" width="100" height="20">-->
+                                <!--        </label>-->
+                                <!--    </div>-->
+                                <!--    <div class="form-check radio_check">-->
+                                <!--        <input class="form-check-input" type="radio" name="payment_method" id="paystack" value="paystack">-->
+                                <!--        <label class="form-check-label d-flex align-items-center gap-2" for="paystack">-->
+                                <!--            <img src="<?= base_url('assets/general/paystack.svg') ?>" alt="Paystack" width="100" height="20">-->
+                                <!--        </label>-->
+                                <!--    </div>-->
+                                <!--</div>-->
 
                             </div>
 
@@ -433,23 +450,23 @@
                             Special Charge: <span class="text-black tw-float-right"><?= $symbol ?><span id="special-charge-value"></span></span>
                         </p>
                         <p class="fw-bolder fs-3 total service_charge" charge="<?= round(2.99, 2) ?>">
-                            Service Charge: <span class="text-black tw-float-right"><?= $symbol ?><span><?= number_format(1.99, 2) ?></span></span>
+                            Service Charge: <span class="text-black tw-float-right"><?= $symbol ?><span><?= number_format(2.99, 2) ?></span></span>
                         </p>
                         <p class="fw-bolder fs-3 total sub_total">
                             Sub Total: <span class="text-black tw-float-right"><?= $symbol ?><span id="sub-total"></span></span>
                         </p>
-                        <!-- <p class="fw-bolder fs-3 total vat">
-                            Vat (7.5%): <span class="text-black tw-float-right"><?= $symbol ?><span id="vat-price"></span></span>
-                        </p> -->
+                        <!--<p class="fw-bolder fs-3 total vat">-->
+                        <!--    Vat (7.5%): <span class="text-black tw-float-right"><?= $symbol ?><span id="vat-price"></span></span>-->
+                        <!--</p>-->
                         <p class="fw-bolder fs-3 total">
                             Total: <span class="text-black tw-float-right"><?= $symbol ?><span id="total-price"></span></span>
                         </p>
                     </div>
 
                     <hr>
-                    <div class="text-center">
-                        <small class="text-subtle">VAT is 7.5% of total added item(s).</small>
-                    </div>
+                    <!--<div class="text-center">-->
+                    <!--    <small class="text-subtle">VAT is 7.5% of total added item(s).</small>-->
+                    <!--</div>-->
                 </div>
             </div>
         </div>

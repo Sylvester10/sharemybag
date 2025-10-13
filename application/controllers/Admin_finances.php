@@ -37,9 +37,9 @@ class Admin_finances extends MY_Controller
 		$data['total_pounds_amount'] = $this->common_model->get_total_pounds_amount();
 		$data['total_pounds_selected_items'] = $this->common_model->get_total_pounds_selected_price();
 		$data['get_total_selected_space'] = $this->common_model->get_total_selected_space();
-
-		// $data['get_total_selected_space_ng'] = $this->common_model->get_sum_for_nigeria();
-		// $data['get_total_selected_space_uk'] = $this->common_model->get_sum_for_uk();
+		
+		$data['get_total_selected_space_ng'] = $this->common_model->get_sum_for_nigeria();
+		$data['get_total_selected_space_uk'] = $this->common_model->get_sum_for_uk();
 		$this->load->view('admin/finances/all_finances', $data);
 		$this->admin_footer();
 	}
@@ -57,9 +57,10 @@ class Admin_finances extends MY_Controller
 		$rowNumber = 1;
 		foreach ($list as $y) {
 			$sign = '&pound;';
-			$payment_status = ($y->payment_status == 'completed') ? '<span class="text-success"><b>Paid</b></span>' : '<span class="text-danger"><b>Canceled</b></span>';
 			$traveller = $this->common_model->get_traveller_details_by_id($y->traveller_id);
-
+			
+			$payment_status = ($y->payment_status == 'completed') ? '<span class="text-success"><b>Paid</b></span>' : '<span class="text-danger"><b>Canceled</b></span>';
+			
 			$traveller_commission = $traveller->destination == 'Nigeria'
 				? 4.50 * $y->selected_space
 				: 5 * $y->selected_space;
@@ -67,8 +68,14 @@ class Admin_finances extends MY_Controller
 			$commission = $y->payment_status == 'completed'
 				? $sign . number_format($traveller_commission, 2)
 				: 'N/A';
-
+				
 			$profit = $y->total_amount - $traveller_commission - $y->vat;
+			
+			$payment_method = match ($y->payment_method) {
+				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
+				'paystack' => '<img src="' . base_url('assets/general/paystack.svg') . '" alt="Paystack" width="80" height="20">',
+				default => 'Bank',
+			};
 
 			$row = array();
 			$row[] = $rowNumber++;
@@ -83,7 +90,7 @@ class Admin_finances extends MY_Controller
 			$row[] = $sign . number_format($y->insurance, 2);
 			$row[] = $sign . number_format($profit, 2);
 			$row[] = $commission;
-			$row[] = $y->payment_method;
+			$row[] = $payment_method;
 			$row[] = $payment_status;
 			$data[] = $row;
 		}

@@ -16,7 +16,7 @@ $("#zero_config").DataTable();
  *       Default Order Table           *
  ****************************************/
 $("#default_order").DataTable({
-	order: [[5, "desc"]],
+	order: [[4, "desc"]],
 	scrollY: false,
 	scrollX: true,
 });

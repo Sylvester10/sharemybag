@@ -26,7 +26,7 @@
                             <input class="form-control" type="text" name="captcha_code" id="captcha_code" value="<?php echo $captcha_code; ?>" readonly />
                         </div>
                         <div class="col-md-6">
-                            <input class="form-control" type="tel" name="c_captcha_code" value="<?php echo set_value('c_captcha_code'); ?>" placeholder="Enter captcha code here*" />
+                            <input class="form-control" type="text" name="c_captcha_code" value="<?php echo set_value('c_captcha_code'); ?>" placeholder="Enter captcha code here*" />
                         </div>
                     </div>
                     <div class="form-button">

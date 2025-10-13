@@ -40,7 +40,7 @@
   }
   .otp-input-container {
     gap: 4px !important; 
-}
+  }
 }
 
 .main-btn.primary {
@@ -111,39 +111,6 @@
 
 .copyright {
   font-size: 14px;
-}
-
-/* .otp-input {
-	letter-spacing: 0.5ch;
-} */
-
-
-
-.otp-input {
-    text-align: center !important; 
-}
-
-.otp-input-container {
-    display: flex !important;
-    justify-content: space-between !important;
-    gap: 10px ; 
-}
-
-.otp-input-container input[type="tel"] {
-    width: 45px !important; 
-    height: 45px !important;
-    margin: 0 8px !important;
-    border: 1px solid #eee !important;
-    border-radius: 4px !important;
-    font-size: 24px !important;
-    text-align: center !important;
-    transition: all 0.3s ease-in-out !important;
-}
-
-.otp-input-container input[type="text"]:focus {
-  border-color: #F36B24 !important;
-  outline: none !important;
-  transform: scale(1.1) !important;
 }
 
 
@@ -290,5 +257,32 @@
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
     -webkit-box-shadow 0.15s ease-in-out;
+}
+
+.otp-input {
+    text-align: center !important; 
+}
+
+.otp-input-container {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 10px ; 
+}
+
+.otp-input-container input[type="text"] {
+    width: 45px !important; 
+    height: 45px !important;
+    margin: 0 8px !important;
+    border: 1px solid #eee !important;
+    border-radius: 4px !important;
+    font-size: 24px !important;
+    text-align: center !important;
+    transition: all 0.3s ease-in-out !important;
+}
+
+.otp-input-container input[type="text"]:focus {
+  border-color: #F36B24 !important;
+  outline: none !important;
+  transform: scale(1.1) !important;
 }
 

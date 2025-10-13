@@ -79,62 +79,56 @@ class Admin_bookings extends MY_Controller
 
 			// Decode items JSON safely
 			$decoded_items = json_decode($y->items);
-			if (!is_array($decoded_items)) {
-				$decoded_items = []; // Handle invalid JSON
+			if (!is_array($decoded_items) && !is_object($decoded_items)) {
+				$decoded_items = [];
 			}
 
-			// Initialize total size and currency sign
-			$total_size = 0;
-			$sign = '£'; // Example currency sign
+			// --- START: COMMISSION MODIFICATION ---
+			$documents_electronics_count = 0;
+			if (!empty($decoded_items)) {
+				foreach ($decoded_items as $item) {
+					// Check for the specific category
+					if (isset($item->category) && $item->category === 'Documents/Electronics') {
+						$documents_electronics_count++;
+					}
 
-			foreach ($decoded_items as $item) {
-				$item_details .= '<tr>';
-				$item_details .= '<td>' . $item->item_name . '</td>';
-				$item_details .= '<td>' . $item->category . '</td>';
-				$item_details .= '<td>' . $item->size . 'KG</td>';
-
-				// if ($traveller->destination === 'United Kingdom') {
-
-				// 	$item_details .= '<td>' . $item->size . 'KG</td>';
-				// } else {
-
-				// 	$item_details .= '<td>' . $item->size . ' Piece(s)</td>';
-				// }
-
-				$item_details .= '<td>' . $sign . number_format($item->price, 2) . '</td>';
-				$item_details .= '</tr>';
-
-				$total_size += $item->size; // Calculate total size
+					// Original logic for item details display remains here
+					$item_details .= '<tr>';
+					$item_details .= '<td>' . $item->item_name . '</td>';
+					$item_details .= '<td>' . $item->category . '</td>';
+					$item_details .= '<td>' . $item->size . 'KG</td>';
+					$item_details .= '<td>&pound;' . number_format($item->price, 2) . '</td>';
+					$item_details .= '</tr>';
+				}
+			} else {
+				$item_details .= '<tr><td colspan="5">No items found</td></tr>';
 			}
 
 			$item_details .= '</tbody>';
 			$item_details .= '</table>';
 
-			$delivery_status = match ($y->delivery_status) {
-				'Delivered' => '<span class="text-success"><b>Delivered</b></span>',
-				'In Transit' => '<span class="text-primary"><b>In Transit</b></span>',
-				'Shipment Created' => '<span class="text-warning"><b>Shipment Created</b></span>',
-				default => '<span class="text-danger"><b>Pending</b></span>',
-			};
+			// ... (rest of the code for delivery_status, payment_method, payment_status)
 
-			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
-				'<span class="text-warning"><b>Pending</b></span>');
-
-			// Calculate traveller commission
-			// $traveller_commission = 5 * $y->selected_space;
-
+			// Calculate base traveller commission
 			$traveller_commission = $traveller->destination == 'Nigeria'
 				? 4.50 * $y->selected_space
 				: 5 * $y->selected_space;
+
+			// Add 10 to commission for each "Documents/Electronics" item
+			$extra_commission = 10 * $documents_electronics_count;
+			$traveller_commission += $extra_commission;
 
 			$commission = $y->payment_status == 'completed'
 				? $sign . number_format($traveller_commission, 2)
 				: 'N/A';
 
+			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
+				'<span class="text-warning"><b>Pending</b></span>');
+
 			$total_amount =  $y->payment_method == 'offline'
 				? 'Payment method: Offline'
 				: 'Total amount: £' . $y->total_amount . ' <br />
-							Payment method: ' . $y->payment_method . '';
+							Payment method: ' . ucfirst($y->payment_method) . '';
 
 			$row = array();
 			$row[] = checkbox_bulk_action($y->id);
@@ -205,14 +199,9 @@ class Admin_bookings extends MY_Controller
 								<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br /> 
 								<i class="fa-solid fa-location-dot"></i> ' . $y->receiver_address . ', ' . $y->receiver_locality . ', ' . $y->receiver_postcode . '';
 
-			$item_details = '';
+			$item_details = ''; // Initialize $item_details variable
 			$item_details .= '<table class="table text-nowrap fs-2">';
-			$item_details .= '<thead><tr>
-								<th>Item</th>
-								<th>Category</th>
-								<th>Size</th>
-								<th>Price</th>
-							</tr></thead>';
+			$item_details .= '<thead><tr><th>Item</th><th>Category</th><th>Size</th><th>Price</th></tr></thead>';
 			$item_details .= '<tbody>';
 
 			// Decode items JSON safely
@@ -221,8 +210,16 @@ class Admin_bookings extends MY_Controller
 				$decoded_items = [];
 			}
 
+			// --- START: COMMISSION MODIFICATION ---
+			$documents_electronics_count = 0;
 			if (!empty($decoded_items)) {
 				foreach ($decoded_items as $item) {
+					// Check for the specific category
+					if (isset($item->category) && $item->category === 'Documents/Electronics') {
+						$documents_electronics_count++;
+					}
+
+					// Original logic for item details display remains here
 					$item_details .= '<tr>';
 					$item_details .= '<td>' . $item->item_name . '</td>';
 					$item_details .= '<td>' . $item->category . '</td>';
@@ -237,35 +234,32 @@ class Admin_bookings extends MY_Controller
 			$item_details .= '</tbody>';
 			$item_details .= '</table>';
 
-			$delivery_status = match ($y->delivery_status) {
-				'Delivered' => '<span class="text-success"><b>Delivered</b></span>',
-				'In Transit' => '<span class="text-primary"><b>In Transit</b></span>',
-				'Shipment Created' => '<span class="text-warning"><b>Shipment Created</b></span>',
-				default => '<span class="text-danger"><b>Pending</b></span>',
-			};
+			// ... (rest of the code for delivery_status, payment_method, payment_status)
 
-			$payment_method = match ($y->payment_method) {
-				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="50" height="20">',
-				'paystack' => '<img src="' . base_url('assets/general/paystack.svg') . '" alt="Paystack" width="70" height="20">',
-				default => 'N/A',
-			};
-
-			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
-				'<span class="text-warning"><b>Pending</b></span>');
-
-			// Calculate traveller commission
-			// $traveller_commission = 5 * $y->selected_space;
-
+			// Calculate base traveller commission
 			$traveller_commission = $traveller->destination == 'Nigeria'
 				? 4.50 * $y->selected_space
 				: 5 * $y->selected_space;
+
+			// Add 10 to commission for each "Documents/Electronics" item
+			$extra_commission = 10 * $documents_electronics_count;
+			$traveller_commission += $extra_commission;
 
 			$commission = $y->payment_status == 'completed'
 				? $sign . number_format($traveller_commission, 2)
 				: 'N/A';
 
+			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
+				'<span class="text-warning"><b>Pending</b></span>');
+			
+			$payment_method = match ($y->payment_method) {
+				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
+				'paystack' => '<img src="' . base_url('assets/general/paystack.svg') . '" alt="Paystack" width="80" height="20">',
+				default => 'Bank',
+			};
+
 			$total_amount = 'Total amount: £' . $y->total_amount . ' <br />
-                             Payment method: ' . $payment_method . ' ';
+                             Payment method: ' . $payment_method . '';
 
 			$row = array();
 			$row[] = checkbox_bulk_action($y->id);
@@ -341,56 +335,51 @@ class Admin_bookings extends MY_Controller
 
 			// Decode items JSON safely
 			$decoded_items = json_decode($y->items);
-			if (!is_array($decoded_items)) {
-				$decoded_items = []; // Handle invalid JSON
+			if (!is_array($decoded_items) && !is_object($decoded_items)) {
+				$decoded_items = [];
 			}
 
-			// Initialize total size and currency sign
-			$total_size = 0;
-			$sign = '£'; // Example currency sign
+			// --- START: COMMISSION MODIFICATION ---
+			$documents_electronics_count = 0;
+			if (!empty($decoded_items)) {
+				foreach ($decoded_items as $item) {
+					// Check for the specific category
+					if (isset($item->category) && $item->category === 'Documents/Electronics') {
+						$documents_electronics_count++;
+					}
 
-			foreach ($decoded_items as $item) {
-				$item_details .= '<tr>';
-				$item_details .= '<td>' . $item->item_name . '</td>';
-				$item_details .= '<td>' . $item->category . '</td>';
-
-				if ($traveller->destination === 'United Kingdom') {
-
+					// Original logic for item details display remains here
+					$item_details .= '<tr>';
+					$item_details .= '<td>' . $item->item_name . '</td>';
+					$item_details .= '<td>' . $item->category . '</td>';
 					$item_details .= '<td>' . $item->size . 'KG</td>';
-				} else {
-
-					$item_details .= '<td>' . $item->size . ' Piece(s)</td>';
+					$item_details .= '<td>&pound;' . number_format($item->price, 2) . '</td>';
+					$item_details .= '</tr>';
 				}
-
-				$item_details .= '<td>' . $sign . number_format($item->price, 2) . '</td>';
-				$item_details .= '</tr>';
-
-				$total_size += $item->size; // Calculate total size
+			} else {
+				$item_details .= '<tr><td colspan="5">No items found</td></tr>';
 			}
 
 			$item_details .= '</tbody>';
 			$item_details .= '</table>';
 
-			$delivery_status = match ($y->delivery_status) {
-				'Delivered' => '<span class="text-success"><b>Delivered</b></span>',
-				'In Transit' => '<span class="text-primary"><b>In Transit</b></span>',
-				'Shipment Created' => '<span class="text-warning"><b>Shipment Created</b></span>',
-				default => '<span class="text-danger"><b>Pending</b></span>',
-			};
+			// ... (rest of the code for delivery_status, payment_method, payment_status)
 
-			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
-				'<span class="text-warning"><b>Pending</b></span>');
-
-			// Calculate traveller commission
-			// $traveller_commission = 5 * $y->selected_space;
-
+			// Calculate base traveller commission
 			$traveller_commission = $traveller->destination == 'Nigeria'
 				? 4.50 * $y->selected_space
 				: 5 * $y->selected_space;
 
+			// Add 10 to commission for each "Documents/Electronics" item
+			$extra_commission = 10 * $documents_electronics_count;
+			$traveller_commission += $extra_commission;
+
 			$commission = $y->payment_status == 'completed'
 				? $sign . number_format($traveller_commission, 2)
 				: 'N/A';
+
+			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
+				'<span class="text-warning"><b>Pending</b></span>');
 
 			$total_amount = 'Total amount: £' . $y->total_amount . ' <br />
                              Payment method: ' . $y->payment_method . '';

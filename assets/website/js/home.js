@@ -167,52 +167,52 @@ jQuery(document).ready(function ($) {
     });
   });
 
-  // //Verify email
-  // $("#verify_email_form").submit(function (e) {
-  //   e.preventDefault();
-  //   $("#search-spinner").removeClass("d-none");
-  //   var form_data = $(this).serialize();
-  //   var redirect_url = base_url + "signin";
-  //   disableSubmitBtn();
-  //   $.ajax({
-  //     url: base_url + "registration/verify_email_ajax",
-  //     type: "POST",
-  //     data: form_data,
-  //     dataType: "json",
-  //     success: function (res) {
-  //       // Delay success message for 5 seconds
-  //       setTimeout(function () {
-  //         if (res.status) {
-  //           $("#status_msg")
-  //             .html(
-  //               '<div class="alert alert-success text-center" style="color: #000">' +
-  //                 res.msg +
-  //                 "</div>"
-  //             )
-  //             .fadeIn("fast");
-  //           $("#verify_email_form")[0].reset(); //reset form fields
-  //           $("#search-spinner").addClass("d-none");
-  //           setTimeout(function () {
-  //             $(location).attr("href", redirect_url);
-  //           }, 4000);
-  //           enableSubmitBtn();
-  //         } else {
-  //           $("#status_msg")
-  //             .html(
-  //               '<div class="alert alert-danger text-center" style="color: #000">' +
-  //                 res.msg +
-  //                 "</div>"
-  //             )
-  //             .fadeIn("fast")
-  //             .delay(5000)
-  //             .fadeOut("slow");
-  //           $("#search-spinner").addClass("d-none");
-  //           enableSubmitBtn();
-  //         }
-  //       }, 2000); // 5000 milliseconds (5 seconds) delay
-  //     },
-  //   });
-  // });
+  //Verify email
+  $("#verify_email_form").submit(function (e) {
+    e.preventDefault();
+    $("#search-spinner").removeClass("d-none");
+    var form_data = $(this).serialize();
+    var redirect_url = base_url + "signin";
+    disableSubmitBtn();
+    $.ajax({
+      url: base_url + "registration/verify_email_ajax",
+      type: "POST",
+      data: form_data,
+      dataType: "json",
+      success: function (res) {
+        // Delay success message for 5 seconds
+        setTimeout(function () {
+          if (res.status) {
+            $("#status_msg")
+              .html(
+                '<div class="alert alert-success text-center" style="color: #000">' +
+                  res.msg +
+                  "</div>"
+              )
+              .fadeIn("fast");
+            $("#verify_email_form")[0].reset(); //reset form fields
+            $("#search-spinner").addClass("d-none");
+            setTimeout(function () {
+              $(location).attr("href", redirect_url);
+            }, 4000);
+            enableSubmitBtn();
+          } else {
+            $("#status_msg")
+              .html(
+                '<div class="alert alert-danger text-center" style="color: #000">' +
+                  res.msg +
+                  "</div>"
+              )
+              .fadeIn("fast")
+              .delay(5000)
+              .fadeOut("slow");
+            $("#search-spinner").addClass("d-none");
+            enableSubmitBtn();
+          }
+        }, 2000); // 5000 milliseconds (5 seconds) delay
+      },
+    });
+  });
 
   // Resend Verification email
   $("#resend_verification_email").click(function () {

@@ -159,18 +159,18 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 					$decoded_items = json_decode($y->items);
 
-					if (is_array($decoded_items) || is_object($decoded_items)) {
-						foreach ($decoded_items as $item) {
-							$items .= '<tr>';
-							$items .= '<td>' . $item->item_name . '</td>';
-							$items .= '<td>' . $item->category . '</td>';
-							$items .= '<td>' . $item->size . 'KG</td>';
-							$items .= '<td> &pound;' . number_format($item->price, 2) . '</td>';
-							$items .= '</tr>';
-						}
-					} else {
-						$items .= '<tr><td colspan="4">No items found</td></tr>';
-					}
+if (is_array($decoded_items) || is_object($decoded_items)) {
+    foreach ($decoded_items as $item) {
+        $items .= '<tr>';
+        $items .= '<td>' . $item->item_name . '</td>';
+        $items .= '<td>' . $item->category . '</td>';
+        $items .= '<td>' . $item->size . 'KG</td>';
+        $items .= '<td> &pound;' . number_format($item->price, 2) . '</td>';
+        $items .= '</tr>';
+    }
+} else {
+    $items .= '<tr><td colspan="4">No items found</td></tr>';
+}
 
 					$items .= '</tbody>';
 					$items .= '</table>';

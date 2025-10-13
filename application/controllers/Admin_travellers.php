@@ -149,7 +149,7 @@ class Admin_travellers extends MY_Controller
 			$row[] = $referrer;
 			// 			$row[] = $payment_type;
 			$row[] = $status;
-			$row[] = '<span style="display:none;">' . $y->travel_date . '</span>' . x_date($y->travel_date);
+			$row[] = x_datetime_full($y->date_added);
 			$data[] = $row;
 		}
 		$output = array(
@@ -398,7 +398,7 @@ class Admin_travellers extends MY_Controller
 		$this->form_validation->set_rules('airline', 'Airline', 'required');
 		$this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
 		$this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
-		$this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim');
+		$this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim|required');
 
 		if (!$this->form_validation->run()) {
 			// $this->session->set_flashdata('status_msg_error', validation_errors());
@@ -550,7 +550,6 @@ class Admin_travellers extends MY_Controller
 		$this->session->set_flashdata('status_msg', 'Traveller Bag Updated.');
 		redirect($this->agent->referrer());
 	}
-
 
 	public function unlock_traveller_bag($id)
 	{

@@ -85,19 +85,27 @@
                                     echo form_open('registration/verify_email_ajax', $form_attributes); ?>
 
                                     <div class="row">
+                                        <!--<div class="col-sm-12">-->
+                                        <!--    <label for="verificationCode" class="mb-1">Verification Code<span class="text-danger">*</span></label>-->
+                                        <!--    <div class="input-group mb-3">-->
+                                        <!--        <input type="tel" class="form-control otp-input" id="verificationCode" name="verification_code" required placeholder="000000">-->
+                                        <!--    </div>-->
+                                        <!--</div>-->
+                                        
                                         <div class="col-sm-12 mb-3">
                                             <label for="verificationCode" class="mb-1">Verification Code<span class="text-danger">*</span></label>
                                             <div class="otp-input-container">
-                                                <input type="tel" class="form-control otp-input" id="otp1" maxlength="1" autofocus>
-                                                <input type="tel" class="form-control otp-input" id="otp2" maxlength="1">
-                                                <input type="tel" class="form-control otp-input" id="otp3" maxlength="1">
-                                                <input type="tel" class="form-control otp-input" id="otp4" maxlength="1">
-                                                <input type="tel" class="form-control otp-input" id="otp5" maxlength="1">
-                                                <input type="tel" class="form-control otp-input" id="otp6" maxlength="1">
+                                                <input type="text" class="form-control otp-input" id="otp1" maxlength="1" autofocus>
+                                                <input type="text" class="form-control otp-input" id="otp2" maxlength="1">
+                                                <input type="text" class="form-control otp-input" id="otp3" maxlength="1">
+                                                <input type="text" class="form-control otp-input" id="otp4" maxlength="1">
+                                                <input type="text" class="form-control otp-input" id="otp5" maxlength="1">
+                                                <input type="text" class="form-control otp-input" id="otp6" maxlength="1">
                                             </div>
                                             <input type="hidden" name="verification_code" id="verificationCode" value="">
                                         </div>
-
+                                        
+                                        
                                         <div class="col-sm-6">
                                             <label for="password" class="mb-1">Password <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
@@ -107,7 +115,7 @@
                                                 </button>
                                             </div>
                                         </div>
-
+                                            
                                         <div class="col-sm-6">
                                             <label for="confirmPassword" class="mb-1">Confirm Password <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
@@ -126,21 +134,21 @@
                                                 <span class="spinner-border spinner-border-sm text-light ms-2 d-none" id="search-spinner" role="status" aria-hidden="true"></span>
                                             </button>
                                         </div>
-                                    </div
+                                    </div>
 
-                                        <?php echo form_close(); ?>
+                                    <?php echo form_close(); ?>
 
-                                        <p class="text-center text-muted copyright mt-3" id="resend_verification_email">
-                                    Didn't get the code?
-                                    <span class="btn-link" style="cursor: pointer;">Resend Email</span>
-                                    <span class="spinner-border spinner-border-sm ms-2 d-none tw-text-color-primary" id="search-spinners" role="status" aria-hidden="true"></span>
+                                    <p class="text-center text-muted copyright mt-3" id="resend_verification_email">
+                                        Didn't get the code?
+                                        <span class="btn-link" style="cursor: pointer;">Resend Email</span>
+                                        <span class="spinner-border spinner-border-sm ms-2 d-none tw-text-color-primary" id="search-spinners" role="status" aria-hidden="true"></span>
                                     </p>
+
 
                                 </div>
 
                                 <p class="text-center text-muted mt-5 mb-3 copyright">Copyright &copy; 2025 <a href="<?php echo base_url(); ?>"><?php echo business_name; ?></a>.<br> All Rights Reserved.</p>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -165,8 +173,9 @@
 
     <!-- custom scripts -->
     <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
-    <!-- <script src="<?php echo base_url(); ?>assets/website/js/home.js"></script> -->
-    <script src="<?php echo base_url(); ?>assets/login/js/custom.js"></script>
+    <script src="<?php echo base_url(); ?>assets/login/js/login.js"></script>
+    <!--<script src="<?php echo base_url(); ?>assets/website/js/home.js"></script>-->
+    
 
     <!-- pass base_url to js -->
     <script type="text/javascript">

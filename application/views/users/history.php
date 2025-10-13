@@ -20,7 +20,6 @@
                                 <th>Traveller Details</th>
                                 <th>Agent Details</th>
                                 <th>Item Details</th>
-                                <th>Total</th>
                                 <th>Payment Status</th>
                                 <!--<th>Tracking Number</th>-->
                                 <!--<th>Delivery Status</th>-->
@@ -41,7 +40,8 @@
                                     : '<i class="ti ti-user"></i> ' . $y->traveller_name . ' <br />
                                     <i class="ti ti-location"></i> ' . $y->traveller_drop_address1 . ' <b>(First Drop-off)</b> <br />
                                     <i class="ti ti-location"></i> ' . $y->traveller_drop_address2 . ' <b>(Second Drop-off)</b> <br />
-                                    <i class="ti ti-calendar"></i> ' . x_date($y->traveller_drop_date1);
+                                    <i class="ti ti-calendar"></i> ' . x_date($y->traveller_drop_date1) . ' <br/>
+                                    <i class="ti ti-phone"></i> ' . business_phone_number . ' <br />';
 
                                 // agent details
                                 $agent_details = '<i class="ti ti-user"></i> ' . $y->agent_name . ' <br />
@@ -51,11 +51,11 @@
 
                                 // item details
                                 $items = ''; // Initialize $items variable
-
+                                
                                 $items .= '<table class="table text-nowrap fs-2">';
                                 $items .= '<thead><tr><th>Item</th><th>Category</th><th>Size</th><th>Price</th></tr></thead>';
                                 $items .= '<tbody>';
-
+                                
                                 // Loop through each item to display its details
                                 foreach (json_decode($y->items) as $item) {
                                     $items .= '<tr>';
@@ -65,7 +65,7 @@
                                     $items .= '<td> &pound;' . number_format($item->price, 2) . '</td>';
                                     $items .= '</tr>';
                                 }
-
+                                
                                 // Add a new row to display the total amount
                                 $items .= '<tr class="fw-bold">';
                                 // Use colspan to merge the first three columns for the label
@@ -73,7 +73,7 @@
                                 // Place the total amount in the last column
                                 $items .= '<td> &pound;' . number_format($y->total_amount, 2) . '</td>';
                                 $items .= '</tr>';
-
+                                
                                 $items .= '</tbody>';
                                 $items .= '</table>';
 
@@ -89,7 +89,6 @@
                                     <td> <?= $traveller_details ?> </td>
                                     <td> <?= $agent_details ?> </td>
                                     <td> <?= $items ?> </td>
-                                    <td> &pound;<?= number_format($y->total_amount, 2) ?> </td>
                                     <td> <?= $payment_status ?> </td>
                                     <!--<td> <?= $y->tracking_id ?> </td>-->
                                     <!--<td> <?= $delivery_status ?> </td>-->

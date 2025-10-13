@@ -78,6 +78,48 @@ class User_bookings extends MY_Controller
         }
     }
 
+    // public function search()
+    // {
+    //     $destination = $this->input->post('destination');
+    //     $this->load->model('common_model', 'common');
+    //     $travellers = $this->common_model->get_travellers_by_destination($destination);
+    //     $is_verified = $this->user_details->is_verified;
+
+    //     if (count($travellers) > 0) {
+    //         $data = array();
+    //         foreach ($travellers as $traveller) {
+    //             $days = get_date_difference(date('Y-m-d H:i:s'), $traveller->travel_date);
+    //             $days = !$days ? 'Today' : ($days > 1 ? "$days Days" : "$days Day");
+    //             $location = ($traveller->destination == 'Nigeria') ? $traveller->location : $traveller->current_state;
+
+    //             // Check if any of the user profile required fields are empty
+    //             if (empty($this->user_details->number) || empty($this->user_details->address) || empty($this->user_details->state) || empty($this->user_details->post_code)) {
+    //                 $profile_completed = 0;  // Profile is incomplete
+    //             } else {
+    //                 $profile_completed = 1;  // Profile is complete
+    //             }
+
+    //             $data[] = array(
+    //                 'travel_date' => x_date($traveller->travel_date),
+    //                 'days_remaining' => $days,
+    //                 'current_state' => $traveller->current_state,
+    //                 'departure_state' => $traveller->departure_state,
+    //                 'arrival_airport' => $traveller->arrival_airport,
+    //                 'arrival_state' => $traveller->arrival_state,
+    //                 'available_space' => $traveller->available_space,
+    //                 'hash' => $traveller->hash,
+    //                 'is_verified' => (int)$is_verified,
+    //                 'profile_completed' => $profile_completed,
+    //                 'destination' => $destination,
+    //             );
+    //         }
+    //         echo json_encode(array('status' => true, 'travellers' => $data));
+    //     } else {
+    //         echo json_encode(array('status' => false, 'msg' => 'No Traveller Available'));
+    //     }
+    // }
+
+
 
     public function buy_bag_space($hash)
     {
@@ -93,6 +135,7 @@ class User_bookings extends MY_Controller
         $this->load->view('users/book_space', $data);
         $this->dashboard_footer();
     }
+
 
 
     public function get_traveling_available_space($id = false)
@@ -182,7 +225,8 @@ class User_bookings extends MY_Controller
                     try {
 
                         // $stripeSecretKey = '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';
-                        $stripeSecretKey = 'sk_test_51PRzxkE9sO0PVQExtCKFGTwx9UbyA1fzuEUkRJb72WMqnoSo5LrmoLLPo5kadv9G2ngotyzPfb4zk4hpNuJyWeQZ00nfLbPTng';
+                        $stripeSecretKey = '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';
+                        // $stripeSecretKey = 'sk_test_51PRzxkE9sO0PVQExtCKFGTwx9UbyA1fzuEUkRJb72WMqnoSo5LrmoLLPo5kadv9G2ngotyzPfb4zk4hpNuJyWeQZ00nfLbPTng';
                         \Stripe\Stripe::setApiKey($stripeSecretKey); // Use your Stripe secret key
 
                         $checkout_session = \Stripe\Checkout\Session::create([
@@ -233,8 +277,8 @@ class User_bookings extends MY_Controller
                 } elseif ($payment_method === 'paystack') {
                     // Create Paystack Checkout session
                     try {
-                        // $paystackSecretKey = 'sk_live_3d206640616308c6b859b0c9a75d557ecfa45827'; // Replace with your Paystack live secret key
-                        $paystackSecretKey = 'sk_test_30121d635245ff14a9377984b6e7cfd2aa0efb55'; // Replace with your Paystack test secret key
+                        $paystackSecretKey = 'sk_live_3d206640616308c6b859b0c9a75d557ecfa45827'; // Replace with your Paystack live secret key
+                        // $paystackSecretKey = 'sk_test_30121d635245ff14a9377984b6e7cfd2aa0efb55'; // Replace with your Paystack test secret key
 
                         $reference = 'SMB' . uniqid(); // Unique reference for transaction
                         $callback_url = base_url() . 'user_bookings/paystack/' . $booking->hash . '?reference=' . $reference;
@@ -447,8 +491,8 @@ class User_bookings extends MY_Controller
         if ($booking) {
 
             // Verify Paystack payment
-            // $secretKey = 'sk_live_3d206640616308c6b859b0c9a75d557ecfa45827'; // Replace with your live key in production
-            $secretKey = 'sk_test_30121d635245ff14a9377984b6e7cfd2aa0efb55'; // Replace with your test key in production
+            $secretKey = 'sk_live_3d206640616308c6b859b0c9a75d557ecfa45827'; // Replace with your live key in production
+            // $secretKey = 'sk_test_30121d635245ff14a9377984b6e7cfd2aa0efb55'; // Replace with your test key in production
 
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "https://api.paystack.co/transaction/verify/" . $reference);
@@ -538,8 +582,8 @@ class User_bookings extends MY_Controller
         var_dump($this->travellers_model->dataById(71));
         return;
 
-        // $stripeSecretKey =  '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';
-        $stripeSecretKey = 'sk_test_51PRzxkE9sO0PVQExtCKFGTwx9UbyA1fzuEUkRJb72WMqnoSo5LrmoLLPo5kadv9G2ngotyzPfb4zk4hpNuJyWeQZ00nfLbPTng';
+        $stripeSecretKey =  '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';
+        // $stripeSecretKey = 'sk_test_51PRzxkE9sO0PVQExtCKFGTwx9UbyA1fzuEUkRJb72WMqnoSo5LrmoLLPo5kadv9G2ngotyzPfb4zk4hpNuJyWeQZ00nfLbPTng';
         \Stripe\Stripe::setApiKey($stripeSecretKey); // Use your Stripe secret key
 
         $YOUR_DOMAIN = 'http://localhost/smb/';

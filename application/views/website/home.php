@@ -357,7 +357,7 @@
                                 <div class="card-body">
                                     <div class="content">
                                         <p>
-                                            If you don’t know the exact weight of your parcel, you can pay for an estimated kg to reserve the space. Once you confirm the weight, let us know. If it’s more than the estimate you paid for, you can pay for the extra kg. If it’s less, we’ll send you the difference.
+                                            If you don’t know the weight of your parcel, it’s advisable that you pay for an underestimated weight. If your parcel weighs more when it is received, you can pay for the difference. Please note, we do not do refunds or transfer of service to another traveler.
                                         </p>
                                     </div>
                                 </div>

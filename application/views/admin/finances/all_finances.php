@@ -5,11 +5,11 @@
 
 		<?php
 
-		// $traveller_pounds_payout_ng = 4.50 * $get_total_selected_space_ng;
-		// $traveller_pounds_payout_uk = 5 * $get_total_selected_space_uk;
-		// $traveller_pounds_payout = $traveller_pounds_payout_ng + $traveller_pounds_payout_uk;
-
-		$traveller_pounds_payout = 5 * $get_total_selected_space;
+        $traveller_pounds_payout_ng = 4.50 * $get_total_selected_space_ng;
+		$traveller_pounds_payout_uk = 5 * $get_total_selected_space_uk;
+		$traveller_pounds_payout = $traveller_pounds_payout_ng + $traveller_pounds_payout_uk;
+		
+// 		$traveller_pounds_payout = 5 * $get_total_selected_space;
 		$gross_pounds_profit = $total_pounds_amount - $traveller_pounds_payout - $total_pounds_tax;
 
 		?>

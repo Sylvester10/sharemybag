@@ -7,7 +7,7 @@ Name: Home
 Role: Controller
 Description: Controls access to SEO
 Author: Sylvester Esso Nmakwe
-Date Created: 125th July, 2025
+Date Created: 25th July, 2025
 */
 
 
@@ -23,7 +23,7 @@ class Seo extends MY_Controller
     public function sitemap()
     {
         $this->output->set_content_type('application/xml', 'utf-8')->set_output(
-            $this->load->view('sitemap', [
+            $this->load->view('sitemap.xml', [
                 'pages' => [
                     base_url(),
                     base_url('travellers'),

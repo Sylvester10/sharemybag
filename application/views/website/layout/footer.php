@@ -40,7 +40,7 @@
                         <li>
                             <a href="<?= business_facebook ?>"><i class="lab la-facebook-f"></i> Facebook</a>
                             <a href="<?= business_instagram ?>"><i class="lab la-instagram"></i> Instagram</a>
-                            <a href="<?= business_twitter ?>"><i class="lab la-twitter"></i> Twitter</a>
+                            <a href="#>"><i class="lab la-twitter"></i> Twitter</a>
                         </li>
                     </ul>
                 </div>
@@ -145,12 +145,16 @@
 <script src="<?php echo base_url(); ?>assets/website/vendor/daterangepicker/moment.min.js"></script>
 <script src="<?php echo base_url(); ?>assets/website/vendor/daterangepicker/daterangepicker.js"></script>
 
-<!-- schema -->
-<?php if (isset($schema)): ?>
-    <script type="application/ld+json">
-        <?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); ?>
-    </script>
-<?php endif; ?>
+<!--<script>-->
+<!--    fetch("<?= base_url('seo/schema') ?>")-->
+<!--        .then(response => response.text())-->
+<!--        .then(json => {-->
+<!--            const script = document.createElement("script");-->
+<!--            script.type = "application/ld+json";-->
+<!--            script.text = json;-->
+            <!--document.head.appendChild(script); // or document.body if you prefer-->
+<!--        });-->
+<!--</script>-->
 
 <!-- general scripts -->
 <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
