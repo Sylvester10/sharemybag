@@ -2,8 +2,6 @@
 SharemyBag
 ###################
 
-```markdown
-
 A cross-border delivery and item-sharing platform that connects travelers and senders,  
 making it easier, faster, and more affordable to send items between Nigeria and the UK.  
 
