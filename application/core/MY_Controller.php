@@ -37,6 +37,7 @@ class MY_Controller extends CI_Controller
 		$this->load->helper('download');
 		$this->load->helper('app'); //custom general app helper
 		$this->load->helper('email'); //custom email helper
+		$this->load->helper('sk'); //secret key helper
 		$this->load->model('common_model'); //general model for controllers
 		require_once "application/core/Constants.php"; //require constants
 		//require_once "Modules.php"; //require Modules
