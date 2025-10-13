@@ -11,4 +11,4 @@
 node_modules/
 
 #folder and files
-# application/helpers/app_helper.php
+application/helpers/sk_helper.php
