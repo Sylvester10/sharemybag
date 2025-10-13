@@ -1,5 +1,4 @@
 # Ignore system and editor files
-.gitignore
 .git
 .vscode/
 .htaccess
