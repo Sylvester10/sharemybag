@@ -1,4 +1,4 @@
-### 🔹 **SharemyBag ###
+### 🔹 SharemyBag ###
 
 ```markdown
 
