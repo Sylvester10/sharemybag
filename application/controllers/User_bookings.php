@@ -225,8 +225,8 @@ class User_bookings extends MY_Controller
                     try {
 
                         // $stripeSecretKey = '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';
-                        $stripeSecretKey = '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';
-                        // $stripeSecretKey = 'sk_test_51PRzxkE9sO0PVQExtCKFGTwx9UbyA1fzuEUkRJb72WMqnoSo5LrmoLLPo5kadv9G2ngotyzPfb4zk4hpNuJyWeQZ00nfLbPTng';
+                        $stripeSecretKey = paystack_key_live();
+                        // $stripeSecretKey = stripe_key_test();
                         \Stripe\Stripe::setApiKey($stripeSecretKey); // Use your Stripe secret key
 
                         $checkout_session = \Stripe\Checkout\Session::create([
@@ -277,8 +277,8 @@ class User_bookings extends MY_Controller
                 } elseif ($payment_method === 'paystack') {
                     // Create Paystack Checkout session
                     try {
-                        $paystackSecretKey = 'sk_live_3d206640616308c6b859b0c9a75d557ecfa45827'; // Replace with your Paystack live secret key
-                        // $paystackSecretKey = 'sk_test_30121d635245ff14a9377984b6e7cfd2aa0efb55'; // Replace with your Paystack test secret key
+                        $paystackSecretKey = paystack_key_live(); // Replace with your Paystack live secret key
+                        // $paystackSecretKey = paystack_key_test(); // Replace with your Paystack test secret key
 
                         $reference = 'SMB' . uniqid(); // Unique reference for transaction
                         $callback_url = base_url() . 'user_bookings/paystack/' . $booking->hash . '?reference=' . $reference;
@@ -491,8 +491,8 @@ class User_bookings extends MY_Controller
         if ($booking) {
 
             // Verify Paystack payment
-            $secretKey = 'sk_live_3d206640616308c6b859b0c9a75d557ecfa45827'; // Replace with your live key in production
-            // $secretKey = 'sk_test_30121d635245ff14a9377984b6e7cfd2aa0efb55'; // Replace with your test key in production
+            $secretKey = paystack_key_live(); // Replace with your live key in production
+            // $secretKey = paystack_key_test(); // Replace with your test key in production
 
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "https://api.paystack.co/transaction/verify/" . $reference);
@@ -579,60 +579,7 @@ class User_bookings extends MY_Controller
 
     public function checks()
     {
-        var_dump($this->travellers_model->dataById(71));
-        return;
-
-        $stripeSecretKey =  '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';
-        // $stripeSecretKey = 'sk_test_51PRzxkE9sO0PVQExtCKFGTwx9UbyA1fzuEUkRJb72WMqnoSo5LrmoLLPo5kadv9G2ngotyzPfb4zk4hpNuJyWeQZ00nfLbPTng';
-        \Stripe\Stripe::setApiKey($stripeSecretKey); // Use your Stripe secret key
-
-        $YOUR_DOMAIN = 'http://localhost/smb/';
-
-        $stripe = new \Stripe\StripeClient($stripeSecretKey);
-
-
-
-        // $product = $stripe->products->create(
-        //     [
-        //         'name' => 'SMB-Checkout',
-        //         'description' => 'This is the test description.',
-        //         'images' => ['https://www.foodiesfeed.com/wp-content/uploads/2023/06/burger-with-melted-cheese.jpg'],
-        //     ]
-        // );
-
-        // $price = $stripe->prices->create([
-        //     'product' => $product->id,
-        //     'unit_amount' => 1200000,
-        //     'currency' => 'ngn',
-        // ]);
-
-        // print_p($price);
-        // return;
-
-        $checkout_session = \Stripe\Checkout\Session::create([
-            'line_items' => [[
-                # Provide the exact Price ID (e.g. pr_1234) of the product you want to sell
-                'price_data' => array(
-                    'currency' => 'gbp',
-                    'unit_amount' => 10500,
-                    'product_data' => array(
-                        'name' => '2kg Bag Space NG - UK',
-                        'description' => 'This is the test description.',
-                        'images' => ['https://m.media-amazon.com/images/I/61UDx9jF0mL._AC_SL1315_.jpg'],
-                    ),
-
-                ),
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'success_url' => $YOUR_DOMAIN . 'user_bookings/stripe/SMBXHZK52/1',
-            'cancel_url' => $YOUR_DOMAIN . 'user_bookings/stripe/cancel',
-            'automatic_tax' => [
-                'enabled' => true,
-            ],
-        ]);
-
-        print_p($checkout_session->url);
+       
     }
 
 
