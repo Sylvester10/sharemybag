@@ -1804,7 +1804,7 @@ function stripe_key_test() {
 }
 
 function stripe_key_live() {
-	$key_live = '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';
+	$key_live = '';
 	return $key_live;
 }
 
@@ -1814,7 +1814,7 @@ function paystack_key_test() {
 }
 
 function paystack_key_live() {
-	$key_live = 'sk_live_3d206640616308c6b859b0c9a75d557ecfa45827';
+	$key_live = '';
 	return $key_live;
 }
 

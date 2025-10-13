@@ -1,0 +1,14 @@
+# Ignore system and editor files
+.gitignore
+.git
+.vscode/
+.htaccess
+
+# Archives
+*.zip
+
+# Dependencies
+node_modules/
+
+#folder and files
+application//helpers/app_helper.php
