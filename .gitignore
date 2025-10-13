@@ -1,5 +1,6 @@
 # Ignore system and editor files
 .git
+.gitignore
 .vscode/
 .htaccess
 
@@ -8,3 +9,6 @@
 
 # Dependencies
 node_modules/
+
+#folder and files
+application//helpers/app_helper.php
