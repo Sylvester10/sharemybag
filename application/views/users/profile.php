@@ -29,56 +29,17 @@
                                 <div class="card-body p-4">
                                     <h4 class="card-title mb-4">User Account</h4>
 
-                                    <form action="<?= base_url('profile/profile_ajax/' . $user_details->id) ?>" class="form-ajax" method="POST" enctype="multipart/form-data" target="_blank" redirect="<?= base_url('profile') ?>">
-
-                                        <!--<div class="row">-->
-                                        <!--    <div class="col-lg-6">-->
-                                        <!--        <div class="mb-3">-->
-                                        <!--            <label for="exampleInputtext" class="form-label">Full Name</label>-->
-                                        <!--            <input type="text" class="form-control border border-primary" id="exampleInputtext" value="<?= $user_details->firstname ?> <?= $user_details->lastname ?>" readonly />-->
-                                        <!--        </div>-->
-                                        <!--        <div class="mb-3">-->
-                                        <!--            <label for="exampleInputtextx" class="form-label">Country</label>-->
-                                        <!--            <input type="text" class="form-control border border-primary" id="exampleInputtextx" value="<?= $user_details->country ?> " readonly />-->
-                                        <!--        </div>-->
-                                        <!--        <div class="mb-3">-->
-                                        <!--            <label class="form-label">State</label>-->
-                                        <!--            <input type="text" name="state" class="form-control required border border-primary" placeholder="Manchester" value="<?= $user_details->state ?>" />-->
-                                        <!--        </div>-->
-                                        <!--    </div>-->
-                                        <!--    <div class="col-lg-6">-->
-                                        <!--        <div class="mb-3">-->
-                                        <!--            <label class="form-label">Email</label>-->
-                                        <!--            <input type="email" class="form-control border border-primary" value="<?= $user_details->email ?>" readonly />-->
-                                        <!--        </div>-->
-                                        <!--        <div class="mb-3">-->
-                                        <!--            <label class="form-label">Phone</label>-->
-                                        <!--            <input type="text" name="number" class="form-control required border border-primary" placeholder="+44" value="<?= $user_details->number ?>" />-->
-                                        <!--        </div>-->
-                                        <!--        <div class="mb-3">-->
-                                        <!--            <label class="form-label">Post Code</label>-->
-                                        <!--            <input type="text" name="post_code" class="form-control required border border-primary" placeholder="ABC-123" value="<?= $user_details->post_code ?>" />-->
-                                        <!--        </div>-->
-                                        <!--    </div>-->
-                                        <!--    <div class="col-12">-->
-                                        <!--        <div>-->
-                                        <!--            <label class="form-label">-->
-                                        <!--                Address <small> (Your parcel will be sent to this address) </small>-->
-                                        <!--            </label>-->
-                                        <!--            <input type="text" name="address" class="form-control required border border-primary" placeholder="ABC Street" value="<?= $user_details->address ?>">-->
-                                        <!--        </div>-->
-                                        <!--    </div>-->
-                                        <!--    <div class="col-12">-->
-                                        <!--        <div class="d-flex align-items-center justify-content-start mt-4">-->
-                                        <!--            <button class="btn btn-primary">Save</button>-->
-                                        <!--        </div>-->
-                                        <!--    </div>-->
-                                        <!--</div>-->
+                                    <form action="<?= base_url('profile/profile_ajax/' . $user_details->id) ?>"
+                                        class="form-ajax"
+                                        method="POST"
+                                        enctype="multipart/form-data"
+                                        target="_blank"
+                                        redirect="<?= base_url('kyc') ?>">
 
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
-                                                    <label for="exampleInputtext" class="form-label">Full Name</label>
+                                                    <label class="form-label">Full Name</label>
                                                     <input type="text" class="form-control border border-primary" id="exampleInputtext" value="<?= $user_details->firstname ?> <?= $user_details->lastname ?>" readonly />
                                                 </div>
                                             </div>
@@ -93,25 +54,15 @@
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
-                                                    <label for="exampleInputtextx" class="form-label">Country</label>
-                                                    <input type="text" class="form-control border border-primary" id="exampleInputtextx" value="<?= $user_details->country ?> " readonly />
+                                                    <label class="form-label">Country</label>
+                                                    <input type="text" class="form-control border border-primary" value="<?= $user_details->country ?>" readonly>
                                                 </div>
                                             </div>
+
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Phone</label>
-
-                                                    <?php if (!$user_details->number == null) { ?>
-
-                                                        <input type="text" name="number" class="form-control required border border-primary" placeholder="+4412345678" value="<?= $user_details->number ?>" readonly />
-                                                        <small class="text-secondary">Contact Admin to update</small>
-
-                                                    <?php } else { ?>
-
-                                                        <input type="text" name="number" class="form-control required border border-primary" placeholder="+4412345678" value="<?= $user_details->number ?>" />
-
-                                                    <?php } ?>
-
+                                                    <label class="form-label">Phone (including country code)</label>
+                                                    <input type="text" name="number" class="form-control required border border-primary" value="<?= $user_details->number ?>" <?= empty($user_details->number) ? '' : 'readonly' ?>>
                                                 </div>
                                             </div>
                                         </div>
@@ -119,59 +70,42 @@
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="mb-3">
-                                                    <label class="form-label">
-                                                        Address </small>
-                                                    </label>
-
-                                                    <?php if (!$user_details->address == null) { ?>
-                                                        <input type="text" name="address" class="form-control required border border-primary mbx056216f8--SuggestionName" placeholder="ABC Street" value="<?= $user_details->address ?>" readonly>
-                                                        <small class="text-secondary">Contact Admin to update</small>
-
-                                                    <?php } else { ?>
-
-                                                        <input type="text" name="address" class="form-control required border border-primary mbx056216f8--SuggestionName" placeholder="ABC Street" value="<?= $user_details->address ?>">
-                                                    <?php } ?>
-
+                                                    <label class="form-label">Address</label>
+                                                    <input type="text" name="address" class="form-control required border border-primary" value="<?= $user_details->address ?>" <?= empty($user_details->address) ? '' : 'readonly' ?>>
                                                 </div>
                                             </div>
+
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">State</label>
-
-                                                    <?php if (!$user_details->state == null) { ?>
-
-                                                        <input type="text" name="state" class="form-control required border border-primary" placeholder="Manchester" value="<?= $user_details->state ?>" readonly="" />
-                                                        <small class="text-secondary">Contact Admin to update</small>
-
-                                                    <?php } else { ?>
-
-                                                        <input type="text" name="state" class="form-control required border border-primary" placeholder="Manchester" value="<?= $user_details->state ?>" />
-
-                                                    <?php } ?>
+                                                    <input type="text" name="state" class="form-control required border border-primary" value="<?= $user_details->state ?>" <?= empty($user_details->state) ? '' : 'readonly' ?>>
                                                 </div>
                                             </div>
+
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Post Code</label>
-
-                                                    <?php if (!$user_details->post_code == null) { ?>
-
-                                                        <input type="text" name="post_code" class="form-control required border border-primary" placeholder="ABC-123" value="<?= $user_details->post_code ?>" readonly="" />
-                                                        <small class="text-secondary">Contact Admin to update</small>
-
-                                                    <?php } else { ?>
-
-                                                        <input type="text" name="post_code" class="form-control required border border-primary" placeholder="ABC-123" value="<?= $user_details->post_code ?>" />
-
-                                                    <?php } ?>
+                                                    <input type="text" name="post_code" class="form-control required border border-primary" placeholder="ABC-123" value="<?= $user_details->post_code ?>" <?= empty($user_details->post_code) ? '' : 'readonly' ?>>
                                                 </div>
                                             </div>
 
-                                            <div class="col-12">
-                                                <div class="d-flex align-items-center justify-content-start mt-4">
-                                                    <button class="btn btn-primary">Save</button>
+                                            <?php if (empty($user_details->post_code) || empty($user_details->state) || empty($user_details->address) || empty($user_details->number)) { ?>
+
+                                                <div class="col-12">
+                                                    <div class="d-flex align-items-center justify-content-start mt-4">
+                                                        <button class="btn btn-primary">Submit</button>
+                                                    </div>
                                                 </div>
-                                            </div>
+
+                                            <?php   } else { ?>
+
+                                                <div class="card !tw-bg-[#020713]">
+                                                    <div class="card-body p-4">
+                                                        <p class="text-white text-center">Contact Admin to update your profile details </p>
+                                                    </div>
+                                                </div>
+
+                                            <?php  } ?>
 
                                         </div>
 
@@ -200,8 +134,8 @@
                                             <input type="password" class="form-control required" name="confirm_password" id="exampleInputPassword3" />
                                         </div>
                                         <div class="col-12">
-                                            <div class="d-flex align-items-center justify-content-end mt-4 gap-6">
-                                                <button class="btn btn-primary">Save</button>
+                                            <div class="d-flex align-items-center justify-content-start mt-4 gap-6">
+                                                <button class="btn btn-primary">Submit</button>
                                             </div>
                                         </div>
 
