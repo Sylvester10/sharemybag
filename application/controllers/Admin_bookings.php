@@ -182,9 +182,10 @@ class Admin_bookings extends MY_Controller
 								<i class="fa-solid fa-calendar"></i> ' . x_date($y->traveller_drop_date1);
 
 			$user_details = $y->payment_method == 'offline'
-				? 'N/A'
+				? '<i class="fa-solid fa-user"></i> ' . $y->user_fullname . '<br />
+					<i class="fa-solid fa-at"></i> ' . $y->user_email . ' <br /> <i class="fa-solid fa-exclamation-circle"></i> This is an offline booking'
 				: '<i class="fa-solid fa-user"></i> ' . $y->user_fullname . '<br />
-							<i class="fa-solid fa-at"></i> ' . $y->user_email;
+					<i class="fa-solid fa-at"></i> ' . $y->user_email;
 
 			$agent_details = $y->payment_method == 'offline'
 				? 'N/A'

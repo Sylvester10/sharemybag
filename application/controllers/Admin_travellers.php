@@ -40,7 +40,10 @@ class Admin_travellers extends MY_Controller
 	public function upcoming_travellers_ajax()
 	{
 		$this->load->model('ajax/travellers/upcoming_travellers_ajax', 'current_model');
-		$list = $this->current_model->get_records();
+
+		$destination = $this->input->post('destination'); // New filter input
+
+		$list = $this->current_model->get_records($destination); // Pass to model
 		$data = array();
 		foreach ($list as $y) {
 
@@ -107,7 +110,10 @@ class Admin_travellers extends MY_Controller
 	public function approved_travellers_ajax()
 	{
 		$this->load->model('ajax/travellers/approved_travellers_ajax', 'current_model');
-		$list = $this->current_model->get_records();
+
+		$destination = $this->input->post('destination'); // New filter input
+
+		$list = $this->current_model->get_records($destination); // Pass to model
 		$data = array();
 		foreach ($list as $y) {
 
@@ -529,6 +535,9 @@ class Admin_travellers extends MY_Controller
 
 	public function add_offline_booking($id)
 	{
+		$this->form_validation->set_rules('firstname', 'Selected Space', 'trim|required');
+		$this->form_validation->set_rules('lastname', 'Selected Space', 'trim|required');
+		$this->form_validation->set_rules('email', 'Email', 'trim|valid_email|required', array('valid_email' => 'Please enter a valid email'));
 		$this->form_validation->set_rules('selected_space', 'Selected Space', 'required');
 
 		if ($this->form_validation->run()) {

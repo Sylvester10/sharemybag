@@ -40,34 +40,56 @@ class Upcoming_travellers_ajax extends CI_Model
         }
     }
 
-    function get_records()
+    public function get_records($destination = null)
     {
-        $this->the_query();
+        $this->db->from('travellers');
+        $this->db->where('status', 'approved');
+        $this->db->where('travel_date >=', date('Y-m-d'));
+
+        if (!empty($destination)) {
+            $this->db->where('destination', $destination);
+        }
+
+        if (!empty($_POST['search']['value'])) {
+            $this->db->like('fullname', $_POST['search']['value']);
+            $this->db->or_like('email', $_POST['search']['value']);
+        }
+
         if ($_POST['length'] != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
 
-        $this->db->where('status', 'Approved');
-        $this->db->where('travel_date >=', date('Y-m-d'));
         $query = $this->db->get();
         return $query->result();
     }
 
 
-    function count_filtered_records()
+    public function count_all_records($destination = null)
     {
-        $this->the_query();
-        $this->db->where('status', 'Approved');
+        $this->db->from('travellers');
+        $this->db->where('status', 'approved');
         $this->db->where('travel_date >=', date('Y-m-d'));
-        $query = $this->db->get();
-        return $query->num_rows();
+
+        if (!empty($destination)) {
+            $this->db->where('destination', $destination);
+        }
+        return $this->db->count_all_results();
     }
 
-
-    public function count_all_records()
+    public function count_filtered_records($destination = null)
     {
-        $this->db->where('status', 'Approved');
+        $this->db->from('travellers');
+        $this->db->where('status', 'approved');
         $this->db->where('travel_date >=', date('Y-m-d'));
-        $this->db->from($this->table);
+
+        if (!empty($destination)) {
+            $this->db->where('destination', $destination);
+        }
+
+        if (!empty($_POST['search']['value'])) {
+            $this->db->like('fullname', $_POST['search']['value']);
+            $this->db->or_like('email', $_POST['search']['value']);
+        }
+
         return $this->db->count_all_results();
     }
 
@@ -128,61 +150,88 @@ class Upcoming_travellers_ajax extends CI_Model
         $y = $this->common_model->get_traveller_details_by_id($id);
         $bag_space_options = $this->generate_bag_space_options($y->available_space, $id);
         return '<div class="modal fade" id="options' . $id . '" role="dialog">
-			<div class="modal-dialog">
-				<div class="modal-content modal-width">
-					<div class="modal-header">
-						<div class="pull-right">
-							<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
-						</div>
-						<h4 class="modal-title">Actions: ' . $y->fullname . '</h4>
-					</div><!--/.modal-header-->
-					<div class="modal-body">'
+                    <div class="modal-dialog">
+                        <div class="modal-content modal-width">
+                            <div class="modal-header">
+                                <div class="pull-right">
+                                    <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
+                                </div>
+                                <h4 class="modal-title">Actions: ' . $y->fullname . '</h4>
+                            </div><!--/.modal-header-->
+                            <div class="modal-body">'
             . $this->actions($id) .
             '</div>
-				</div>
-			</div>
-		</div>
+                        </div>
+                    </div>
+                </div>
         
-        <div class="modal fade" id="offline' . $id . '" role="dialog">
-			<div class="modal-dialog">
-				<div class="modal-content modal-width">
-					<div class="modal-header">
-						<div class="pull-right">
-							<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
-						</div>
-						<h4 class="modal-title">Update offline booking: ' . $y->fullname . '</h4>
-					</div>
+                <div class="modal fade" id="offline' . $id . '" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content modal-width">
+                            <div class="modal-header">
+                                <div class="pull-right">
+                                    <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
+                                </div>
+                                <h4 class="modal-title">Update offline booking: ' . $y->fullname . '</h4>
+                            </div>
 
-                    ' . form_open_multipart('admin_travellers/add_offline_booking/' . $y->id, 'id="submit_button"', 'target="_blank"') . '
+                            ' . form_open_multipart('admin_travellers/add_offline_booking/' . $y->id, 'id="submit_button"', 'target="_blank"') . '
 
-					<div class="modal-body">
-                        <div class="row">   
-                            <div class="col-md-12 col-sm-12 col-xs-12">  
-                                <div class="form-group">
-                                    <label class="form-control-label">How much Bag space was bought? *</label>
-                                    <br>
-                                    <select class="form-control !tw-w-[200px]" name="selected_space" required>
-                                        ' . $bag_space_options . '
-                                    </select>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-lg-6" style="margin-bottom: 10px;">  
+                                        <div class="">
+                                            <label class="form-control-label">First Name *</label>
+                                            <br>
+                                            <input type="text" name="firstname" value="' . set_value('firstname') . '" class="form-control" required />
+                                        </div>  
+                                    </div>
+
+                                    <div class="col-lg-6" style="margin-bottom: 10px;">  
+                                        <div class="">
+                                            <label class="form-control-label">Last Name *</label>
+                                            <br>
+                                            <input type="text" name="lastname" value="' . set_value('lastname') . '" class="form-control" required />
+                                        </div>  
+                                    </div>
+
+                                    <div class="col-lg-12" style="margin-bottom: 10px;">  
+                                        <div class="">
+                                            <label class="form-control-label">Email *</label>
+                                            <br>
+                                            <input type="text" name="email" value="' . set_value('email') . '" class="form-control !tw-w-[200px]" required />
+                                        </div>  
+                                    </div>
+                                    
+                                    <div class="col-lg-12" style="margin-bottom: 10px;">  
+                                        <div class="">
+                                            <label class="form-control-label">How much Bag space was bought? *</label>
+                                            <br>
+                                            <select class="form-control !tw-w-[200px]" name="selected_space" required>
+                                                ' . $bag_space_options . '
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="pull-left">
+                                    <button type="submit" id="send_mail_btn" class="btn btn-sm btn-primary">
+                                        <span id="btn_text">Update Traveller</span>
+                                        <span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
+                                    </button>
                                 </div>
                             </div>
+
+                            ' . form_close() . '
+
+                            <div class="modal-footer">
+                                
+                            </div>
+
+
                         </div>
                     </div>
-
-                    <div class="modal-footer">
-                        <div class="pull-left">
-                            <button type="submit" id="send_mail_btn" class="btn btn-sm btn-primary">
-                                <span id="btn_text">Update Traveller</span>
-                                <span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
-                            </button>
-                        </div>
-                    </div>
-
-                    ' . form_close() . '
-
-				</div>
-			</div>
-		</div>';
+                </div>';
     }
 
 

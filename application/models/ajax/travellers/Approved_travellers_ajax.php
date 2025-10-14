@@ -43,36 +43,57 @@ class Approved_travellers_ajax extends CI_Model
 			$this->db->order_by(key($order), $order[key($order)]);
 		}
 	}
-
-
-	function get_records()
+	
+	
+	public function get_records($destination = null)
 	{
-		$this->the_query();
+		$this->db->from('travellers');
+		$this->db->where('status', 'approved');
+		$this->db->where('travel_date <', date('Y-m-d'));
+
+		if (!empty($destination)) {
+			$this->db->where('destination', $destination);
+		}
+
+		if (!empty($_POST['search']['value'])) {
+			$this->db->like('fullname', $_POST['search']['value']);
+			$this->db->or_like('email', $_POST['search']['value']);
+		}
+
 		if ($_POST['length'] != -1)
 			$this->db->limit($_POST['length'], $_POST['start']);
 
-		$this->db->where('status', 'Approved');
-		$this->db->where('travel_date <', date('Y-m-d'));
 		$query = $this->db->get();
 		return $query->result();
 	}
 
-
-	function count_filtered_records()
+	public function count_all_records($destination = null)
 	{
-		$this->the_query();
-		$this->db->where('status', 'Approved');
+		$this->db->from('travellers');
+		$this->db->where('status', 'approved');
 		$this->db->where('travel_date <', date('Y-m-d'));
-		$query = $this->db->get();
-		return $query->num_rows();
+
+		if (!empty($destination)) {
+			$this->db->where('destination', $destination);
+		}
+		return $this->db->count_all_results();
 	}
 
-
-	public function count_all_records()
+	public function count_filtered_records($destination = null)
 	{
-		$this->db->where('status', 'Approved');
+		$this->db->from('travellers');
+		$this->db->where('status', 'approved');
 		$this->db->where('travel_date <', date('Y-m-d'));
-		$this->db->from($this->table);
+
+		if (!empty($destination)) {
+			$this->db->where('destination', $destination);
+		}
+
+		if (!empty($_POST['search']['value'])) {
+			$this->db->like('fullname', $_POST['search']['value']);
+			$this->db->or_like('email', $_POST['search']['value']);
+		}
+
 		return $this->db->count_all_results();
 	}
 

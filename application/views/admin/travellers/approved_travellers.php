@@ -13,6 +13,21 @@ $options_array = array(
 );
 echo modal_bulk_actions('admin_travellers/bulk_actions_traveller', $options_array); ?>
 
+<div class="row mb-4" style="margin-bottom: 30px;">
+	<div class="col-md-3">
+		<label for="destination_filter">Filter by Destination:</label>
+		<select id="destination_filter" class="form-control">
+			<option value="">All Countries</option>
+			<?php
+			$countries = countries();
+			foreach ($countries as $country) { ?>
+				<option value="<?php echo $country; ?>" <?php echo set_select('nationality', $country); ?>><?php echo $country; ?>
+				</option>
+			<?php } ?>
+		</select>
+	</div>
+</div>
+
 <div class="table-scroll">
 	<table id="approved_travellers_table" class="table table-bordered table-hover cell-text-middle"
 		style="text-align: left">

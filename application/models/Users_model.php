@@ -187,6 +187,7 @@ class Users_model extends MY_Model
     {
         $y = $this->common_model->get_traveller_details_by_id($id);
 
+        $user_fullname = $this->input->post('firstname') .' '. $this->input->post('lastname');
         $data = extractKeys($this->input->post(), $this->getColumns());
         $data['traveller_id'] = $y->id;
         $data['traveller_name'] = $y->fullname;
@@ -201,6 +202,8 @@ class Users_model extends MY_Model
         $data['traveller_drop_date1'] = $y->drop_date1;
         $data['	traveller_drop_address2'] = $y->drop_address2;
         $data['traveller_drop_date2'] = $y->drop_date2;
+        $data['user_fullname'] = $user_fullname;
+        $data['user_email'] = $this->input->post('email');
         $data['selected_space'] = $this->input->post('selected_space');
         $data['payment_method'] = 'offline';
         $data['payment_status'] = 'completed';

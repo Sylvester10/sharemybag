@@ -132,7 +132,13 @@ jQuery(document).ready(function ($) {
     .order([9, "desc"])
     .draw(); // 9 is the index of 'Date Registered' column
 
-  initializeDataTable(
+  ////////////////////////////////////////////////////////
+  // upcoming travellers
+  if ($.fn.DataTable.isDataTable("#upcoming_travellers_table")) {
+    $("#upcoming_travellers_table").DataTable().clear().destroy();
+  }
+
+  var upcomingTravellerTable = initializeDataTable(
     "#upcoming_travellers_table",
     base_url + "admin_travellers/upcoming_travellers_ajax",
     "Search/filter Traveller:"
@@ -140,13 +146,43 @@ jQuery(document).ready(function ($) {
     .order([2, "asc"])
     .draw();
 
-  initializeDataTable(
+  // Pass destination to AJAX request
+  $.fn.dataTable.ext.errMode = "none";
+  upcomingTravellerTable.on("preXhr.dt", function (e, settings, data) {
+    data.destination = $("#destination_filter").val();
+  });
+
+  // Trigger reload when destination changes
+  $("#destination_filter").on("change", function () {
+    upcomingTravellerTable.ajax.reload();
+  });
+
+  /////////////////////////////////////////////////////////
+  // approved travellers
+  if ($.fn.DataTable.isDataTable("#approved_travellers_table")) {
+    $("#approved_travellers_table").DataTable().clear().destroy();
+  }
+
+  var travellerTable = initializeDataTable(
     "#approved_travellers_table",
     base_url + "admin_travellers/approved_travellers_ajax",
     "Search/filter Traveller:"
   )
     .order([2, "desc"])
     .draw();
+
+  // Pass destination to AJAX request
+  $.fn.dataTable.ext.errMode = "none";
+  travellerTable.on("preXhr.dt", function (e, settings, data) {
+    data.destination = $("#destination_filter").val();
+  });
+
+  // Trigger reload when destination changes
+  $("#destination_filter").on("change", function () {
+    travellerTable.ajax.reload();
+  });
+
+  /////////////////////////////////////////////////////////
 
   initializeDataTable(
     "#pending_travellers_table",
