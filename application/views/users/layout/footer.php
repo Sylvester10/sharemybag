@@ -113,6 +113,9 @@
 <!-- <script src="<?php echo base_url(); ?>assets/users/libs/apexcharts/dist/apexcharts.min.js"></script> -->
 <script src="<?php echo base_url(); ?>assets/users/js/dashboards/dashboard.js"></script>
 
+<!-- Lottie -->
+<script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.1/dist/dotlottie-wc.js" type="module"></script>
+
 <!-- iconify -->
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 

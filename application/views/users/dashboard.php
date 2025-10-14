@@ -33,46 +33,7 @@
 		?>
 
 		<!-- tracking form -->
-		<!--<div class="page-titles mb-3">-->
-		<!--	<div class="row">-->
-		<!--		<div class="col-lg-5 col-md-6 col-12 align-self-center">-->
-
-		<!--			<?php-->
-		<!--			$form_attributes = array("id" => "tracking_form");-->
-		<!--			echo form_open('dashboard/track_parcel', $form_attributes); ?>-->
-
-		<!--			<div class="input-group mb-2">-->
-		<!--				<input name="parcel" id="parcel-input" type="text" class="required form-control border border-primary" placeholder="Enter tracking number" />-->
-		<!--				<button class="btn btn-rounded btn-primary justify-content-center" type="submit" data-bs-toggle="modal" data-bs-target="#tracking-detail" id="submit-me">-->
-		<!--					Track parcel <span class="spinner-border spinner-border-sm text-light ms-2 d-none" id="search-spinner" role="status" aria-hidden="true"></span>-->
-		<!--				</button>-->
-		<!--			</div>-->
-
-		<!--			<?php echo form_close(); ?>-->
-
-		<!--		</div>-->
-		<!--	</div>-->
-		<!--</div>-->
-		
-		<!-- tracking form -->
 		<div class="page-titles mb-3">
-			<div class="">
-
-				<!--<?php-->
-				<!--$form_attributes = array("id" => "tracking_form");-->
-				<!--echo form_open('dashboard/track_parcel', $form_attributes); ?>-->
-
-				<!--<div class="input-group mb-2">-->
-				<!--	<input name="parcel" id="parcel-input" type="text" class="required form-control border border-primary" placeholder="Enter tracking number" />-->
-				<!--	<button class="btn btn-rounded btn-primary justify-content-center" type="submit" data-bs-toggle="modal" data-bs-target="#tracking-detail" id="submit-me">-->
-				<!--		Track parcel <span class="spinner-border spinner-border-sm text-light ms-2 d-none" id="search-spinner" role="status" aria-hidden="true"></span>-->
-				<!--	</button>-->
-				<!--</div>-->
-
-				<!--<?php echo form_close(); ?>-->
-
-			</div>
-
 			<div class="referal-link-btn ">
 				<button type="button" id="referal-link-to-us" class="copy-referral" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-original-title="Click To Copy Referral Link">
 					<span class="r-link"><?= $referral_link ?></span>
@@ -81,74 +42,34 @@
 			</div>
 		</div>
 
-		<div class="col-lg-12">
-			<div class="card bg-primary-gt text-white overflow-hidden shadow-none">
-				<div class="card-body">
-					<div class="row justify-content-between align-items-center">
-						<div class="col-sm-8">
-							<h5 class="fw-semibold mb-9 fs-7 text-white">Welcome back, <?= $firstname ?>!</h5>
-							<p class="mb-2 opacity-75"><?= $random_quotes; ?></p>
-							<!-- <p class="mb-9 opacity-75"> You have earned 54% more than last month which is great thing. </p> -->
-						</div>
-						<div class="col-sm-4">
-							<div class="position-relative mb-n7 text-end">
-								<img src="<?php echo base_url(); ?>assets/users/images/backgrounds/welcome-bg.svg" alt="flexy-img" class="img-fluid">
-								<!-- <img src="<?php echo base_url(); ?>assets/users/images/backgrounds/school.png" alt="flexy-img" class="img-fluid"> -->
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Confirm is user is verified -->
 		<?php
+		// Confirm is user is verified 
 		if ($is_verified == 0) { ?>
 
 			<?php
 			if ($user_details) { ?>
 
 				<div class="col-lg-12">
-					<div class="card">
+					<div class="card !tw-bg-[#020713] overflow-hidden">
 						<div class="card-body">
-							<div class="d-flex align-items-center mb-1">
-								<span class="btn round-50 fs-6 text-primary rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center tw-mr-3">
-									<i class="ti ti-users"></i>
-								</span>
-								<div>
-									<h4 class="card-title">75%</h4>
-									<p class="card-subtitle mb-1">Complete</p>
+							<div class="row justify-content-between">
+								<div class="col-sm-9">
+									<h5 class="text-white">Complete Your Profile </h5>
+									<p class="card-subtitle">Please update your profile details to proceed with identity verification.</p>
+									<div class="ms-auto">
+										<a class="btn btn-primary mb-4 mt-3" href="<?php echo base_url('profile'); ?>">
+											Complete Profile
+										</a>
+									</div>
 								</div>
-								<div class="ms-auto">
-									<a class="btn btn-primary mb-4 mt-3" href="<?php echo base_url('profile'); ?>">
-										Update profile
-									</a>
+								<div class="col-sm-3">
+									<div class="review-bg-col mb-n7 text-end">
+										<div class="lottie_vid">
+											<dotlottie-wc src="https://lottie.host/928aeecd-c6ec-44a1-b854-7aba3d17bbf7/YlYwMN8c8B.lottie" style="width: 170px;height: 180px"
+												autoplay loop></dotlottie-wc>
+										</div>
+									</div>
 								</div>
-							</div>
-							<div class="progress text-bg-light">
-								<div class="progress-bar text-bg-primary" role="progressbar" style="width: 75%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="col-lg-12">
-					<div class="card">
-						<div class="card-body">
-							<div class="d-flex align-items-center mb-1">
-								<span class="btn round-50 fs-6 text-primary rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center tw-mr-3">
-									<i class="ti ti-shield-lock"></i>
-								</span>
-								<div>
-									<h4 class="card-title">0%</h4>
-									<p class="card-subtitle mb-1">Complete</p>
-								</div>
-								<div class="ms-auto">
-									<a href="<?php echo base_url('kyc'); ?>" class="btn btn-primary position-relative disabled">Begin verification</a>
-								</div>
-							</div>
-							<div class="progress text-bg-light">
-								<div class="progress-bar text-bg-primary" role="progressbar" style="width: 0%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
 							</div>
 						</div>
 					</div>
@@ -157,46 +78,26 @@
 			<?php } else { ?>
 
 				<div class="col-lg-12">
-					<div class="card">
+					<div class="card !tw-bg-[#020713] overflow-hidden">
 						<div class="card-body">
-							<div class="d-flex align-items-center mb-1">
-								<span class="btn round-50 fs-6 text-success rounded-circle bg-success-subtle d-flex align-items-center justify-content-center tw-mr-3">
-									<i class="ti ti-users"></i>
-								</span>
-								<div>
-									<h4 class="card-title">100%</h4>
-									<p class="card-subtitle mb-1">Completed</p>
+							<div class="row justify-content-between">
+								<div class="col-sm-9">
+									<h5 class="text-white">Initiate ID Verification </h5>
+									<p class="card-subtitle">Your profile is complete. Click continue to begin the verification process.</p>
+									<div class="ms-auto">
+										<a class="btn btn-primary mb-4 mt-3" href="<?php echo base_url('kyc'); ?>">
+											Continue Verification
+										</a>
+									</div>
 								</div>
-								<div class="ms-auto">
-									<a class="btn btn-success mb-4 mt-3 disabled" href="<?php echo base_url('profile'); ?>">
-										Update profile
-									</a>
+								<div class="col-sm-3">
+									<div class="lottie_idVerification mb-n7 text-end">
+										<div class="lottie_vid">
+											<dotlottie-wc src="https://lottie.host/b3d01a07-111f-4c8b-984f-effae09ea9da/mdwRLRcbfu.lottie" style="width: 180px;height: 200px"
+												autoplay loop></dotlottie-wc>
+										</div>
+									</div>
 								</div>
-							</div>
-							<div class="progress text-bg-light">
-								<div class="progress-bar text-bg-success" role="progressbar" style="width: 100%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="col-lg-12">
-					<div class="card">
-						<div class="card-body">
-							<div class="d-flex align-items-center mb-1">
-								<span class="btn round-50 fs-6 text-primary rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center tw-mr-3">
-									<i class="ti ti-shield-lock"></i>
-								</span>
-								<div>
-									<h4 class="card-title">0%</h4>
-									<p class="card-subtitle mb-1">Complete</p>
-								</div>
-								<div class="ms-auto">
-									<a href="<?php echo base_url('kyc'); ?>" class="btn btn-primary position-relative">Begin verification</a>
-								</div>
-							</div>
-							<div class="progress text-bg-light">
-								<div class="progress-bar text-bg-primary" role="progressbar" style="width: 0%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
 							</div>
 						</div>
 					</div>
@@ -204,46 +105,49 @@
 
 			<?php } ?>
 
-
 		<?php } elseif ($is_verified == 1) { ?>
 
-				<div class="col-lg-12">
-					<div class="card">
-						<div class="card-body">
-							<div class="d-flex align-items-center mb-1">
-								<span class="btn round-50 fs-6 text-warning rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center tw-mr-3">
-									<i class="ti ti-shield-lock"></i>
-								</span>
-								<div>
-									<h4 class="card-title">90%</h4>
-									<p class="card-subtitle mb-1">Complete</p>
-								</div>
-								<div class="ms-auto">
-									<a href="#" class="btn btn-warning position-relative disabled">Verification Pending</a>
-								</div>
+			<div class="col-lg-12">
+				<div class="card !tw-bg-[#020713] overflow-hidden">
+					<div class="card-body">
+						<div class="row justify-content-between">
+							<div class="col-sm-9">
+								<h5 class="text-white">Verification Under Review </h5>
+								<p class="card-subtitle">Your documents have been submitted and are currently being reviewed. <br> For faster processing, contact us via WhatsApp using the icon below.</p>
 							</div>
-							<div class="progress text-bg-light">
-								<div class="progress-bar text-bg-warning" role="progressbar" style="width: 90%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-				
-				<div class="col-lg-12 d-grid justify-content-center">
-					<div class="card">
-						<div class="card-body">
-							<div class="d-flex align-items-center">
-								<div class="text-center">
-									<p class="card-subtitle">Need faster verification? Chat to us on whatsapp. Click the whatsapp icon below</p>
+							<div class="col-sm-3">
+								<div class="lottie_pending mb-n7 text-end">
+									<div class="lottie_vid">
+										<dotlottie-wc src="https://lottie.host/6bf620d7-b72a-4a2c-876f-2e8a025a53f1/SzcSAio8JH.lottie" style="width: 200px;height: 170px"
+											autoplay loop></dotlottie-wc>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+			</div>
 
 		<?php } ?>
 
-
+		<!-- welcome area -->
+		<div class="col-lg-12">
+			<div class="card bg-primary-gt text-white overflow-hidden shadow-none">
+				<div class="card-body">
+					<div class="row justify-content-between align-items-center">
+						<div class="col-sm-8">
+							<h5 class="fw-semibold mb-9 fs-7 text-white">Welcome back, <?= $firstname ?>!</h5>
+							<p class="mb-2 opacity-75"><?= $random_quotes; ?></p>
+						</div>
+						<div class="col-sm-4">
+							<div class="position-relative mb-n7 text-end">
+								<img src="<?php echo base_url(); ?>assets/users/images/backgrounds/welcome-bg.svg" alt="flexy-img" class="img-fluid">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<!-- Column -->
 		<div class="col-lg-12">
