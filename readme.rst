@@ -1,5 +1,5 @@
 ###################
-SharemyBag
+SharemyBags
 ###################
 
 A cross-border delivery and item-sharing platform that connects travelers and senders,  
