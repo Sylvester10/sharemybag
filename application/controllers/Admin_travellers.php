@@ -72,7 +72,7 @@ class Admin_travellers extends MY_Controller
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
 			$row[] = x_date($y->travel_date);
 			$row[] = $itinerary;
-			$row[] = $y->fullname;
+			$row[] = ucfirst($y->fullname);
 			$row[] = $y->phone;
 			$row[] = $y->alt_phone;
 			$row[] = $y->email;
@@ -147,7 +147,7 @@ class Admin_travellers extends MY_Controller
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
 			$row[] = x_date($y->travel_date);
 			$row[] = $itinerary;
-			$row[] = $y->fullname;
+			$row[] = ucfirst($y->fullname);
 			$row[] = $y->phone;
 			$row[] = $y->alt_phone;
 			$row[] = $y->email;
@@ -210,7 +210,7 @@ class Admin_travellers extends MY_Controller
 			$row[] = checkbox_bulk_action($y->id);
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
 			$row[] = $itinerary;
-			$row[] = $y->fullname;
+			$row[] = ucfirst($y->fullname);
 			$row[] = $y->phone;
 			$row[] = $y->alt_phone;
 			$row[] = $y->email;
@@ -258,7 +258,7 @@ class Admin_travellers extends MY_Controller
 			$row[] = checkbox_bulk_action($y->id);
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
 			$row[] = $itinerary;
-			$row[] = $y->fullname;
+			$row[] = ucfirst($y->fullname);
 			$row[] = $y->phone;
 			$row[] = $y->email;
 			$row[] = $y->destination;
@@ -305,7 +305,7 @@ class Admin_travellers extends MY_Controller
 			$row[] = checkbox_bulk_action($y->id);
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
 			$row[] = $itinerary;
-			$row[] = $y->fullname;
+			$row[] = ucfirst($y->fullname);
 			$row[] = $y->phone;
 			$row[] = $y->alt_phone;
 			$row[] = $y->email;
