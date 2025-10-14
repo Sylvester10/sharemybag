@@ -11,8 +11,8 @@ class Approved_travellers_ajax extends CI_Model
 	}
 
 	var $table = 'travellers';
-	var $column_order = array(null, null, 'travel_date', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'arrival_airport', 'destination', 'address', 'airline', 'arrival_date', 'available_space', 'status', 'date_added'); //set column field database for datatable orderable
-	var $column_search = array('travel_date', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'arrival_airport', 'destination', 'address', 'airline', 'arrival_date', 'available_space', 'status', 'date_added'); //set column field database for datatable searchable 
+	var $column_order = array(null, null, 'travel_date', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'arrival_airport', 'destination', 'address', 'airline', 'arrival_date', 'original_bag_space', 'used_space', 'available_space', 'status', 'date_added'); //set column field database for datatable orderable
+	var $column_search = array('travel_date', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'arrival_airport', 'destination', 'address', 'airline', 'arrival_date', 'original_bag_space', 'used_space', 'available_space', 'status', 'date_added'); //set column field database for datatable searchable 
 	var $order = array('travel_date' => 'desc');
 
 

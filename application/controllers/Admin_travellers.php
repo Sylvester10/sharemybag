@@ -55,7 +55,9 @@ class Admin_travellers extends MY_Controller
 			$referrer = $referrer_details ? $referrer_details->firstname : 'No Referral';
 
 			$status = '<span class="text-success"><b> ' . $y->status . ' </b></span>';
-			$available_space = "$y->available_space KG";
+			$original_bag_space = "$y->original_bag_space KG";
+			$used_space = empty($y->used_space) ? '0 KG' : "$y->used_space KG";
+			$available_space = empty($y->available_space) ? '0 KG' : "$y->available_space KG";
 			$arrival_date = ($y->arrival_date == '') ? 'No Information' : $y->arrival_date;
 
 			$paymentTypes = [
@@ -80,6 +82,8 @@ class Admin_travellers extends MY_Controller
 			$row[] = $y->address;
 			$row[] = $y->airline;
 			$row[] = x_date($arrival_date);
+			$row[] = $original_bag_space;
+			$row[] = $used_space;
 			$row[] = $available_space;
 			$row[] = $referrer;
 			// 			$row[] = $payment_type;
@@ -125,7 +129,9 @@ class Admin_travellers extends MY_Controller
 			$referrer = $referrer_details ? $referrer_details->firstname : 'No Referral';
 
 			$status = '<span class="text-success"><b> ' . $y->status . ' </b></span>';
-			$available_space = "$y->available_space KG";
+			$original_bag_space = "$y->original_bag_space KG";
+			$used_space = empty($y->used_space) ? '0 KG' : "$y->used_space KG";
+			$available_space = empty($y->available_space) ? '0 KG' : "$y->available_space KG";
 			$arrival_date = ($y->arrival_date == '') ? 'No Information' : $y->arrival_date;
 
 			$paymentTypes = [
@@ -151,6 +157,8 @@ class Admin_travellers extends MY_Controller
 			$row[] = $y->address;
 			$row[] = $y->airline;
 			$row[] = x_date($arrival_date);
+			$row[] = $original_bag_space;
+			$row[] = $used_space;
 			$row[] = $available_space;
 			$row[] = $referrer;
 			// 			$row[] = $payment_type;

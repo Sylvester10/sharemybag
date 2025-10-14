@@ -50,6 +50,8 @@ echo modal_bulk_actions('admin_travellers/bulk_actions_traveller', $options_arra
 				<th class="min-w-300"> Address </th>
 				<th class="min-w-150"> Airline </th>
 				<th class="min-w-150"> Arrival Date </th>
+				<th class="min-w-100"> Total Bag Space </th>
+				<th class="min-w-100"> Used Bag Space </th>
 				<th class="min-w-100"> Available Bag Space </th>
 				<th class="min-w-150"> Referred By </th>
 				<!--<th class="min-w-100"> Payment Type </th>-->
