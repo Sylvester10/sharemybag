@@ -124,8 +124,20 @@ class Home extends MY_Controller
 
 		$location = $this->input->post('location');
 		$destination = $this->input->post('destination');
+
+		// Check for Canada and United Kingdom routes
+		$is_canada_uk_route = (strtolower($location) === 'canada' && strtolower($destination) === 'united kingdom') ||
+			(strtolower($location) === 'united kingdom' && strtolower($destination) === 'canada');
+
+		if ($is_canada_uk_route) {
+			$res = ['status' => false, 'msg' => 'Selected route is currently not available.'];
+			echo json_encode($res);
+			return;
+		}
+
+		// Check for similar routes
 		if ($location === $destination) {
-			$res = ['status' => false, 'msg' => 'Location and Destination cannot be the same.'];
+			$res = ['status' => false, 'msg' => 'Location and Destination cannot be the route.'];
 			echo json_encode($res);
 			return;
 		}

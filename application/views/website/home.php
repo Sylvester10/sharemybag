@@ -7,7 +7,7 @@
                     <div class="col-12 col-lg-8 wow fadeInUp animated" data-wow-delay=".2s">
                         <div class="hero-area-content">
                             <div class="section-title">
-                                <h1>Send Parcels to the <span class="tw-text-color-primary">UK</span> & <span class="tw-text-color-primary">Nigeria</span> with Ease</h1>
+                                <h1>Send Parcels to the <span class="tw-text-color-primary">UK</span>, <span class="tw-text-color-primary">Canada</span> & <span class="tw-text-color-primary">Nigeria</span> with Ease</h1>
                                 <h6>Use a Traveller</h6>
                             </div>
                         </div>
@@ -48,9 +48,11 @@
         <div class="container">
             <div class="feature-wrap">
                 <div class="row gx-0">
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-4 col-12">
                         <div class="feature-single">
                             <div class="feature-icon">
+                                <img src="<?php echo base_url(); ?>assets/website/icons/nigeria.png" alt="">
+                                <i class="la la-plane-departure"></i>
                                 <img src="<?php echo base_url(); ?>assets/website/icons/united-kingdom.png" alt="">
                             </div>
                             <div class="feature-title">
@@ -59,14 +61,42 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-3 col-12">
                         <div class="feature-single">
                             <div class="feature-icon">
+                                <img src="<?php echo base_url(); ?>assets/website/icons/united-kingdom.png" alt="">
+                                <i class="la la-plane-departure"></i>
                                 <img src="<?php echo base_url(); ?>assets/website/icons/nigeria.png" alt="">
                             </div>
                             <div class="feature-title">
                                 <h5>UK - NG</h5>
                                 <h4><b>£6.50 Per Kilo</b></h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        <div class="feature-single">
+                            <div class="feature-icon">
+                                <img src="<?php echo base_url(); ?>assets/website/icons/nigeria.png" alt="">
+                                <i class="la la-plane-departure"></i>
+                                <img src="<?php echo base_url(); ?>assets/website/icons/canada.png" alt="">
+                            </div>
+                            <div class="feature-title">
+                                <h5>NG - CA</h5>
+                                <h4><b>$8.50 Per Kilo</b></h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        <div class="feature-single">
+                            <div class="feature-icon">
+                                <img src="<?php echo base_url(); ?>assets/website/icons/canada.png" alt="">
+                                <i class="la la-plane-departure"></i>
+                                <img src="<?php echo base_url(); ?>assets/website/icons/nigeria.png" alt="">
+                            </div>
+                            <div class="feature-title">
+                                <h5>CA - NG</h5>
+                                <h4><b>$6.50 Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>

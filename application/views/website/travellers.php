@@ -109,11 +109,16 @@
                                         <label class="form-label"> Location
                                             <span class="location-flag cf-16 cf-ng me-1 d-none"></span>
                                             <span class="location-flag cf-16 cf-gb me-1 d-none"></span>
+                                            <span class="location-flag cf-16 cf-ca me-1 d-none"></span>
                                         </label>
                                         <select class="nice-select form-control" name="location">
                                             <option value="">Select</option>
-                                            <option value="Nigeria">Nigeria</option>
-                                            <option value="United Kingdom">United Kingdom</option>
+                                            <?php
+                                            $countries = countries();
+                                            foreach ($countries as $country) { ?>
+                                                <option value="<?php echo $country; ?>" <?php echo set_select('location', $country); ?>><?php echo $country; ?>
+                                                </option>
+                                            <?php } ?>
                                         </select>
                                     </div>
 
@@ -121,11 +126,16 @@
                                         <label class="form-label"> Destination
                                             <span class="destination-flag cf-16 cf-ng me-1 d-none"></span>
                                             <span class="destination-flag cf-16 cf-gb me-1 d-none"></span>
+                                            <span class="destination-flag cf-16 cf-ca me-1 d-none"></span>
                                         </label>
                                         <select class="nice-select form-control" name="destination">
                                             <option value="">Select</option>
-                                            <option value="Nigeria">Nigeria</option>
-                                            <option value="United Kingdom">United Kingdom</option>
+                                            <?php
+                                            $countries = countries();
+                                            foreach ($countries as $country) { ?>
+                                                <option value="<?php echo $country; ?>" <?php echo set_select('location', $country); ?>><?php echo $country; ?>
+                                                </option>
+                                            <?php } ?>
                                         </select>
                                     </div>
 

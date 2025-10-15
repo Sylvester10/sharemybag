@@ -53,9 +53,9 @@ function countries()
 							 'Burma',
 							 'Burundi',
 							 'Cambodia',
-							 'Cameroon',
-							 'Canada',
-							 'Cabo Verde',
+							 'Cameroon',*/
+		'Canada',
+							 /*'Cape Verde',
 							 'Central African Republic',
 							 'Chad',
 							 'Chile',
