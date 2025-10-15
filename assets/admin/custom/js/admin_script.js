@@ -114,6 +114,8 @@ jQuery(document).ready(function ($) {
     .order([9, "desc"])
     .draw(); // 9 is the index of 'Date Registered' column
 
+  /////////////////////////////////////////////////////////
+
   // Initialize DataTables
   initializeDataTable(
     "#approved_users_table",
@@ -122,6 +124,8 @@ jQuery(document).ready(function ($) {
   )
     .order([9, "desc"])
     .draw(); // 9 is the index of 'Date Registered' column
+
+  /////////////////////////////////////////////////////////
 
   // Initialize DataTables
   initializeDataTable(
@@ -190,11 +194,15 @@ jQuery(document).ready(function ($) {
     "Search/filter Traveller:"
   );
 
+  /////////////////////////////////////////////////////////
+
   initializeDataTable(
     "#unapproved_travellers_table",
     base_url + "admin_travellers/unapproved_travellers_ajax",
     "Search/filter Traveller:"
   );
+
+  /////////////////////////////////////////////////////////
 
   initializeDataTable(
     "#bookings_table",
@@ -204,6 +212,8 @@ jQuery(document).ready(function ($) {
     .order([1, "desc"])
     .draw();
 
+  /////////////////////////////////////////////////////////
+
   initializeDataTable(
     "#completed_bookings_table",
     base_url + "admin_bookings/completed_bookings_ajax",
@@ -211,6 +221,8 @@ jQuery(document).ready(function ($) {
   )
     .order([1, "desc"])
     .draw();
+
+  /////////////////////////////////////////////////////////
 
   initializeDataTable(
     "#canceled_bookings_table",
@@ -220,12 +232,16 @@ jQuery(document).ready(function ($) {
     .order([1, "desc"])
     .draw();
 
+  /////////////////////////////////////////////////////////
+
   initializeDataTable(
     "#exchange_table",
     base_url + "admin_exchange/all_exchange_rates",
     "Search/filter rates:"
   );
 
+  /////////////////////////////////////////////////////////
+// finance 
   if ($.fn.DataTable.isDataTable("#finances_table")) {
     $("#finances_table").DataTable().clear().destroy();
   }

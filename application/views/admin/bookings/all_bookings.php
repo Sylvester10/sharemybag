@@ -25,6 +25,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 				<th class="min-w-300"> Receiver Details </th>
 				<th class="min-w-100"> Need Help with Parcel? </th>
 				<th class="min-w-300"> Item Details</th>
+				<th class="min-w-100"> Item Size </th>
 				<th class="min-w-200"> Payment Details</th>
 				<!--<th class=""> Tracking Number </th>-->
 				<th class=""> Payment Status </th>

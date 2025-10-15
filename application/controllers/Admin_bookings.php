@@ -50,7 +50,8 @@ class Admin_bookings extends MY_Controller
 			$traveller_details = '<i class="fa-solid fa-user"></i> ' . $y->traveller_name . '<br />
 								<i class="fa-solid fa-phone"></i> ' . $y->traveller_contact . '<br />
 								<i class="fa-solid fa-location"></i> ' . $y->traveller_drop_address1 . '<br />
-								<i class="fa-solid fa-calendar"></i> ' . x_date($y->traveller_drop_date1);
+								<i class="fa-solid fa-calendar"></i> ' . x_date($y->traveller_drop_date1) . '<br />
+								<i class="fa-solid fa-plane-arrival"></i> ' . $y->traveller_arrival_state .', '. $traveller->destination;
 
 			$user_details = $y->payment_method == 'offline'
 				? 'N/A'
@@ -74,8 +75,12 @@ class Admin_bookings extends MY_Controller
 
 			$item_details = ''; // Initialize $item_details variable
 			$item_details .= '<table class="table text-nowrap fs-2">';
-			$item_details .= '<thead><tr><th>Item</th><th>Category</th><th>Size</th><th>Price</th></tr></thead>';
+			// --- UPDATED: Removed 'Size' header from the internal table ---
+			$item_details .= '<thead><tr><th>Item</th><th>Category</th><th>Price</th></tr></thead>';
 			$item_details .= '<tbody>';
+
+			// Initialize total size accumulator
+			$total_item_size = 0;
 
 			// Decode items JSON safely
 			$decoded_items = json_decode($y->items);
@@ -83,7 +88,7 @@ class Admin_bookings extends MY_Controller
 				$decoded_items = [];
 			}
 
-			// --- START: COMMISSION MODIFICATION ---
+			// --- START: COMMISSION MODIFICATION (unchanged) ---
 			$documents_electronics_count = 0;
 			if (!empty($decoded_items)) {
 				foreach ($decoded_items as $item) {
@@ -96,18 +101,25 @@ class Admin_bookings extends MY_Controller
 					$item_details .= '<tr>';
 					$item_details .= '<td>' . $item->item_name . '</td>';
 					$item_details .= '<td>' . $item->category . '</td>';
-					$item_details .= '<td>' . $item->size . 'KG</td>';
+					// --- UPDATED: Removed size display from this cell ---
 					$item_details .= '<td>&pound;' . number_format($item->price, 2) . '</td>';
 					$item_details .= '</tr>';
+
+					// --- NEW: Accumulate total size ---
+					// Ensure size is a numeric value before adding
+					$item_size = isset($item->size) ? (float) $item->size : 0;
+					$total_item_size += $item_size;
 				}
 			} else {
-				$item_details .= '<tr><td colspan="5">No items found</td></tr>';
+				// --- UPDATED: Adjusted colspan to 3 ---
+				$item_details .= '<tr><td colspan="3">No items found</td></tr>';
 			}
 
 			$item_details .= '</tbody>';
 			$item_details .= '</table>';
 
-			// ... (rest of the code for delivery_status, payment_method, payment_status)
+			// --- NEW: Format the total item size for display ---
+			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : 'N/A';
 
 			// Calculate base traveller commission
 			$traveller_commission = $traveller->destination == 'Nigeria'
@@ -141,6 +153,7 @@ class Admin_bookings extends MY_Controller
 			$row[] = $receiver_details;
 			$row[] = $y->need_help;
 			$row[] = $item_details;
+			$row[] = $item_sizes; // The new item size column
 			$row[] = $total_amount;
 			$row[] = $payment_status;
 			// 			$row[] = $delivery_status;
@@ -202,8 +215,12 @@ class Admin_bookings extends MY_Controller
 
 			$item_details = ''; // Initialize $item_details variable
 			$item_details .= '<table class="table text-nowrap fs-2">';
-			$item_details .= '<thead><tr><th>Item</th><th>Category</th><th>Size</th><th>Price</th></tr></thead>';
+			// --- UPDATED: Removed 'Size' header from the internal table ---
+			$item_details .= '<thead><tr><th>Item</th><th>Category</th><th>Price</th></tr></thead>';
 			$item_details .= '<tbody>';
+
+			// Initialize total size accumulator
+			$total_item_size = 0;
 
 			// Decode items JSON safely
 			$decoded_items = json_decode($y->items);
@@ -211,7 +228,7 @@ class Admin_bookings extends MY_Controller
 				$decoded_items = [];
 			}
 
-			// --- START: COMMISSION MODIFICATION ---
+			// --- START: COMMISSION MODIFICATION (unchanged) ---
 			$documents_electronics_count = 0;
 			if (!empty($decoded_items)) {
 				foreach ($decoded_items as $item) {
@@ -224,18 +241,25 @@ class Admin_bookings extends MY_Controller
 					$item_details .= '<tr>';
 					$item_details .= '<td>' . $item->item_name . '</td>';
 					$item_details .= '<td>' . $item->category . '</td>';
-					$item_details .= '<td>' . $item->size . 'KG</td>';
+					// --- UPDATED: Removed size display from this cell ---
 					$item_details .= '<td>&pound;' . number_format($item->price, 2) . '</td>';
 					$item_details .= '</tr>';
+
+					// --- NEW: Accumulate total size ---
+					// Ensure size is a numeric value before adding
+					$item_size = isset($item->size) ? (float) $item->size : 0;
+					$total_item_size += $item_size;
 				}
 			} else {
-				$item_details .= '<tr><td colspan="5">No items found</td></tr>';
+				// --- UPDATED: Adjusted colspan to 3 ---
+				$item_details .= '<tr><td colspan="3">No items found</td></tr>';
 			}
 
 			$item_details .= '</tbody>';
 			$item_details .= '</table>';
 
-			// ... (rest of the code for delivery_status, payment_method, payment_status)
+			// --- NEW: Format the total item size for display ---
+			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : 'N/A';
 
 			// Calculate base traveller commission
 			$traveller_commission = $traveller->destination == 'Nigeria'
@@ -273,6 +297,7 @@ class Admin_bookings extends MY_Controller
 			$row[] = $receiver_details;
 			$row[] = $y->need_help;
 			$row[] = $item_details;
+			$row[] = $item_sizes;
 			$row[] = $total_amount;
 			$row[] = $payment_status;
 			// $row[] = $delivery_status;
@@ -331,8 +356,12 @@ class Admin_bookings extends MY_Controller
 
 			$item_details = ''; // Initialize $item_details variable
 			$item_details .= '<table class="table text-nowrap fs-2">';
-			$item_details .= '<thead><tr><th>Item</th><th>Category</th><th>Size</th><th>Price</th></tr></thead>';
+			// --- UPDATED: Removed 'Size' header from the internal table ---
+			$item_details .= '<thead><tr><th>Item</th><th>Category</th><th>Price</th></tr></thead>';
 			$item_details .= '<tbody>';
+
+			// Initialize total size accumulator
+			$total_item_size = 0;
 
 			// Decode items JSON safely
 			$decoded_items = json_decode($y->items);
@@ -340,7 +369,7 @@ class Admin_bookings extends MY_Controller
 				$decoded_items = [];
 			}
 
-			// --- START: COMMISSION MODIFICATION ---
+			// --- START: COMMISSION MODIFICATION (unchanged) ---
 			$documents_electronics_count = 0;
 			if (!empty($decoded_items)) {
 				foreach ($decoded_items as $item) {
@@ -353,18 +382,25 @@ class Admin_bookings extends MY_Controller
 					$item_details .= '<tr>';
 					$item_details .= '<td>' . $item->item_name . '</td>';
 					$item_details .= '<td>' . $item->category . '</td>';
-					$item_details .= '<td>' . $item->size . 'KG</td>';
+					// --- UPDATED: Removed size display from this cell ---
 					$item_details .= '<td>&pound;' . number_format($item->price, 2) . '</td>';
 					$item_details .= '</tr>';
+
+					// --- NEW: Accumulate total size ---
+					// Ensure size is a numeric value before adding
+					$item_size = isset($item->size) ? (float) $item->size : 0;
+					$total_item_size += $item_size;
 				}
 			} else {
-				$item_details .= '<tr><td colspan="5">No items found</td></tr>';
+				// --- UPDATED: Adjusted colspan to 3 ---
+				$item_details .= '<tr><td colspan="3">No items found</td></tr>';
 			}
 
 			$item_details .= '</tbody>';
 			$item_details .= '</table>';
 
-			// ... (rest of the code for delivery_status, payment_method, payment_status)
+			// --- NEW: Format the total item size for display ---
+			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : 'N/A';
 
 			// Calculate base traveller commission
 			$traveller_commission = $traveller->destination == 'Nigeria'
@@ -396,6 +432,7 @@ class Admin_bookings extends MY_Controller
 			$row[] = $receiver_details;
 			$row[] = $y->need_help;
 			$row[] = $item_details;
+			$row[] = $item_sizes;
 			$row[] = $total_amount;
 			$row[] = $payment_status;
 			// $row[] = $delivery_status;
