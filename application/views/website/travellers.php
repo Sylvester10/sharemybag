@@ -223,7 +223,7 @@
 
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Captcha Code</label>
-                                        <input type="text" class="form-control" name="captcha_code" value="<?php echo $captcha_code; ?> ">
+                                        <input type="text" class="form-control" name="captcha_code" value="<?php echo $captcha_code; ?>" readonly>
                                     </div>
 
                                     <div class="col-12 col-md-6">
