@@ -135,7 +135,7 @@
                                         <select name="id_type" id="select" required class="required form-select border border-primary">
                                             <option value="">Select</option>
                                             <option value="Biometric Card">Biometric Card</option>
-                                            <option value="British Passport">British Passport</option>
+                                            <option value="Passport">Passport</option>
                                             <option value="Driver's License">Driver's License</option>
                                         </select>
                                     </div>

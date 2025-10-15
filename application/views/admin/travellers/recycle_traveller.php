@@ -122,12 +122,12 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
 
                 <?php
                 if ($y->location == 'Nigeria') {
-                    $states = nigerian_states();
+                    $states = ng_cities();
                     foreach ($states as $state) { ?>
                         <option value="<?php echo $state; ?>"><?php echo $state; ?></option>
                     <?php }
                 } else {
-                    $cities = english_cities();
+                    $cities = uk_cities();
                     foreach ($cities as $city) { ?>
                         <option value="<?php echo $city; ?>"><?php echo $city; ?></option>
                 <?php }
@@ -242,7 +242,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
                 <select class="form-control" name="arrival_state">
                     <option selected value="<?php echo $y->arrival_state; ?>"><?php echo $y->arrival_state; ?></option>
                     <?php
-                    $states = nigerian_states();
+                    $states = ng_cities();
                     foreach ($states as $state) { ?>
                         <option value="<?php echo $state; ?>"><?php echo $state; ?></option>
                     <?php } ?>
@@ -278,7 +278,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
                 <select class="form-control" name="arrival_state">
                     <option selected value="<?php echo $y->arrival_state; ?>"><?php echo $y->arrival_state; ?></option>
                     <?php
-                    $states = english_cities();
+                    $states = uk_cities();
                     foreach ($states as $state) { ?>
                         <option value="<?php echo $state; ?>"><?php echo $state; ?></option>
                     <?php } ?>

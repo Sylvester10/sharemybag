@@ -99,12 +99,17 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
 
                 <?php
                 if ($y->location == 'Nigeria') {
-                    $states = nigerian_states();
+                    $states = ng_cities();
                     foreach ($states as $state) { ?>
                         <option value="<?php echo $state; ?>"><?php echo $state; ?></option>
                     <?php }
+                } elseif ($y->location == 'United Kingdom') {
+                    $cities = uk_cities();
+                    foreach ($cities as $city) { ?>
+                        <option value="<?php echo $city; ?>"><?php echo $city; ?></option>
+                    <?php }
                 } else {
-                    $cities = english_cities();
+                    $cities = ca_cities();
                     foreach ($cities as $city) { ?>
                         <option value="<?php echo $city; ?>"><?php echo $city; ?></option>
                 <?php }
@@ -167,6 +172,13 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
             </div>
         </div>
 
+        <?php
+        // Define the country constants for clarity
+        $NIGERIA = 'Nigeria';
+        $CANADA = 'Canada';
+        $UK = 'United Kingdom';
+
+        ?>
 
         <div class="form-group">
             <label class="form-control-label">Departure Airport*</label>
@@ -174,107 +186,122 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
                 <option selected value="<?php echo $y->departure_state; ?>"><?php echo $y->departure_state; ?></option>
 
                 <?php
-                if ($y->location == 'Nigeria') {
-
-                    echo
-                    '<option value="Abuja International Airport">Abuja International Airport</option>
-                    <option value="Lagos International Airport">Lagos International Airport</option>';
+                // Start main conditional check for departure location
+                if ($y->location == $NIGERIA) {
+                    // Options for Nigeria Departure
+                    $airports = ng_airports();
+                    foreach ($airports as $airport) {
+                ?>
+                        <option value="<?php echo $airport; ?>"><?php echo $airport; ?></option>
+                    <?php
+                    }
+                } else if ($y->location == $CANADA) {
+                    // Options for Canada Departure
+                    $airports = ca_airports();
+                    foreach ($airports as $airport) {
+                    ?>
+                        <option value="<?php echo $airport; ?>"><?php echo $airport; ?></option>
+                    <?php
+                    }
                 } else {
-
-                    echo
-                    '<option value="Birmingham Airport">Birmingham Airport</option>
-                    <option value="Bristol Airport">Bristol Airport</option>
-                    <option value="Cardiff Airport">Cardiff Airport</option>
-                    <option value="East Midlands Airport">East Midlands Airport</option>
-                    <option value="Liverpool John Lennon Airport">Liverpool John Lennon Airport</option>
-                    <option value="London City Airport">London City Airport</option>
-                    <option value="London Gatwick Airport">London Gatwick Airport</option>
-                    <option value="London Heathrow Airport">London Heathrow Airport</option>
-                    <option value="London Luton Airport">London Luton Airport</option>
-                    <option value="London Stansted Airport">London Stansted Airport</option>
-                    <option value="Manchester Airport">Manchester Airport</option>
-                    <option value="Newcastle International Airport">Newcastle International Airport</option>
-                    <option value="Southampton Airport">Southampton Airport</option>
-                    <option value="Leeds Bradford Airport">Leeds Bradford Airport</option>
-                    ';
+                    // Options for United Kingdom Departure (default/other)
+                    $airports = uk_airports();
+                    foreach ($airports as $airport) {
+                    ?>
+                        <option value="<?php echo $airport; ?>"><?php echo $airport; ?></option>
+                <?php
+                    }
                 }
+                // End main conditional check
                 ?>
 
             </select>
         </div>
 
-
         <?php
+        if ($y->destination == $NIGERIA) {
+            //NIGERIA ARRIVAL 
+            $airports = ng_airports();
+            $cities = ng_cities();
+        ?>
+            <div class="form-group">
+                <label class="form-control-label">Arrival Airport*</label>
+                <select class="form-control" name="arrival_airport">
+                    <option selected value="<?php echo $y->arrival_airport; ?>"><?php echo $y->arrival_airport; ?></option>
+                    <?php
+                    foreach ($airports as $airport) { ?>
+                        <option value="<?php echo $airport; ?>"><?php echo $airport; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
 
-        if ($y->destination == 'Nigeria') {
-
-            // Start the form for arrival airport
-            echo '<div class="form-group">
-            <label class="form-control-label">Arrival Airport*</label>
-            <select class="form-control" name="arrival_airport">
-                <option selected value="' . $y->arrival_airport . '">' . $y->arrival_airport . '</option>
-                <option value="Abuja International Airport">Abuja International Airport</option>
-                <option value="Lagos International Airport">Lagos International Airport</option>
-            </select>
-          </div>';
-
-            // Start the form for arrival state
-            echo '<div class="form-group">
+            <div class="form-group">
                 <label class="form-control-label">Final Destination*</label>
                 <select class="form-control" name="arrival_state">
-                    <option selected value="' . $y->arrival_state . '">' . $y->arrival_state . '</option>';
+                    <option selected value="<?php echo $y->arrival_state; ?>"><?php echo $y->arrival_state; ?></option>
+                    <?php
+                    foreach ($cities as $city) { ?>
+                        <option value="<?php echo $city; ?>"><?php echo $city; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
 
-            // Assuming nigerian_states() is a function that returns an array of Nigerian states
-            $states = nigerian_states();
-            foreach ($states as $state) {
-                echo '<option value="' . $state . '">' . $state . '</option>';
-            }
+        <?php } else if ($y->destination == $CANADA) {
+            // CANADA ARRIVAL
+            $airports = ca_airports();
+            $cities = ca_cities();
+        ?>
+            <div class="form-group">
+                <label class="form-control-label">Arrival Airport*</label>
+                <select class="form-control" name="arrival_airport">
+                    <option selected value="<?php echo $y->arrival_airport; ?>"><?php echo $y->arrival_airport; ?></option>
+                    <?php
+                    foreach ($airports as $airport) { ?>
+                        <option value="<?php echo $airport; ?>"><?php echo $airport; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
 
-            // Close the select and div tags
-            echo '</select>
-            </div>';
-        } else {
+            <div class="form-group">
+                <label class="form-control-label">Final Destination*</label>
+                <select class="form-control" name="arrival_state">
+                    <option selected value="<?php echo $y->arrival_state; ?>"><?php echo $y->arrival_state; ?></option>
+                    <?php
+                    foreach ($cities as $city) { ?>
+                        <option value="<?php echo $city; ?>"><?php echo $city; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
 
-            echo '<div class="form-group">
-                    <label class="form-control-label">Arrival Airport*</label>
-                    <select class="form-control" name="arrival_airport">
-                        <option selected value="' . $y->arrival_airport . '">' . $y->arrival_airport . '</option>
-                        <option value="Birmingham Airport">Birmingham Airport</option>
-                        <option value="Bristol Airport">Bristol Airport</option>
-                        <option value="Cardiff Airport">Cardiff Airport</option>
-                        <option value="East Midlands Airport">East Midlands Airport</option>
-                        <option value="Liverpool John Lennon Airport">Liverpool John Lennon Airport</option>
-                        <option value="London City Airport">London City Airport</option>
-                        <option value="London Gatwick Airport">London Gatwick Airport</option>
-                        <option value="London Heathrow Airport">London Heathrow Airport</option>
-                        <option value="London Luton Airport">London Luton Airport</option>
-                        <option value="London Stansted Airport">London Stansted Airport</option>
-                        <option value="Manchester Airport">Manchester Airport</option>
-                        <option value="Newcastle International Airport">Newcastle International Airport</option>
-                        <option value="Southampton Airport">Southampton Airport</option>
-                        <option value="Leeds Bradford Airport">Leeds Bradford Airport</option>
-                    </select>
-                </div>';
-
-            // Start the form for arrival state
-            echo '<div class="form-group">
-                    <label class="form-control-label">Final Destination*</label>
-                    <select class="form-control" name="arrival_state">
-                        <option selected value="' . $y->arrival_state . '">' . $y->arrival_state . '</option>';
-
-            // Assuming nigerian_states() is a function that returns an array of Nigerian states
-            $states = english_cities();
-            foreach ($states as $state) {
-                echo '<option value="' . $state . '">' . $state . '</option>';
-            }
-
-            // Close the select and div tags
-            echo '</select>
-                </div>';
-        }
-
+        <?php } else {
+            // UNITED KINGDOM ARRIVAL 
+            $airports = uk_airports(); // Assuming this helper function is available
+            $cities = uk_cities(); // This function was referenced in your original code
         ?>
 
+            <div class="form-group">
+                <label class="form-control-label">Arrival Airport*</label>
+                <select class="form-control" name="arrival_airport">
+                    <option selected value="<?php echo $y->arrival_airport; ?>"><?php echo $y->arrival_airport; ?></option>
+                    <?php
+                    foreach ($airports as $airport) { ?>
+                        <option value="<?php echo $airport; ?>"><?php echo $airport; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-control-label">Final Destination*</label>
+                <select class="form-control" name="arrival_state">
+                    <option selected value="<?php echo $y->arrival_state; ?>"><?php echo $y->arrival_state; ?></option>
+                    <?php
+                    foreach ($cities as $city) { ?>
+                        <option value="<?php echo $city; ?>"><?php echo $city; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        <?php }
+        ?>
 
         <div class="form-group">
             <label class="form-control-label">Airline *</label>
@@ -283,8 +310,7 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
                 <?php
                 $airlines = airlines();
                 foreach ($airlines as $airline) { ?>
-                    <option value="<?php echo $airline; ?>" <?php echo set_select('airline', $airline); ?>><?php echo $airline; ?>
-                    </option>
+                    <option value="<?php echo $airline; ?>" <?php echo set_select('airline', $airline); ?>><?php echo $airline; ?></option>
                 <?php } ?>
             </select>
             <div class="form-error">
@@ -366,7 +392,6 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
 </div>
 
 <div class="row">
-
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="m-t-20">
             <button type="submit" id="send_mail_btn" class="btn btn-lg btn-primary">
@@ -376,6 +401,5 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
         </div>
     </div>
 </div>
-
 
 <?php echo form_close(); ?>

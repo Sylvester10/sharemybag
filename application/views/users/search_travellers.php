@@ -88,41 +88,43 @@
             <div class="modal-content">
                 <div class="modal-header !tw-flex !tw-justify-center !tw-bg-[#d20913]">
                     <h4 class="modal-title text-white">
-                        Unable to complete
+                        <i class="ti ti-alert-circle"></i> ID Verification required to continue
                     </h4>
                 </div>
                 <div class="modal-body !tw-text-center">
                     <div class="!tw-flex !tw-justify-center mt-2">
-                        <i class="ti ti-face-id fs-13"></i>
+                        <dotlottie-wc src="https://lottie.host/b3d01a07-111f-4c8b-984f-effae09ea9da/mdwRLRcbfu.lottie" style="width: 350px;height:170px"
+                            autoplay loop></dotlottie-wc>
                     </div>
-                    <p class="!tw-flex !tw-justify-center mt-3">Please complete your Identity Verification to buy bag space.</p>
+                    <?php
+                    if ($is_verified == 0) { ?>
 
-                    <div class="!tw-flex !tw-justify-center mt-3">
-                        <?php
-                        if ($is_verified == 0) { ?>
+                        <?php if ($user_details) { ?>
+                            <p class="!tw-flex !tw-justify-center mt-3">Please update your profile details to proceed with identity verification.</p>
 
-                            <?php if ($user_details) { ?>
+                            <div class="!tw-flex !tw-justify-center mt-3">
 
                                 <a class="btn bg-success-subtle text-success waves-effect text-end" href="<?php echo base_url('profile'); ?>">
-                                    Click to update your profile
+                                    Complete Profile
                                 </a>
+                            </div>
 
-                            <?php } else { ?>
+                        <?php } else { ?>
+                            <p class="!tw-flex !tw-justify-center mt-3">Your profile is complete. Click continue to begin the verification process.</p>
+
+                            <div class="!tw-flex !tw-justify-center mt-3">
 
                                 <a type="button" class="btn bg-primary-subtle text-primary waves-effect text-end" href="<?php echo base_url('kyc'); ?>">
-                                    Click to begin verification
+                                    Begin Verification
                                 </a>
-
-                            <?php } ?>
-
-                        <?php } elseif ($is_verified == 1) { ?>
-
-                            <button type="button" class="btn bg-warning text-white waves-effect text-end disabled">
-                                Your ID verification pending
-                            </button>
+                            </div>
 
                         <?php } ?>
-                    </div>
+
+                    <?php } elseif ($is_verified == 1) { ?>
+                        <p class="!tw-flex !tw-justify-center mt-3">Your documents have been submitted and are currently being reviewed</p>
+
+                    <?php } ?>
 
                 </div>
                 <div class="modal-footer">

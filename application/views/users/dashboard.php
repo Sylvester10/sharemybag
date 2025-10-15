@@ -86,7 +86,7 @@
 									<p class="card-subtitle">Your profile is complete. Click continue to begin the verification process.</p>
 									<div class="ms-auto">
 										<a class="btn btn-primary mb-4 mt-3" href="<?php echo base_url('kyc'); ?>">
-											Continue Verification
+											Begin Verification
 										</a>
 									</div>
 								</div>

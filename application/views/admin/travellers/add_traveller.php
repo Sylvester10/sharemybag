@@ -153,7 +153,7 @@ All fields marked * are required.
 				<option value="">Select</option>
 
 				<?php
-				$states = nigerian_states();
+				$states = ng_cities();
 				foreach ($states as $state) { ?>
 					<option value="<?php echo $state; ?>"><?php echo $state; ?></option>
 				<?php }

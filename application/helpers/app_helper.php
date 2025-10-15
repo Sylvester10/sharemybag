@@ -55,7 +55,7 @@ function countries()
 							 'Cambodia',
 							 'Cameroon',*/
 		'Canada',
-							 /*'Cape Verde',
+		/*'Cape Verde',
 							 'Central African Republic',
 							 'Chad',
 							 'Chile',
@@ -235,19 +235,21 @@ function countries()
 function airlines()
 {
 	$airlines = array(
-		'Air Maroc',
-		'Air Peace',
-		'British Airways',
-		'EgyptAir',
-		'Emirates',
-		'Ethiopian Airlines',
-		'KLM',
-		'Kenya Airways',
-		'Lufthansa',
-		'Qatar Airways',
-		'RwandAir',
-		'Turkish Airlines',
-		'Virgin Atlantic',
+		'Air Canada',        // Nigeria-Canada
+		'Air France',        // Connects Nigeria-Canada/UK
+		'Air Peace',         // Nigeria-UK
+		'British Airways',   // Nigeria-Canada/UK
+		'EgyptAir',          // Nigeria-UK
+		'Emirates',          // Connects Nigeria-Canada
+		'Ethiopian Airlines', // Nigeria-Canada/UK
+		'KLM',               // Nigeria-Canada/UK
+		'Lufthansa',         // Nigeria-UK
+		'Qatar Airways',     // Nigeria-Canada/UK
+		'Royal Air Maroc',   // Nigeria-Canada/UK
+		'RwandAir',          // Nigeria-UK
+		'Turkish Airlines',  // Nigeria-UK
+		'United Airlines',   // Nigeria-Canada
+		'Virgin Atlantic',   // Nigeria-Canada/UK
 	);
 	return $airlines;
 }
@@ -391,7 +393,7 @@ function get_currency_symbol($currency_code)
 }
 
 
-function nigerian_states()
+function ng_cities()
 {
 	$states = array(
 		'Abuja',
@@ -436,7 +438,7 @@ function nigerian_states()
 }
 
 
-function english_cities()
+function uk_cities()
 {
 	$cities = array(
 		'Bath',
@@ -500,6 +502,42 @@ function english_cities()
 		'Wolverhampton',
 		'Worcester',
 		'York'
+	);
+	return $cities;
+}
+
+
+function ca_cities()
+{
+	$cities = array(
+		'Brampton',
+		'Calgary',
+		'Cornwall',
+		'Edmonton',
+		'Fredericton',
+		'Gatineau',
+		'Halifax',
+		'Hamilton',
+		'Kelowna',
+		'Kitchener',
+		'Laval',
+		'London',
+		'Markham',
+		'Mississauga',
+		'Montreal',
+		'Ottawa',
+		'Québec City',
+		'Regina',
+		'Saskatoon',
+		'St. John\'s',
+		'Surrey',
+		'Thunder Bay',
+		'Toronto',
+		'Vancouver',
+		'Vaughan',
+		'Victoria',
+		'Windsor',
+		'Winnipeg'
 	);
 	return $cities;
 }
@@ -929,6 +967,65 @@ function airport_states()
 	$airports = array(
 		'Abuja',
 		'Lagos',
+	);
+	return $airports;
+}
+
+function ca_airports()
+{
+	$airports = array(
+		'Calgary International Airport (YYC)',
+		'Edmonton International Airport (YEG)',
+		'Erik Nielsen Whitehorse International Airport (YXY)',
+		'Fredericton International Airport (YFC)',
+		'Gander International Airport (YQX)',
+		'Greater Moncton Roméo LeBlanc International Airport (YQM)',
+		'Halifax Stanfield International Airport (YHZ)',
+		'Kelowna International Airport (YLW)',
+		'Montréal–Trudeau International Airport (YUL)',
+		'Ottawa Macdonald–Cartier International Airport (YOW)',
+		'Québec City Jean Lesage International Airport (YQB)',
+		'Regina International Airport (YQR)',
+		'St. John\'s International Airport (YYT)',
+		'Saskatoon International Airport (YXE)',
+		'Thunder Bay International Airport (YQT)',
+		'Toronto Pearson International Airport (YYZ)',
+		'Vancouver International Airport (YVR)',
+		'Winnipeg James Armstrong Richardson International Airport (YWG)'
+	);
+	return $airports;
+}
+
+function uk_airports()
+{
+	$airports = array(
+		'Aberdeen International Airport',
+		'Belfast International Airport',
+		'Birmingham Airport',
+		'Bristol Airport',
+		'Cardiff Airport',
+		'East Midlands Airport',
+		'Edinburgh Airport',
+		'Glasgow Airport',
+		'Leeds Bradford Airport',
+		'Liverpool John Lennon Airport',
+		'London City Airport',
+		'London Gatwick Airport',
+		'London Heathrow Airport',
+		'London Luton Airport',
+		'London Stansted Airport',
+		'Manchester Airport',
+		'Newcastle International Airport',
+		'Southampton Airport'
+	);
+	return $airports;
+}
+
+function ng_airports()
+{
+	$airports = array(
+		'Abuja International Airport',
+		'Lagos International Airport'
 	);
 	return $airports;
 }
@@ -1798,6 +1895,7 @@ if (! function_exists('addSeperator')) {
 	}
 }
 
-function production_url($path = '') {
-	return trim('https://sharemybag.co.uk/'.$path);
+function production_url($path = '')
+{
+	return trim('https://sharemybag.co.uk/' . $path);
 }
