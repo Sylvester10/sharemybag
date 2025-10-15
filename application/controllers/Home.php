@@ -137,7 +137,7 @@ class Home extends MY_Controller
 
 		// Check for similar routes
 		if ($location === $destination) {
-			$res = ['status' => false, 'msg' => 'Location and Destination cannot be the route.'];
+			$res = ['status' => false, 'msg' => 'Location and Destination cannot be the same route.'];
 			echo json_encode($res);
 			return;
 		}
