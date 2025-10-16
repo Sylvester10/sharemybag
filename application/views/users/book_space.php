@@ -17,8 +17,6 @@
                     <b class="fs-2">Illegal Drugs</b>
                 </div>
 
-                <!-- <i class="ti ti-swords fs-9"></i> -->
-
                 <div class="icos">
                     <i class="ti ti-bomb fs-9"></i>
                     <b class="fs-2">Bomb</b>
@@ -38,7 +36,6 @@
 
     <div class="row">
 
-        <!-- Item form -->
         <div class="col-lg-8">
             <div class="card">
 
@@ -56,7 +53,7 @@
                             <div class="card-body p-4">
                                 <h6 class="card-text text-white text-center fw-bolder ">
                                     <i class="ti ti-alert-circle"></i> Important!!
-                                </h6>
+                                </i>
                                 <p class="text-white text-center">' . $traveller_details->additional_info . ' </p>
                             </div>
                         </div>';
@@ -65,7 +62,6 @@
 
                     <form action="<?= base_url('user_bookings/add_booking_ajax') ?>" class="form-wizard-ajax mt-5" id="booking_form" key="<?= $traveller_details->id ?>" method="POST" enctype="multipart/form-data" target="_blank">
 
-                        <!-- Hidden field for the form -->
                         <div class="d-none">
                             <input name="traveller_id" value="<?php echo set_value('traveller_id', $traveller_details->id); ?>" type=" text" class="form-control" />
                             <input name="traveller_name" value="<?php echo set_value('traveller_name', $traveller_details->fullname); ?>" type=" text" class="form-control" />
@@ -81,15 +77,15 @@
                             <input name="traveller_current_state" value="<?php echo set_value('traveller_current_state', $traveller_details->current_state); ?>" type=" text" class="form-control" />
                             <input name="traveller_arrival_airport" value="<?php echo set_value('traveller_arrival_airport', $traveller_details->arrival_airport); ?>" type=" text" class="form-control" />
                             <input name="traveller_arrival_state" value="<?php echo set_value('traveller_arrival_state', $traveller_details->arrival_state); ?>" type=" text" class="form-control" />
+                            <input name="traveller_destination" value="<?php echo set_value('traveller_destination', $traveller_details->destination); ?>" type=" text" class="form-control" />
 
-                            <input type="hidden" name="rate" value="<?= $one_pound ?>">
+                            <input type="hidden" name="rate" value="<?= $currency === 'pounds' ? $one_pound : $one_dollar ?>">
 
                             <input type="text" name="price_calculations" class="form-control" placeholder="Calculations" id="price_calculations">
 
                             <input type="hidden" name="currency" value="<?= $currency ?>" class="form-control" />
                         </div>
 
-                        <!-- Embed PHP user details in a hidden div -->
                         <div id="user-details"
                             data-name="<?= htmlspecialchars($user_details->firstname . ' ' . $user_details->lastname) ?>"
                             data-email="<?= htmlspecialchars($user_details->email) ?>"
@@ -102,26 +98,41 @@
                         <input type="hidden" id="paystack_reference" name="paystack_reference" />
                         <input type="hidden" id="payment_method" name="payment_method" />
 
-                        <!-- About Your Item -->
                         <h3> <i class="ti ti-package fs-5"></i> About Your Item </h3>
                         <fieldset>
                             <h4 class="card-title mb-5"> Provide details about the <b class="!tw-text-[#f36b24]">parcel.</b></h4>
-
 
                             <div class="row">
                                 <input name="items" type="text" class="form-control" id="items_input" hidden />
 
                                 <?php
+
+                                // --- ITEM PRICE LOGIC BASED ON USER CURRENCY ---
+                                // Prices are set based on the user's currency type (pounds or dollars)
+                                if ($currency === 'pounds') {
+                                    $normal_price = $traveller_details->destination === 'Nigeria' ? 6.5 : 8.5;
+                                    $shopper_price = 7.5; // Only for Nigeria destination
+                                    $special_price = $traveller_details->destination === 'Nigeria' ? 6.5 : 8.5;
+                                    $premium_price = 15;
+                                } else {
+                                    // Canadian Dollars (CAD)
+                                    $normal_price = $traveller_details->destination === 'Nigeria' ? 6.5 : 8.5;
+                                    $shopper_price = 7.5;
+                                    $special_price = $traveller_details->destination === 'Nigeria' ? 6.5 : 8.5;
+                                    $premium_price = 15;
+                                }
+
+                                // Output select based on traveller destination (for category options)
                                 if ($traveller_details->destination === 'Nigeria') { ?>
 
                                     <div class="col-lg-4 mb-3">
                                         <label class="form-label">Category *</label>
                                         <select name="category" id="select1" class="required form-select border border-primary">
                                             <option value="">Select</option>
-                                            <option value="Normal" data-price="<?= round(6.5, 2) ?>"> Normal</option>
-                                            <option value="Personal Shopper" data-price="<?= round(7.50, 2) ?>"> Personal Shopper</option>
-                                            <option value="Fish/Medicine" data-price="<?= round(6.5, 2) ?>"> Medicine (special)</option>
-                                            <option value="Documents/Electronics" data-price="<?= round(6.5, 2) ?>"> Documents/Electronics/Gold (premium)</option>
+                                            <option value="Normal" data-price="<?= round($normal_price, 2) ?>"> Normal</option>
+                                            <option value="Personal Shopper" data-price="<?= round($shopper_price, 2) ?>"> Personal Shopper</option>
+                                            <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>"> Medicine (special)</option>
+                                            <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>"> Documents/Electronics/Gold (premium)</option>
                                         </select>
                                     </div>
 
@@ -131,9 +142,9 @@
                                         <label class="form-label">Category *</label>
                                         <select name="category" id="select1" class="required form-select border border-primary">
                                             <option value="">Select</option>
-                                            <option value="Normal" data-price="<?= round(8.5, 2) ?>"> Normal</option>
-                                            <option value="Fish/Medicine" data-price="<?= round(8.5, 2) ?>"> Fish/Medicine/Snail/Oil (special)</option>
-                                            <option value="Documents/Electronics" data-price="<?= round(8.5, 2) ?>"> Documents/Electronics/Gold (premium)</option>
+                                            <option value="Normal" data-price="<?= round($normal_price, 2) ?>"> Normal</option>
+                                            <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>"> Fish/Medicine/Snail/Oil (special)</option>
+                                            <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>"> Documents/Electronics/Gold (premium)</option>
                                         </select>
                                     </div>
 
@@ -145,12 +156,13 @@
                                 </div>
 
                                 <div class="col-lg-4 mb-3">
-                                    <label class="form-label">Weight *</label>
+                                    <label class="form-label" id="weight-label">Weight *</label>
                                     <?php $max_space = $traveller_details->available_space; ?>
-                                    <select name="size" id="select2" class="required form-select border border-primary" data-max-space="<?= $max_space ?>">
+                                    <select name="size" id="select2" class="required form-select border border-primary" data-max-space="<?= $max_space ?>" data-unit="KG">
                                         <option value="">Select</option>
                                         <?php
                                         for ($i = 1; $i <= $max_space; $i++) {
+                                            // The default unit is KG
                                             echo "<option value='$i'>{$i}KG</option>";
                                         }
                                         ?>
@@ -162,15 +174,12 @@
                             <div class="col-lg-12 mb-5">
                                 <button type="button" class="btn btn-primary !tw-w-full !tw-h-[50px]" id="add-me">Add</button>
                             </div>
-                            <!-- </div> -->
                         </fieldset>
 
-                        <!-- Agent Details -->
                         <h3> <i class="ti ti-user-circle fs-5"></i> Agent Details </h3>
                         <fieldset>
-                            <h4 class="card-title mb-4"> The Agent is whoever is <b class="!tw-text-[#f36b24]">currently in possession</b> of the parcel to be given to the traveller.</h4>
+                            <h4 class="card-title mb-4"> The Agent is whoever is <b class="!tw-text-[#f36b24]">currently in possession</b> of the parcel to be given to the traveller.</b></h4>
 
-                            <!-- Radio Buttons -->
                             <div class="radio_buttons mb-3">
                                 <div class="form-check radio_check">
                                     <input class="form-check-input" type="radio" name="parcel_status" id="parcelWithMe" value="with_me">
@@ -218,12 +227,10 @@
                             </div>
                         </fieldset>
 
-                        <!-- Receiver Details -->
                         <h3> <i class="ti ti-user-circle fs-5"></i> Receiver Details </h3>
                         <fieldset>
                             <h4 class="card-title mb-4"> The Receiver is the person <b class="!tw-text-[#f36b24]"> whose parcel is being sent</b>.</h4>
 
-                            <!-- Radio Buttons -->
                             <div class="radio_buttons mb-3">
                                 <div class="form-check radio_check">
                                     <input class="form-check-input" type="radio" name="receiver_status" id="receiverIsMe" value="me">
@@ -274,29 +281,29 @@
 
                         </fieldset>
 
-                        <!-- Parcel Guarantee -->
                         <h3> <i class="ti ti-shield-check fs-5"></i> Parcel Guarantee </h3>
                         <fieldset>
                             <h4 class="card-title mb-4">Parcel protection <b class="!tw-text-[#f36b24]">(Optional)</b></h4>
 
                             <div class="col-lg-6 mb-3">
+                                <?php
+                                // Insurance prices
+                                $ins_low_val = 3.99;
+                                $ins_high_val = 13.99;
+                                ?>
                                 <select name="insurance" id="insuranceBox" class="form-select border border-primary">
                                     <option value="">Do you want parcel insurance?</option>
-                                    <option value="<?= number_format(3.99, 2); ?>" data-insurance="<?= number_format(3.99, 2); ?>">
-                                        Parcel Guarantee <?= $symbol ?><?= number_format(3, 2); ?>
+                                    <option value="<?= number_format($ins_low_val, 2); ?>" data-insurance="<?= number_format($ins_low_val, 2); ?>">
+                                        Parcel Guarantee <?= $symbol ?><?= number_format($ins_low_val, 2); ?>
                                     </option>
-                                    <option value="<?= number_format(13.99, 2); ?>" data-insurance="<?= number_format(13.99, 2); ?>">
-                                        Parcel Guarantee <?= $symbol ?><?= number_format(13.99, 2); ?>
+                                    <option value="<?= number_format($ins_high_val, 2); ?>" data-insurance="<?= number_format($ins_high_val, 2); ?>">
+                                        Parcel Guarantee <?= $symbol ?><?= number_format($ins_high_val, 2); ?>
                                     </option>
                                 </select>
                             </div>
 
-                            <!--<p class="card-subtitle mb-3">-->
-                            <!--    Insurance covers your package up to <b class="text-black"><?= $symbol ?><?= number_format(500, 2); ?></b> in the case of loss or avoidable damage <b class="text-black">(except fish)</b> during the traveller’s journey</p>-->
-                            <!--</p>-->
-
                             <p class="card-subtitle mb-3">
-                                Insurance covers your parcel up to <b class="text-black">£100</b> when you purchase a parcel guarantee of <b class="text-black">£3.99</b> or up to <b class="text-black">£300</b> when you buy a parcel guarantee of <b class="text-black">£13.99</b> in the case of loss or avoidable damage <b class="text-black">(except fish)</b> during the traveller’s journey.
+                                Insurance covers your parcel up to <b class="text-black"><?= $symbol ?>100</b> when you purchase a parcel guarantee of <b class="text-black"><?= $symbol ?>3.99</b> or up to <b class="text-black"><?= $symbol ?>300</b> when you buy a parcel guarantee of <b class="text-black"><?= $symbol ?>13.99</b> in the case of loss or avoidable damage <b class="text-black">(except fish)</b> during the traveller’s journey.
                             </p>
 
                             <div class="form-check">
@@ -307,12 +314,11 @@
                             </div>
                         </fieldset>
 
-                        <!-- Summary -->
                         <h3> <i class="ti ti-cash fs-5"></i> Summary </h3>
                         <fieldset>
                             <h4 class="card-title mb-5"> Payment Summary</h4>
                             <div class="text-center">
-                                
+
                                 <div class="card !tw-bg-[#020713]">
                                     <div class="card-body p-4">
                                         <h6 class="card-text text-white text-center fw-bolder ">
@@ -334,7 +340,7 @@
 
                                 <p class="mt-2">bag space for</p>
 
-                                <h3 class=" mb-3"><b> <span id="totalAmountPounds">$5000</span> </b></h3>
+                                <h3 class=" mb-3"><b> <span id="totalAmountDisplay"></span> </b></h3>
 
                                 <div class="card !tw-bg-[#020713]">
                                     <div class="card-body p-4">
@@ -346,8 +352,9 @@
                                 </div>
 
                                 <p class="mt-2 mb-3">Select payment method and click "finish" to continue to payments </p>
-                                
+
                                 <?php
+                                // Logic: Paystack only for Nigerian users
                                 if ($user_details->country == 'Nigeria') { ?>
 
                                     <div class="mb-4 radio_buttons">
@@ -358,8 +365,10 @@
                                             </label>
                                         </div>
                                     </div>
-                                    
-                                <?php } else { ?>
+
+                                <?php } else {
+                                    // Stripe for Canada and UK users
+                                ?>
 
                                     <div class="mb-4 radio_buttons">
                                         <div class="form-check radio_check">
@@ -372,21 +381,6 @@
 
                                 <?php } ?>
 
-                                <!--<div class="radio_buttons mb-4">-->
-                                <!--    <div class="form-check radio_check">-->
-                                <!--        <input class="form-check-input" type="radio" name="payment_method" id="stripe" value="stripe" checked>-->
-                                <!--        <label class="form-check-label d-flex align-items-center gap-2" for="stripe">-->
-                                <!--            <img src="<?= base_url('assets/general/stripe.svg') ?>" alt="Stripe" width="100" height="20">-->
-                                <!--        </label>-->
-                                <!--    </div>-->
-                                <!--    <div class="form-check radio_check">-->
-                                <!--        <input class="form-check-input" type="radio" name="payment_method" id="paystack" value="paystack">-->
-                                <!--        <label class="form-check-label d-flex align-items-center gap-2" for="paystack">-->
-                                <!--            <img src="<?= base_url('assets/general/paystack.svg') ?>" alt="Paystack" width="100" height="20">-->
-                                <!--        </label>-->
-                                <!--    </div>-->
-                                <!--</div>-->
-
                             </div>
 
                         </fieldset>
@@ -396,7 +390,6 @@
             </div>
         </div>
 
-        <!-- Summary -->
         <div class="col-lg-4 d-none d-lg-block" id="sign-in-dialogs">
             <div class="card">
                 <div class="card-header !tw-bg-[#020713]">
@@ -404,7 +397,6 @@
                 </div>
                 <div class="card-body">
 
-                    <!-- Available Space -->
                     <div class="mb-3">
                         <p class="fw-bolder fs-3 text-center">Available Space</p>
                         <div class="fs-6 fw-bolder text-black text-center" id="availableSpace"><?= $traveller_details->available_space ?>KG</div>
@@ -412,7 +404,6 @@
 
                     <hr>
 
-                    <!-- Item summary -->
                     <div class="mb-3">
                         <p class="fw-bolder fs-3">Items:</p>
                         <div class="fs-2 text-black" id="item-list"></div>
@@ -420,7 +411,6 @@
 
                     <hr>
 
-                    <!-- Agent details -->
                     <div class="mb-3">
                         <p class="fw-bolder fs-3">Agent:</p>
                         <p class="fs-3 text-black mb-0" id="agentNameValue"></p>
@@ -429,7 +419,6 @@
 
                     <hr>
 
-                    <!-- Receiver details -->
                     <div class="mb-3">
                         <p class="fw-bolder fs-3">Receiver:</p>
                         <p class="fs-3 text-black mb-0" id="receiverNameValue"></p>
@@ -438,47 +427,50 @@
 
                     <hr>
 
-                    <!-- Price details -->
+                    <?php
+                    // Set service charge based on currency.
+                    $service_charge = 2.99;
+                    $display_symbol = $symbol;
+                    ?>
                     <div class="mb-3">
                         <p class="fw-bolder fs-3 total">
-                            Selected Space: <span class="text-black tw-float-right"><span id="total-kg"></span> KG</span>
+                            Selected Space: <span class="text-black tw-float-right"><span id="total-kg"></span> KG</span></span>
+                        </p>
+                        <p class="fw-bolder fs-3 total service_charge" charge="<?= round($service_charge, 2) ?>">
+                            Service Charge: <span class="text-black tw-float-right"><span><?= $display_symbol . number_format($service_charge, 2) ?></span></span>
                         </p>
                         <p class="fw-bolder fs-3 total insurance">
-                            Insurance: <span class="text-black tw-float-right"><?= $symbol ?><span id="insurance-value"></span></span>
-                        </p>
-                        <p class="fw-bolder fs-3 total special_charge">
-                            Special Charge: <span class="text-black tw-float-right"><?= $symbol ?><span id="special-charge-value"></span></span>
-                        </p>
-                        <p class="fw-bolder fs-3 total service_charge" charge="<?= round(2.99, 2) ?>">
-                            Service Charge: <span class="text-black tw-float-right"><?= $symbol ?><span><?= number_format(2.99, 2) ?></span></span>
+                            Insurance: <span class="text-black tw-float-right"><span id="insurance-value"></span></span>
                         </p>
                         <p class="fw-bolder fs-3 total sub_total">
-                            Sub Total: <span class="text-black tw-float-right"><?= $symbol ?><span id="sub-total"></span></span>
+                            Sub Total: <span class="text-black tw-float-right"><span id="sub-total"></span></span>
                         </p>
-                        <!--<p class="fw-bolder fs-3 total vat">-->
-                        <!--    Vat (7.5%): <span class="text-black tw-float-right"><?= $symbol ?><span id="vat-price"></span></span>-->
-                        <!--</p>-->
+                        <p class="fw-bolder fs-3 total special_charge">
+                            Special Charge: <span class="text-black tw-float-right"><span id="special-charge-value"></span></span>
+                        </p>
                         <p class="fw-bolder fs-3 total">
-                            Total: <span class="text-black tw-float-right"><?= $symbol ?><span id="total-price"></span></span>
+                            Total: <span class="text-black tw-float-right"><span id="total-price"></span></span>
                         </p>
                     </div>
 
                     <hr>
-                    <!--<div class="text-center">-->
-                    <!--    <small class="text-subtle">VAT is 7.5% of total added item(s).</small>-->
-                    <!--</div>-->
                 </div>
             </div>
         </div>
 
-        <!-- Holds all item info -->
-        <span class="d-none" id="holdThisInfo" currency="<?= $currency ?>" pound_sign="&pound;" one_pound="<?= $one_pound ?>" symbol="<?= $symbol ?>"></span>
+        <span class="d-none" id="holdThisInfo"
+            currency="<?= $currency ?>"
+            pound_sign="&pound;"
+            dollar_sign="$"
+            naira_sign="&#8358;"
+            one_pound="<?= $one_pound ?>"
+            one_dollar="<?= $one_dollar ?>"
+            symbol="<?= $symbol ?>">
+        </span>
 
-        <!-- Booking summary button for mobile view -->
         <div class="btn_reserve_fixed text-center d-lg-none">
             <a href="javascript:void(0)" id="sign-in" class="btn btn-primary full-width"> View Summary </a>
         </div>
-
 
 
     </div>

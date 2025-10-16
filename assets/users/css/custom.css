@@ -420,6 +420,10 @@ table.dataTable thead > tr > th.sorting:before {
   z-index: 0;
 }
 
+.lottie_success {
+  margin-top: -50px !important;
+}
+
 @media (max-width: 576px) {
   .review-bg-col dotlottie-wc {
     position: absolute;

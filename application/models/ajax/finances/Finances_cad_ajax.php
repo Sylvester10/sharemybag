@@ -2,7 +2,7 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 
-class Finances_ajax extends CI_Model
+class Finances_cad_ajax extends CI_Model
 {
 	public function __construct()
 	{
@@ -59,7 +59,7 @@ class Finances_ajax extends CI_Model
 		}
 
 		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'pounds'); // <--- CRITICAL FILTER ADDED: GBP ONLY
+		$this->db->where('currency', 'dollars'); // <--- CRITICAL FILTER ADDED: CAD ONLY
 
 		// Add group to include paystack, stripe, or empty/null
 		$this->db->group_start();
@@ -84,7 +84,7 @@ class Finances_ajax extends CI_Model
 		}
 
 		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'pounds'); // <--- CRITICAL FILTER ADDED: GBP ONLY
+		$this->db->where('currency', 'dollars'); // <--- CRITICAL FILTER ADDED: CAD ONLY
 
 		// Add group to include paystack, stripe, or empty/null
 		$this->db->group_start();
@@ -107,7 +107,7 @@ class Finances_ajax extends CI_Model
 		}
 
 		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'pounds'); // <--- CRITICAL FILTER ADDED: GBP ONLY
+		$this->db->where('currency', 'dollars'); // <--- CRITICAL FILTER ADDED: CAD ONLY
 
 		// Add group to include paystack, stripe, or empty/null
 		$this->db->group_start();

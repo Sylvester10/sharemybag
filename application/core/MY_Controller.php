@@ -329,6 +329,65 @@ class MY_Controller extends CI_Controller
 		return ''; // No error
 	}
 	
+
+	// Add this method to a controller like Admin_bookings.php or a temporary Migration controller
+	public function backfill_traveller_commission()
+	{
+		// 1. Fetch all completed bookings where commission is missing or 0
+		$this->db->where('payment_status', 'completed');
+		$this->db->group_start();
+		$this->db->where('traveller_commission IS NULL');
+		$this->db->or_where('traveller_commission', 0);
+		$this->db->group_end();
+		$query = $this->db->get('bookings');
+
+		$records_updated = 0;
+
+		if ($query->num_rows() > 0) {
+			foreach ($query->result() as $booking) {
+
+				// Fetch necessary details
+				$traveller = $this->common_model->get_traveller_details_by_id($booking->traveller_id);
+
+				// Skip if traveler details are somehow missing
+				if (!$traveller) {
+					// log_message('error', 'Backfill: Skipping booking ID ' . $booking->id . ' - Traveller not found.');
+					$this->session->set_flashdata('status_msg', 'Backfill: Skipping booking ID ' . $booking->id . ' - Traveller not found.');
+					continue;
+				}
+
+				$destination_country = $traveller->destination;
+				$selected_space = (float)$booking->selected_space;
+
+				// 2. Replicate the commission calculation logic from User_bookings.php
+				$base_commission_rate = ($destination_country == 'Nigeria') ? 4.50 : 5.00;
+				$calculated_commission = $base_commission_rate * $selected_space;
+
+				// Check for premium item surcharge (Documents/Electronics)
+				$items = json_decode($booking->items, true);
+				if (is_array($items)) {
+					foreach ($items as $item) {
+						if (isset($item['category']) && $item['category'] === 'Documents/Electronics') {
+							$calculated_commission += 10.00;
+							break; // Assuming only one premium surcharge is applied per booking
+						}
+					}
+				}
+				$calculated_commission = round($calculated_commission, 2);
+
+				// 3. Update the existing booking record
+				$update_data = ['traveller_commission' => $calculated_commission];
+				$this->db->where('id', $booking->id);
+				$this->db->update('bookings', $update_data);
+
+				$records_updated++;
+			}
+		}
+
+		// echo "Backfill complete. Total bookings updated: {$records_updated}.\n";
+		$this->session->set_flashdata('status_msg', "Backfill complete. Total bookings updated: {$records_updated}.\n");
+	}
+	
 	
     // 	schema
 	protected function get_schema()

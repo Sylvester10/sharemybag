@@ -15,12 +15,30 @@
                     <div class="input-group mt-2 mb-2">
                         <select class="form-select required" name="destination" id="select_destination" required>
                             <option value="">Where is your parcel going?</option>
-                            <?php
-                            $countries = countries();
-                            foreach ($countries as $country) { ?>
-                                <option value="<?php echo $country; ?>" <?php echo set_select('nationality', $country); ?>><?php echo $country; ?>
-                                </option>
+
+                            <?php if ($user_details->country == 'Canada') { ?>
+
+                                <option value="Canada">Canada</option>
+                                <option value="Nigeria">Nigeria</option>
+
+                            <?php } elseif ($user_details->country == 'United Kingdom') { ?>
+
+                                <option value="Nigeria">Nigeria</option>
+                                <option value="United Kingdom">United Kingdom</option>
+
+                            <?php } else { ?>
+
+                                <?php
+                                $countries = countries();
+                                foreach ($countries as $country):
+                                ?>
+                                    <option value="<?php echo $country; ?>" <?php echo set_select('destination', $country); ?>>
+                                        <?php echo $country; ?>
+                                    </option>
+                                <?php endforeach; ?>
+
                             <?php } ?>
+
                         </select>
                         <button class="btn btn-rounded btn-primary justify-content-center" type="submit">
                             Search
@@ -99,7 +117,7 @@
                     <?php
                     if ($is_verified == 0) { ?>
 
-                        <?php if ($user_details) { ?>
+                        <?php if ($is_profile_complete) { ?>
                             <p class="!tw-flex !tw-justify-center mt-3">Please update your profile details to proceed with identity verification.</p>
 
                             <div class="!tw-flex !tw-justify-center mt-3">

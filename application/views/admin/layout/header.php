@@ -103,7 +103,8 @@
 
 								<li><a><i class="fa fa-coins"></i> Finances <span class="fa fa-chevron-down"></span></a>
 									<ul class="nav child_menu">
-										<li><a href="<?php echo base_url('admin_finances'); ?>">All Finances</a></li>
+										<li><a href="<?php echo base_url('admin_finances'); ?>">UK/Nigeria</a></li>
+										<li><a href="<?php echo base_url('admin_finances/cad_finance'); ?>">Canada</a></li>
 									</ul>
 								</li>
 

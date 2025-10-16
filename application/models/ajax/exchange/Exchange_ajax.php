@@ -11,9 +11,9 @@ class Exchange_ajax extends CI_Model
 	}
 
 	var $table = 'exchange_rates';
-	var $column_order = array(null, 'id', 'rate', 'date_added'); //set column field database for datatable orderable
-	var $column_search = array('id', 'rate', 'date_added'); //set column field database for datatable searchable 
-	var $order = array('date_added' => 'DESC');
+	var $column_order = array('id', 'currency', 'rate', 'date_added'); //set column field database for datatable orderable
+	var $column_search = array('id', 'currency', 'rate', 'date_added'); //set column field database for datatable searchable 
+	var $order = array('date_added' => 'desc');
 
 
 	private function the_query()

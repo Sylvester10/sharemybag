@@ -15,7 +15,8 @@
 
 		<thead>
 			<tr>
-				<th class="min-w-200"> rate </th>
+				<th class=""> Currency </th>
+				<th class=""> rate </th>
 				<th class=""> Date Added</th>
 			</tr>
 		</thead>

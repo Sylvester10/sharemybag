@@ -42,9 +42,12 @@ class Admin_exchange extends MY_Controller
 		$data = array();
 		foreach ($list as $y) {
 
-            $rate = '₦'.$y->rate.' to £1';
+			// Corrected rate display using strict comparison
+			$rate = ($y->currency === 'pound') ? '₦' . $y->rate . ' = £1' : '₦' . $y->rate . ' = $1';
+			$currency = ($y->currency === 'pound') ? 'Pounds' : 'Canadian Dollars';
 
 			$row = array();
+			$row[] = $currency;
 			$row[] = $rate;
 			$row[] = x_date($y->date_added);
 			$data[] = $row;
@@ -62,6 +65,7 @@ class Admin_exchange extends MY_Controller
 
 	public function add_exchange_rate()
 	{
+		$this->form_validation->set_rules('currency', 'Currency', 'trim|required');
 		$this->form_validation->set_rules('rate', 'Exchange Rate', 'trim|required');
 
 		if ($this->form_validation->run()) {
@@ -72,8 +76,4 @@ class Admin_exchange extends MY_Controller
 			echo validation_errors();
 		}
 	}
-
-
-
-
 }

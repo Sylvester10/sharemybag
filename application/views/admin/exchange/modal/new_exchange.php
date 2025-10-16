@@ -13,12 +13,21 @@
                 echo form_open('admin_exchange/add_exchange_rate/'); ?>
 
                 <div class="form-group">
+                    <label class="form-control-label">Select Currency</label>
+                    <select class="form-control selectpicker" name="currency" required>
+                        <option value="">Select</option>
+                        <option value="cad">Canadian Dollars</option>
+                        <option value="pound">Pounds</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label class="form-control-label">Exchange Rate</label>
                     <input type="text" name="rate" class="form-control" />
                 </div>
 
                 <div>
-                    <button class="btn btn-primary">Sumbit </button>
+                    <button class="btn btn-primary">Submit </button>
                 </div>
 
                 <?php echo form_close(); ?>

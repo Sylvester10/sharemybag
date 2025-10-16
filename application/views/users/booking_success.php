@@ -2,29 +2,11 @@
 
     <div class="card">
         <div class="card-body">
-            <div class="text-center" style="font-size: 100px;">
-                <i class="ti ti-clipboard-check text-success"></i>
+            <div class="d-flex justify-content-center lottie_success">
+                <dotlottie-wc src="https://lottie.host/3f6b6bf3-6917-4f30-b234-da901f7c8f40/yFd7ZAKz3H.lottie" style="width: 300px;height: 300px" autoplay></dotlottie-wc>
             </div>
-            <!--<div class="text-center">-->
-            <!--    <h4 class="card-title fs-8">Thank you for your purchase!</h4>-->
-            <!--    <h5>Here’s what you need to do next:</h5>-->
 
-            <!--    <ul class="mt-2">-->
-            <!--        <li class="list-group-item">-->
-            <!--            Check your email for the traveller’s drop off address-->
-            <!--        </li>-->
-            <!--        <li class="list-group-item">-->
-            <!--            Package your parcel appropriately-->
-            <!--        </li>-->
-            <!--        <li class="list-group-item">-->
-            <!--            ⁠Send us tracking details if you are sending your items via Royal Mail or Evri-->
-            <!--        </li>-->
-            <!--    </ul>-->
-
-            <!--    <a class="btn btn-primary mt-9" href="<?php echo base_url('history'); ?>" role="button">Booking History</a>-->
-            <!--</div>-->
-
-            <div class="text-center">
+            <div class="text-center lottie_success">
                 <h4 class="card-title fs-8">Thank you for your purchase!</h4>
                 <h5>Here’s what you need to do next:</h5>
 

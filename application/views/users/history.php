@@ -21,17 +21,22 @@
                                 <th>Agent Details</th>
                                 <th>Item Details</th>
                                 <th>Payment Status</th>
-                                <!--<th>Tracking Number</th>-->
-                                <!--<th>Delivery Status</th>-->
                                 <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
 
                             <?php
-                            foreach ($booking as $y) {  ?>
 
-                                <?php
+                            foreach ($booking as $y) {
+
+                                // Determine the currency symbol based on the currency_charged field stored in the booking record
+                                // 'dollars' corresponds to CAD ($)
+                                // 'pounds' corresponds to GBP (£)
+                                // NOTE: The currency field in the booking table is assumed to be 'currency_charged' based on previous context, 
+                                // but is referenced here as $y->currency, which I will maintain.
+                                $symbol = ($y->currency == 'dollars') ? '$' : '&pound;';
+
 
                                 $traveller_details = ($y->payment_status == 'canceled' || $y->payment_status == '')
                                     ? '<i class="ti ti-user"></i> N/A <br />
@@ -51,29 +56,34 @@
 
                                 // item details
                                 $items = ''; // Initialize $items variable
-                                
+
                                 $items .= '<table class="table text-nowrap fs-2">';
                                 $items .= '<thead><tr><th>Item</th><th>Category</th><th>Size</th><th>Price</th></tr></thead>';
                                 $items .= '<tbody>';
-                                
+
                                 // Loop through each item to display its details
                                 foreach (json_decode($y->items) as $item) {
+                                    // Determine the unit. Default to KG, but use the unit field if it exists (for 'Piece')
+                                    $unit_display = isset($item->unit) ? $item->unit : 'KG';
+
                                     $items .= '<tr>';
                                     $items .= '<td>' . $item->item_name . '</td>';
                                     $items .= '<td>' . $item->category . '</td>';
-                                    $items .= '<td>' . $item->size . 'KG</td>';
-                                    $items .= '<td> &pound;' . number_format($item->price, 2) . '</td>';
+                                    // Use the dynamically determined unit here
+                                    $items .= '<td>' . $item->size . $unit_display . '</td>';
+                                    // Use the correctly determined $symbol here for item price
+                                    $items .= '<td> ' . $symbol . '' . number_format($item->unit_price * $item->size, 2) . '</td>';
                                     $items .= '</tr>';
                                 }
-                                
+
                                 // Add a new row to display the total amount
                                 $items .= '<tr class="fw-bold">';
                                 // Use colspan to merge the first three columns for the label
                                 $items .= '<td colspan="3" class="text-end">Total Amount:</td>';
-                                // Place the total amount in the last column
-                                $items .= '<td> &pound;' . number_format($y->total_amount, 2) . '</td>';
+                                // Place the total amount in the last column, using the determined $symbol
+                                $items .= '<td> ' . $symbol . '' . number_format($y->total_amount, 2) . '</td>';
                                 $items .= '</tr>';
-                                
+
                                 $items .= '</tbody>';
                                 $items .= '</table>';
 
@@ -83,15 +93,13 @@
                                 // delivery status
                                 $delivery_status = ($y->delivery_status == 'Delivered') ? '<span class="text-success">Delivered <i class="ti ti-circle-check text-success fs-5"></i> </span>' : (($y->delivery_status == 'In Transit') ? '<span class="text-secondary">In Transit <i class="ti ti-clock text-secondary fs-5"></i> </span>' : (($y->delivery_status == 'Shipment Created') ? '<span class="text-primary">Shipment Created <i class="ti ti-checklist text-primary fs-5"></i></span>' : '<span class="text_danger">Pending <span class="spinner-border spinner-border-sm text_pending ms-1" role="status" aria-hidden="true"></span></span>'));
 
-                                ?>
+                            ?>
 
                                 <tr class="fs-3">
                                     <td> <?= $traveller_details ?> </td>
                                     <td> <?= $agent_details ?> </td>
                                     <td> <?= $items ?> </td>
                                     <td> <?= $payment_status ?> </td>
-                                    <!--<td> <?= $y->tracking_id ?> </td>-->
-                                    <!--<td> <?= $delivery_status ?> </td>-->
                                     <td data-order="<?= $y->date_added ?>"> <?= x_date($y->date_added) ?> </td>
                                 </tr>
 

@@ -114,7 +114,7 @@
         <h1 class="heading">Thank you for your order!</h1>
 
         <div class="order-details">
-            <p> You have made a payment of <b class="fs-4">&pound;<?= number_format($total_amount, 2) ?></b> to <?= business ?>.</p>
+            <p> You have made a payment of <b class="fs-4"><?= $currency ?><?= number_format($total_amount, 2) ?></b> to <?= business ?>.</p>
             <!--<p> <b>Tracking ID:</b> <?= $tracking_id ?> </p>-->
         </div>
 
@@ -144,6 +144,7 @@
                         <?php
                         // Iterate over each item
                         foreach ($item_details as $item) {
+                            $unit_display = ($item->category == 'Documents/Electronics') ? 'PC' : 'KG';
                             $category = $item->category;
                             $item_name = $item->item_name;
                             $size = $item->size;
@@ -154,8 +155,8 @@
                             <tr>
                                 <td> <?= $category ?> </td>
                                 <td> <?= $item_name ?> </td>
-                                <td> <?= $size ?>KG </td>
-                                <td> &pound;<?= number_format($price, 2) ?> </td>
+                                <td> <?= $size ?><?= $unit_display ?> </td>
+                                <td> <?= $currency ?><?= number_format($price, 2) ?> </td>
                             </tr>
                         <?php
                         }
@@ -164,7 +165,7 @@
                 </table>
 
                 <br>
-                <b>Insurance:</b> &pound;<?= number_format($insurance, 2) ?>
+                <!-- <b>Insurance:</b> <?= $currency ?><?= number_format($insurance, 2) ?> -->
             </div>
 
         </div>

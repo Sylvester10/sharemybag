@@ -17,13 +17,12 @@ class History extends MY_Controller
     }
 
 
-
-
     public function index()
     {
         $this->dashboard_header('History');
         $user_id = $this->user_details->id;
         $data['booking'] = $this->common_model->get_bookings_by_id($user_id);
+        $data['user_country'] = $this->user_details->country;
         $this->load->view('users/history', $data);
         $this->dashboard_footer();
     }

@@ -238,7 +238,9 @@ jQuery(document).ready(function ($) {
     "#exchange_table",
     base_url + "admin_exchange/all_exchange_rates",
     "Search/filter rates:"
-  );
+  )
+    .order([1, "asc"])
+    .draw();
 
   /////////////////////////////////////////////////////////
 // finance 
@@ -249,6 +251,32 @@ jQuery(document).ready(function ($) {
   var table = initializeDataTable(
     "#finances_table",
     base_url + "admin_finances/all_finances_ajax",
+    "Search/filter Finance:"
+  )
+    .order([1, "desc"])
+    .draw();
+
+  // Add filter to AJAX
+  $.fn.dataTable.ext.errMode = "none";
+  table.on("preXhr.dt", function (e, settings, data) {
+    data.month = $("#month_filter").val();
+    data.year = $("#year_filter").val();
+  });
+
+  // Trigger reload on filter change
+  $("#month_filter, #year_filter").on("change", function () {
+    table.ajax.reload();
+  });
+
+  /////////////////////////////////////////////////////////
+// Cad finance 
+  if ($.fn.DataTable.isDataTable("#finances_cad_table")) {
+    $("#finances_cad_table").DataTable().clear().destroy();
+  }
+
+  var table = initializeDataTable(
+    "#finances_cad_table",
+    base_url + "admin_finances/all_cad_finances_ajax",
     "Search/filter Finance:"
   )
     .order([1, "desc"])

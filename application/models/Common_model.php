@@ -20,7 +20,6 @@ class Common_model extends CI_Model
 	}
 
 
-
 	/* ===== Last Login ===== */
 	public function update_last_login($user_id)
 	{ //update last login
@@ -238,11 +237,6 @@ class Common_model extends CI_Model
 		return $this->db->get_where('bookings')->num_rows();
 	}
 
-	// 	public function get_completed_bookings()
-	// 	{ //get all unapproved travellers
-	// 		return $this->db->get_where('bookings', array('payment_status' => 'completed'))->result();
-	// 	}
-
 
 	/* =================== Shipping ====================== */
 	public function get_shipping_by_tracking_id($tracking_id)
@@ -278,6 +272,20 @@ class Common_model extends CI_Model
 		return $this->db->get_where('exchange_rates')->result()[0];
 	}
 
+	public function get_most_recent_cad_exchange_rate()
+	{
+		$this->db->order_by('date_added', 'DESC');
+		$query = $this->db->get_where('exchange_rates', ['currency' => 'cad'], 1);
+		return $query->row();
+	}
+
+	public function get_most_recent_pound_exchange_rate()
+	{
+		$this->db->order_by('date_added', 'DESC');
+		$query = $this->db->get_where('exchange_rates', ['currency' => 'pound'], 1);
+		return $query->row();
+	}
+
 	public function one_pound()
 	{
 		return floatval($this->get_most_recent_exchange_rate()->rate);
@@ -291,6 +299,22 @@ class Common_model extends CI_Model
 
 
 	/* =================== Booking amount ====================== */
+
+	// --- Base method for filtering completed Stripe/Paystack/Bank bookings by currency ---
+	private function _filter_completed_by_currency($currency)
+	{
+		$this->db->where('payment_status', 'completed');
+		$this->db->where('currency', $currency);
+
+		// Group check for payment method (Paystack/Stripe/Offline/Bank)
+		$this->db->group_start();
+		$this->db->where_in('payment_method', ['paystack', 'stripe', 'offline']);
+		$this->db->or_where('payment_method IS NULL', null, false);
+		$this->db->group_end();
+	}
+	// --- End Base method ---
+
+
 	public function get_all_total_amount()
 	{ //get sum of total_amount column
 		$this->db->select_sum('total_amount');
@@ -299,122 +323,107 @@ class Common_model extends CI_Model
 		return $this->db->get('bookings')->row()->total_amount;
 	}
 
+	public function get_all_total_cad_amount()
+	{ //get sum of total_cad_amount column
+		$this->db->select_sum('total_amount');
+		$this->_filter_completed_by_currency('dollars'); // Filter by currency = dollars
+		return $this->db->get('bookings')->row()->total_amount;
+	}
+
 	public function get_total_naira_tax()
 	{ //get sum of get_total_naira_tax
 		$this->db->select_sum('vat');
-		$this->db->where('currency', 'naira');
-		$this->db->where('payment_status', 'completed');
+		$this->_filter_completed_by_currency('naira'); // Filter by currency = naira
 		return $this->db->get('bookings')->row()->vat;
 	}
 
 	public function get_total_pounds_tax()
-	{ //get sum of get_total_naira_tax
+	{ //get sum of get_total_pounds_tax
 		$this->db->select_sum('vat');
-		$this->db->where('currency', 'pounds');
-		$this->db->where('payment_status', 'completed');
-		$this->db->where_in('payment_method', ['paystack', 'stripe']);
+		$this->_filter_completed_by_currency('pounds'); // Filter by currency = pounds
+		return $this->db->get('bookings')->row()->vat;
+	}
+
+	public function get_total_cad_tax()
+	{ //get sum of get_total_cad_tax
+		$this->db->select_sum('vat');
+		$this->_filter_completed_by_currency('dollars'); // Filter by currency = dollars
 		return $this->db->get('bookings')->row()->vat;
 	}
 
 	public function get_total_naira_amount()
 	{ //get sum of total_naira_amount
 		$this->db->select_sum('total_amount');
-		$this->db->where('currency', 'naira');
-		$this->db->where('payment_status', 'completed');
+		$this->_filter_completed_by_currency('naira'); // Filter by currency = naira
+		return $this->db->get('bookings')->row()->total_amount;
+	}
+
+	public function get_total_pounds_amount()
+	{ //get sum of total_pounds_amount
+		$this->db->select_sum('total_amount');
+		$this->_filter_completed_by_currency('pounds'); // Filter by currency = pounds
+		return $this->db->get('bookings')->row()->total_amount;
+	}
+
+	public function get_total_cad_amount()
+	{ //get sum of get_total_cad_amount
+		$this->db->select_sum('total_amount');
+		$this->_filter_completed_by_currency('dollars'); // Filter by currency = dollars
 		return $this->db->get('bookings')->row()->total_amount;
 	}
 
 	public function get_total_naira_selected_price()
 	{ //get sum of total_naira_selected_price
 		$this->db->select_sum('selected_price');
-		$this->db->where('currency', 'naira');
-		$this->db->where('payment_status', 'completed');
-		$query = $this->db->get('bookings');
-		return $query->row()->selected_price;
-	}
-
-	public function get_total_pounds_amount()
-	{ //get sum of total_pounds_amount
-		$this->db->select_sum('total_amount');
-		$this->db->where('currency', 'pounds');
-		$this->db->where('payment_status', 'completed');
-
-		// Add group to include paystack, stripe, or empty/null
-		$this->db->group_start();
-		$this->db->where_in('payment_method', ['paystack', 'stripe']);
-		$this->db->or_where('payment_method', '');
-		$this->db->or_where('payment_method IS NULL', null, false);
-		$this->db->group_end();
-
-		return $this->db->get('bookings')->row()->total_amount;
+		$this->_filter_completed_by_currency('naira'); // Filter by currency = naira
+		return $this->db->get('bookings')->row()->selected_price;
 	}
 
 	public function get_total_pounds_selected_price()
 	{ //get sum of total_pounds_selected_price
 		$this->db->select_sum('selected_price');
-		$this->db->where('currency', 'pounds');
-		$this->db->where('payment_status', 'completed');
+		$this->_filter_completed_by_currency('pounds'); // Filter by currency = pounds
+		return $this->db->get('bookings')->row()->selected_price;
+	}
 
-		// Add group to include paystack, stripe, or empty/null
-		$this->db->group_start();
-		$this->db->where_in('payment_method', ['paystack', 'stripe']);
-		$this->db->or_where('payment_method', '');
-		$this->db->or_where('payment_method IS NULL', null, false);
-		$this->db->group_end();
-
-		$query = $this->db->get('bookings');
-		return $query->row()->selected_price;
+	public function get_total_cad_selected_price()
+	{ //get sum of get_total_cad_selected_price
+		$this->db->select_sum('selected_price');
+		$this->_filter_completed_by_currency('dollars'); // Filter by currency = dollars
+		return $this->db->get('bookings')->row()->selected_price;
 	}
 
 	public function get_total_selected_space()
-	{ //get sum of total_pounds_selected_price
+	{ //get sum of get_total_selected_space (GBP transactions)
 		$this->db->select_sum('selected_space');
-		$this->db->where('payment_status', 'completed');
-
-		// Add group to include paystack, stripe, or empty/null
-		$this->db->group_start();
-		$this->db->where_in('payment_method', ['paystack', 'stripe']);
-		$this->db->or_where('payment_method', '');
-		$this->db->or_where('payment_method IS NULL', null, false);
-		$this->db->group_end();
-		
-		$query = $this->db->get('bookings');
-		return $query->row()->selected_space;
-	}
-	
-	public function get_sum_for_nigeria()
-	{ //get sum of total_pounds_selected_price
-		$this->db->select_sum('selected_space');
-		$this->db->where('payment_status', 'completed');
-
-		// Add group to include paystack, stripe, or empty/null
-		$this->db->group_start();
-		$this->db->where_in('traveller_departure_state', ['Abuja International Airport', 'Lagos International Airport']);
-		$this->db->where_in('payment_method', ['paystack', 'stripe']);
-		$this->db->or_where('payment_method', '');
-		$this->db->or_where('payment_method IS NULL', null, false);
-		$this->db->group_end();
-
-		$query = $this->db->get('bookings');
-		return $query->row()->selected_space;
+		$this->_filter_completed_by_currency('pounds'); // Filter by currency = pounds
+		return $this->db->get('bookings')->row()->selected_space;
 	}
 
-	public function get_sum_for_uk()
-	{ //get sum of total_pounds_selected_price
+	public function get_total_cad_selected_space()
+	{ //get sum of get_total_cad_selected_space
 		$this->db->select_sum('selected_space');
-		$this->db->where('payment_status', 'completed');
-
-		// Add group to include paystack, stripe, or empty/null
-		$this->db->group_start();
-		$this->db->where_not_in('traveller_departure_state', ['Abuja International Airport', 'Lagos International Airport']);
-		$this->db->where_in('payment_method', ['paystack', 'stripe']);
-		$this->db->or_where('payment_method', '');
-		$this->db->or_where('payment_method IS NULL', null, false);
-		$this->db->group_end();
-
-		$query = $this->db->get('bookings');
-		return $query->row()->selected_space;
+		$this->_filter_completed_by_currency('dollars'); // Filter by currency = dollars
+		return $this->db->get('bookings')->row()->selected_space;
 	}
+
+	// --- New: Get total commission for GBP transactions ---
+	public function get_total_pounds_commission()
+	{
+		$this->db->select_sum('traveller_commission');
+		$this->_filter_completed_by_currency('pounds');
+		return $this->db->get('bookings')->row()->traveller_commission;
+	}
+
+	// --- New: Get total commission for CAD transactions ---
+	public function get_total_cad_commission()
+	{
+		$this->db->select_sum('traveller_commission');
+		$this->_filter_completed_by_currency('dollars');
+		return $this->db->get('bookings')->row()->traveller_commission;
+	}
+
+	// --- Removed redundant get_sum_for_nigeria, get_sum_for_uk, get_sum_for_ca methods ---
 
 
 	// 	Refferals

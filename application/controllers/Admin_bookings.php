@@ -43,7 +43,7 @@ class Admin_bookings extends MY_Controller
 		$list = $this->current_model->get_records();
 		$data = array();
 		foreach ($list as $y) {
-			$sign = '&pound;';
+			$currency = ($y->currency == 'dollars') ? '$' : '&pound;';
 			$traveller = $this->common_model->get_traveller_details_by_id($y->traveller_id);
 
 			// traveller details
@@ -51,7 +51,7 @@ class Admin_bookings extends MY_Controller
 								<i class="fa-solid fa-phone"></i> ' . $y->traveller_contact . '<br />
 								<i class="fa-solid fa-location"></i> ' . $y->traveller_drop_address1 . '<br />
 								<i class="fa-solid fa-calendar"></i> ' . x_date($y->traveller_drop_date1) . '<br />
-								<i class="fa-solid fa-plane-arrival"></i> ' . $y->traveller_arrival_state .', '. $traveller->destination;
+								<i class="fa-solid fa-plane-arrival"></i> ' . $y->traveller_arrival_state . ', ' . $traveller->destination;
 
 			$user_details = $y->payment_method == 'offline'
 				? 'N/A'
@@ -102,7 +102,7 @@ class Admin_bookings extends MY_Controller
 					$item_details .= '<td>' . $item->item_name . '</td>';
 					$item_details .= '<td>' . $item->category . '</td>';
 					// --- UPDATED: Removed size display from this cell ---
-					$item_details .= '<td>&pound;' . number_format($item->price, 2) . '</td>';
+					$item_details .= '<td>' . $currency . '' . number_format($item->price, 2) . '</td>';
 					$item_details .= '</tr>';
 
 					// --- NEW: Accumulate total size ---
@@ -131,7 +131,7 @@ class Admin_bookings extends MY_Controller
 			$traveller_commission += $extra_commission;
 
 			$commission = $y->payment_status == 'completed'
-				? $sign . number_format($traveller_commission, 2)
+				? $currency . number_format($traveller_commission, 2)
 				: 'N/A';
 
 			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
@@ -139,7 +139,7 @@ class Admin_bookings extends MY_Controller
 
 			$total_amount =  $y->payment_method == 'offline'
 				? 'Payment method: Offline'
-				: 'Total amount: £' . $y->total_amount . ' <br />
+				: 'Total amount: ' . $currency . '' . $y->total_amount . ' <br />
 							Payment method: ' . ucfirst($y->payment_method) . '';
 
 			$row = array();
@@ -185,7 +185,7 @@ class Admin_bookings extends MY_Controller
 		$list = $this->current_model->get_records();
 		$data = array();
 		foreach ($list as $y) {
-			$sign = '&pound;';
+			$currency = ($y->currency == 'dollars') ? '$' : '&pound;';
 			$traveller = $this->common_model->get_traveller_details_by_id($y->traveller_id);
 
 			// traveller details
@@ -237,12 +237,14 @@ class Admin_bookings extends MY_Controller
 						$documents_electronics_count++;
 					}
 
+					$currency = ($y->currency == 'dollars') ? '$' : '&pound;';
+
 					// Original logic for item details display remains here
 					$item_details .= '<tr>';
 					$item_details .= '<td>' . $item->item_name . '</td>';
 					$item_details .= '<td>' . $item->category . '</td>';
 					// --- UPDATED: Removed size display from this cell ---
-					$item_details .= '<td>&pound;' . number_format($item->price, 2) . '</td>';
+					$item_details .= '<td>' . $currency . '' . number_format($item->price, 2) . '</td>';
 					$item_details .= '</tr>';
 
 					// --- NEW: Accumulate total size ---
@@ -271,19 +273,19 @@ class Admin_bookings extends MY_Controller
 			$traveller_commission += $extra_commission;
 
 			$commission = $y->payment_status == 'completed'
-				? $sign . number_format($traveller_commission, 2)
+				? $currency . number_format($traveller_commission, 2)
 				: 'N/A';
 
 			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
 				'<span class="text-warning"><b>Pending</b></span>');
-			
+
 			$payment_method = match ($y->payment_method) {
 				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
 				'paystack' => '<img src="' . base_url('assets/general/paystack.svg') . '" alt="Paystack" width="80" height="20">',
 				default => 'Bank',
 			};
 
-			$total_amount = 'Total amount: £' . $y->total_amount . ' <br />
+			$total_amount = 'Total amount: ' . $currency . '' . $y->total_amount . ' <br />
                              Payment method: ' . $payment_method . '';
 
 			$row = array();
@@ -327,7 +329,7 @@ class Admin_bookings extends MY_Controller
 		$list = $this->current_model->get_records();
 		$data = array();
 		foreach ($list as $y) {
-			$sign = '&pound;';
+			$currency = ($y->currency == 'dollars') ? '$' : '&pound;';
 			$traveller = $this->common_model->get_traveller_details_by_id($y->traveller_id);
 
 			// traveller details
@@ -378,12 +380,14 @@ class Admin_bookings extends MY_Controller
 						$documents_electronics_count++;
 					}
 
+					$currency = ($y->currency == 'dollars') ? '$' : '&pound;';
+
 					// Original logic for item details display remains here
 					$item_details .= '<tr>';
 					$item_details .= '<td>' . $item->item_name . '</td>';
 					$item_details .= '<td>' . $item->category . '</td>';
 					// --- UPDATED: Removed size display from this cell ---
-					$item_details .= '<td>&pound;' . number_format($item->price, 2) . '</td>';
+					$item_details .= '<td>' . $currency . '' . number_format($item->price, 2) . '</td>';
 					$item_details .= '</tr>';
 
 					// --- NEW: Accumulate total size ---
@@ -412,13 +416,13 @@ class Admin_bookings extends MY_Controller
 			$traveller_commission += $extra_commission;
 
 			$commission = $y->payment_status == 'completed'
-				? $sign . number_format($traveller_commission, 2)
+				? $currency . number_format($traveller_commission, 2)
 				: 'N/A';
 
 			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
 				'<span class="text-warning"><b>Pending</b></span>');
 
-			$total_amount = 'Total amount: £' . $y->total_amount . ' <br />
+			$total_amount = 'Total amount: ' . $currency . '' . $y->total_amount . ' <br />
                              Payment method: ' . $y->payment_method . '';
 
 			$row = array();

@@ -12,7 +12,7 @@ class Bookings_ajax extends CI_Model
 
 	var $table = 'bookings';
 	var $column_order = array(null, 'date_added', 'traveller_name', 'traveller_commission', 'agent_name', 'receiver_name', 'need_help', 'items', 'payment_status'); //set column field database for datatable orderable
-	var $column_search = array('date_added', 'traveller_name', 'traveller_commission', 'agent_name', 'receiver_name', 'need_help', 'items', 'payment_status'); //set column field database for datatable searchable 
+	var $column_search = array('date_added', 'traveller_name', 'currency', 'traveller_commission', 'agent_name', 'receiver_name', 'need_help', 'items', 'payment_status'); //set column field database for datatable searchable 
 	var $order = array('date_added' => 'desc');
 
 

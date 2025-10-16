@@ -23,7 +23,8 @@ class User_bookings extends MY_Controller
         $this->dashboard_header('Search Travellers');
         $id = $this->user_details->id;
         $data['is_verified'] = $this->user_details->is_verified;
-        $data['user_details'] = $this->users_model->is_profile_complete($id);
+        $data['user_details'] = $this->user_details;
+        $data['is_profile_complete'] = $this->users_model->is_profile_complete($id);
         $this->load->view('users/search_travellers', $data);
         $this->dashboard_footer();
     }
@@ -78,49 +79,6 @@ class User_bookings extends MY_Controller
         }
     }
 
-    // public function search()
-    // {
-    //     $destination = $this->input->post('destination');
-    //     $this->load->model('common_model', 'common');
-    //     $travellers = $this->common_model->get_travellers_by_destination($destination);
-    //     $is_verified = $this->user_details->is_verified;
-
-    //     if (count($travellers) > 0) {
-    //         $data = array();
-    //         foreach ($travellers as $traveller) {
-    //             $days = get_date_difference(date('Y-m-d H:i:s'), $traveller->travel_date);
-    //             $days = !$days ? 'Today' : ($days > 1 ? "$days Days" : "$days Day");
-    //             $location = ($traveller->destination == 'Nigeria') ? $traveller->location : $traveller->current_state;
-
-    //             // Check if any of the user profile required fields are empty
-    //             if (empty($this->user_details->number) || empty($this->user_details->address) || empty($this->user_details->state) || empty($this->user_details->post_code)) {
-    //                 $profile_completed = 0;  // Profile is incomplete
-    //             } else {
-    //                 $profile_completed = 1;  // Profile is complete
-    //             }
-
-    //             $data[] = array(
-    //                 'travel_date' => x_date($traveller->travel_date),
-    //                 'days_remaining' => $days,
-    //                 'current_state' => $traveller->current_state,
-    //                 'departure_state' => $traveller->departure_state,
-    //                 'arrival_airport' => $traveller->arrival_airport,
-    //                 'arrival_state' => $traveller->arrival_state,
-    //                 'available_space' => $traveller->available_space,
-    //                 'hash' => $traveller->hash,
-    //                 'is_verified' => (int)$is_verified,
-    //                 'profile_completed' => $profile_completed,
-    //                 'destination' => $destination,
-    //             );
-    //         }
-    //         echo json_encode(array('status' => true, 'travellers' => $data));
-    //     } else {
-    //         echo json_encode(array('status' => false, 'msg' => 'No Traveller Available'));
-    //     }
-    // }
-
-
-
     public function buy_bag_space($hash)
     {
         $this->dashboard_header('Buy Space');
@@ -128,14 +86,28 @@ class User_bookings extends MY_Controller
         $data['user_details'] = $this->user_details;
         $data['user_id'] = $this->user_details->id;
         $data['traveller_details'] = $traveller;
-        $data['currency'] = 'pounds';
-        $data['symbol'] = '&pound;';
-        $data['one_naira'] = $this->common_model->one_naira();
-        $data['one_pound'] = $this->common_model->one_pound();
+
+        // Canada users use CAD ($)
+        if ($this->user_details->country == 'Canada') {
+            $data['currency'] = 'dollars'; // Used for JS logic
+            $data['symbol'] = '$';         // CAD symbol
+        } else {
+            // Nigeria and United Kingdom users use GBP (£)
+            $data['currency'] = 'pounds'; // Used for JS logic
+            $data['symbol'] = '&pound;';   // GBP symbol
+        }
+
+        // Safely retrieve exchange rates
+        $cad_rate_obj = $this->common_model->get_most_recent_cad_exchange_rate();
+        $pound_rate_obj = $this->common_model->get_most_recent_pound_exchange_rate();
+
+        // Assign rates, using 0 as a safe fallback if the rate object is null
+        $data['one_pound'] = $pound_rate_obj ? $pound_rate_obj->rate : 0; // GBP to NGN rate
+        $data['one_dollar'] = $cad_rate_obj ? $cad_rate_obj->rate : 0;   // CAD to NGN rate
+
         $this->load->view('users/book_space', $data);
         $this->dashboard_footer();
     }
-
 
 
     public function get_traveling_available_space($id = false)
@@ -170,7 +142,7 @@ class User_bookings extends MY_Controller
 
         $this->form_validation->set_rules('traveller_current_state', 'Traveller current state', 'trim');
         $this->form_validation->set_rules('traveller_arrival_airport', 'Traveller arrival Airport', 'trim');
-        $this->form_validation->set_rules('traveller_arrival_state', 'Arrival State', 'trim');
+        $this->form_validation->set_rules('traveller_arrival_state', 'Traveller Arrival State', 'trim');
 
         // Form validation for booking details
         $this->form_validation->set_rules('insurance', 'Insurance', 'trim');
@@ -197,43 +169,119 @@ class User_bookings extends MY_Controller
             $fullname = $this->user_details->firstname . ' ' . $this->user_details->lastname;
             $email = $this->user_details->email;
             $number = $this->user_details->number;
-            $address = $this->user_details->address;
+            $user_country = $this->user_details->country;
+            // get agent and receiver details
+            $agent_name = $this->input->post('agent_name');
+            $agent_phone = $this->input->post('agent_phone');
+            $agent_email = $this->input->post('agent_email');
+            $receiver_name = $this->input->post('receiver_name');
+            $traveller_id = $this->input->post('traveller_id');
+            $traveller_destination = $this->input->post('traveller_destination');
 
-            if ($this->input->post('agent_name') == $this->input->post('receiver_name')) {
+
+            if ($agent_name == $receiver_name) {
                 $res = [
                     'status' => false,
-                    'msg' => 'Agent cannot be same as receiver',
-                    'title' => 'Booking Error.',
+                    'msg' => 'Agent cannot be same as Receiver.',
+                    'title' => 'Booking Error',
                     'msg_timeout' => 6000,
                 ];
                 echo json_encode($res);
                 return;
             };
 
+            if ($user_country === $traveller_destination) {
+                if ($agent_name === $fullname || $agent_email === $email || $agent_phone === $number) {
+                    $res = [
+                        'status' => false,
+                        'msg' => 'You cannot be the Agent when sending to your current country.',
+                        'title' => 'Booking Error',
+                        'msg_timeout' => 6000,
+                    ];
+                    echo json_encode($res);
+                    return;
+                }
+            };
+
+            // --- START: Calculate Traveller Commission and inject into POST data ---
+
+            $traveller_details = $this->common_model->get_traveller_details_by_id($traveller_id);
+            $destination_country = $traveller_details->destination ?? '';
+            $calculations = json_decode($this->input->post('price_calculations'));
+            $selected_space = $calculations->selectedSpace; // Use selectedSpace from calculations for accuracy
+
+            // Base commission calculation logic (assumed: 4.50 for Nigeria, 5.00 for UK/CA per KG)
+            $base_commission_rate = ($destination_country == 'Nigeria') ? 4.50 : 5.00;
+            $traveller_commission = $base_commission_rate * (float)$selected_space;
+
+            // Get selected items to check for premium items (for commission increase)
+            $items_json = $this->input->post('items');
+            if ($items_json) {
+                $decoded_items = json_decode($items_json);
+                if (is_array($decoded_items)) {
+                    foreach ($decoded_items as $item) {
+                        if (isset($item->category) && $item->category === 'Documents/Electronics') {
+                            // Assuming premium items add 10 to the commission
+                            $traveller_commission += 10.00;
+                            break;
+                        }
+                    }
+                }
+            }
+            $traveller_commission = round($traveller_commission, 2);
+
+            // Manually inject the calculated commission into $_POST so it is picked up by the model's extractKeys
+            // NOTE: CodeIgniter's input methods are usually preferred, but using $_POST for demonstration:
+            $_POST['traveller_commission'] = $traveller_commission;
+
+            // --- END: Calculate Traveller Commission ---
+
             $booking = $this->users_model->add_booking_to_db($user_id, $fullname, $email);
-            $rate = $this->common_model->get_most_recent_exchange_rate()->rate;
+
+            // Safely retrieve exchange rates
+            $cad_rate_obj = $this->common_model->get_most_recent_cad_exchange_rate();
+            $pound_rate_obj = $this->common_model->get_most_recent_pound_exchange_rate();
+
+            $cad_rate = $cad_rate_obj ? $cad_rate_obj->rate : 0;
+            $pound_rate = $pound_rate_obj ? $pound_rate_obj->rate : 0;
+
+            // Get traveller details (only needed for route title)
+            $traveller = $this->common_model->get_traveller_details_by_id($booking->traveller_id);
+
+            // --- UPDATED CURRENCY LOGIC BASED ON USER'S COUNTRY (ORIGIN) ---
+            $is_canada_user = ($this->user_details->country == 'Canada');
 
             if ($booking) {
-                $currency = 'gbp';
-                $exchange_rate = $rate; // You can fetch this from your DB or API if dynamic
-                $gbp_amount = (float)$booking->total_amount;
-                $ngn_amount = $gbp_amount * $exchange_rate;
-                $title = 'Purchasing ' . $booking->selected_space . 'KG Bag Space United Kingdom - Nigeria';
+                // Set currency and amount variables based on USER's country
+                if ($is_canada_user) {
+                    $currency = 'cad'; // Charge in CAD
+                    $exchange_rate = $cad_rate; // CAD to NGN rate
+                    $charge_amount = (float)$booking->total_amount; // Amount is in CAD
+                    $title_route = $traveller->location . ' - ' . $traveller->destination;
+                } else {
+                    $currency = 'gbp'; // Charge in GBP (for UK and Nigerian users)
+                    $exchange_rate = $pound_rate; // GBP to NGN rate
+                    $charge_amount = (float)$booking->total_amount; // Amount is in GBP
+                    $title_route = $traveller->location . ' - ' . $traveller->destination;
+                }
+
+                $ngn_amount = $charge_amount * $exchange_rate;
+                $title = 'Purchasing ' . $booking->selected_space . 'KG Bag Space ' . $title_route;
 
                 if ($payment_method === 'stripe') {
                     // Create Stripe Checkout session
                     try {
 
                         // $stripeSecretKey = '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';
-                        $stripeSecretKey = stripe_key_live();
-                        // $stripeSecretKey = stripe_key_test();
+                        // $stripeSecretKey = stripe_key_live();
+                        $stripeSecretKey = stripe_key_test();
                         \Stripe\Stripe::setApiKey($stripeSecretKey); // Use your Stripe secret key
 
                         $checkout_session = \Stripe\Checkout\Session::create([
                             'line_items' => [[
                                 'price_data' => array(
-                                    'currency' => $currency,
-                                    'unit_amount' => $gbp_amount * 100,
+                                    'currency' => $currency, // Dynamically set currency (gbp or cad)
+                                    'unit_amount' => $charge_amount * 100, // Amount to charge
                                     'product_data' => array(
                                         'name' => $title,
                                         // 'description' => 'This is the test description.',
@@ -275,17 +323,17 @@ class User_bookings extends MY_Controller
                         return;
                     }
                 } elseif ($payment_method === 'paystack') {
-                    // Create Paystack Checkout session
+                    // Create Paystack Checkout session (Always NGN amount for Paystack)
                     try {
-                        $paystackSecretKey = paystack_key_live(); // Replace with your Paystack live secret key
-                        // $paystackSecretKey = paystack_key_test(); // Replace with your Paystack test secret key
+                        // $paystackSecretKey = paystack_key_live(); // Replace with your Paystack live secret key
+                        $paystackSecretKey = paystack_key_test(); // Replace with your Paystack test secret key
 
                         $reference = 'SMB' . uniqid(); // Unique reference for transaction
                         $callback_url = base_url() . 'user_bookings/paystack/' . $booking->hash . '?reference=' . $reference;
 
                         $fields = [
                             'email' => $email,
-                            'amount' => $ngn_amount * 100, // Convert to kobo
+                            'amount' => $ngn_amount * 100, // Convert NGN amount to kobo
                             'reference' => $reference,
                             'callback_url' => $callback_url,
                             'metadata' => [
@@ -402,6 +450,7 @@ class User_bookings extends MY_Controller
                 $data['traveller_current_state'] = $booking->traveller_current_state;
                 $data['traveller_arrival_airport'] = $booking->traveller_arrival_airport;
                 $data['traveller_arrival_state'] = $booking->traveller_arrival_state;
+                $data['currency'] = ($booking->currency == 'dollars') ? '$' : '£';
 
                 //Update the tracking ID, used space and available space in the traveller table
                 $this->travellers_model->update_traveller_space($traveller_id);
@@ -491,8 +540,8 @@ class User_bookings extends MY_Controller
         if ($booking) {
 
             // Verify Paystack payment
-            $secretKey = paystack_key_live(); // Replace with your live key in production
-            // $secretKey = paystack_key_test(); // Replace with your test key in production
+            // $secretKey = paystack_key_live(); // Replace with your live key in production
+            $secretKey = paystack_key_test(); // Replace with your test key in production
 
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "https://api.paystack.co/transaction/verify/" . $reference);
@@ -577,10 +626,7 @@ class User_bookings extends MY_Controller
     }
 
 
-    public function checks()
-    {
-       
-    }
+    public function checks() {}
 
 
     public function check()

@@ -123,42 +123,14 @@ class Users_model extends MY_Model
         return false; // Insertion failed
     }
 
-
-    // add booking to the database
-    // public function add_booking_to_db($user_id, $fullname, $email)
-    // {
-    //     //generate and update tracking ID
-    //     $tracking_id = generate_tracking_id(7);
-
-    //     $calculations = json_decode($this->input->post('price_calculations'));
-
-    //     $data = extractKeys($this->input->post(), $this->getColumns());
-    //     $data['insurance'] = $calculations->insurance;
-    //     $data['status'] = 'Booking Pending';
-    //     $data['delivery_status'] = 'Booking Pending';
-    //     $data['total_amount'] = $calculations->totalAmount;
-    //     $data['sub_total'] = $calculations->subTotal;
-    //     $data['vat'] = $calculations->vat;
-    //     $data['service_charge'] = $calculations->serviceCharge;
-    //     $data['selected_space'] = $calculations->selectedSpace;
-    //     $data['selected_price'] = $calculations->selectedPrice;
-    //     $data['tracking_id'] = $tracking_id;
-    //     $data['user_id'] = $user_id;
-    //     $data['user_fullname'] = $fullname;
-    //     $data['user_email'] = $email;
-    //     $data['hash'] = $this->generate_hash(200);
-
-    //     $this->db->insert('bookings', $data);
-
-    //     return $this->db->get_where($this->table, array('hash' => $data['hash']))->row();
-    // }
-
     public function add_booking_to_db($user_id, $fullname, $email)
     {
         //generate and update tracking ID
         $tracking_id = generate_tracking_id(7);
 
         $calculations = json_decode($this->input->post('price_calculations'));
+        $currency_charged = $this->input->post('currency', TRUE); // The currency determined by the user's country
+        $traveller_commission = $this->input->post('traveller_commission', TRUE);
 
         $data = extractKeys($this->input->post(), $this->getColumns());
         $data['insurance'] = $calculations->insurance;
@@ -175,11 +147,14 @@ class Users_model extends MY_Model
         $data['user_id'] = $user_id;
         $data['user_fullname'] = $fullname;
         $data['user_email'] = $email;
+        $data['currency'] = $currency_charged; // Save the currency type (e.g., 'dollars' or 'pounds')
+        $data['traveller_commission'] = $traveller_commission;
         $data['hash'] = $this->generate_hash(200);
 
         $this->db->insert('bookings', $data);
 
-        return $this->db->get_where($this->table, array('hash' => $data['hash']))->row();
+        // Assuming $this->table is set to 'bookings'
+        return $this->db->get_where('bookings', array('hash' => $data['hash']))->row();
     }
 
 
@@ -187,7 +162,7 @@ class Users_model extends MY_Model
     {
         $y = $this->common_model->get_traveller_details_by_id($id);
 
-        $user_fullname = $this->input->post('firstname') .' '. $this->input->post('lastname');
+        $user_fullname = $this->input->post('firstname') . ' ' . $this->input->post('lastname');
         $data = extractKeys($this->input->post(), $this->getColumns());
         $data['traveller_id'] = $y->id;
         $data['traveller_name'] = $y->fullname;
