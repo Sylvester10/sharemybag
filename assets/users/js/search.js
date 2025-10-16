@@ -50,7 +50,7 @@ jQuery(document).ready(function ($) {
           response.travellers.forEach((traveller) => {
             let buttonHtml = ""; // Store button HTML dynamically
 
-            // Check for "United Kingdom" destination
+            // Check for "United Kingdom" or "Canada" destination
             if (traveller.destination === "United Kingdom" || traveller.destination === "Canada") {
               if (traveller.is_verified === 0 || traveller.is_verified === 1) {
                 buttonHtml = `<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verifyID">
