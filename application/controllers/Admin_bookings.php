@@ -192,7 +192,8 @@ class Admin_bookings extends MY_Controller
 			$traveller_details = '<i class="fa-solid fa-user"></i> ' . $y->traveller_name . '<br />
 								<i class="fa-solid fa-phone"></i> ' . $y->traveller_contact . '<br />
 								<i class="fa-solid fa-location"></i> ' . $y->traveller_drop_address1 . '<br />
-								<i class="fa-solid fa-calendar"></i> ' . x_date($y->traveller_drop_date1);
+								<i class="fa-solid fa-calendar"></i> ' . x_date($y->traveller_drop_date1) . '<br />
+								<i class="fa-solid fa-plane-arrival"></i> ' . $y->traveller_arrival_state . ', ' . $traveller->destination;
 
 			$user_details = $y->payment_method == 'offline'
 				? '<i class="fa-solid fa-user"></i> ' . $y->user_fullname . '<br />
@@ -336,7 +337,8 @@ class Admin_bookings extends MY_Controller
 			$traveller_details = '<i class="fa-solid fa-user"></i> ' . $y->traveller_name . '<br />
 								<i class="fa-solid fa-phone"></i> ' . $y->traveller_contact . '<br />
 								<i class="fa-solid fa-location"></i> ' . $y->traveller_drop_address1 . '<br />
-								<i class="fa-solid fa-calendar"></i> ' . x_date($y->traveller_drop_date1);
+								<i class="fa-solid fa-calendar"></i> ' . x_date($y->traveller_drop_date1) . '<br />
+								<i class="fa-solid fa-plane-arrival"></i> ' . $y->traveller_arrival_state . ', ' . $traveller->destination;
 
 			$user_details = $y->payment_method == 'offline'
 				? 'N/A'
