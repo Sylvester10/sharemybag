@@ -88,6 +88,8 @@ class Pending_travellers_ajax extends CI_Model
 
 		return '<p><a type="button" href="' . base_url('admin_travellers/update_traveller/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-pencil" style="color: green"></i> &nbsp; Update Traveller </a></p>
 
+		<p><a type="button" href="' . base_url('admin_travellers/unapprove_traveller/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-ban" style="color: red"></i> &nbsp; Disapprove Traveller </a></p>
+
 		<hr />
 		
 		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $id . '"> <i class="fa fa-trash" style="color: red"></i> &nbsp; Delete </a></p>';
