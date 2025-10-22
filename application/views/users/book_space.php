@@ -222,7 +222,7 @@
 
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Post Code *</label>
-                                    <input name="agent_postcode" id="agentPostcode" type="text" class="form-control border border-primary mb-3" />
+                                    <input name="agent_postcode" id="agentPostcode" type="text" class="required form-control border border-primary mb-3" />
                                 </div>
                             </div>
                         </fieldset>
@@ -275,7 +275,7 @@
 
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Post Code *</label>
-                                    <input name="receiver_postcode" id="receiverPostcode" type="text" class="form-control border border-primary mb-3" />
+                                    <input name="receiver_postcode" id="receiverPostcode" type="text" class="required form-control border border-primary mb-3" />
                                 </div>
                             </div>
 

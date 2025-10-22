@@ -63,7 +63,7 @@ class Admin_bookings extends MY_Controller
 				: '<i class="fa-solid fa-user"></i> ' . $y->agent_name . '<br />
 							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br /> 
 							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br /> 
-							<i class="fa-solid fa-location-dot"></i> ' . $y->agent_address;
+							<i class="fa-solid fa-location-dot"></i> ' . $y->agent_address . ', ' . $y->agent_locality . ', ' . $y->agent_postcode . '';
 
 			// receiver details
 			$receiver_details = $y->payment_method == 'offline'
