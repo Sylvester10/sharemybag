@@ -10,4 +10,4 @@
 node_modules/
 
 #folder and files
-# application/helpers/sk_helper.php
+application/helpers/sk_helper.php
