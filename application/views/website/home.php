@@ -7,7 +7,7 @@
                     <div class="col-12 col-lg-8 wow fadeInUp animated" data-wow-delay=".2s">
                         <div class="hero-area-content">
                             <div class="section-title">
-                                <h1>Send Parcels to the <span class="tw-text-color-primary">UK</span>, <span class="tw-text-color-primary">Canada</span> & <span class="tw-text-color-primary">Nigeria</span> with Ease</h1>
+                                <h1>Sending Parcels to the <span class="tw-text-color-primary">UK</span>, <span class="tw-text-color-primary">Canada</span> & <span class="tw-text-color-primary">Nigeria</span> with Ease</h1>
                                 <h6>Use a Traveller</h6>
                             </div>
                         </div>
