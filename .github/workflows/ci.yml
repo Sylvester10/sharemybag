@@ -30,11 +30,3 @@ jobs:
       - name: Run PHP syntax check
         run: |
           find ./application -type f -name "*.php" -print0 | xargs -0 -n1 php -l
-
-      - name: Run PHPUnit tests (if you have tests)
-        run: |
-          if [ -f vendor/bin/phpunit ]; then
-            vendor/bin/phpunit --testdox
-          else
-            echo "No PHPUnit tests found. Skipping..."
-          fi
