@@ -271,11 +271,9 @@ class User_bookings extends MY_Controller
                 if ($payment_method === 'stripe') {
                     // Create Stripe Checkout session
                     try {
-
-                        // $stripeSecretKey = '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';
+                        // Verify Stripe payment using secret key
                         $stripeSecretKey = get_stripe_secret_key();
-                        // $stripeSecretKey = stripe_key_test();
-                        \Stripe\Stripe::setApiKey($stripeSecretKey); // Use your Stripe secret key
+                        \Stripe\Stripe::setApiKey($stripeSecretKey); 
 
                         $checkout_session = \Stripe\Checkout\Session::create([
                             'line_items' => [[
@@ -325,8 +323,8 @@ class User_bookings extends MY_Controller
                 } elseif ($payment_method === 'paystack') {
                     // Create Paystack Checkout session (Always NGN amount for Paystack)
                     try {
-                        $paystackSecretKey = get_paystack_secret_key(); // Replace with your Paystack live secret key
-                        // $paystackSecretKey = paystack_key_test(); // Replace with your Paystack test secret key
+                        // Verify Paystack payment using secret key
+                        $paystackSecretKey = get_paystack_secret_key(); 
 
                         $reference = 'SMB' . uniqid(); // Unique reference for transaction
                         $callback_url = base_url() . 'user_bookings/paystack/' . $booking->hash . '?reference=' . $reference;
@@ -539,9 +537,8 @@ class User_bookings extends MY_Controller
 
         if ($booking) {
 
-            // Verify Paystack payment
-            $secretKey = get_paystack_secret_key(); // Replace with your live key in production
-            // $secretKey = paystack_key_test(); // Replace with your test key in production
+            // Verify Paystack payment using secret key
+            $secretKey = get_paystack_secret_key();
 
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "https://api.paystack.co/transaction/verify/" . $reference);
