@@ -273,7 +273,7 @@ class User_bookings extends MY_Controller
                     try {
 
                         // $stripeSecretKey = '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';
-                        $stripeSecretKey = stripe_key_live();
+                        $stripeSecretKey = get_stripe_secret_key();
                         // $stripeSecretKey = stripe_key_test();
                         \Stripe\Stripe::setApiKey($stripeSecretKey); // Use your Stripe secret key
 
@@ -325,7 +325,7 @@ class User_bookings extends MY_Controller
                 } elseif ($payment_method === 'paystack') {
                     // Create Paystack Checkout session (Always NGN amount for Paystack)
                     try {
-                        $paystackSecretKey = paystack_key_live(); // Replace with your Paystack live secret key
+                        $paystackSecretKey = get_paystack_secret_key(); // Replace with your Paystack live secret key
                         // $paystackSecretKey = paystack_key_test(); // Replace with your Paystack test secret key
 
                         $reference = 'SMB' . uniqid(); // Unique reference for transaction
@@ -540,7 +540,7 @@ class User_bookings extends MY_Controller
         if ($booking) {
 
             // Verify Paystack payment
-            $secretKey = paystack_key_live(); // Replace with your live key in production
+            $secretKey = get_paystack_secret_key(); // Replace with your live key in production
             // $secretKey = paystack_key_test(); // Replace with your test key in production
 
             $ch = curl_init();
