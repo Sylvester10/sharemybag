@@ -158,31 +158,83 @@ class Users_model extends MY_Model
     }
 
 
+    // public function add_offline_booking_to_db($id)
+    // {
+    //     $y = $this->common_model->get_traveller_details_by_id($id);
+
+    //     $user_fullname = $this->input->post('firstname') . ' ' . $this->input->post('lastname');
+    //     $data = extractKeys($this->input->post(), $this->getColumns());
+    //     $data['traveller_id'] = $y->id;
+    //     $data['traveller_name'] = $y->fullname;
+    //     $data['traveller_contact'] = $y->phone;
+    //     $data['traveller_departure_date'] = $y->travel_date;
+    //     $data['traveller_arrival_date'] = $y->arrival_date;
+    //     $data['traveller_departure_state'] = $y->departure_state;
+    //     $data['traveller_current_state'] = $y->current_state;
+    //     $data['traveller_arrival_state'] = $y->arrival_state;
+    //     $data['traveller_arrival_airport'] = $y->arrival_airport;
+    //     $data['traveller_drop_address1'] = $y->drop_address1;
+    //     $data['traveller_drop_date1'] = $y->drop_date1;
+    //     $data['	traveller_drop_address2'] = $y->drop_address2;
+    //     $data['traveller_drop_date2'] = $y->drop_date2;
+    //     $data['user_fullname'] = $user_fullname;
+    //     $data['user_email'] = $this->input->post('email');
+    //     $data['selected_space'] = $this->input->post('selected_space');
+    //     $data['payment_method'] = 'offline';
+    //     $data['payment_status'] = 'completed';
+    //     $data['hash'] = $this->generate_hash(200);
+
+    //     return $this->db->insert('bookings', $data);
+    // }
+
     public function add_offline_booking_to_db($id)
     {
         $y = $this->common_model->get_traveller_details_by_id($id);
+        $user = $this->common_model->get_user_details_by_id($this->input->post('user_id')); // Create this if not existing
 
-        $user_fullname = $this->input->post('firstname') . ' ' . $this->input->post('lastname');
-        $data = extractKeys($this->input->post(), $this->getColumns());
-        $data['traveller_id'] = $y->id;
-        $data['traveller_name'] = $y->fullname;
-        $data['traveller_contact'] = $y->phone;
-        $data['traveller_departure_date'] = $y->travel_date;
-        $data['traveller_arrival_date'] = $y->arrival_date;
-        $data['traveller_departure_state'] = $y->departure_state;
-        $data['traveller_current_state'] = $y->current_state;
-        $data['traveller_arrival_state'] = $y->arrival_state;
-        $data['traveller_arrival_airport'] = $y->arrival_airport;
-        $data['traveller_drop_address1'] = $y->drop_address1;
-        $data['traveller_drop_date1'] = $y->drop_date1;
-        $data['	traveller_drop_address2'] = $y->drop_address2;
-        $data['traveller_drop_date2'] = $y->drop_date2;
-        $data['user_fullname'] = $user_fullname;
-        $data['user_email'] = $this->input->post('email');
-        $data['selected_space'] = $this->input->post('selected_space');
-        $data['payment_method'] = 'offline';
-        $data['payment_status'] = 'completed';
-        $data['hash'] = $this->generate_hash(200);
+        $data = [
+            // Traveller Info
+            'traveller_id' => $y->id,
+            'traveller_name' => $y->fullname,
+            'traveller_contact' => $y->phone,
+            'traveller_departure_date' => $y->travel_date,
+            'traveller_arrival_date' => $y->arrival_date,
+            'traveller_departure_state' => $y->departure_state,
+            'traveller_current_state' => $y->current_state,
+            'traveller_arrival_state' => $y->arrival_state,
+            'traveller_arrival_airport' => $y->arrival_airport,
+            'traveller_drop_address1' => $y->drop_address1,
+            'traveller_drop_date1' => $y->drop_date1,
+            'traveller_drop_address2' => $y->drop_address2,
+            'traveller_drop_date2' => $y->drop_date2,
+
+            // Linked user (smb user)
+            'user_id' => $this->input->post('user_id'),
+            'user_email' => $user->email,
+            'user_fullname' => $user->firstname . ' ' . $user->lastname,
+
+            // Agent Details
+            'agent_name' => $this->input->post('agent_name'),
+            'agent_email' => $this->input->post('agent_email'),
+            'agent_phone' => $this->input->post('agent_phone'),
+            'agent_address' => $this->input->post('agent_address'),
+            'agent_locality' => $this->input->post('agent_locality'),
+            'agent_postcode' => $this->input->post('agent_postcode'),
+
+            // Receiver Details
+            'receiver_name' => $this->input->post('receiver_name'),
+            'receiver_email' => $this->input->post('receiver_email'),
+            'receiver_phone' => $this->input->post('receiver_phone'),
+            'receiver_address' => $this->input->post('receiver_address'),
+            'receiver_locality' => $this->input->post('receiver_locality'),
+            'receiver_postcode' => $this->input->post('receiver_postcode'),
+
+            // Booking Info
+            'selected_space' => $this->input->post('selected_space'),
+            'payment_method' => 'offline',
+            'payment_status' => 'completed',
+            'hash' => $this->generate_hash(200),
+        ];
 
         return $this->db->insert('bookings', $data);
     }

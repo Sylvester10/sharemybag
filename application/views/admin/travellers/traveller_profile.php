@@ -159,21 +159,18 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					<?php
 					
 					$user_details = $y->payment_method == 'offline'
-    				? 'N/A'
-    				: '<i class="fa-solid fa-user"></i> ' . $y->user_fullname . '<br />
-						<i class="fa-solid fa-at"></i> ' . $y->user_email;
+						? '<i class="fa-solid fa-user"></i> ' . $y->user_fullname . '<br />
+							<i class="fa-solid fa-at"></i> ' . $y->user_email . ' <br /> <i class="fa-solid fa-exclamation-circle"></i> This is an offline booking'
+						: '<i class="fa-solid fa-user"></i> ' . $y->user_fullname . '<br />
+							<i class="fa-solid fa-at"></i> ' . $y->user_email;
 
-				$agent_details = $y->payment_method == 'offline'
-					? 'N/A'
-					: '<i class="fa-solid fa-user"></i> ' . $y->agent_name . '<br />
+				$agent_details = '<i class="fa-solid fa-user"></i> ' . $y->agent_name . '<br />
 							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br /> 
 							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br /> 
 							<i class="fa-solid fa-location-dot"></i> ' . $y->agent_address;
 
 				// receiver details
-				$receiver_details = $y->payment_method == 'offline'
-					? 'N/A'
-					: '<i class="fa-solid fa-user"></i> ' . $y->receiver_name . ' <br />
+				$receiver_details = '<i class="fa-solid fa-user"></i> ' . $y->receiver_name . ' <br />
 								<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br /> 
 								<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br /> 
 								<i class="fa-solid fa-location-dot"></i> ' . $y->receiver_address . ', ' . $y->receiver_locality . ', ' . $y->receiver_postcode . '';
@@ -203,6 +200,12 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					$items .= '</tbody>';
 					$items .= '</table>';
 
+					$payment_method = match ($y->payment_method) {
+						'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
+						'paystack' => '<img src="' . base_url('assets/general/paystack.svg') . '" alt="Paystack" width="80" height="20">',
+						default => 'Offline',
+					};
+
 					// payment status
 					$payment_status = ($y->payment_status == 'completed') ? '<span class="text-success">Paid</span>' : '<span class="text-danger">Canceled</span>';
 
@@ -216,7 +219,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					<td> <?= $receiver_details ?> </td>
 					<td> <?= $items ?> </td>
 					<td> &pound; <?= number_format((75 / 100) * $y->selected_price, 2) ?> </td>
-					<td> <?= $y->payment_method ?></td>
+					<td> <?= $payment_method ?></td>
 					<td> <?= $y->payment_status ?></td>
 					<td> <?= x_date($y->date_added) ?> </td>
 				</tr>

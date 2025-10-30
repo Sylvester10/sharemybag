@@ -243,7 +243,7 @@ jQuery(document).ready(function ($) {
     .draw();
 
   /////////////////////////////////////////////////////////
-// finance 
+  // finance
   if ($.fn.DataTable.isDataTable("#finances_table")) {
     $("#finances_table").DataTable().clear().destroy();
   }
@@ -269,7 +269,7 @@ jQuery(document).ready(function ($) {
   });
 
   /////////////////////////////////////////////////////////
-// Cad finance 
+  // Cad finance
   if ($.fn.DataTable.isDataTable("#finances_cad_table")) {
     $("#finances_cad_table").DataTable().clear().destroy();
   }
@@ -295,37 +295,77 @@ jQuery(document).ready(function ($) {
   });
 
   // Trumbowyg Text Editor
-$(document).ready(function () {
-  if ($("#email_message").length) {
-    $("#email_message").trumbowyg({
-      btns: [
-        ["viewHTML"],
-        ["formatting"],
-        ["bold", "italic", "underline", "del"],
-        ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"],
-        ["unorderedList", "orderedList"],
-        ["link"],
-        ["removeformat"],
-        ["fullscreen"],
-      ],
-    });
-  }
+  $(document).ready(function () {
+    if ($("#email_message").length) {
+      $("#email_message").trumbowyg({
+        btns: [
+          ["viewHTML"],
+          ["formatting"],
+          ["bold", "italic", "underline", "del"],
+          ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"],
+          ["unorderedList", "orderedList"],
+          ["link"],
+          ["removeformat"],
+          ["fullscreen"],
+        ],
+      });
+    }
 
-  if ($("#email_messages").length) {
-    $("#email_messages").trumbowyg({
-      btns: [
-        ["viewHTML"],
-        ["formatting"],
-        ["bold", "italic", "underline", "del"],
-        ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"],
-        ["unorderedList", "orderedList"],
-        ["link"],
-        ["removeformat"],
-        ["fullscreen"],
-      ],
-    });
-  }
-});
+    if ($("#email_messages").length) {
+      $("#email_messages").trumbowyg({
+        btns: [
+          ["viewHTML"],
+          ["formatting"],
+          ["bold", "italic", "underline", "del"],
+          ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"],
+          ["unorderedList", "orderedList"],
+          ["link"],
+          ["removeformat"],
+          ["fullscreen"],
+        ],
+      });
+    }
+  });
+
+  // -----------------------------------------------------------------
+  // START: OFFLINE BOOKING MODAL SCRIPT
+  // -----------------------------------------------------------------
+
+  /**
+   * Listen for any modal to be shown.
+   * We use event delegation ('on' on the document) because the modals
+   * are loaded via AJAX and don't exist on page load.
+   */
+  $(document).on("shown.bs.modal", ".modal", function () {
+    // Find the '.select2-user' dropdown *inside* the modal that just opened
+    var selectElement = $(this).find(".select2-user");
+
+    // Check if this modal actually has a '.select2-user' dropdown
+    if (selectElement.length > 0) {
+      // Check if it's already a Select2... if not, initialize it.
+      if (!selectElement.hasClass("select2-hidden-accessible")) {
+        selectElement.select2({
+          placeholder: "Search and select user...",
+          allowClear: true,
+          // This is ESSENTIAL for Select2 to work inside Bootstrap modals
+          dropdownParent: $(this).find(".modal-content"),
+        });
+      }
+    }
+  });
+
+  /**
+   * Listen for a change on any '.select2-user' dropdown.
+   * We use event delegation again.
+   */
+  $(document).on("change", ".select2-user", function () {
+    var userId = $(this).val();
+    var modal = $(this).closest(".modal"); // Get the modal this select lives in
+  });
+
+  // -----------------------------------------------------------------
+  // END: OFFLINE BOOKING MODAL SCRIPT
+  // -----------------------------------------------------------------
 
   // Update the drop off address field with the data on the current address field
   $(document).ready(function () {

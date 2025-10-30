@@ -541,23 +541,100 @@ class Admin_travellers extends MY_Controller
 	}
 
 
+	// public function add_offline_booking($id)
+	// {
+	// 	$this->form_validation->set_rules('firstname', 'Selected Space', 'trim|required');
+	// 	$this->form_validation->set_rules('lastname', 'Selected Space', 'trim|required');
+	// 	$this->form_validation->set_rules('email', 'Email', 'trim|valid_email|required', array('valid_email' => 'Please enter a valid email'));
+	// 	$this->form_validation->set_rules('selected_space', 'Selected Space', 'required');
+
+	// 	if ($this->form_validation->run()) {
+	// 		$this->users_model->add_offline_booking_to_db($id);
+
+	// 		// Recalculate bag space
+	// 		$this->travellers_model->update_traveller_space($id);
+	// 		$this->session->set_flashdata('status_msg', "Offline booking data added successfully.");
+	// 		redirect($this->agent->referrer());
+	// 	} else {
+	// 		echo validation_errors();
+	// 	}
+	// }
+
+	/**
+	 * [NEW METHOD]
+	 * Handles the AJAX request from the modal to fetch user details
+	 * for auto-filling the form.
+	 */
+	public function get_user_details($id)
+	{
+		// Ensure this is an AJAX request
+		if (!$this->input->is_ajax_request()) {
+			exit('No direct script access allowed');
+		}
+
+		$user = $this->common_model->get_user_details_by_id($id);
+
+		if ($user) {
+			// Prepare a clean data array for JSON response
+			$data = array(
+				'fullname'    => $user->firstname . ' ' . $user->lastname,
+				'email'       => $user->email,
+				'phone'       => $user->number,    // Assuming 'number' is the phone field in 'users' table
+				'address'     => $user->address,
+				'city'        => $user->state,     // Mapping 'state' to 'city' for the form
+				'postal_code' => $user->post_code  // Mapping 'post_code' to 'postal_code'
+			);
+
+			// Set content type to JSON and output the data
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode($data));
+		} else {
+			// Send a 404 response if user not found
+			$this->output
+				->set_status_header(404)
+				->set_content_type('application/json')
+				->set_output(json_encode(array('error' => 'User not found')));
+		}
+	}
+
+	/**
+	 * [CORRECTED METHOD]
+	 * Fixed the validation logic.
+	 */
 	public function add_offline_booking($id)
 	{
-		$this->form_validation->set_rules('firstname', 'Selected Space', 'trim|required');
-		$this->form_validation->set_rules('lastname', 'Selected Space', 'trim|required');
-		$this->form_validation->set_rules('email', 'Email', 'trim|valid_email|required', array('valid_email' => 'Please enter a valid email'));
+		$this->form_validation->set_rules('user_id', 'User', 'required');
+		$this->form_validation->set_rules('agent_name', 'Agent Full Name', 'trim|required');
+		$this->form_validation->set_rules('agent_email', 'Agent Email', 'trim|required|valid_email');
+		$this->form_validation->set_rules('agent_phone', 'Agent Phone', 'trim|required');
+		$this->form_validation->set_rules('agent_address', 'Agent Address', 'trim|required');
+		$this->form_validation->set_rules('agent_locality', 'Agent City', 'trim|required');
+		$this->form_validation->set_rules('agent_postcode', 'Agent Postal Code', 'trim|required');
+		$this->form_validation->set_rules('receiver_name', 'Receiver Full Name', 'trim|required');
+		$this->form_validation->set_rules('receiver_email', 'Receiver Email', 'trim|required|valid_email');
+		$this->form_validation->set_rules('receiver_phone', 'Receiver Phone', 'trim|required');
+		$this->form_validation->set_rules('receiver_address', 'Receiver Address', 'trim|required');
+		$this->form_validation->set_rules('receiver_locality', 'Receiver City', 'trim|required');
+		$this->form_validation->set_rules('receiver_postcode', 'Receiver Postal Code', 'trim|required');
 		$this->form_validation->set_rules('selected_space', 'Selected Space', 'required');
 
+		// **CRITICAL BUG FIX HERE**
+		// You MUST check if validation passed before running the model.
 		if ($this->form_validation->run()) {
-			$this->users_model->add_offline_booking_to_db($id);
-
-			// Recalculate bag space
-			$this->travellers_model->update_traveller_space($id);
-			$this->session->set_flashdata('status_msg', "Offline booking data added successfully.");
-			redirect($this->agent->referrer());
+			// Validation passed
+			if ($this->users_model->add_offline_booking_to_db($id)) {
+				$this->travellers_model->update_traveller_space($id);
+				$this->session->set_flashdata('status_msg', "Offline booking data added successfully.");
+			} else {
+				$this->session->set_flashdata('error_msg', "Failed to add booking. Please try again.");
+			}
 		} else {
-			echo validation_errors();
+			// Validation failed
+			$this->session->set_flashdata('error_msg', "Failed to add booking: " . validation_errors());
 		}
+
+		redirect($this->agent->referrer());
 	}
 
 

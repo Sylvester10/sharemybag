@@ -34,8 +34,13 @@
 <script src="<?php echo base_url(); ?>assets/admin/build/js/custom.js"></script>
 <script src="<?php echo base_url(); ?>assets/admin/custom/js/num2words.js"></script>
 
+<!-- Trumbowyg -->
 <!-- <script src="<?php echo base_url('assets/admin/vendors/trumbowyg/dist/ui/trumbowyg.min.js'); ?>"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/trumbowyg@2.27.3/dist/trumbowyg.min.js"></script>
+
+<!-- select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 
 <script src="<?php echo base_url(); ?>assets/admin/custom/js/script.js"></script>
 <script src="<?php echo base_url(); ?>assets/admin/custom/js/admin_script.js"></script>
