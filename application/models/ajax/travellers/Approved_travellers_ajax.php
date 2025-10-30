@@ -341,6 +341,9 @@ class Approved_travellers_ajax extends CI_Model
                                 ' . $bag_space_options . '
                             </select>
                         </div>
+                    </div>
+
+					<div class="modal-footer">
 
                         <div class="mt-3">
                             <button type="submit" id="send_mail_btn" class="btn btn-sm btn-primary">
@@ -349,7 +352,7 @@ class Approved_travellers_ajax extends CI_Model
                             </button>
                         </div>
 
-                    </div>
+					</div>
 
                     ' . form_close() . '
 
