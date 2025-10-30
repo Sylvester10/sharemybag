@@ -247,7 +247,7 @@ class Approved_travellers_ajax extends CI_Model
 
         <div class="modal fade" id="offline' . $id . '" role="dialog">
             <div class="modal-dialog modal-lg">
-                <div class="modal-content modal-width">
+                <div class="modal-content modal-widths">
                     <div class="modal-header">
                         <div class="pull-right">
                             <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
@@ -272,31 +272,35 @@ class Approved_travellers_ajax extends CI_Model
                         <!-- AGENT DETAILS -->
                         <h5 class="mt-3"><strong>Agent Details</strong></h5>
                         <div class="row">
-                            <div class="col-md-12 mb-2">
+                            <div class="col-lg-12 mb-2">
                                 <label>Full Name *</label>
 								<br>
-                                <input type="text" name="agent_name" class="form-control" required>
+                                <input type="text" name="agent_name" class="form-controls" required>
                             </div>
-                            <div class="col-md-6 mb-2">
+                            <div class="col-lg-6 mb-2">
                                 <label>Email *</label>
-                                <input type="email" name="agent_email" class="form-control" required>
+								<br>
+                                <input type="email" name="agent_email" class="form-controls" required>
                             </div>
-                            <div class="col-md-6 mb-2">
+                            <div class="col-lg-6 mb-2">
                                 <label>Phone *</label>
-                                <input type="text" name="agent_phone" class="form-control" required>
+								<br>
+                                <input type="text" name="agent_phone" class="form-controls" required>
                             </div>
-                            <div class="col-md-12 mb-2">
+                            <div class="col-lg-12 mb-2">
                                 <label>Address *</label>
 								<br>
-                                <input type="text" name="agent_address" class="form-control" required>
+                                <input type="text" name="agent_address" class="form-controls" required>
                             </div>
                             <div class="col-lg-6 mb-2">
                                 <label>City *</label>
-                                <input type="text" name="agent_locality" class="form-control" required>
+								<br>
+                                <input type="text" name="agent_locality" class="form-controls" required>
                             </div>
                             <div class="col-lg-6 mb-2">
                                 <label>Postal Code *</label>
-                                <input type="text" name="agent_postcode" class="form-control" required>
+								<br>
+                                <input type="text" name="agent_postcode" class="form-controls" required>
                             </div>
                         </div>
 
@@ -307,28 +311,28 @@ class Approved_travellers_ajax extends CI_Model
                             <div class="col-md-12 mb-2">
                                 <label>Full Name *</label>
 								<br>
-                                <input type="text" name="receiver_name" class="form-control" required>
+                                <input type="text" name="receiver_name" class="form-controls" required>
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label>Email *</label>
-                                <input type="email" name="receiver_email" class="form-control" required>
+                                <input type="email" name="receiver_email" class="form-controls" required>
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label>Phone *</label>
-                                <input type="text" name="receiver_phone" class="form-control" required>
+                                <input type="text" name="receiver_phone" class="form-controls" required>
                             </div>
                             <div class="col-md-12 mb-2">
                                 <label>Address *</label>
 								<br>
-                                <input type="text" name="receiver_address" class="form-control" required>
+                                <input type="text" name="receiver_address" class="form-controls" required>
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label>City *</label>
-                                <input type="text" name="receiver_locality" class="form-control" required>
+                                <input type="text" name="receiver_locality" class="form-controls" required>
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label>Postal Code *</label>
-                                <input type="text" name="receiver_postcode" class="form-control" required>
+                                <input type="text" name="receiver_postcode" class="form-controls" required>
                             </div>
                         </div>
 
@@ -337,7 +341,8 @@ class Approved_travellers_ajax extends CI_Model
                         <h5 class="mt-3"><strong>Bag Space Details</strong></h5>
                         <div class="form-group mt-3">
                             <label>How much Bag Space was bought? *</label>
-                            <select class="form-control" name="selected_space" required>
+                            <br>
+                            <select class="form-control select2container" name="selected_space" required>
                                 ' . $bag_space_options . '
                             </select>
                         </div>
@@ -346,7 +351,7 @@ class Approved_travellers_ajax extends CI_Model
 					<div class="modal-footer">
 
                         <div class="mt-3">
-                            <button type="submit" id="send_mail_btn" class="btn btn-sm btn-primary">
+                            <button type="submit" id="send_mail_btn" class="btn btn-md btn-primary">
                                 <span id="btn_text">Update Traveller</span>
                                 <span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
                             </button>

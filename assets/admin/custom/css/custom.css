@@ -1,31 +1,66 @@
 .mr-5 {
-    margin-right: 10px !important;
+  margin-right: 10px !important;
 }
 
 .ml-5 {
-    margin-left: 20px !important;
+  margin-left: 20px !important;
 }
 
 .profile-pic img {
-	width: 100px !important;
-	height: 100px !important;
-	object-fit: cover !important;
+  width: 100px !important;
+  height: 100px !important;
+  object-fit: cover !important;
 }
 
 .emphasis {
-    font-size: 20px !important;
-    font-weight: 800 !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
 }
 
 .d-none {
-    display: none !important;
+  display: none !important;
 }
 
-
 @media only screen and (max-width: 480px) {
-    .profile-pic img {
-        width: 100px !important;
-        height: 70px !important;
-        object-fit: cover !important;
-    }
+  .profile-pic img {
+    width: 100px !important;
+    height: 70px !important;
+    object-fit: cover !important;
+  }
+}
+
+.select2container {
+  width: 375px !important;
+}
+
+.mb-2 {
+  margin-bottom: 10px;
+}
+
+.form-controls {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.form-controls {
+    /* display: block; */
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: border-color 
+ease-in-out .15s, -webkit-box-shadow 
+ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color 
+ease-in-out .15s, box-shadow 
+ease-in-out .15s;
 }
