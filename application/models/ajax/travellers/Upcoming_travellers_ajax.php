@@ -284,13 +284,13 @@ class Upcoming_travellers_ajax extends CI_Model
 
                         <!-- SMB USER -->
                         <div class="form-group">
-                            <div class="col-md-12 mb-2">
+                            <div class="col-md-6 mb-2">
                                 <label class="form-control-label">Select SMB User *</label>
                                 <select name="user_id" id="user_id_' . $id . '" class="form-control select2-user" required>
                                     <option value="">-- Select User --</option>
                                     ' . $user_options . '
                                 </select>
-                            </div
+                            </div>
                         </div>
 
 						<hr>
