@@ -4,7 +4,7 @@
 		<div class="tile-stats custom-bg-blue">
 			<div class="icon"><i class="fa fa-users"></i></div>
 			<div class="count"><?php echo $total_users; ?></div>
-			<h3 class="stats-title">Total Userss</h3>
+			<h3 class="stats-title">Total Users</h3>
 		</div>
 	</div>
 	<div class="animated flipInY col-lg-3 col-md-6 col-sm-6 col-xs-12">

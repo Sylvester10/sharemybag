@@ -295,31 +295,35 @@ jQuery(document).ready(function ($) {
   });
 
   // Trumbowyg Text Editor
-  $("#email_message").trumbowyg({
-    btns: [
-      ["viewHTML"],
-      ["formatting"],
-      ["bold", "italic", "underline", "del"],
-      ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"],
-      ["unorderedList", "orderedList"],
-      ["link"],
-      ["removeformat"],
-      ["fullscreen"],
-    ],
-  });
+    $(document).ready(function () {
+      $("#email_message").trumbowyg({
+        btns: [
+          ["viewHTML"],
+          ["formatting"],
+          ["bold", "italic", "underline", "del"],
+          ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"],
+          ["unorderedList", "orderedList"],
+          ["link"],
+          ["removeformat"],
+          ["fullscreen"],
+        ],
+      });
+    });
 
   // Trumbowyg Text Editor
-  $("#email_messages").trumbowyg({
-    btns: [
-      ["viewHTML"],
-      ["formatting"],
-      ["bold", "italic", "underline", "del"],
-      ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"],
-      ["unorderedList", "orderedList"],
-      ["link"],
-      ["removeformat"],
-      ["fullscreen"],
-    ],
+  $(document).ready(function () {
+    $("#email_messages").trumbowyg({
+      btns: [
+        ["viewHTML"],
+        ["formatting"],
+        ["bold", "italic", "underline", "del"],
+        ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"],
+        ["unorderedList", "orderedList"],
+        ["link"],
+        ["removeformat"],
+        ["fullscreen"],
+      ],
+    });
   });
 
   // Update the drop off address field with the data on the current address field
