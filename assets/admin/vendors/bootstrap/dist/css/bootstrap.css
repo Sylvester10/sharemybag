@@ -5983,7 +5983,7 @@ button.close {
 }
 @media (min-width: 992px) {
   .modal-lg {
-    min-width: 1900px;
+    width: 900px;
   }
 }
 .tooltip {

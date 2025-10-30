@@ -255,7 +255,7 @@ class Upcoming_travellers_ajax extends CI_Model
 
         return '
         <div class="modal fade" id="options' . $id . '" role="dialog">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog">
                 <div class="modal-content modal-width">
                     <div class="modal-header">
                         <div class="pull-right">
@@ -283,8 +283,8 @@ class Upcoming_travellers_ajax extends CI_Model
                     <div class="modal-body">
 
                         <!-- SMB USER -->
-                        <div class="form-group">
-                            <div class="col-md-6 mb-2">
+                        <div class="col-md-6 mb-2">
+                            <div class="form-group">
                                 <label class="form-control-label">Select SMB User *</label>
                                 <select name="user_id" id="user_id_' . $id . '" class="form-control select2-user" required>
                                     <option value="">-- Select User --</option>
