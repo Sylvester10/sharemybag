@@ -28,7 +28,9 @@
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-	<link rel="stylesheet" href="<?php echo base_url('assets/admin/vendors/trumbowyg/dist/ui/trumbowyg.min.css'); ?>">
+	<!-- <link rel="stylesheet" href="<?php echo base_url('assets/admin/vendors/trumbowyg/dist/ui/trumbowyg.min.css'); ?>"> -->
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2.27.3/dist/ui/trumbowyg.min.css">
 
 	<!--Google Fonts -->
 	<link href="https://fonts.googleapis.com/css?family=Nunito:400,700|Roboto:400,700&display=swap" rel="stylesheet">
