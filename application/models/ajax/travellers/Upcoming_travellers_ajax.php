@@ -360,6 +360,7 @@ class Upcoming_travellers_ajax extends CI_Model
                         <h5 class="mt-3"><strong>Bag Space Details</strong></h5>
                         <div class="form-group mt-3">
                             <label>How much Bag Space was bought? *</label>
+                            <br>
                             <select class="form-control" name="selected_space" required>
                                 ' . $bag_space_options . '
                             </select>
