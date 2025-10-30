@@ -271,10 +271,11 @@ class Approved_travellers_ajax extends CI_Model
                         <!-- AGENT DETAILS -->
                         <h5 class="mt-3"><strong>Agent Details</strong></h5>
                         <div class="row">
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-lg-12 mb-2">
                                 <label>Full Name *</label>
                                 <input type="text" name="agent_name" class="form-control" required>
                             </div>
+							<br>
                             <div class="col-lg-6 mb-2">
                                 <label>Email *</label>
                                 <input type="email" name="agent_email" class="form-control" required>
@@ -283,10 +284,12 @@ class Approved_travellers_ajax extends CI_Model
                                 <label>Phone *</label>
                                 <input type="text" name="agent_phone" class="form-control" required>
                             </div>
-                            <div class="col-lg-6 mb-2">
+							<br>
+                            <div class="col-lg-12 mb-2">
                                 <label>Address *</label>
                                 <input type="text" name="agent_address" class="form-control" required>
                             </div>
+							<br>
                             <div class="col-lg-6 mb-2">
                                 <label>City *</label>
                                 <input type="text" name="agent_locality" class="form-control" required>
@@ -300,9 +303,10 @@ class Approved_travellers_ajax extends CI_Model
                         <!-- RECEIVER DETAILS -->
                         <h5 class="mt-3"><strong>Receiver Details</strong></h5>
                         <div class="row">
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-lg-12 mb-2">
                                 <label>Full Name *</label>
                                 <input type="text" name="receiver_name" class="form-control" required>
+								<br>
                             </div>
                             <div class="col-lg-6 mb-2">
                                 <label>Email *</label>
@@ -312,10 +316,12 @@ class Approved_travellers_ajax extends CI_Model
                                 <label>Phone *</label>
                                 <input type="text" name="receiver_phone" class="form-control" required>
                             </div>
-                            <div class="col-lg-6 mb-2">
+							<br>
+                            <div class="col-lg-12 mb-2">
                                 <label>Address *</label>
                                 <input type="text" name="receiver_address" class="form-control" required>
                             </div>
+							<br>
                             <div class="col-lg-6 mb-2">
                                 <label>City *</label>
                                 <input type="text" name="receiver_locality" class="form-control" required>
