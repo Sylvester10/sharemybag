@@ -255,7 +255,7 @@ class Upcoming_travellers_ajax extends CI_Model
 
         return '
         <div class="modal fade" id="options' . $id . '" role="dialog">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content modal-width">
                     <div class="modal-header">
                         <div class="pull-right">
