@@ -43,8 +43,8 @@ class Approved_travellers_ajax extends CI_Model
 			$this->db->order_by(key($order), $order[key($order)]);
 		}
 	}
-	
-	
+
+
 	public function get_records($destination = null)
 	{
 		$this->db->from('travellers');
@@ -273,9 +273,9 @@ class Approved_travellers_ajax extends CI_Model
                         <div class="row">
                             <div class="col-md-12 mb-2">
                                 <label>Full Name *</label>
+							<br>
                                 <input type="text" name="agent_name" class="form-control" required>
                             </div>
-							<br>
                             <div class="col-lg-6 mb-2">
                                 <label>Email *</label>
                                 <input type="email" name="agent_email" class="form-control" required>
