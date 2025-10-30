@@ -304,36 +304,36 @@ class Approved_travellers_ajax extends CI_Model
                         <!-- RECEIVER DETAILS -->
                         <h5 class="mt-3"><strong>Receiver Details</strong></h5>
                         <div class="row">
-                            <div class="col-lg-12 mb-2">
+                            <div class="col-md-12 mb-2">
                                 <label>Full Name *</label>
                                 <input type="text" name="receiver_name" class="form-control" required>
 								<br>
                             </div>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-md-6 mb-2">
                                 <label>Email *</label>
                                 <input type="email" name="receiver_email" class="form-control" required>
                             </div>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-md-6 mb-2">
                                 <label>Phone *</label>
                                 <input type="text" name="receiver_phone" class="form-control" required>
                             </div>
-							<br>
-                            <div class="col-lg-12 mb-2">
+                            <div class="col-md-12 mb-2">
                                 <label>Address *</label>
                                 <input type="text" name="receiver_address" class="form-control" required>
                             </div>
-							<br>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-md-6 mb-2">
                                 <label>City *</label>
                                 <input type="text" name="receiver_locality" class="form-control" required>
                             </div>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-md-6 mb-2">
                                 <label>Postal Code *</label>
                                 <input type="text" name="receiver_postcode" class="form-control" required>
                             </div>
                         </div>
 
+						<hr>
                         <!-- BAG SPACE SELECTION -->
+                        <h5 class="mt-3"><strong>Bag Space Details</strong></h5>
                         <div class="form-group mt-3">
                             <label>How much Bag Space was bought? *</label>
                             <select class="form-control" name="selected_space" required>
