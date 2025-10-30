@@ -34,7 +34,7 @@
 <script src="<?php echo base_url(); ?>assets/admin/build/js/custom.js"></script>
 <script src="<?php echo base_url(); ?>assets/admin/custom/js/num2words.js"></script>
 
-<script src="<?php echo base_url('assets/admin/vendors/trumbowyg/dist/trumbowyg.min.js'); ?>"></script>
+<script src="<?php echo base_url('assets/admin/vendors/trumbowyg/dist/ui/trumbowyg.min.js'); ?>"></script>
 
 <script src="<?php echo base_url(); ?>assets/admin/custom/js/script.js"></script>
 <script src="<?php echo base_url(); ?>assets/admin/custom/js/admin_script.js"></script>
