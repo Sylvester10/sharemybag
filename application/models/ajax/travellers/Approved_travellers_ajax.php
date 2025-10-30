@@ -271,7 +271,7 @@ class Approved_travellers_ajax extends CI_Model
                         <!-- AGENT DETAILS -->
                         <h5 class="mt-3"><strong>Agent Details</strong></h5>
                         <div class="row">
-                            <div class="col-lg-12 mb-2">
+                            <div class="col-12 mb-2">
                                 <label>Full Name *</label>
                                 <input type="text" name="agent_name" class="form-control" required>
                             </div>
