@@ -135,10 +135,14 @@ class Admin_bookings extends MY_Controller
 			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
 				'<span class="text-warning"><b>Pending</b></span>');
 
-			$total_amount =  $y->payment_method == 'offline'
-				? 'Payment method: Offline'
-				: 'Total amount: ' . $currency . '' . $y->total_amount . ' <br />
-							Payment method: ' . ucfirst($y->payment_method) . '';
+			$payment_method = match ($y->payment_method) {
+				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
+				'paystack' => '<img src="' . base_url('assets/general/paystack.svg') . '" alt="Paystack" width="80" height="20">',
+				default => 'Offline',
+			};
+
+			$total_amount = 'Total amount: ' . $currency . '' . $y->total_amount . ' <br />
+                             Payment method: ' . $payment_method . '';
 
 			$row = array();
 			$row[] = checkbox_bulk_action($y->id);
@@ -279,7 +283,7 @@ class Admin_bookings extends MY_Controller
 			$payment_method = match ($y->payment_method) {
 				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
 				'paystack' => '<img src="' . base_url('assets/general/paystack.svg') . '" alt="Paystack" width="80" height="20">',
-				default => 'Bank',
+				default => 'Offline',
 			};
 
 			$total_amount = 'Total amount: ' . $currency . '' . $y->total_amount . ' <br />
@@ -418,8 +422,14 @@ class Admin_bookings extends MY_Controller
 			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
 				'<span class="text-warning"><b>Pending</b></span>');
 
+			$payment_method = match ($y->payment_method) {
+				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
+				'paystack' => '<img src="' . base_url('assets/general/paystack.svg') . '" alt="Paystack" width="80" height="20">',
+				default => 'Offline',
+			};
+
 			$total_amount = 'Total amount: ' . $currency . '' . $y->total_amount . ' <br />
-                             Payment method: ' . $y->payment_method . '';
+                             Payment method: ' . $payment_method . '';
 
 			$row = array();
 			$row[] = checkbox_bulk_action($y->id);
