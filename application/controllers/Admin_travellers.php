@@ -540,26 +540,6 @@ class Admin_travellers extends MY_Controller
 		redirect($this->agent->referrer());
 	}
 
-
-	// public function add_offline_booking($id)
-	// {
-	// 	$this->form_validation->set_rules('firstname', 'Selected Space', 'trim|required');
-	// 	$this->form_validation->set_rules('lastname', 'Selected Space', 'trim|required');
-	// 	$this->form_validation->set_rules('email', 'Email', 'trim|valid_email|required', array('valid_email' => 'Please enter a valid email'));
-	// 	$this->form_validation->set_rules('selected_space', 'Selected Space', 'required');
-
-	// 	if ($this->form_validation->run()) {
-	// 		$this->users_model->add_offline_booking_to_db($id);
-
-	// 		// Recalculate bag space
-	// 		$this->travellers_model->update_traveller_space($id);
-	// 		$this->session->set_flashdata('status_msg', "Offline booking data added successfully.");
-	// 		redirect($this->agent->referrer());
-	// 	} else {
-	// 		echo validation_errors();
-	// 	}
-	// }
-
 	/**
 	 * [NEW METHOD]
 	 * Handles the AJAX request from the modal to fetch user details

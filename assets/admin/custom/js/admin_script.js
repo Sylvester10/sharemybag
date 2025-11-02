@@ -355,12 +355,105 @@ jQuery(document).ready(function ($) {
   });
 
   /**
-   * Listen for a change on any '.select2-user' dropdown.
-   * We use event delegation again.
+   * [NEW] Helper function to clear autofill fields
+   */
+  function clearAutofillFields(modal, type) {
+    modal.find('input[name="' + type + '_name"]').val("");
+    modal.find('input[name="' + type + '_email"]').val("");
+    modal.find('input[name="' + type + '_phone"]').val("");
+    modal.find('input[name="' + type + '_address"]').val("");
+    modal.find('input[name="' + type + '_locality"]').val("");
+    modal.find('input[name="' + type + '_postcode"]').val("");
+  }
+
+  /**
+   * [UPDATED] Listen for a change on any '.select2-user' dropdown.
+   * This will now fetch user data and store it on the modal.
    */
   $(document).on("change", ".select2-user", function () {
     var userId = $(this).val();
     var modal = $(this).closest(".modal"); // Get the modal this select lives in
+
+    // Clear any previously stored data and uncheck boxes
+    modal.data("smb-user-details", null);
+    modal.find(".autofill-agent, .autofill-receiver").prop("checked", false);
+    clearAutofillFields(modal, "agent");
+    clearAutofillFields(modal, "receiver");
+
+    if (userId) {
+      // A user is selected, fetch their details
+      $.ajax({
+        url: base_url + "admin_travellers/get_user_details/" + userId,
+        type: "GET",
+        dataType: "json",
+        beforeSend: function () {
+          // You could add a loading spinner here
+          console.log("Fetching user data...");
+        },
+        success: function (data) {
+          // Store the fetched data on the modal itself
+          modal.data("smb-user-details", data);
+        },
+        error: function (xhr, status, error) {
+          console.error("Failed to fetch user details:", error);
+          modal.data("smb-user-details", null);
+        },
+      });
+    }
+  });
+
+  /**
+   * [NEW] Listen for click on the 'autofill-agent' checkbox
+   */
+  $(document).on("change", ".autofill-agent", function () {
+    var modal = $(this).closest(".modal");
+    var userData = modal.data("smb-user-details");
+
+    if ($(this).is(":checked")) {
+      if (userData) {
+        // Fill the fields
+        modal.find('input[name="agent_name"]').val(userData.fullname);
+        modal.find('input[name="agent_email"]').val(userData.email);
+        modal.find('input[name="agent_phone"]').val(userData.phone);
+        modal.find('input[name="agent_address"]').val(userData.address);
+        modal.find('input[name="agent_locality"]').val(userData.city);
+        modal.find('input[name="agent_postcode"]').val(userData.postal_code);
+      } else {
+        // No user selected, alert the admin and uncheck the box
+        alert("Please select an SMB User first.");
+        $(this).prop("checked", false);
+      }
+    } else {
+      // Checkbox is unchecked, clear the fields
+      clearAutofillFields(modal, "agent");
+    }
+  });
+
+  /**
+   * [NEW] Listen for click on the 'autofill-receiver' checkbox
+   */
+  $(document).on("change", ".autofill-receiver", function () {
+    var modal = $(this).closest(".modal");
+    var userData = modal.data("smb-user-details");
+
+    if ($(this).is(":checked")) {
+      if (userData) {
+        // Fill the fields
+        modal.find('input[name="receiver_name"]').val(userData.fullname);
+        modal.find('input[name="receiver_email"]').val(userData.email);
+        modal.find('input[name="receiver_phone"]').val(userData.phone);
+        modal.find('input[name="receiver_address"]').val(userData.address);
+        modal.find('input[name="receiver_locality"]').val(userData.city);
+        modal.find('input[name="receiver_postcode"]').val(userData.postal_code);
+      } else {
+        // No user selected, alert the admin and uncheck the box
+        alert("Please select an SMB User first.");
+        $(this).prop("checked", false);
+      }
+    } else {
+      // Checkbox is unchecked, clear the fields
+      clearAutofillFields(modal, "receiver");
+    }
   });
 
   // -----------------------------------------------------------------

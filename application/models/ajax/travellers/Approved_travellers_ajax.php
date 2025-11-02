@@ -47,17 +47,14 @@ class Approved_travellers_ajax extends CI_Model
 
 	public function get_records($destination = null)
 	{
-		$this->db->from('travellers');
+		// This line runs the query builder that includes sorting and searching
+		$this->the_query();
+
 		$this->db->where('status', 'approved');
 		$this->db->where('travel_date <', date('Y-m-d'));
 
 		if (!empty($destination)) {
 			$this->db->where('destination', $destination);
-		}
-
-		if (!empty($_POST['search']['value'])) {
-			$this->db->like('fullname', $_POST['search']['value']);
-			$this->db->or_like('email', $_POST['search']['value']);
 		}
 
 		if ($_POST['length'] != -1)
@@ -149,68 +146,6 @@ class Approved_travellers_ajax extends CI_Model
 	}
 
 
-	// public function modal_options($id)
-	// {
-	// 	$y = $this->common_model->get_traveller_details_by_id($id);
-	// 	$bag_space_options = $this->generate_bag_space_options($y->available_space, $id);
-	// 	return '<div class="modal fade" id="options' . $id . '" role="dialog">
-	// 		<div class="modal-dialog">
-	// 			<div class="modal-content modal-width">
-	// 				<div class="modal-header">
-	// 					<div class="pull-right">
-	// 						<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
-	// 					</div>
-	// 					<h4 class="modal-title">Actions: ' . $y->fullname . '</h4>
-	// 				</div><!--/.modal-header-->
-	// 				<div class="modal-body">'
-	// 		. $this->actions($id) .
-	// 		'</div>
-	// 			</div>
-	// 		</div>
-	// 	</div>
-
-	//     <div class="modal fade" id="offline' . $id . '" role="dialog">
-	// 		<div class="modal-dialog">
-	// 			<div class="modal-content modal-width">
-	// 				<div class="modal-header">
-	// 					<div class="pull-right">
-	// 						<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
-	// 					</div>
-	// 					<h4 class="modal-title">Update offline booking: ' . $y->fullname . '</h4>
-	// 				</div>
-
-	//                 ' . form_open_multipart('admin_travellers/add_offline_booking/' . $y->id, 'id="submit_button"', 'target="_blank"') . '
-
-	// 				<div class="modal-body">
-	//                     <div class="row">   
-	//                         <div class="col-md-12 col-sm-12 col-xs-12">  
-	//                             <div class="form-group">
-	//                                 <label class="form-control-label">How much Bag space was bought? *</label>
-	//                                 <br>
-	//                                 <select class="form-control !tw-w-[200px]" name="selected_space" required>
-	//                                     ' . $bag_space_options . '
-	//                                 </select>
-	//                             </div>
-	//                         </div>
-	//                     </div>
-	//                 </div>
-
-	//                 <div class="modal-footer">
-	//                     <div class="pull-left">
-	//                         <button type="submit" id="send_mail_btn" class="btn btn-sm btn-primary">
-	//                             <span id="btn_text">Update Traveller</span>
-	//                             <span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
-	//                         </button>
-	//                     </div>
-	//                 </div>
-
-	//                 ' . form_close() . '
-
-	// 			</div>
-	// 		</div>
-	// 	</div>';
-	// }
-
 	public function modal_options($id)
 	{
 		$y = $this->common_model->get_traveller_details_by_id($id);
@@ -259,7 +194,6 @@ class Approved_travellers_ajax extends CI_Model
 
                     <div class="modal-body">
 
-                        <!-- SMB USER -->
                         <div class="form-group">
                             <label class="form-control-label">Select SMB User *</label>
                             <select name="user_id" id="user_id_' . $id . '" class="form-control select2-user" required>
@@ -269,8 +203,15 @@ class Approved_travellers_ajax extends CI_Model
                         </div>
 
 						<hr>
-                        <!-- AGENT DETAILS -->
                         <h5 class="mt-3"><strong>Agent Details</strong></h5>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input autofill-agent" type="checkbox" id="autofill-agent-' . $id . '">
+                            <label class="form-check-label" for="autofill-agent-' . $id . '">
+                                Fill with selected SMB User details
+                            </label>
+                        </div>
+                        
                         <div class="row">
                             <div class="col-lg-12 mb-2">
                                 <label>Full Name *</label>
@@ -305,8 +246,15 @@ class Approved_travellers_ajax extends CI_Model
                         </div>
 
 						<hr>
-                        <!-- RECEIVER DETAILS -->
                         <h5 class="mt-3"><strong>Receiver Details</strong></h5>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input autofill-receiver" type="checkbox" id="autofill-receiver-' . $id . '">
+                            <label class="form-check-label" for="autofill-receiver-' . $id . '">
+                                Fill with selected SMB User details
+                            </label>
+                        </div>
+                        
                         <div class="row">
                             <div class="col-md-12 mb-2">
                                 <label>Full Name *</label>
@@ -337,7 +285,6 @@ class Approved_travellers_ajax extends CI_Model
                         </div>
 
 						<hr>
-                        <!-- BAG SPACE SELECTION -->
                         <h5 class="mt-3"><strong>Bag Space Details</strong></h5>
                         <div class="form-group mt-3">
                             <label>How much Bag Space was bought? *</label>
