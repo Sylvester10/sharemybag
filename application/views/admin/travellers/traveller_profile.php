@@ -218,7 +218,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					<td> <?= $agent_details ?> </td>
 					<td> <?= $receiver_details ?> </td>
 					<td> <?= $items ?> </td>
-					<td> &pound; <?= number_format((75 / 100) * $y->selected_price, 2) ?> </td>
+					<td> &pound; <?= number_format($y->traveller_commission, 2) ?> </td>
 					<td> <?= $payment_method ?></td>
 					<td> <?= $y->payment_status ?></td>
 					<td> <?= x_date($y->date_added) ?> </td>
