@@ -207,7 +207,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					};
 
 					// payment status
-					$payment_status = ($y->payment_status == 'completed') ? '<span class="text-success">Paid</span>' : '<span class="text-danger">Canceled</span>';
+					$payment_status = ($y->payment_status == 'completed') ? '<span class="text-success"><b>Paid</span>' : '<span class="text-danger"><b>Canceled</b></span>';
 
 					// delivery status
 					$delivery_status = ($y->delivery_status == 'Delivered') ? '<span class="text-success">Delivered</span>' : (($y->delivery_status == 'In Transit') ? '<span class="text-primary">In Transit </span>' : (($y->delivery_status == 'Shipment Created') ? '<span class="text-primary">Shipment Created </span>' : '<span  class="text-danger">Pending </span>'));
