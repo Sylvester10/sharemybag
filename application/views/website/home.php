@@ -217,7 +217,7 @@
                             <div id="collapse3" class="collapse" aria-labelledby="heading3" data-parent="#accordionFaq">
                                 <div class="card-body">
                                     <div class="content">
-                                        <p>We charge £7.50 per kg. However, some items attract a premium fee e.g. personal quantity of fish, cigarettes, documents, or electronics.</p>
+                                        <p>We charge £8.50 per kg. However, some items attract a premium fee e.g. personal quantity of fish, cigarettes, documents, or electronics.</p>
                                     </div>
                                 </div>
                             </div>
