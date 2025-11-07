@@ -2387,7 +2387,7 @@ ul.feature-list li i {
 }
 @media (max-width: 767px) {
   .feature-area.feat-2 {
-    height: 430px;
+    height: auto;
   }
 }
 @media only screen and (min-width: 576px) and (max-width: 767px) {
