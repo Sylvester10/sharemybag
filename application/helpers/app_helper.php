@@ -157,9 +157,9 @@ function countries()
 							 'Nicaragua',
 							 'Niger',*/
 		'Nigeria',
-		/*'North Korea',
-							 'Norway',
-							 'Oman',
+		/*'North Korea',*/
+		'Norway',
+		/*'Oman',
 							 'Pakistan',
 							 'Palau',
 							 'Palestinian Territories',
