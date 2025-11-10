@@ -44,11 +44,11 @@
     </div>
 
     <!-- Feature Section  -->
-    <div class="feature-area feat-2">
+    <div class="feature-area feat-2 lg-d-none">
         <div class="container">
             <div class="feature-wrap">
                 <div class="row gx-0">
-                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-4 col-12">
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                         <div class="feature-single">
                             <div class="feature-icon">
                                 <img src="<?php echo base_url(); ?>assets/website/icons/nigeria.png" alt="">
@@ -83,7 +83,7 @@
                             </div>
                             <div class="feature-title">
                                 <h5>NG - CA</h5>
-                                <h4><b>$8.50 Per Kilo</b></h4>
+                                <h4><b>$11.50 Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>
@@ -96,7 +96,7 @@
                             </div>
                             <div class="feature-title">
                                 <h5>CA - NG</h5>
-                                <h4><b>$6.50 Per Kilo</b></h4>
+                                <h4><b>$11.50 Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>
