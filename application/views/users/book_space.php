@@ -128,10 +128,19 @@
                                         $special_price = 11.5;
                                         $premium_price = 20;
                                     } else {
-                                        $normal_price  = 11.5;
-                                        $shopper_price = 0;
-                                        $special_price = 11.5;
-                                        $premium_price = 20;
+
+                                        if ($is_canada_nigeria_route) {
+                                            $normal_price  = 11.5;
+                                            $shopper_price = 0;
+                                            $special_price = 11.5;
+                                            $premium_price = 20;
+                                        } else {
+                                            
+                                            $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
+                                            $shopper_price = 7.5; // Only applies when destination is Nigeria
+                                            $special_price = $is_to_nigeria ? 6.5 : 8.5;
+                                            $premium_price = 15;
+                                        }
                                     }
                                 }
 
