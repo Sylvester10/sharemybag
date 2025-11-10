@@ -107,48 +107,57 @@
 
                                 <?php
 
-                                // --- ITEM PRICE LOGIC BASED ON USER CURRENCY ---
                                 // Prices are set based on the user's currency type (pounds or dollars)
                                 if ($currency === 'pounds') {
-                                    $normal_price = $traveller_details->destination === 'Nigeria' ? 6.5 : 8.5;
-                                    $shopper_price = 7.5; // Only for Nigeria destination
-                                    $special_price = $traveller_details->destination === 'Nigeria' ? 6.5 : 8.5;
+                                    // Route between Nigeria and UK
+                                    $is_to_nigeria = $traveller_details->destination === 'Nigeria';
+
+                                    $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
+                                    $shopper_price = 7.5; // Only applies when destination is Nigeria
+                                    $special_price = $is_to_nigeria ? 6.5 : 8.5;
                                     $premium_price = 15;
                                 } else {
                                     // Canadian Dollars (CAD)
-                                    $normal_price = $traveller_details->destination === 'Nigeria' ? 6.5 : 8.5;
-                                    $shopper_price = 7.5;
-                                    $special_price = $traveller_details->destination === 'Nigeria' ? 6.5 : 8.5;
-                                    $premium_price = 15;
+                                    $is_canada_nigeria_route =
+                                        ($traveller_details->location === 'Canada' && $traveller_details->destination === 'Nigeria') ||
+                                        ($traveller_details->location === 'Nigeria' && $traveller_details->destination === 'Canada');
+
+                                    if ($is_canada_nigeria_route) {
+                                        $normal_price  = 11.5;
+                                        $shopper_price = 0;
+                                        $special_price = 11.5;
+                                        $premium_price = 20;
+                                    } else {
+                                        $normal_price  = 11.5;
+                                        $shopper_price = 0;
+                                        $special_price = 11.5;
+                                        $premium_price = 20;
+                                    }
                                 }
 
                                 // Output select based on traveller destination (for category options)
                                 if ($traveller_details->destination === 'Nigeria') { ?>
-
                                     <div class="col-lg-4 mb-3">
                                         <label class="form-label">Category *</label>
                                         <select name="category" id="select1" class="required form-select border border-primary">
                                             <option value="">Select</option>
-                                            <option value="Normal" data-price="<?= round($normal_price, 2) ?>"> Normal</option>
-                                            <option value="Personal Shopper" data-price="<?= round($shopper_price, 2) ?>"> Personal Shopper</option>
-                                            <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>"> Medicine (special)</option>
-                                            <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>"> Documents/Electronics/Gold (premium)</option>
+                                            <option value="Normal" data-price="<?= round($normal_price, 2) ?>">Normal</option>
+                                            <option value="Personal Shopper" data-price="<?= round($shopper_price, 2) ?>">Personal Shopper</option>
+                                            <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>">Medicine (special)</option>
+                                            <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>">Documents/Electronics/Gold (premium)</option>
                                         </select>
                                     </div>
-
                                 <?php } else { ?>
-
                                     <div class="col-lg-4 mb-3">
                                         <label class="form-label">Category *</label>
                                         <select name="category" id="select1" class="required form-select border border-primary">
                                             <option value="">Select</option>
-                                            <option value="Normal" data-price="<?= round($normal_price, 2) ?>"> Normal</option>
-                                            <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>"> Fish/Medicine/Snail/Oil (special)</option>
-                                            <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>"> Documents/Electronics/Gold (premium)</option>
+                                            <option value="Normal" data-price="<?= round($normal_price, 2) ?>">Normal</option>
+                                            <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>">Fish/Medicine/Snail/Oil (special)</option>
+                                            <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>">Documents/Electronics/Gold (premium)</option>
                                         </select>
                                     </div>
-
-                                <?php }  ?>
+                                <?php } ?>
 
                                 <div class="col-lg-4 mb-3">
                                     <label class="form-label">Item name *</label>
