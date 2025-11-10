@@ -178,7 +178,7 @@ class User_bookings extends MY_Controller
             $traveller_id = $this->input->post('traveller_id');
             $traveller_destination = $this->input->post('traveller_destination');
 
-
+            // Agent cannot be the same as receiver
             if ($agent_name == $receiver_name) {
                 $res = [
                     'status' => false,
@@ -203,38 +203,51 @@ class User_bookings extends MY_Controller
                 }
             };
 
-            // --- START: Calculate Traveller Commission and inject into POST data ---
-
+            // Calculate Traveller Commission and inject into POST data ---
             $traveller_details = $this->common_model->get_traveller_details_by_id($traveller_id);
             $destination_country = $traveller_details->destination ?? '';
             $calculations = json_decode($this->input->post('price_calculations'));
             $selected_space = $calculations->selectedSpace; // Use selectedSpace from calculations for accuracy
 
-            // Base commission calculation logic (assumed: 4.50 for Nigeria, 5.00 for UK/CA per KG)
-            $base_commission_rate = ($destination_country == 'Nigeria') ? 4.50 : 5.00;
-            $traveller_commission = $base_commission_rate * (float)$selected_space;
+            // Base commission calculation logic NG -> UK (4.50 for Nigeria, 5.00 for UK/CA per KG)
+            $ng_uk_base_commission_rate = ($destination_country == 'Nigeria') ? 4.50 : 5.00;
+            $ng_uk_traveller_commission = $ng_uk_base_commission_rate * (float)$selected_space;
+
+            // Base commission calculation logic NG -> CA
+            $ng_ca_base_commission_rate = 10.00;
+            $ng_ca_traveller_commission = $ng_ca_base_commission_rate * (float)$selected_space;
+
+            $is_ng_uk_route =
+                ($traveller_details->location === 'United Kingdom' && $traveller_details->destination === 'Nigeria') ||
+                ($traveller_details->location === 'Nigeria' && $traveller_details->destination === 'United Kingdom');
+
+            $is_ng_ca_route =
+                ($traveller_details->location === 'Canada' && $traveller_details->destination === 'Nigeria') ||
+                ($traveller_details->location === 'Nigeria' && $traveller_details->destination === 'Canada');
+
+            $traveller_commission = ($is_ng_uk_route) ? $ng_uk_traveller_commission : $ng_ca_traveller_commission;
 
             // Get selected items to check for premium items (for commission increase)
-            $items_json = $this->input->post('items');
-            if ($items_json) {
-                $decoded_items = json_decode($items_json);
-                if (is_array($decoded_items)) {
-                    foreach ($decoded_items as $item) {
-                        if (isset($item->category) && $item->category === 'Documents/Electronics') {
-                            // Assuming premium items add 10 to the commission
-                            $traveller_commission += 10.00;
-                            break;
+            if ($is_ng_uk_route) {
+                $items_json = $this->input->post('items');
+                if ($items_json) {
+                    $decoded_items = json_decode($items_json);
+                    if (is_array($decoded_items)) {
+                        foreach ($decoded_items as $item) {
+                            if (isset($item->category) && $item->category === 'Documents/Electronics') {
+                                // Assuming premium items add 10 to the commission
+                                $traveller_commission += 10.00;
+                                break;
+                            }
                         }
                     }
                 }
             }
+
             $traveller_commission = round($traveller_commission, 2);
 
             // Manually inject the calculated commission into $_POST so it is picked up by the model's extractKeys
-            // NOTE: CodeIgniter's input methods are usually preferred, but using $_POST for demonstration:
             $_POST['traveller_commission'] = $traveller_commission;
-
-            // --- END: Calculate Traveller Commission ---
 
             $booking = $this->users_model->add_booking_to_db($user_id, $fullname, $email);
 
@@ -248,7 +261,7 @@ class User_bookings extends MY_Controller
             // Get traveller details (only needed for route title)
             $traveller = $this->common_model->get_traveller_details_by_id($booking->traveller_id);
 
-            // --- UPDATED CURRENCY LOGIC BASED ON USER'S COUNTRY (ORIGIN) ---
+            // UPDATED CURRENCY LOGIC BASED ON USER'S COUNTRY (ORIGIN) ---
             $is_canada_user = ($this->user_details->country == 'Canada');
 
             if ($booking) {
@@ -273,7 +286,7 @@ class User_bookings extends MY_Controller
                     try {
                         // Verify Stripe payment using secret key
                         $stripeSecretKey = get_stripe_secret_key();
-                        \Stripe\Stripe::setApiKey($stripeSecretKey); 
+                        \Stripe\Stripe::setApiKey($stripeSecretKey);
 
                         $checkout_session = \Stripe\Checkout\Session::create([
                             'line_items' => [[
@@ -324,7 +337,7 @@ class User_bookings extends MY_Controller
                     // Create Paystack Checkout session (Always NGN amount for Paystack)
                     try {
                         // Verify Paystack payment using secret key
-                        $paystackSecretKey = get_paystack_secret_key(); 
+                        $paystackSecretKey = get_paystack_secret_key();
 
                         $reference = 'SMB' . uniqid(); // Unique reference for transaction
                         $callback_url = base_url() . 'user_bookings/paystack/' . $booking->hash . '?reference=' . $reference;
@@ -621,9 +634,6 @@ class User_bookings extends MY_Controller
         $this->load->view('users/booking_success');
         $this->dashboard_footer();
     }
-
-
-    public function checks() {}
 
 
     public function check()
