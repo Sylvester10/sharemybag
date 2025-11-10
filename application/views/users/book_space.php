@@ -107,22 +107,25 @@
 
                                 <?php
 
+                                // Route between Nigeria and UK
+                                $is_to_nigeria = $traveller_details->destination === 'Nigeria';
+
+                                // Canadian Dollars (CAD)
+                                $is_canada_nigeria_route =
+                                    ($traveller_details->location === 'Canada' && $traveller_details->destination === 'Nigeria') ||
+                                    ($traveller_details->location === 'Nigeria' && $traveller_details->destination === 'Canada');
+
                                 // Prices are set based on the user's currency type (pounds or dollars)
                                 if ($currency === 'pounds') {
-                                    // Route between Nigeria and UK
-                                    $is_to_nigeria = $traveller_details->destination === 'Nigeria';
 
                                     $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
                                     $shopper_price = 7.5; // Only applies when destination is Nigeria
                                     $special_price = $is_to_nigeria ? 6.5 : 8.5;
                                     $premium_price = 15;
                                 } else {
-                                    // Canadian Dollars (CAD)
-                                    $is_canada_nigeria_route =
-                                        ($traveller_details->location === 'Canada' && $traveller_details->destination === 'Nigeria') ||
-                                        ($traveller_details->location === 'Nigeria' && $traveller_details->destination === 'Canada');
 
                                     if ($is_canada_nigeria_route) {
+
                                         $normal_price  = 11.5;
                                         $shopper_price = 0;
                                         $special_price = 11.5;
@@ -130,12 +133,13 @@
                                     } else {
 
                                         if ($is_canada_nigeria_route) {
+
                                             $normal_price  = 11.5;
                                             $shopper_price = 0;
                                             $special_price = 11.5;
                                             $premium_price = 20;
                                         } else {
-                                            
+
                                             $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
                                             $shopper_price = 7.5; // Only applies when destination is Nigeria
                                             $special_price = $is_to_nigeria ? 6.5 : 8.5;
