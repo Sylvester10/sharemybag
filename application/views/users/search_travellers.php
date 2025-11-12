@@ -106,18 +106,18 @@
             <div class="modal-content">
                 <div class="modal-header !tw-flex !tw-justify-center !tw-bg-[#d20913]">
                     <h4 class="modal-title text-white">
-                        <i class="ti ti-alert-circle"></i> ID Verification required to continue
+                        <i class="ti ti-alert-circle"></i> Attention
                     </h4>
                 </div>
                 <div class="modal-body !tw-text-center">
-                    <div class="!tw-flex !tw-justify-center mt-2">
-                        <dotlottie-wc src="https://lottie.host/b3d01a07-111f-4c8b-984f-effae09ea9da/mdwRLRcbfu.lottie" style="width: 350px;height:170px"
-                            autoplay loop></dotlottie-wc>
-                    </div>
                     <?php
                     if ($is_verified == 0) { ?>
 
                         <?php if ($is_profile_complete) { ?>
+                            <div class="!tw-flex !tw-justify-center mt-2">
+                                <i class="ti ti-user fs-13"></i>
+                            </div>
+                            
                             <p class="!tw-flex !tw-justify-center mt-3">Please update your profile details to proceed with identity verification.</p>
 
                             <div class="!tw-flex !tw-justify-center mt-3">
@@ -128,6 +128,12 @@
                             </div>
 
                         <?php } else { ?>
+
+                            <div class="!tw-flex !tw-justify-center mt-2">
+                                <dotlottie-wc src="https://lottie.host/b3d01a07-111f-4c8b-984f-effae09ea9da/mdwRLRcbfu.lottie" style="width: 350px;height:170px"
+                                    autoplay loop></dotlottie-wc>
+                            </div>
+
                             <p class="!tw-flex !tw-justify-center mt-3">Your profile is complete. Click continue to begin the verification process.</p>
 
                             <div class="!tw-flex !tw-justify-center mt-3">
