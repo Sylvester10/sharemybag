@@ -162,7 +162,7 @@
                                             </div>
                                         </div>
                                         <div class="col-sm-12">
-                                            <label for="password" class="mb-1">Country <span class="text-danger">*</span></label>
+                                            <label for="password" class="mb-1">Country of Residence <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
                                                 <select data-style="form-select" class="selectpicker form-control" data-live-search="true" id="country" name="country" required>
                                                     <option value="">Select country</option>
