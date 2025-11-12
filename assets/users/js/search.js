@@ -68,11 +68,7 @@ jQuery(document).ready(function ($) {
                 }
               }
             } else if (traveller.destination === "Nigeria") {
-              if (traveller.is_verified === 0 || traveller.is_verified === 1) {
-                buttonHtml = `<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verifyID">
-										Buy Space <i class='ti ti-arrow-up-right-circle'></i>
-									</button>`;
-              } else if (traveller.profile_completed === 0) {
+              if (traveller.profile_completed === 0) {
                 buttonHtml = `<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#goToProfile">
 										Buy Space <i class='ti ti-arrow-up-right-circle fs-5'></i>
 									</button>`;
