@@ -117,8 +117,8 @@
                             <div class="!tw-flex !tw-justify-center mt-2">
                                 <i class="ti ti-user fs-13"></i>
                             </div>
-                            
-                            <p class="!tw-flex !tw-justify-center mt-3">Please update your profile details to proceed with identity verification.</p>
+
+                            <p class="!tw-flex !tw-justify-center mt-3">Your profile is incomplete. Please complete your profile before starting verification.</p>
 
                             <div class="!tw-flex !tw-justify-center mt-3">
 
@@ -134,7 +134,7 @@
                                     autoplay loop></dotlottie-wc>
                             </div>
 
-                            <p class="!tw-flex !tw-justify-center mt-3">Your profile is complete. Click continue to begin the verification process.</p>
+                            <p class="!tw-flex !tw-justify-center mt-3">Identity verification required. Click the button to begin.</p>
 
                             <div class="!tw-flex !tw-justify-center mt-3">
 
