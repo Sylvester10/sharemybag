@@ -11,8 +11,9 @@ class Finances_cad_ajax extends CI_Model
 	}
 
 	var $table = 'bookings';
-	var $column_order = array(null, 'date_added', 'traveller_name', 'agent_name', 'receiver_name', 'total_amount', 'selected_price', 'service_charge', 'vat', 'insurance', 'selected_space', 'payment_method', 'payment_status'); //set column field database for datatable orderable
-	var $column_search = array('date_added', 'traveller_name', 'agent_name', 'receiver_name', 'total_amount', 'selected_price', 'service_charge', 'vat', 'insurance', 'selected_space', 'payment_method', 'payment_status'); //set column field database for datatable searchable 
+	// UPDATED: Removed agent_name, receiver_name columns from order/search arrays.
+	var $column_order = array(null, 'traveller_departure_date', 'traveller_name', 'total_amount', 'selected_price', 'service_charge', 'vat', 'insurance', 'traveller_commission', 'payment_method', 'payment_status');
+	var $column_search = array('traveller_departure_date', 'traveller_name', 'total_amount', 'selected_price', 'service_charge', 'vat', 'insurance', 'traveller_commission', 'payment_method', 'payment_status');
 	var $order = array('date_added' => 'desc');
 
 
@@ -20,7 +21,7 @@ class Finances_cad_ajax extends CI_Model
 	{
 		$this->db->from($this->table);
 		$i = 0;
-		foreach ($this->column_search as $item) // loop column 
+		foreach ($this->column_search as $item) // loop column
 		{
 			if ($_POST['search']['value']) // if datatable send POST for search
 			{
@@ -36,7 +37,7 @@ class Finances_cad_ajax extends CI_Model
 			}
 			$i++;
 		}
-		if (isset($_POST['order'])) { // here order processing 
+		if (isset($_POST['order'])) { // here order processing
 			$this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
 		} else if (isset($this->order)) {
 			$order = $this->order;
@@ -59,7 +60,7 @@ class Finances_cad_ajax extends CI_Model
 		}
 
 		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'dollars'); // <--- CRITICAL FILTER ADDED: CAD ONLY
+		$this->db->where('currency', 'dollars'); // CRITICAL FILTER: CAD ONLY
 
 		// Add group to include paystack, stripe, or empty/null
 		$this->db->group_start();
@@ -84,7 +85,7 @@ class Finances_cad_ajax extends CI_Model
 		}
 
 		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'dollars'); // <--- CRITICAL FILTER ADDED: CAD ONLY
+		$this->db->where('currency', 'dollars'); // CRITICAL FILTER: CAD ONLY
 
 		// Add group to include paystack, stripe, or empty/null
 		$this->db->group_start();
@@ -107,7 +108,7 @@ class Finances_cad_ajax extends CI_Model
 		}
 
 		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'dollars'); // <--- CRITICAL FILTER ADDED: CAD ONLY
+		$this->db->where('currency', 'dollars'); // CRITICAL FILTER: CAD ONLY
 
 		// Add group to include paystack, stripe, or empty/null
 		$this->db->group_start();
