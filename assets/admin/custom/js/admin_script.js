@@ -1,19 +1,21 @@
 jQuery(document).ready(function ($) {
-  ("use strict");
+  ('use strict');
 
-  const csrf_hash = $("#csrf_hash").val();
+  const csrf_hash = $('#csrf_hash').val();
 
   // Dropzone Configuration
+  if (Dropzone.instances.length > 0)
+    Dropzone.instances.forEach((dz) => dz.destroy());
   Dropzone.options.upload_photo_form = {
     maxFilesize: 5,
-    acceptedFiles: ".jpg, .jpeg, .png, .gif",
+    acceptedFiles: '.jpg, .jpeg, .png, .gif',
     init: function () {
-      this.on("success", function () {
+      this.on('success', function () {
         if (
           this.getQueuedFiles().length === 0 &&
           this.getUploadingFiles().length === 0
         ) {
-          location.reload(); // reload page after upload success
+          location.reload();
         }
       });
     },
@@ -21,52 +23,58 @@ jQuery(document).ready(function ($) {
 
   // Utility functions to handle button states
   function toggleSubmitBtn(isDisabled) {
-    const submitButton = $("#submit");
-    submitButton.prop("disabled", isDisabled);
-    submitButton.toggleClass("disabled", isDisabled);
-    submitButton.html(isDisabled ? "Please Wait..." : "Submit");
+    const submitButton = $('#submit');
+    submitButton.prop('disabled', isDisabled);
+    submitButton.toggleClass('disabled', isDisabled);
+    submitButton.html(isDisabled ? 'Please Wait...' : 'Submit');
   }
 
   // Quick Mail Form Submission
-  $("#quick_mail_form").on("submit", function (e) {
+  $('#quick_mail_form').on('submit', function (e) {
     e.preventDefault();
     const formData = $(this).serialize();
 
-    $.post(base_url + "admin/send_quick_mail_ajax", formData, function (msg) {
-      const alertType = msg == 1 ? "success" : "danger";
+    $.post(base_url + 'admin/send_quick_mail_ajax', formData, function (msg) {
+      const alertType = msg == 1 ? 'success' : 'danger';
       const alertMessage =
-        msg == 1 ? "Mail successfully sent." : "Email not Sent!";
-      $("#q_status_msg")
+        msg == 1 ? 'Mail successfully sent.' : 'Email not Sent!';
+      $('#q_status_msg')
         .html(
           `<div class="alert alert-${alertType} text-center">${alertMessage}</div>`
         )
-        .fadeIn("fast")
+        .fadeIn('fast')
         .delay(30000)
-        .fadeOut("slow");
-      if (msg == 1) $("#quick_mail_form")[0].reset();
+        .fadeOut('slow');
+      if (msg == 1) $('#quick_mail_form')[0].reset();
     });
   });
 
   //Loading icon on submit
   $(document).ready(function () {
-    $("#submit_button").submit(function (e) {
-      $("#send_mail_btn").attr("disabled", true); // Disable the button
-      $("#btn_text").text("Please wait..."); // Change the button text
-      $("#loading_icon").show(); // Show the loading icon
+    $('#submit_button').submit(function (e) {
+      $('#send_mail_btn').attr('disabled', true);
+      $('#btn_text').text('Please wait...');
+      $('#loading_icon').show();
     });
   });
 
   //Loading icon on submit
   $(document).ready(function () {
-    $("#submit_buttons").submit(function (e) {
-      $("#send_mail_btns").attr("disabled", true); // Disable the button
-      $("#btn_texts").text("Please wait..."); // Change the button text
-      $("#loading_icons").show(); // Show the loading icon
+    $('#submit_buttons').submit(function (e) {
+      $('#send_mail_btns').attr('disabled', true);
+      $('#btn_texts').text('Please wait...');
+      $('#loading_icons').show();
     });
   });
 
   // Reusable DataTable Initialization Function
-  function initializeDataTable(selector, ajaxUrl, searchLabel) {
+  // UPDATED: Added extraDataCallback to handle custom filters reliably
+  function initializeDataTable(
+    selector,
+    ajaxUrl,
+    searchLabel,
+    extraDataCallback = null
+  ) {
     return $(selector).DataTable({
       paging: true,
       pageLength: 10,
@@ -76,344 +84,312 @@ jQuery(document).ready(function ($) {
       scrollX: true,
       autoWidth: false,
       ordering: true,
-      stateSave: true,
+      stateSave: false, // CHANGED: Set to false to prevent filter caching issues
       processing: false,
       serverSide: true,
-      pagingType: "simple_numbers",
+      pagingType: 'simple_numbers',
       dom: "<'dt_len_change'l>f<'dt_buttons'B>trip",
       language: {
         search: searchLabel,
-        processing: "Please wait a sec...",
-        info: "Showing _START_ to _END_ of _TOTAL_",
-        infoFiltered: "(filtered from _MAX_ total)",
-        emptyTable: "No data to show.",
-        lengthMenu: "Show _MENU_ entries",
+        processing: 'Please wait a sec...',
+        info: 'Showing _START_ to _END_ of _TOTAL_',
+        infoFiltered: '(filtered from _MAX_ total)',
+        emptyTable: 'No data to show.',
+        lengthMenu: 'Show _MENU_ entries',
       },
       ajax: {
         url: ajaxUrl,
-        type: "POST",
-        data: { q2r_secure: csrf_hash },
+        type: 'POST',
+        data: function (d) {
+          d.q2r_secure = csrf_hash;
+          // If a callback is provided, run it to append extra data (filters)
+          if (extraDataCallback) {
+            extraDataCallback(d);
+          }
+        },
       },
       columnDefs: [{ targets: [0, 1], orderable: false }],
       buttons: [
-        { extend: "colvis", className: "data_export_buttons" },
-        { extend: "print", className: "data_export_buttons" },
-        { extend: "excel", className: "data_export_buttons" },
-        { extend: "csv", className: "data_export_buttons" },
-        { extend: "pdf", className: "data_export_buttons" },
+        { extend: 'colvis', className: 'data_export_buttons' },
+        { extend: 'print', className: 'data_export_buttons' },
+        { extend: 'excel', className: 'data_export_buttons' },
+        { extend: 'csv', className: 'data_export_buttons' },
+        { extend: 'pdf', className: 'data_export_buttons' },
       ],
     });
   }
 
   // Initialize DataTables
   initializeDataTable(
-    "#users_table",
-    base_url + "admin_users/user_ajax",
-    "Search/filter user:"
+    '#users_table',
+    base_url + 'admin_users/user_ajax',
+    'Search/filter user:'
   )
-    .order([9, "desc"])
-    .draw(); // 9 is the index of 'Date Registered' column
+    .order([9, 'desc'])
+    .draw();
 
   /////////////////////////////////////////////////////////
 
-  // Initialize DataTables
   initializeDataTable(
-    "#approved_users_table",
-    base_url + "admin_users/approved_users_ajax",
-    "Search/filter user:"
+    '#approved_users_table',
+    base_url + 'admin_users/approved_users_ajax',
+    'Search/filter user:'
   )
-    .order([9, "desc"])
-    .draw(); // 9 is the index of 'Date Registered' column
+    .order([9, 'desc'])
+    .draw();
 
   /////////////////////////////////////////////////////////
 
-  // Initialize DataTables
   initializeDataTable(
-    "#pending_users_table",
-    base_url + "admin_users/pending_users_ajax",
-    "Search/filter user:"
+    '#pending_users_table',
+    base_url + 'admin_users/pending_users_ajax',
+    'Search/filter user:'
   )
-    .order([9, "desc"])
-    .draw(); // 9 is the index of 'Date Registered' column
+    .order([9, 'desc'])
+    .draw();
 
   ////////////////////////////////////////////////////////
   // upcoming travellers
-  if ($.fn.DataTable.isDataTable("#upcoming_travellers_table")) {
-    $("#upcoming_travellers_table").DataTable().clear().destroy();
+  if ($.fn.DataTable.isDataTable('#upcoming_travellers_table')) {
+    $('#upcoming_travellers_table').DataTable().clear().destroy();
   }
 
   var upcomingTravellerTable = initializeDataTable(
-    "#upcoming_travellers_table",
-    base_url + "admin_travellers/upcoming_travellers_ajax",
-    "Search/filter Traveller:"
+    '#upcoming_travellers_table',
+    base_url + 'admin_travellers/upcoming_travellers_ajax',
+    'Search/filter Traveller:',
+    function (d) {
+      d.destination = $('#destination_filter').val();
+    }
   )
-    .order([2, "asc"])
+    .order([2, 'asc'])
     .draw();
 
-  // Pass destination to AJAX request
-  $.fn.dataTable.ext.errMode = "none";
-  upcomingTravellerTable.on("preXhr.dt", function (e, settings, data) {
-    data.destination = $("#destination_filter").val();
-  });
-
   // Trigger reload when destination changes
-  $("#destination_filter").on("change", function () {
+  $('#destination_filter').on('change', function () {
     upcomingTravellerTable.ajax.reload();
   });
 
   /////////////////////////////////////////////////////////
   // approved travellers
-  if ($.fn.DataTable.isDataTable("#approved_travellers_table")) {
-    $("#approved_travellers_table").DataTable().clear().destroy();
+  if ($.fn.DataTable.isDataTable('#approved_travellers_table')) {
+    $('#approved_travellers_table').DataTable().clear().destroy();
   }
 
   var travellerTable = initializeDataTable(
-    "#approved_travellers_table",
-    base_url + "admin_travellers/approved_travellers_ajax",
-    "Search/filter Traveller:"
+    '#approved_travellers_table',
+    base_url + 'admin_travellers/approved_travellers_ajax',
+    'Search/filter Traveller:',
+    function (d) {
+      d.destination = $('#destination_filter').val();
+    }
   )
-    .order([2, "desc"])
+    .order([2, 'desc'])
     .draw();
 
-  // Pass destination to AJAX request
-  $.fn.dataTable.ext.errMode = "none";
-  travellerTable.on("preXhr.dt", function (e, settings, data) {
-    data.destination = $("#destination_filter").val();
-  });
-
-  // Trigger reload when destination changes
-  $("#destination_filter").on("change", function () {
+  $('#destination_filter').on('change', function () {
     travellerTable.ajax.reload();
   });
 
   /////////////////////////////////////////////////////////
 
   initializeDataTable(
-    "#pending_travellers_table",
-    base_url + "admin_travellers/pending_travellers_ajax",
-    "Search/filter Traveller:"
+    '#pending_travellers_table',
+    base_url + 'admin_travellers/pending_travellers_ajax',
+    'Search/filter Traveller:'
   );
 
   /////////////////////////////////////////////////////////
 
   initializeDataTable(
-    "#unapproved_travellers_table",
-    base_url + "admin_travellers/unapproved_travellers_ajax",
-    "Search/filter Traveller:"
+    '#unapproved_travellers_table',
+    base_url + 'admin_travellers/unapproved_travellers_ajax',
+    'Search/filter Traveller:'
   );
 
   /////////////////////////////////////////////////////////
 
   initializeDataTable(
-    "#bookings_table",
-    base_url + "admin_bookings/all_bookings_ajax",
-    "Search/filter bookings:"
+    '#bookings_table',
+    base_url + 'admin_bookings/all_bookings_ajax',
+    'Search/filter bookings:'
   )
-    .order([1, "desc"])
+    .order([1, 'desc'])
     .draw();
 
   /////////////////////////////////////////////////////////
 
   initializeDataTable(
-    "#completed_bookings_table",
-    base_url + "admin_bookings/completed_bookings_ajax",
-    "Search/filter bookings:"
+    '#completed_bookings_table',
+    base_url + 'admin_bookings/completed_bookings_ajax',
+    'Search/filter bookings:'
   )
-    .order([1, "desc"])
+    .order([1, 'desc'])
     .draw();
 
   /////////////////////////////////////////////////////////
 
   initializeDataTable(
-    "#canceled_bookings_table",
-    base_url + "admin_bookings/canceled_bookings_ajax",
-    "Search/filter bookings:"
+    '#canceled_bookings_table',
+    base_url + 'admin_bookings/canceled_bookings_ajax',
+    'Search/filter bookings:'
   )
-    .order([1, "desc"])
+    .order([1, 'desc'])
     .draw();
 
   /////////////////////////////////////////////////////////
 
   initializeDataTable(
-    "#exchange_table",
-    base_url + "admin_exchange/all_exchange_rates",
-    "Search/filter rates:"
+    '#exchange_table',
+    base_url + 'admin_exchange/all_exchange_rates',
+    'Search/filter rates:'
   )
-    .order([1, "asc"])
+    .order([1, 'asc'])
     .draw();
 
   /////////////////////////////////////////////////////////
-  // finance (GBP)
-  if ($.fn.DataTable.isDataTable("#finances_table")) {
-    $("#finances_table").DataTable().clear().destroy();
+  // FINANCE (GBP)
+  // ------------------------------------------------------
+  if ($.fn.DataTable.isDataTable('#finances_table')) {
+    $('#finances_table').DataTable().clear().destroy();
   }
 
-  // --- FIX: Use unique variable for GBP table ---
   var gbpTable = initializeDataTable(
-    "#finances_table",
-    base_url + "admin_finances/all_finances_ajax",
-    "Search/filter Finance:"
+    '#finances_table',
+    base_url + 'admin_finances/all_finances_ajax',
+    'Search/filter Finance:',
+    function (d) {
+      // Directly append filter data here to ensure it's always sent
+      d.month = $('#month_filter_gbp').val();
+      d.year = $('#year_filter_gbp').val();
+    }
   )
-    .order([1, "desc"])
+    .order([1, 'desc'])
     .draw();
 
-  // Add filter to AJAX using UNIQUE IDs for GBP
-  $.fn.dataTable.ext.errMode = "none";
-  gbpTable.on("preXhr.dt", function (e, settings, data) {
-    data.month = $("#month_filter_gbp").val();
-    data.year = $("#year_filter_gbp").val();
-  });
-
-  // Trigger reload on filter change for GBP
-  $("#month_filter_gbp, #year_filter_gbp").on("change", function () {
-    gbpTable.ajax.reload();
+  // Trigger reload on filter change (Reset paging to true)
+  $('#month_filter_gbp, #year_filter_gbp').on('change', function () {
+    gbpTable.ajax.reload(null, true); // true = reset paging to page 1
   });
 
   /////////////////////////////////////////////////////////
-  // Cad finance
-  if ($.fn.DataTable.isDataTable("#finances_cad_table")) {
-    $("#finances_cad_table").DataTable().clear().destroy();
+  // CAD FINANCE
+  // ------------------------------------------------------
+  if ($.fn.DataTable.isDataTable('#finances_cad_table')) {
+    $('#finances_cad_table').DataTable().clear().destroy();
   }
 
-  // --- FIX: Use unique variable for CAD table ---
   var cadTable = initializeDataTable(
-    "#finances_cad_table",
-    base_url + "admin_finances/all_cad_finances_ajax",
-    "Search/filter Finance:"
+    '#finances_cad_table',
+    base_url + 'admin_finances/all_cad_finances_ajax',
+    'Search/filter Finance:',
+    function (d) {
+      // Directly append filter data here to ensure it's always sent
+      d.month = $('#month_filter_cad').val();
+      d.year = $('#year_filter_cad').val();
+    }
   )
-    .order([1, "desc"])
+    .order([1, 'desc'])
     .draw();
 
-  // Add filter to AJAX using UNIQUE IDs for CAD
-  $.fn.dataTable.ext.errMode = "none";
-  cadTable.on("preXhr.dt", function (e, settings, data) {
-    data.month = $("#month_filter_cad").val();
-    data.year = $("#year_filter_cad").val();
-  });
-
-  // Trigger reload on filter change for CAD
-  $("#month_filter_cad, #year_filter_cad").on("change", function () {
-    cadTable.ajax.reload();
+  // Trigger reload on filter change (Reset paging to true)
+  $('#month_filter_cad, #year_filter_cad').on('change', function () {
+    cadTable.ajax.reload(null, true); // true = reset paging to page 1
   });
 
   // Trumbowyg Text Editor
   $(document).ready(function () {
-    if ($("#email_message").length) {
-      $("#email_message").trumbowyg({
+    if ($('#email_message').length) {
+      $('#email_message').trumbowyg({
         btns: [
-          ["viewHTML"],
-          ["formatting"],
-          ["bold", "italic", "underline", "del"],
-          ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"],
-          ["unorderedList", "orderedList"],
-          ["link"],
-          ["removeformat"],
-          ["fullscreen"],
+          ['viewHTML'],
+          ['formatting'],
+          ['bold', 'italic', 'underline', 'del'],
+          ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+          ['unorderedList', 'orderedList'],
+          ['link'],
+          ['removeformat'],
+          ['fullscreen'],
         ],
       });
     }
 
-    if ($("#email_messages").length) {
-      $("#email_messages").trumbowyg({
+    if ($('#email_messages').length) {
+      $('#email_messages').trumbowyg({
         btns: [
-          ["viewHTML"],
-          ["formatting"],
-          ["bold", "italic", "underline", "del"],
-          ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"],
-          ["unorderedList", "orderedList"],
-          ["link"],
-          ["removeformat"],
-          ["fullscreen"],
+          ['viewHTML'],
+          ['formatting'],
+          ['bold', 'italic', 'underline', 'del'],
+          ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+          ['unorderedList', 'orderedList'],
+          ['link'],
+          ['removeformat'],
+          ['fullscreen'],
         ],
       });
     }
   });
 
   // -----------------------------------------------------------------
-  // START: OFFLINE BOOKING MODAL SCRIPT
+  // OFFLINE BOOKING MODAL SCRIPT
   // -----------------------------------------------------------------
 
-  /**
-   * Listen for any modal to be shown.
-   * We use event delegation ('on' on the document) because the modals
-   * are loaded via AJAX and don't exist on page load.
-   */
-  $(document).on("shown.bs.modal", ".modal", function () {
-    // Find the '.select2-user' dropdown *inside* the modal that just opened
-    var selectElement = $(this).find(".select2-user");
-
-    // Check if this modal actually has a '.select2-user' dropdown
+  $(document).on('shown.bs.modal', '.modal', function () {
+    var selectElement = $(this).find('.select2-user');
     if (selectElement.length > 0) {
-      // Check if it's already a Select2... if not, initialize it.
-      if (!selectElement.hasClass("select2-hidden-accessible")) {
+      if (!selectElement.hasClass('select2-hidden-accessible')) {
         selectElement.select2({
-          placeholder: "Search and select user...",
+          placeholder: 'Search and select user...',
           allowClear: true,
-          // This is ESSENTIAL for Select2 to work inside Bootstrap modals
-          dropdownParent: $(this).find(".modal-content"),
+          dropdownParent: $(this).find('.modal-content'),
         });
       }
     }
   });
 
-  /**
-   * [NEW] Helper function to clear autofill fields
-   */
   function clearAutofillFields(modal, type) {
-    modal.find('input[name="' + type + '_name"]').val("");
-    modal.find('input[name="' + type + '_email"]').val("");
-    modal.find('input[name="' + type + '_phone"]').val("");
-    modal.find('input[name="' + type + '_address"]').val("");
-    modal.find('input[name="' + type + '_locality"]').val("");
-    modal.find('input[name="' + type + '_postcode"]').val("");
+    modal.find('input[name="' + type + '_name"]').val('');
+    modal.find('input[name="' + type + '_email"]').val('');
+    modal.find('input[name="' + type + '_phone"]').val('');
+    modal.find('input[name="' + type + '_address"]').val('');
+    modal.find('input[name="' + type + '_locality"]').val('');
+    modal.find('input[name="' + type + '_postcode"]').val('');
   }
 
-  /**
-   * [UPDATED] Listen for a change on any '.select2-user' dropdown.
-   * This will now fetch user data and store it on the modal.
-   */
-  $(document).on("change", ".select2-user", function () {
+  $(document).on('change', '.select2-user', function () {
     var userId = $(this).val();
-    var modal = $(this).closest(".modal"); // Get the modal this select lives in
+    var modal = $(this).closest('.modal');
 
-    // Clear any previously stored data and uncheck boxes
-    modal.data("smb-user-details", null);
-    modal.find(".autofill-agent, .autofill-receiver").prop("checked", false);
-    clearAutofillFields(modal, "agent");
-    clearAutofillFields(modal, "receiver");
+    modal.data('smb-user-details', null);
+    modal.find('.autofill-agent, .autofill-receiver').prop('checked', false);
+    clearAutofillFields(modal, 'agent');
+    clearAutofillFields(modal, 'receiver');
 
     if (userId) {
-      // A user is selected, fetch their details
       $.ajax({
-        url: base_url + "admin_travellers/get_user_details/" + userId,
-        type: "GET",
-        dataType: "json",
+        url: base_url + 'admin_travellers/get_user_details/' + userId,
+        type: 'GET',
+        dataType: 'json',
         beforeSend: function () {
-          // You could add a loading spinner here
-          console.log("Fetching user data...");
+          console.log('Fetching user data...');
         },
         success: function (data) {
-          // Store the fetched data on the modal itself
-          modal.data("smb-user-details", data);
+          modal.data('smb-user-details', data);
         },
         error: function (xhr, status, error) {
-          console.error("Failed to fetch user details:", error);
-          modal.data("smb-user-details", null);
+          console.error('Failed to fetch user details:', error);
+          modal.data('smb-user-details', null);
         },
       });
     }
   });
 
-  /**
-   * [NEW] Listen for click on the 'autofill-agent' checkbox
-   */
-  $(document).on("change", ".autofill-agent", function () {
-    var modal = $(this).closest(".modal");
-    var userData = modal.data("smb-user-details");
+  $(document).on('change', '.autofill-agent', function () {
+    var modal = $(this).closest('.modal');
+    var userData = modal.data('smb-user-details');
 
-    if ($(this).is(":checked")) {
+    if ($(this).is(':checked')) {
       if (userData) {
-        // Fill the fields
         modal.find('input[name="agent_name"]').val(userData.fullname);
         modal.find('input[name="agent_email"]').val(userData.email);
         modal.find('input[name="agent_phone"]').val(userData.phone);
@@ -421,26 +397,20 @@ jQuery(document).ready(function ($) {
         modal.find('input[name="agent_locality"]').val(userData.city);
         modal.find('input[name="agent_postcode"]').val(userData.postal_code);
       } else {
-        // No user selected, alert the admin and uncheck the box
-        alert("Please select an SMB User first.");
-        $(this).prop("checked", false);
+        alert('Please select an SMB User first.');
+        $(this).prop('checked', false);
       }
     } else {
-      // Checkbox is unchecked, clear the fields
-      clearAutofillFields(modal, "agent");
+      clearAutofillFields(modal, 'agent');
     }
   });
 
-  /**
-   * [NEW] Listen for click on the 'autofill-receiver' checkbox
-   */
-  $(document).on("change", ".autofill-receiver", function () {
-    var modal = $(this).closest(".modal");
-    var userData = modal.data("smb-user-details");
+  $(document).on('change', '.autofill-receiver', function () {
+    var modal = $(this).closest('.modal');
+    var userData = modal.data('smb-user-details');
 
-    if ($(this).is(":checked")) {
+    if ($(this).is(':checked')) {
       if (userData) {
-        // Fill the fields
         modal.find('input[name="receiver_name"]').val(userData.fullname);
         modal.find('input[name="receiver_email"]').val(userData.email);
         modal.find('input[name="receiver_phone"]').val(userData.phone);
@@ -448,39 +418,32 @@ jQuery(document).ready(function ($) {
         modal.find('input[name="receiver_locality"]').val(userData.city);
         modal.find('input[name="receiver_postcode"]').val(userData.postal_code);
       } else {
-        // No user selected, alert the admin and uncheck the box
-        alert("Please select an SMB User first.");
-        $(this).prop("checked", false);
+        alert('Please select an SMB User first.');
+        $(this).prop('checked', false);
       }
     } else {
-      // Checkbox is unchecked, clear the fields
-      clearAutofillFields(modal, "receiver");
+      clearAutofillFields(modal, 'receiver');
     }
   });
 
-  // -----------------------------------------------------------------
-  // END: OFFLINE BOOKING MODAL SCRIPT
-  // -----------------------------------------------------------------
-
-  // Update the drop off address field with the data on the current address field
   $(document).ready(function () {
-    $("#populateDropAddress").change(function () {
-      if ($(this).is(":checked")) {
+    $('#populateDropAddress').change(function () {
+      if ($(this).is(':checked')) {
         var currentAddress = $('input[name="address"]').val();
         $('input[name="drop_address1"]').val(currentAddress);
       } else {
-        $('input[name="drop_address1"]').val("");
+        $('input[name="drop_address1"]').val('');
       }
     });
   });
 
   $(document).ready(function () {
-    $("#populateDropAddress2").change(function () {
-      if ($(this).is(":checked")) {
+    $('#populateDropAddress2').change(function () {
+      if ($(this).is(':checked')) {
         var currentAddress = $('input[name="address"]').val();
         $('input[name="drop_address2"]').val(currentAddress);
       } else {
-        $('input[name="drop_address2"]').val("");
+        $('input[name="drop_address2"]').val('');
       }
     });
   });
