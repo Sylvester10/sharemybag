@@ -2,7 +2,7 @@
 defined('BASEPATH') or die('Direct access not allowed');
 
 
-/* ===== Documentation ===== 
+/* ===== Documentation =====
 Name: Home
 Role: Controller
 Description: Controls access to Booking pages and functions in admin panel
@@ -58,19 +58,35 @@ class Admin_finances extends MY_Controller
 		$rowNumber = 1;
 		foreach ($list as $y) {
 			$sign = '&pound;';
-			// NOTE: No need to fetch traveler details or recalculate commission here, 
-			// it is now stored in $y->traveller_commission
 
 			$payment_status = ($y->payment_status == 'completed') ? '<span class="text-success"><b>Paid</b></span>' : '<span class="text-danger"><b>Canceled</b></span>';
 
 			// --- Commission is read directly from DB column ---
 			$traveller_commission = $y->traveller_commission;
 
+			// --- Determine Yes/No for Special and Premium Items ---
+			$is_special = 'No';
+			$is_premium = 'No';
+
+			$items = json_decode($y->items);
+			if (is_array($items)) {
+				foreach ($items as $item) {
+					// Check for Fish/Medicine (Special)
+					if (isset($item->category) && $item->category === 'Fish/Medicine') {
+						$is_special = 'Yes';
+					}
+					// Check for Documents/Electronics (Premium)
+					if (isset($item->category) && $item->category === 'Documents/Electronics') {
+						$is_premium = 'Yes';
+					}
+				}
+			}
+
+			$profit = $y->total_amount - $traveller_commission - $y->vat;
+
 			$commission = $y->payment_status == 'completed'
 				? $sign . number_format($traveller_commission, 2)
 				: 'N/A';
-
-			$profit = $y->total_amount - $traveller_commission - $y->vat; // Use stored commission for profit calc
 
 			$payment_method = match ($y->payment_method) {
 				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
@@ -80,14 +96,17 @@ class Admin_finances extends MY_Controller
 
 			$row = array();
 			$row[] = $rowNumber++;
-			$row[] = x_date_month_time_full($y->date_added);
+			// 1. Traveller's Date (Using Drop Date 1 as Travel Date)
+			$row[] = x_date_month_time_full($y->traveller_departure_date);
 			$row[] = $y->traveller_name;
-			$row[] = $y->agent_name;
-			$row[] = $y->receiver_name;
 			$row[] = $sign . number_format($y->total_amount, 2);
 			$row[] = $sign . number_format($y->selected_price, 2);
 			$row[] = $sign . number_format($y->service_charge, 2);
-			$row[] = $sign . number_format($y->vat, 2);
+
+			// 3. Special and Premium Columns (Yes/No)
+			$row[] = $is_special;
+			$row[] = $is_premium;
+
 			$row[] = $sign . number_format($y->insurance, 2);
 			$row[] = $sign . number_format($profit, 2);
 			$row[] = $commission;
@@ -145,11 +164,27 @@ class Admin_finances extends MY_Controller
 			// --- Commission is read directly from DB column ---
 			$traveller_commission = $y->traveller_commission;
 
+			// --- Determine Yes/No for Special and Premium Items ---
+			$is_special = 'No';
+			$is_premium = 'No';
+
+			$items = json_decode($y->items);
+			if (is_array($items)) {
+				foreach ($items as $item) {
+					if (isset($item->category) && $item->category === 'Fish/Medicine') {
+						$is_special = 'Yes';
+					}
+					if (isset($item->category) && $item->category === 'Documents/Electronics') {
+						$is_premium = 'Yes';
+					}
+				}
+			}
+
+			$profit = $y->total_amount - $traveller_commission - $y->vat;
+
 			$commission = $y->payment_status == 'completed'
 				? $sign . number_format($traveller_commission, 2)
 				: 'N/A';
-
-			$profit = $y->total_amount - $traveller_commission - $y->vat; // Use stored commission for profit calc
 
 			$payment_method = match ($y->payment_method) {
 				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
@@ -159,14 +194,17 @@ class Admin_finances extends MY_Controller
 
 			$row = array();
 			$row[] = $rowNumber++;
-			$row[] = x_date_month_time_full($y->date_added);
+			// 1. Traveller's Date
+			$row[] = x_date_month_time_full($y->traveller_departure_date);
 			$row[] = $y->traveller_name;
-			$row[] = $y->agent_name;
-			$row[] = $y->receiver_name;
 			$row[] = $sign . number_format($y->total_amount, 2);
 			$row[] = $sign . number_format($y->selected_price, 2);
 			$row[] = $sign . number_format($y->service_charge, 2);
-			$row[] = $sign . number_format($y->vat, 2);
+
+			// 3. Special and Premium Columns (Yes/No)
+			$row[] = $is_special;
+			$row[] = $is_premium;
+
 			$row[] = $sign . number_format($y->insurance, 2);
 			$row[] = $sign . number_format($profit, 2);
 			$row[] = $commission;
