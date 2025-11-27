@@ -11,7 +11,7 @@ class Finances_ajax extends CI_Model
 	}
 
 	var $table = 'bookings';
-	// UPDATED: Removed agent_name, receiver_name columns from order/search arrays.
+	// Column order updated to use traveller_departure_date
 	var $column_order = array(null, 'traveller_departure_date', 'traveller_name', 'total_amount', 'selected_price', 'service_charge', 'vat', 'insurance', 'traveller_commission', 'payment_method', 'payment_status');
 	var $column_search = array('traveller_departure_date', 'traveller_name', 'total_amount', 'selected_price', 'service_charge', 'vat', 'insurance', 'traveller_commission', 'payment_method', 'payment_status');
 	var $order = array('date_added' => 'desc');
@@ -27,7 +27,7 @@ class Finances_ajax extends CI_Model
 			{
 				if ($i === 0) // first loop
 				{
-					$this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
+					$this->db->group_start();
 					$this->db->like($item, $_POST['search']['value']);
 				} else {
 					$this->db->or_like($item, $_POST['search']['value']);
@@ -52,19 +52,19 @@ class Finances_ajax extends CI_Model
 		if ($_POST['length'] != -1)
 			$this->db->limit($_POST['length'], $_POST['start']);
 
+		// --- FIX: Filter by Traveller Travel Date (traveller_departure_date) ---
 		if (!empty($month)) {
-			$this->db->where('MONTH(date_added)', $month);
+			$this->db->where('MONTH(traveller_departure_date)', $month);
 		}
 		if (!empty($year)) {
-			$this->db->where('YEAR(date_added)', $year);
+			$this->db->where('YEAR(traveller_departure_date)', $year);
 		}
 
 		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'pounds'); // CRITICAL FILTER: GBP ONLY
+		$this->db->where('currency', 'pounds');
 
-		// Add group to include paystack, stripe, or empty/null
 		$this->db->group_start();
-		$this->db->where_in('payment_method', ['paystack', 'stripe', 'offline']); // Added offline
+		$this->db->where_in('payment_method', ['paystack', 'stripe', 'offline']);
 		$this->db->or_where('payment_method IS NULL', null, false);
 		$this->db->group_end();
 
@@ -77,19 +77,19 @@ class Finances_ajax extends CI_Model
 	{
 		$this->the_query();
 
+		// --- FIX: Filter by Traveller Travel Date ---
 		if (!empty($month)) {
-			$this->db->where('MONTH(date_added)', $month);
+			$this->db->where('MONTH(traveller_departure_date)', $month);
 		}
 		if (!empty($year)) {
-			$this->db->where('YEAR(date_added)', $year);
+			$this->db->where('YEAR(traveller_departure_date)', $year);
 		}
 
 		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'pounds'); // CRITICAL FILTER: GBP ONLY
+		$this->db->where('currency', 'pounds');
 
-		// Add group to include paystack, stripe, or empty/null
 		$this->db->group_start();
-		$this->db->where_in('payment_method', ['paystack', 'stripe', 'offline']); // Added offline
+		$this->db->where_in('payment_method', ['paystack', 'stripe', 'offline']);
 		$this->db->or_where('payment_method IS NULL', null, false);
 		$this->db->group_end();
 
@@ -100,19 +100,19 @@ class Finances_ajax extends CI_Model
 
 	function count_all_records($month = null, $year = null)
 	{
+		// --- FIX: Filter by Traveller Travel Date ---
 		if (!empty($month)) {
-			$this->db->where('MONTH(date_added)', $month);
+			$this->db->where('MONTH(traveller_departure_date)', $month);
 		}
 		if (!empty($year)) {
-			$this->db->where('YEAR(date_added)', $year);
+			$this->db->where('YEAR(traveller_departure_date)', $year);
 		}
 
 		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'pounds'); // CRITICAL FILTER: GBP ONLY
+		$this->db->where('currency', 'pounds');
 
-		// Add group to include paystack, stripe, or empty/null
 		$this->db->group_start();
-		$this->db->where_in('payment_method', ['paystack', 'stripe', 'offline']); // Added offline
+		$this->db->where_in('payment_method', ['paystack', 'stripe', 'offline']);
 		$this->db->or_where('payment_method IS NULL', null, false);
 		$this->db->group_end();
 
