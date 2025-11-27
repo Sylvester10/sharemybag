@@ -243,12 +243,13 @@ jQuery(document).ready(function ($) {
     .draw();
 
   /////////////////////////////////////////////////////////
-  // finance
+  // finance (GBP)
   if ($.fn.DataTable.isDataTable("#finances_table")) {
     $("#finances_table").DataTable().clear().destroy();
   }
 
-  var table = initializeDataTable(
+  // --- FIX: Use unique variable for GBP table ---
+  var gbpTable = initializeDataTable(
     "#finances_table",
     base_url + "admin_finances/all_finances_ajax",
     "Search/filter Finance:"
@@ -256,16 +257,16 @@ jQuery(document).ready(function ($) {
     .order([1, "desc"])
     .draw();
 
-  // Add filter to AJAX
+  // Add filter to AJAX using UNIQUE IDs for GBP
   $.fn.dataTable.ext.errMode = "none";
-  table.on("preXhr.dt", function (e, settings, data) {
-    data.month = $("#month_filter").val();
-    data.year = $("#year_filter").val();
+  gbpTable.on("preXhr.dt", function (e, settings, data) {
+    data.month = $("#month_filter_gbp").val();
+    data.year = $("#year_filter_gbp").val();
   });
 
-  // Trigger reload on filter change
-  $("#month_filter, #year_filter").on("change", function () {
-    table.ajax.reload();
+  // Trigger reload on filter change for GBP
+  $("#month_filter_gbp, #year_filter_gbp").on("change", function () {
+    gbpTable.ajax.reload();
   });
 
   /////////////////////////////////////////////////////////
@@ -274,7 +275,8 @@ jQuery(document).ready(function ($) {
     $("#finances_cad_table").DataTable().clear().destroy();
   }
 
-  var table = initializeDataTable(
+  // --- FIX: Use unique variable for CAD table ---
+  var cadTable = initializeDataTable(
     "#finances_cad_table",
     base_url + "admin_finances/all_cad_finances_ajax",
     "Search/filter Finance:"
@@ -282,16 +284,16 @@ jQuery(document).ready(function ($) {
     .order([1, "desc"])
     .draw();
 
-  // Add filter to AJAX
+  // Add filter to AJAX using UNIQUE IDs for CAD
   $.fn.dataTable.ext.errMode = "none";
-  table.on("preXhr.dt", function (e, settings, data) {
-    data.month = $("#month_filter").val();
-    data.year = $("#year_filter").val();
+  cadTable.on("preXhr.dt", function (e, settings, data) {
+    data.month = $("#month_filter_cad").val();
+    data.year = $("#year_filter_cad").val();
   });
 
-  // Trigger reload on filter change
-  $("#month_filter, #year_filter").on("change", function () {
-    table.ajax.reload();
+  // Trigger reload on filter change for CAD
+  $("#month_filter_cad, #year_filter_cad").on("change", function () {
+    cadTable.ajax.reload();
   });
 
   // Trumbowyg Text Editor
