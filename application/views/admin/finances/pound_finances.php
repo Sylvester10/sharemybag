@@ -38,8 +38,8 @@
 
 <div class="row mb-4" style="margin-bottom: 30px;">
 	<div class="col-md-3">
-		<label for="month_filter">Filter by Month:</label>
-		<select id="month_filter" class="form-control">
+		<label for="month_filter_gbp">Filter by Month:</label>
+		<select id="month_filter_gbp" class="form-control">
 			<option value="">All Months</option>
 			<?php
 			for ($i = 1; $i <= 12; $i++) {
@@ -49,8 +49,8 @@
 		</select>
 	</div>
 	<div class="col-md-3">
-		<label for="year_filter">Filter by Year:</label>
-		<select id="year_filter" class="form-control">
+		<label for="year_filter_gbp">Filter by Year:</label>
+		<select id="year_filter_gbp" class="form-control">
 			<option value="">All Years</option>
 			<?php
 			$currentYear = date('Y');
@@ -70,15 +70,14 @@
 		<thead>
 			<tr>
 				<th> </th>
-				<th class="min-w-200"> Date </th>
+				<th class="min-w-200"> Travel Date </th>
 				<th class="min-w-200"> Traveller </th>
-				<th class="min-w-200"> Agent </th>
-				<th class="min-w-200"> Parcel Owner </th>
 				<th class=""> Total Amount</th>
 				<th class="min-w-150"> Select Items Amount</th>
 				<th class=""> Service Charge </th>
-				<th class=""> VAT </th>
-				<th class=""> Parcel Guarantee </th>
+				<th class=""> Special Item? </th>
+				<th class=""> Premium Item? </th>
+				<th class=""> Insurance </th>
 				<th class=""> Profit</th>
 				<th class=""> Traveller Commission</th>
 				<th class=""> Payment Method </th>
