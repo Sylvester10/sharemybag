@@ -247,6 +247,7 @@ jQuery(document).ready(function ($) {
     .order([1, 'asc'])
     .draw();
 
+  
   /////////////////////////////////////////////////////////
   // FINANCE (GBP)
   // ------------------------------------------------------
@@ -259,18 +260,21 @@ jQuery(document).ready(function ($) {
     base_url + 'admin_finances/all_finances_ajax',
     'Search/filter Finance:',
     function (d) {
-      // Directly append filter data here to ensure it's always sent
       d.month = $('#month_filter_gbp').val();
       d.year = $('#year_filter_gbp').val();
+      d.route = $('#route_filter_gbp').val(); // UPDATED: route
     }
   )
     .order([1, 'desc'])
     .draw();
 
-  // Trigger reload on filter change (Reset paging to true)
-  $('#month_filter_gbp, #year_filter_gbp').on('change', function () {
-    gbpTable.ajax.reload(null, true); // true = reset paging to page 1
-  });
+  // Trigger reload on filter change
+  $('#month_filter_gbp, #year_filter_gbp, #route_filter_gbp').on(
+    'change',
+    function () {
+      gbpTable.ajax.reload(null, true);
+    }
+  );
 
   /////////////////////////////////////////////////////////
   // CAD FINANCE
@@ -284,18 +288,21 @@ jQuery(document).ready(function ($) {
     base_url + 'admin_finances/all_cad_finances_ajax',
     'Search/filter Finance:',
     function (d) {
-      // Directly append filter data here to ensure it's always sent
       d.month = $('#month_filter_cad').val();
       d.year = $('#year_filter_cad').val();
+      d.route = $('#route_filter_cad').val(); // UPDATED: route
     }
   )
     .order([1, 'desc'])
     .draw();
 
-  // Trigger reload on filter change (Reset paging to true)
-  $('#month_filter_cad, #year_filter_cad').on('change', function () {
-    cadTable.ajax.reload(null, true); // true = reset paging to page 1
-  });
+  // Trigger reload on filter change
+  $('#month_filter_cad, #year_filter_cad, #route_filter_cad').on(
+    'change',
+    function () {
+      cadTable.ajax.reload(null, true);
+    }
+  );
 
   // Trumbowyg Text Editor
   $(document).ready(function () {

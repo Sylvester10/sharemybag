@@ -11,15 +11,17 @@ class Finances_cad_ajax extends CI_Model
 	}
 
 	var $table = 'bookings';
-	// Column order updated to use traveller_departure_date
-	var $column_order = array(null, 'traveller_departure_date', 'traveller_name', 'total_amount', 'selected_price', 'service_charge', 'vat', 'insurance', 'traveller_commission', 'payment_method', 'payment_status');
-	var $column_search = array('traveller_departure_date', 'traveller_name', 'total_amount', 'selected_price', 'service_charge', 'vat', 'insurance', 'traveller_commission', 'payment_method', 'payment_status');
+	var $column_order = array(null, 'traveller_departure_date', 'traveller_name', 'total_amount', 'selected_price', 'service_charge', 'vat', 'insurance', 'traveller_commission', 'payment_method');
+	var $column_search = array('traveller_departure_date', 'traveller_name', 'total_amount', 'selected_price', 'service_charge', 'vat', 'insurance', 'traveller_commission', 'payment_method');
 	var $order = array('date_added' => 'desc');
 
 
 	private function the_query()
 	{
 		$this->db->from($this->table);
+		// --- JOIN TRAVELLERS TABLE FOR ROUTE FILTERING ---
+		$this->db->join('travellers', 'bookings.traveller_id = travellers.id', 'left');
+
 		$i = 0;
 		foreach ($this->column_search as $item) // loop column
 		{
@@ -46,26 +48,33 @@ class Finances_cad_ajax extends CI_Model
 	}
 
 
-	function get_records($month = null, $year = null)
+	function get_records($month = null, $year = null, $route = null)
 	{
 		$this->the_query();
 		if ($_POST['length'] != -1)
 			$this->db->limit($_POST['length'], $_POST['start']);
 
-		// --- FIX: Filter by Traveller Travel Date (traveller_departure_date) ---
 		if (!empty($month)) {
-			$this->db->where('MONTH(traveller_departure_date)', $month);
+			$this->db->where('MONTH(bookings.traveller_departure_date)', $month);
 		}
 		if (!empty($year)) {
-			$this->db->where('YEAR(traveller_departure_date)', $year);
+			$this->db->where('YEAR(bookings.traveller_departure_date)', $year);
+		}
+		// --- FIX: Filter by Route ---
+		if (!empty($route)) {
+			$parts = explode('-', $route);
+			if (count($parts) == 2) {
+				$this->db->where('travellers.location', $parts[0]);
+				$this->db->where('travellers.destination', $parts[1]);
+			}
 		}
 
-		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'dollars');
+		$this->db->where('bookings.payment_status', 'completed');
+		$this->db->where('bookings.currency', 'dollars');
 
 		$this->db->group_start();
-		$this->db->where_in('payment_method', ['paystack', 'stripe', 'offline']);
-		$this->db->or_where('payment_method IS NULL', null, false);
+		$this->db->where_in('bookings.payment_method', ['paystack', 'stripe', 'offline']);
+		$this->db->or_where('bookings.payment_method IS NULL', null, false);
 		$this->db->group_end();
 
 		$query = $this->db->get();
@@ -73,24 +82,31 @@ class Finances_cad_ajax extends CI_Model
 	}
 
 
-	function count_filtered_records($month = null, $year = null)
+	function count_filtered_records($month = null, $year = null, $route = null)
 	{
 		$this->the_query();
 
-		// --- FIX: Filter by Traveller Travel Date ---
 		if (!empty($month)) {
-			$this->db->where('MONTH(traveller_departure_date)', $month);
+			$this->db->where('MONTH(bookings.traveller_departure_date)', $month);
 		}
 		if (!empty($year)) {
-			$this->db->where('YEAR(traveller_departure_date)', $year);
+			$this->db->where('YEAR(bookings.traveller_departure_date)', $year);
+		}
+		// --- FIX: Filter by Route ---
+		if (!empty($route)) {
+			$parts = explode('-', $route);
+			if (count($parts) == 2) {
+				$this->db->where('travellers.location', $parts[0]);
+				$this->db->where('travellers.destination', $parts[1]);
+			}
 		}
 
-		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'dollars');
+		$this->db->where('bookings.payment_status', 'completed');
+		$this->db->where('bookings.currency', 'dollars');
 
 		$this->db->group_start();
-		$this->db->where_in('payment_method', ['paystack', 'stripe', 'offline']);
-		$this->db->or_where('payment_method IS NULL', null, false);
+		$this->db->where_in('bookings.payment_method', ['paystack', 'stripe', 'offline']);
+		$this->db->or_where('bookings.payment_method IS NULL', null, false);
 		$this->db->group_end();
 
 		$query = $this->db->get();
@@ -98,25 +114,33 @@ class Finances_cad_ajax extends CI_Model
 	}
 
 
-	function count_all_records($month = null, $year = null)
+	function count_all_records($month = null, $year = null, $route = null)
 	{
-		// --- FIX: Filter by Traveller Travel Date ---
 		if (!empty($month)) {
-			$this->db->where('MONTH(traveller_departure_date)', $month);
+			$this->db->where('MONTH(bookings.traveller_departure_date)', $month);
 		}
 		if (!empty($year)) {
-			$this->db->where('YEAR(traveller_departure_date)', $year);
+			$this->db->where('YEAR(bookings.traveller_departure_date)', $year);
+		}
+		// --- FIX: Filter by Route ---
+		if (!empty($route)) {
+			$parts = explode('-', $route);
+			if (count($parts) == 2) {
+				$this->db->where('travellers.location', $parts[0]);
+				$this->db->where('travellers.destination', $parts[1]);
+			}
 		}
 
-		$this->db->where('payment_status', 'completed');
-		$this->db->where('currency', 'dollars');
+		$this->db->where('bookings.payment_status', 'completed');
+		$this->db->where('bookings.currency', 'dollars');
 
 		$this->db->group_start();
-		$this->db->where_in('payment_method', ['paystack', 'stripe', 'offline']);
-		$this->db->or_where('payment_method IS NULL', null, false);
+		$this->db->where_in('bookings.payment_method', ['paystack', 'stripe', 'offline']);
+		$this->db->or_where('bookings.payment_method IS NULL', null, false);
 		$this->db->group_end();
 
 		$this->db->from($this->table);
+		$this->db->join('travellers', 'bookings.traveller_id = travellers.id', 'left');
 		return $this->db->count_all_results();
 	}
 

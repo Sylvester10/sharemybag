@@ -60,6 +60,14 @@
 			?>
 		</select>
 	</div>
+	<div class="col-md-3">
+		<label for="route_filter_gbp">Filter by Route:</label>
+		<select id="route_filter_gbp" class="form-control">
+			<option value="">All Routes</option>
+			<option value="United Kingdom-Nigeria">United Kingdom - Nigeria</option>
+			<option value="Nigeria-United Kingdom">Nigeria - United Kingdom</option>
+		</select>
+	</div>
 </div>
 
 <div class="table-scroll">
@@ -81,7 +89,6 @@
 				<th class=""> Profit</th>
 				<th class=""> Traveller Commission</th>
 				<th class=""> Payment Method </th>
-				<th class=""> Payment Status </th>
 			</tr>
 		</thead>
 		<tbody>
