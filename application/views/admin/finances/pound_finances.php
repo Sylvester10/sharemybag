@@ -36,7 +36,7 @@
 </div>
 
 
-<label for="month_filter_gbp">Filter by Month:</label>
+<label for="month_filter_gbp">Filter</label>
 <div class="row mb-4" style="margin-bottom: 30px;">
 	<div class="col-lg-4 col-sm-12">
 		<select id="month_filter_gbp" class="form-control">
