@@ -51,7 +51,7 @@ class Admin_finances extends MY_Controller
 		$this->load->model('ajax/finances/finances_ajax', 'current_model');
 		$month = $this->input->post('month');
 		$year = $this->input->post('year');
-		$route = $this->input->post('route'); // UPDATED: Receive route
+		$route = $this->input->post('route');
 
 		$list = $this->current_model->get_records($month, $year, $route);
 
@@ -68,6 +68,7 @@ class Admin_finances extends MY_Controller
 			// --- Determine Yes/No for Special and Premium Items ---
 			$is_special = 'No';
 			$is_premium = 'No';
+			$special_fee = 0; // Initialize special fee
 
 			$items = json_decode($y->items);
 			if (is_array($items)) {
@@ -75,6 +76,7 @@ class Admin_finances extends MY_Controller
 					// Check for Fish/Medicine (Special)
 					if (isset($item->category) && $item->category === 'Fish/Medicine') {
 						$is_special = 'Yes';
+						$special_fee += 10.00; // Add fee
 					}
 					// Check for Documents/Electronics (Premium)
 					if (isset($item->category) && $item->category === 'Documents/Electronics') {
@@ -103,6 +105,7 @@ class Admin_finances extends MY_Controller
 			$row[] = $sign . number_format($y->total_amount, 2);
 			$row[] = $sign . number_format($y->selected_price, 2);
 			$row[] = $sign . number_format($y->service_charge, 2);
+			$row[] = $sign . number_format($special_fee, 2); // NEW: Special Fee Column
 
 			// 3. Special and Premium Columns (Yes/No)
 			$row[] = $is_special;
@@ -151,7 +154,7 @@ class Admin_finances extends MY_Controller
 		$this->load->model('ajax/finances/finances_cad_ajax', 'current_model');
 		$month = $this->input->post('month');
 		$year = $this->input->post('year');
-		$route = $this->input->post('route'); // Capture destination
+		$route = $this->input->post('route');
 
 		$list = $this->current_model->get_records($month, $year, $route);
 
@@ -168,12 +171,14 @@ class Admin_finances extends MY_Controller
 			// --- Determine Yes/No for Special and Premium Items ---
 			$is_special = 'No';
 			$is_premium = 'No';
+			$special_fee = 0;
 
 			$items = json_decode($y->items);
 			if (is_array($items)) {
 				foreach ($items as $item) {
 					if (isset($item->category) && $item->category === 'Fish/Medicine') {
 						$is_special = 'Yes';
+						$special_fee += 10.00;
 					}
 					if (isset($item->category) && $item->category === 'Documents/Electronics') {
 						$is_premium = 'Yes';
@@ -201,6 +206,7 @@ class Admin_finances extends MY_Controller
 			$row[] = $sign . number_format($y->total_amount, 2);
 			$row[] = $sign . number_format($y->selected_price, 2);
 			$row[] = $sign . number_format($y->service_charge, 2);
+			$row[] = $sign . number_format($special_fee, 2); // NEW: Special Fee Column
 
 			// 3. Special and Premium Columns (Yes/No)
 			$row[] = $is_special;
@@ -210,6 +216,7 @@ class Admin_finances extends MY_Controller
 			$row[] = $sign . number_format($profit, 2);
 			$row[] = $commission;
 			$row[] = $payment_method;
+			$row[] = $payment_status;
 			$data[] = $row;
 		}
 

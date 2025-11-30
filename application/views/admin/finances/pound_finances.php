@@ -36,11 +36,11 @@
 </div>
 
 
+<label for="month_filter_gbp">Filter by Month:</label>
 <div class="row mb-4" style="margin-bottom: 30px;">
 	<div class="col-lg-4 col-sm-12">
-		<label for="month_filter_gbp">Filter by Month:</label>
 		<select id="month_filter_gbp" class="form-control">
-			<option value="">All Months</option>
+			<option value="">Month</option>
 			<?php
 			for ($i = 1; $i <= 12; $i++) {
 				echo '<option value="' . sprintf('%02d', $i) . '">' . date('F', mktime(0, 0, 0, $i, 10)) . '</option>';
@@ -49,9 +49,8 @@
 		</select>
 	</div>
 	<div class="col-lg-4 col-sm-12">
-		<label for="year_filter_gbp">Filter by Year:</label>
 		<select id="year_filter_gbp" class="form-control">
-			<option value="">All Years</option>
+			<option value="">Year</option>
 			<?php
 			$currentYear = date('Y');
 			for ($y = $currentYear; $y >= $currentYear - 10; $y--) {
@@ -61,9 +60,8 @@
 		</select>
 	</div>
 	<div class="col-lg-4 col-sm-12">
-		<label for="route_filter_gbp">Filter by Route:</label>
 		<select id="route_filter_gbp" class="form-control">
-			<option value="">All Routes</option>
+			<option value="">Route</option>
 			<option value="United Kingdom-Nigeria">United Kingdom - Nigeria</option>
 			<option value="Nigeria-United Kingdom">Nigeria - United Kingdom</option>
 		</select>
