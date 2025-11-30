@@ -51,8 +51,9 @@ class Admin_finances extends MY_Controller
 		$this->load->model('ajax/finances/finances_ajax', 'current_model');
 		$month = $this->input->post('month');
 		$year = $this->input->post('year');
+		$route = $this->input->post('route'); // UPDATED: Receive route
 
-		$list = $this->current_model->get_records($month, $year);
+		$list = $this->current_model->get_records($month, $year, $route);
 
 		$data = array();
 		$rowNumber = 1;
@@ -111,14 +112,13 @@ class Admin_finances extends MY_Controller
 			$row[] = $sign . number_format($profit, 2);
 			$row[] = $commission;
 			$row[] = $payment_method;
-			$row[] = $payment_status;
 			$data[] = $row;
 		}
 
 		$output = array(
 			"draw" => $_POST['draw'],
-			"recordsTotal" => $this->current_model->count_all_records($month, $year),
-			"recordsFiltered" => $this->current_model->count_filtered_records($month, $year),
+			"recordsTotal" => $this->current_model->count_all_records($month, $year, $route),
+			"recordsFiltered" => $this->current_model->count_filtered_records($month, $year, $route),
 			"data" => $data,
 		);
 
@@ -141,7 +141,7 @@ class Admin_finances extends MY_Controller
 		// Assuming these methods calculate the sum of commission directly from the DB
 		$data['total_cad_commission'] = $this->common_model->get_total_cad_commission();
 
-		$this->load->view('admin/finances/dollar_finance', $data);
+		$this->load->view('admin/finances/dollar_finances', $data);
 		$this->admin_footer();
 	}
 
@@ -151,8 +151,9 @@ class Admin_finances extends MY_Controller
 		$this->load->model('ajax/finances/finances_cad_ajax', 'current_model');
 		$month = $this->input->post('month');
 		$year = $this->input->post('year');
+		$route = $this->input->post('route'); // Capture destination
 
-		$list = $this->current_model->get_records($month, $year);
+		$list = $this->current_model->get_records($month, $year, $route);
 
 		$data = array();
 		$rowNumber = 1;
@@ -209,14 +210,13 @@ class Admin_finances extends MY_Controller
 			$row[] = $sign . number_format($profit, 2);
 			$row[] = $commission;
 			$row[] = $payment_method;
-			$row[] = $payment_status;
 			$data[] = $row;
 		}
 
 		$output = array(
 			"draw" => $_POST['draw'],
-			"recordsTotal" => $this->current_model->count_all_records($month, $year),
-			"recordsFiltered" => $this->current_model->count_filtered_records($month, $year),
+			"recordsTotal" => $this->current_model->count_all_records($month, $year, $route),
+			"recordsFiltered" => $this->current_model->count_filtered_records($month, $year, $route),
 			"data" => $data,
 		);
 
