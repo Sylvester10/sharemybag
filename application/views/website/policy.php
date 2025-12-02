@@ -166,7 +166,7 @@
                     </div>
                     <div class="feature-right-content mb-30">
                         <p class="mb-4">If you have any questions about this privacy notice, including any requests to exercise your legal rights, you can email <b class="text-black">legal@sharemybag.co.uk</b>. We try to respond to all legitimate requests within one month.</p>
-                        <p class="mb-4">If you wish to make a complaint about our collection or use of your personal data, please contact us by email at <b class="text-black">legal@sharemybag.co.uk</b> or by regular mail. You have a right to make a complaint at any time to the Information Commissioner’s Office (ICO) in the UK (www.ico.org.uk) or the National Data Protection Commission, Nigeria (https://ndpc.gov.ng/).</p>
+                        <p class="mb-4">If you wish to make a complaint about our collection or use of your personal data, please contact us by email at <b class="text-black">legal@sharemybag.co.uk</b> or by regular mail. You have a right to make a complaint at any time to the Information Commissioner’s Office (ICO) in the UK (www.ico.org.uk), our ICO number is <b class="text-black">00012267268</b> or the National Data Protection Commission, Nigeria (https://ndpc.gov.ng/).</p>
                     </div>
 
                 </div>
