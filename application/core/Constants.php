@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-/* ===== Documentation ===== 
+/* ===== Documentation =====
 Name: Constants::General
 Role: Include
 Description: Holds all the constants used by the app. Required in the construct of the core controller, MY_Controller, which makes it global to the entire application.
@@ -17,7 +17,7 @@ $business_phone_number2 = '';
 $business_facebook = 'https://facebook.com/sharemybag';
 $business_instagram = 'https://instagram.com/sharemybag';
 $business_twitter = '';
-$business_address = '70 BIU Road, GRA, Benin, Nigeria';
+$business_address = '86-90, Paul Street, London EC2A 4NE';
 $business_contact_email = 'info@sharemybag.co.uk';
 $sub_tagline = 'Find.Pay.Delivered';
 $business_keywords = 'Share my bag, SMB, Sharemybag, Parcel, Airline baggage, International shipping, Extra space, Community-driven, Verified users, On-demand, Flexible, Affordable, Eco-friendly, Sustainable, Trustworthy, Safe, Convenient, Doorstep delivery, Express delivery, Same-day delivery, Travel essentials, Travel companions,
