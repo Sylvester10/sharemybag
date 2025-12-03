@@ -111,7 +111,7 @@
     </div>
 
     <!-- Process Area -->
-    <div class="process-area bg-cover section-padding">
+    <!-- <div class="process-area bg-cover section-padding">
         <div class="container">
             <div class="row">
                 <div class="offset-lg-2 col-lg-8 text-center">
@@ -150,6 +150,29 @@
                         <h4>Buy Bag Space</h4>
                         <p>Fill the parcel form and make payments.</p>
                         <span class="count-big">03</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+    <div class="process-area bg-cover section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="offset-lg-2 col-lg-8 text-center">
+                    <div class="section-title">
+                        <p>Effortlessly send your items between Nigeria and the UK with our simple and secure process.</p>
+                        <h2>How it Works</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1 col-md-12 text-center wow fadeInUp animated" data-wow-delay="100ms">
+                    <div class="video-wrapper" style="border-radius: 15px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.15);">
+                        <video controls width="100%" poster="<?php echo base_url(); ?>assets/website/videos/how-it-works.jpg" style="display: block;">
+                            <source src="<?php echo base_url(); ?>assets/website/videos/how-it-works.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
                     </div>
                 </div>
             </div>
