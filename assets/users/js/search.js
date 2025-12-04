@@ -1,29 +1,29 @@
 jQuery(document).ready(function ($) {
-  ('use strict');
+  ("use strict");
 
   // Search
-  $('#search_form').submit(function (e) {
+  $("#search_form").submit(function (e) {
     e.preventDefault(); // Prevent default form submission
-    $('#search-spinner').removeClass('d-none'); // Show spinner
-    $('#search-results').html(''); // Clear previous search results
-    let val = $('#select_destination').val(); // Get the selected destination
-    let url = $(this).attr('action'); // Form action URL
+    $("#search-spinner").removeClass("d-none"); // Show spinner
+    $("#search-results").html(""); // Clear previous search results
+    let val = $("#select_destination").val(); // Get the selected destination
+    let url = $(this).attr("action"); // Form action URL
 
     // If the input is empty, return early
-    if (val.trim() == '') {
+    if (val.trim() == "") {
       return;
     }
 
     let form_data = $(this).serialize(); // Serialize form data for AJAX
     $.ajax({
       url: url,
-      type: 'POST',
+      type: "POST",
       data: form_data,
-      contentType: 'application/x-www-form-urlencoded',
+      contentType: "application/x-www-form-urlencoded",
       success: function (response) {
         response = JSON.parse(response); // Parse the JSON response
         console.log(response); // Log for debugging
-        let html_response = ''; // Declare html_response once here
+        let html_response = ""; // Declare html_response once here
 
         if (response.status) {
           html_response += `
@@ -48,13 +48,10 @@ jQuery(document).ready(function ($) {
 
           // Iterate over each traveller and generate table rows
           response.travellers.forEach((traveller) => {
-            let buttonHtml = ''; // Store button HTML dynamically
+            let buttonHtml = ""; // Store button HTML dynamically
 
             // Check for "United Kingdom" or "Canada" destination
-            if (
-              traveller.destination === 'United Kingdom' ||
-              traveller.destination === 'Canada'
-            ) {
+            if (traveller.destination === "United Kingdom" || traveller.destination === "Canada") {
               if (traveller.is_verified === 0 || traveller.is_verified === 1) {
                 buttonHtml = `<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verifyID">
 										Buy Space <i class='ti ti-arrow-up-right-circle'></i>
@@ -62,8 +59,8 @@ jQuery(document).ready(function ($) {
               } else {
                 // Check if Bag is Locked
                 if (traveller.bag_locked == 1) {
-                  buttonHtml = `<button class="btn btn-warning">
-                                        Bag Locked <i class='ti ti-lock'></i>
+                  buttonHtml = `<button class="btn btn-danger">
+                                        Bag is Full <i class='ti ti-lock'></i>
                                     </button>`;
                 } else if (traveller.available_space == 0) {
                   buttonHtml = `<button class="btn btn-danger">
@@ -75,7 +72,7 @@ jQuery(document).ready(function ($) {
 									</a>`;
                 }
               }
-            } else if (traveller.destination === 'Nigeria') {
+            } else if (traveller.destination === "Nigeria") {
               if (traveller.profile_completed === 0) {
                 buttonHtml = `<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#goToProfile">
 										Buy Space <i class='ti ti-arrow-up-right-circle fs-5'></i>
@@ -83,8 +80,8 @@ jQuery(document).ready(function ($) {
               } else {
                 // Check if Bag is Locked
                 if (traveller.bag_locked == 1) {
-                  buttonHtml = `<button class="btn btn-warning">
-                                        Bag Locked <i class='ti ti-lock'></i>
+                  buttonHtml = `<button class="btn btn-danger">
+                                        Bag is Full <i class='ti ti-lock'></i>
                                     </button>`;
                 } else if (traveller.available_space == 0) {
                   buttonHtml = `<button class="btn btn-danger">
@@ -99,8 +96,8 @@ jQuery(document).ready(function ($) {
             } else {
               // General Case
               if (traveller.bag_locked == 1) {
-                buttonHtml = `<button class="btn btn-warning">
-                                        Bag Locked <i class='ti ti-lock'></i>
+                buttonHtml = `<button class="btn btn-danger">
+                                        Bag is Full <i class='ti ti-lock'></i>
                                     </button>`;
               } else {
                 buttonHtml = `<a href="${base_url}buy-bag-space/${traveller.hash}" class="btn btn-success">
@@ -123,8 +120,8 @@ jQuery(document).ready(function ($) {
 
           html_response += `</tbody></table>`; // Close the table
           setTimeout(function () {
-            $('#search-results').html(html_response); // Display search results
-            $('#search-spinner').addClass('d-none'); // Hide spinner
+            $("#search-results").html(html_response); // Display search results
+            $("#search-spinner").addClass("d-none"); // Hide spinner
           }, 2000);
         } else {
           // Handle no travellers found
@@ -140,8 +137,8 @@ jQuery(document).ready(function ($) {
                                 </div>
                               </div>`;
           setTimeout(function () {
-            $('#search-results').html(noResultsHtml); // Display "no results" card
-            $('#search-spinner').addClass('d-none'); // Hide spinner
+            $("#search-results").html(noResultsHtml); // Display "no results" card
+            $("#search-spinner").addClass("d-none"); // Hide spinner
           }, 2000);
         }
       },

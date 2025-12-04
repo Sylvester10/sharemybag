@@ -68,6 +68,7 @@ class User_bookings extends MY_Controller
                     'arrival_state' => $traveller->arrival_state,
                     'available_space' => $traveller->available_space,
                     'hash' => $traveller->hash,
+                    'bag_locked' => $traveller->bag_locked,
                     'is_verified' => (int)$this->user_details->is_verified,
                     'profile_completed' => $profile_completed,
                     'destination' => $destination,
