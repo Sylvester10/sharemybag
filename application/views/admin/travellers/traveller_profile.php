@@ -59,7 +59,9 @@
 
 			<div class="col-xs-12 tw-mt-8">
 
-				<p><b>Bag Space:</b> <?= $y->original_bag_space; ?> KG </p>
+				<p><b>Original Bag Space:</b> <?= $y->original_bag_space; ?> KG </p>
+				<p><b>Used Bag Space:</b> <?= $y->used_space; ?> KG </p>
+				<p><b>Available Bag Space:</b> <?= $y->available_space; ?> KG </p>
 				<p><b>Destination:</b> <?= $y->destination; ?></p>
 				<p><b>Departure Airport:</b> <?= $y->departure_state; ?></p>
 				<p><b>Airline:</b> <?= $y->airline; ?></p>
@@ -80,7 +82,7 @@
 ?>
 
 <?php
-//select options bulk actions 
+//select options bulk actions
 $options_array = array(
 	//'value' => 'Caption'
 	'delete' => 'Delete'
@@ -115,7 +117,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 					<?php echo '<td> <div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $y->id . '" title="Options"> <i class="fa fa-navicon"></i> </a></div>';
 
-					echo '<div class="modal fade" id="options' . $y->id . '" role="dialog"> 
+					echo '<div class="modal fade" id="options' . $y->id . '" role="dialog">
 							<div class="modal-dialog">
 								<div class="modal-content modal-width">
 									<div class="modal-header">
@@ -131,7 +133,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 									</div>
 								</div>
 							</div>
-						</div> 
+						</div>
 
 						<div class="modal fade" id="delete' . $y->id . '" role="dialog">
 							<div class="modal-dialog">
@@ -157,7 +159,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					?>
 
 					<?php
-					
+
 					$user_details = $y->payment_method == 'offline'
 						? '<i class="fa-solid fa-user"></i> ' . $y->user_fullname . '<br />
 							<i class="fa-solid fa-at"></i> ' . $y->user_email . ' <br /> <i class="fa-solid fa-exclamation-circle"></i> This is an offline booking'
@@ -165,14 +167,14 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 							<i class="fa-solid fa-at"></i> ' . $y->user_email;
 
 				$agent_details = '<i class="fa-solid fa-user"></i> ' . $y->agent_name . '<br />
-							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br /> 
-							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br /> 
+							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br />
+							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br />
 							<i class="fa-solid fa-location-dot"></i> ' . $y->agent_address;
 
 				// receiver details
 				$receiver_details = '<i class="fa-solid fa-user"></i> ' . $y->receiver_name . ' <br />
-								<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br /> 
-								<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br /> 
+								<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br />
+								<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br />
 								<i class="fa-solid fa-location-dot"></i> ' . $y->receiver_address . ', ' . $y->receiver_locality . ', ' . $y->receiver_postcode . '';
 
 					// item details
@@ -223,7 +225,6 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					<td> <?= $payment_status ?></td>
 					<td> <?= x_date($y->date_added) ?> </td>
 				</tr>
-
 
 			<?php } ?>
 
