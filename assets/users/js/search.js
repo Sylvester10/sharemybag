@@ -59,8 +59,8 @@ jQuery(document).ready(function ($) {
               } else {
                 // Check if Bag is Locked
                 if (traveller.bag_locked == 1) {
-                  buttonHtml = `<button class="btn btn-danger">
-                                        Bag is Full <i class='ti ti-lock'></i>
+                  buttonHtml = `<button class="btn btn-warning">
+                                        Bag is Locked <i class='ti ti-lock'></i>
                                     </button>`;
                 } else if (traveller.available_space == 0) {
                   buttonHtml = `<button class="btn btn-danger">
@@ -80,8 +80,8 @@ jQuery(document).ready(function ($) {
               } else {
                 // Check if Bag is Locked
                 if (traveller.bag_locked == 1) {
-                  buttonHtml = `<button class="btn btn-danger">
-                                        Bag is Full <i class='ti ti-lock'></i>
+                  buttonHtml = `<button class="btn btn-warning">
+                                        Bag is Locked <i class='ti ti-lock'></i>
                                     </button>`;
                 } else if (traveller.available_space == 0) {
                   buttonHtml = `<button class="btn btn-danger">
@@ -96,8 +96,8 @@ jQuery(document).ready(function ($) {
             } else {
               // General Case
               if (traveller.bag_locked == 1) {
-                buttonHtml = `<button class="btn btn-danger">
-                                        Bag is Full <i class='ti ti-lock'></i>
+                buttonHtml = `<button class="btn btn-warning">
+                                        Bag is Locked <i class='ti ti-lock'></i>
                                     </button>`;
               } else {
                 buttonHtml = `<a href="${base_url}buy-bag-space/${traveller.hash}" class="btn btn-success">
