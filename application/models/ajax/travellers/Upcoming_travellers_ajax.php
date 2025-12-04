@@ -12,7 +12,7 @@ class Upcoming_travellers_ajax extends CI_Model
 
     var $table = 'travellers';
     var $column_order = array(null, null, 'travel_date', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'arrival_airport', 'destination', 'address', 'airline', 'arrival_date', 'original_bag_space', 'used_space',  'available_space', 'referred_by', 'status', 'date_added'); //set column field database for datatable orderable
-    var $column_search = array('travel_date', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'arrival_airport', 'destination', 'address', 'airline', 'arrival_date', 'original_bag_space', 'used_space',  'available_space', 'referred_by', 'status', 'date_added'); //set column field database for datatable searchable 
+    var $column_search = array('travel_date', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'arrival_airport', 'destination', 'address', 'airline', 'arrival_date', 'original_bag_space', 'used_space',  'available_space', 'referred_by', 'status', 'date_added'); //set column field database for datatable searchable
     var $order = array('travel_date' => 'desc');
 
     private function the_query()
@@ -104,7 +104,9 @@ class Upcoming_travellers_ajax extends CI_Model
         return '<p><a type="button" href="' . base_url('admin_travellers/traveller_profile/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-user" style="color: green"></i> &nbsp; View Traveller </a></p>
 
 		<p><a type="button" href="' . base_url('admin_travellers/update_traveller/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-pencil" style="color: blue"></i> &nbsp; Update Traveller </a></p>
-		
+
+		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#update_bag' . $id . '"> <i class="fa fa-briefcase" style="color: blue"></i> &nbsp; Update Bag Space </a></p>
+
 		<p><a type="button" href="' . base_url('admin_travellers/recycle_traveller/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-recycle" style="color: blue"></i> &nbsp; Recycle Traveller </a></p>
 
         <hr>
@@ -144,170 +146,384 @@ class Upcoming_travellers_ajax extends CI_Model
 
     public function modal_options($id)
     {
+        // 1. Fetch Data
         $y = $this->common_model->get_traveller_details_by_id($id);
         $bag_space_options = $this->generate_bag_space_options($y->available_space, $id);
+        $original_spaces = kilogram(); // Assuming this helper exists
+        $users = $this->common_model->get_approved_users();
 
-        // Fetch all approved smb users
-        $users = $this->common_model->get_approved_users(); // Create this method if you don't have it
-
-        // **RECOMMENDED FIX for Alphabetical Order**
-        // Sort the $users array by firstname
+        // 2. Sort Users Alphabetically
         usort($users, function ($a, $b) {
             return strcmp($a->firstname, $b->firstname);
         });
 
+        // 3. Generate User Options HTML
         $user_options = '';
         foreach ($users as $u) {
             $user_options .= '<option value="' . $u->id . '">' . htmlspecialchars($u->firstname . ' ' . $u->lastname . ' (' . $u->email . ')') . '</option>';
         }
 
+        // 4. Generate Available Space Options HTML (Fixed: Loop cannot be inside return string)
+        $original_space = '<option selected value="' . $y->original_bag_space . '">' . $y->original_bag_space . ' KG</option>';
+        if (!empty($original_spaces)) {
+            foreach ($original_spaces as $space) {
+                // Note: set_select cannot be used easily inside a string return without breaking flow,
+                // so we generate standard options here.
+                $original_space .= '<option value="' . $space . '">' . $space . ' KG</option>';
+            }
+        }
+
+        // 5. Return the HTML String
         return '
-        <div class="modal fade" id="options' . $id . '" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content modal-width">
-                    <div class="modal-header">
-                        <div class="pull-right">
-                            <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+            <div class="modal fade" id="options' . $id . '" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content modal-width">
+                        <div class="modal-header">
+                            <div class="pull-right">
+                                <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+                            </div>
+                            <h4 class="modal-title">Actions: ' . $y->fullname . '</h4>
                         </div>
-                        <h4 class="modal-title">Actions: ' . $y->fullname . '</h4>
+                        <div class="modal-body">' . $this->actions($id) . '</div>
                     </div>
-                    <div class="modal-body">' . $this->actions($id) . '</div>
                 </div>
             </div>
-        </div>
 
-        <div class="modal fade" id="offline' . $id . '" role="dialog">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content modal-widths">
-                    <div class="modal-header">
-                        <div class="pull-right">
-                            <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+            <div class="modal fade" id="update_bag' . $id . '" role="dialog">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="pull-right">
+                                <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+                            </div>
+                            <h4 class="modal-title">Update Original Bag Space: ' . $y->fullname . '</h4>
                         </div>
-                        <h4 class="modal-title">Update offline booking: ' . $y->fullname . '</h4>
+
+                        ' . form_open_multipart('admin_travellers/update_bag_space/' . $y->id, 'id="update_bag_form"') . '
+
+                        <div class="modal-body">
+
+                            <div class="form-group">
+                                <label class="form-control-label">Select Bag Space</label>
+                                <br>
+                                <select class="form-control select2-user" name="original_bag_space" required>
+                                    ' . $original_space . '
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-md btn-primary">
+                                    <span>Update Bag Space</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        ' . form_close() . '
+
                     </div>
-
-                    ' . form_open_multipart('admin_travellers/add_offline_booking/' . $y->id, 'id="offline_booking_form"') . '
-
-                    <div class="modal-body">
-
-                        <div class="form-group">
-                            <label class="form-control-label">Select SMB User *</label>
-                            <select name="user_id" id="user_id_' . $id . '" class="form-control select2-user" required>
-                                <option value="">-- Select User --</option>
-                                ' . $user_options . '
-                            </select>
-                        </div>
-
-						<hr>
-                        <h5 class="mt-3"><strong>Agent Details</strong></h5>
-                        
-                        <div class="form-check mb-2">
-                            <input class="form-check-input autofill-agent" type="checkbox" id="autofill-agent-' . $id . '">
-                            <label class="form-check-label" for="autofill-agent-' . $id . '">
-                                Fill with selected SMB User details
-                            </label>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-lg-12 mb-2">
-                                <label>Full Name *</label>
-								<br>
-                                <input type="text" name="agent_name" class="form-controls" required>
-                            </div>
-                            <div class="col-lg-6 mb-2">
-                                <label>Email *</label>
-								<br>
-                                <input type="email" name="agent_email" class="form-controls" required>
-                            </div>
-                            <div class="col-lg-6 mb-2">
-                                <label>Phone *</label>
-								<br>
-                                <input type="text" name="agent_phone" class="form-controls" required>
-                            </div>
-                            <div class="col-lg-12 mb-2">
-                                <label>Address *</label>
-								<br>
-                                <input type="text" name="agent_address" class="form-controls" required>
-                            </div>
-                            <div class="col-lg-6 mb-2">
-                                <label>City *</label>
-								<br>
-                                <input type="text" name="agent_locality" class="form-controls" required>
-                            </div>
-                            <div class="col-lg-6 mb-2">
-                                <label>Postal Code *</label>
-								<br>
-                                <input type="text" name="agent_postcode" class="form-controls" required>
-                            </div>
-                        </div>
-
-						<hr>
-                        <h5 class="mt-3"><strong>Receiver Details</strong></h5>
-                        
-                        <div class="form-check mb-2">
-                            <input class="form-check-input autofill-receiver" type="checkbox" id="autofill-receiver-' . $id . '">
-                            <label class="form-check-label" for="autofill-receiver-' . $id . '">
-                                Fill with selected SMB User details
-                            </label>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-12 mb-2">
-                                <label>Full Name *</label>
-								<br>
-                                <input type="text" name="receiver_name" class="form-controls" required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label>Email *</label>
-                                <input type="email" name="receiver_email" class="form-controls" required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label>Phone *</label>
-                                <input type="text" name="receiver_phone" class="form-controls" required>
-                            </div>
-                            <div class="col-md-12 mb-2">
-                                <label>Address *</label>
-								<br>
-                                <input type="text" name="receiver_address" class="form-controls" required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label>City *</label>
-                                <input type="text" name="receiver_locality" class="form-controls" required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label>Postal Code *</label>
-                                <input type="text" name="receiver_postcode" class="form-controls" required>
-                            </div>
-                        </div>
-
-						<hr>
-                        <h5 class="mt-3"><strong>Bag Space Details</strong></h5>
-                        <div class="form-group mt-3">
-                            <label>How much Bag Space was bought? *</label>
-                            <br>
-                            <select class="form-control select2container" name="selected_space" required>
-                                ' . $bag_space_options . '
-                            </select>
-                        </div>
-                    </div>
-
-					<div class="modal-footer">
-
-                        <div class="mt-3">
-                            <button type="submit" id="send_mail_btn" class="btn btn-md btn-primary">
-                                <span id="btn_text">Update Traveller</span>
-                                <span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
-                            </button>
-                        </div>
-
-					</div>
-
-                    ' . form_close() . '
-
                 </div>
             </div>
-        </div>';
+
+            <div class="modal fade" id="offline' . $id . '" role="dialog">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content modal-widths">
+                        <div class="modal-header">
+                            <div class="pull-right">
+                                <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+                            </div>
+                            <h4 class="modal-title">Update offline booking: ' . $y->fullname . '</h4>
+                        </div>
+
+                        ' . form_open_multipart('admin_travellers/add_offline_booking/' . $y->id, 'id="offline_booking_form"') . '
+
+                        <div class="modal-body">
+
+                            <div class="form-group">
+                                <label class="form-control-label">Select SMB User *</label>
+                                <select name="user_id" id="user_id_' . $id . '" class="form-control select2-user" required>
+                                    <option value="">-- Select User --</option>
+                                    ' . $user_options . '
+                                </select>
+                            </div>
+
+                            <hr>
+                            <h5 class="mt-3"><strong>Agent Details</strong></h5>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input autofill-agent" type="checkbox" id="autofill-agent-' . $id . '">
+                                <label class="form-check-label" for="autofill-agent-' . $id . '">
+                                    Fill with selected SMB User details
+                                </label>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12 mb-2">
+                                    <label>Full Name *</label>
+                                    <br>
+                                    <input type="text" name="agent_name" class="form-controls" required>
+                                </div>
+                                <div class="col-lg-6 mb-2">
+                                    <label>Email *</label>
+                                    <br>
+                                    <input type="email" name="agent_email" class="form-controls" required>
+                                </div>
+                                <div class="col-lg-6 mb-2">
+                                    <label>Phone *</label>
+                                    <br>
+                                    <input type="text" name="agent_phone" class="form-controls" required>
+                                </div>
+                                <div class="col-lg-12 mb-2">
+                                    <label>Address *</label>
+                                    <br>
+                                    <input type="text" name="agent_address" class="form-controls" required>
+                                </div>
+                                <div class="col-lg-6 mb-2">
+                                    <label>City *</label>
+                                    <br>
+                                    <input type="text" name="agent_locality" class="form-controls" required>
+                                </div>
+                                <div class="col-lg-6 mb-2">
+                                    <label>Postal Code *</label>
+                                    <br>
+                                    <input type="text" name="agent_postcode" class="form-controls" required>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h5 class="mt-3"><strong>Receiver Details</strong></h5>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input autofill-receiver" type="checkbox" id="autofill-receiver-' . $id . '">
+                                <label class="form-check-label" for="autofill-receiver-' . $id . '">
+                                    Fill with selected SMB User details
+                                </label>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-2">
+                                    <label>Full Name *</label>
+                                    <br>
+                                    <input type="text" name="receiver_name" class="form-controls" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>Email *</label>
+                                    <input type="email" name="receiver_email" class="form-controls" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>Phone *</label>
+                                    <input type="text" name="receiver_phone" class="form-controls" required>
+                                </div>
+                                <div class="col-md-12 mb-2">
+                                    <label>Address *</label>
+                                    <br>
+                                    <input type="text" name="receiver_address" class="form-controls" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>City *</label>
+                                    <input type="text" name="receiver_locality" class="form-controls" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>Postal Code *</label>
+                                    <input type="text" name="receiver_postcode" class="form-controls" required>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h5 class="mt-3"><strong>Bag Space Details</strong></h5>
+                            <div class="form-group mt-3">
+                                <label>How much Bag Space was bought? *</label>
+                                <br>
+                                <select class="form-control select2container" name="selected_space" required>
+                                    ' . $bag_space_options . '
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-md btn-primary">
+                                    <span id="btn_text">Update Traveller</span>
+                                    <span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        ' . form_close() . '
+
+                    </div>
+                </div>
+            </div>';
     }
+
+
+    // public function modal_options($id)
+    // {
+    //     $y = $this->common_model->get_traveller_details_by_id($id);
+    //     $bag_space_options = $this->generate_bag_space_options($y->available_space, $id);
+
+    //     // Fetch all approved smb users
+    //     $users = $this->common_model->get_approved_users(); // Create this method if you don't have it
+
+    //     // **RECOMMENDED FIX for Alphabetical Order**
+    //     // Sort the $users array by firstname
+    //     usort($users, function ($a, $b) {
+    //         return strcmp($a->firstname, $b->firstname);
+    //     });
+
+    //     $user_options = '';
+    //     foreach ($users as $u) {
+    //         $user_options .= '<option value="' . $u->id . '">' . htmlspecialchars($u->firstname . ' ' . $u->lastname . ' (' . $u->email . ')') . '</option>';
+    //     }
+
+    //     return '
+    //     <div class="modal fade" id="options' . $id . '" role="dialog">
+    //         <div class="modal-dialog">
+    //             <div class="modal-content modal-width">
+    //                 <div class="modal-header">
+    //                     <div class="pull-right">
+    //                         <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+    //                     </div>
+    //                     <h4 class="modal-title">Actions: ' . $y->fullname . '</h4>
+    //                 </div>
+    //                 <div class="modal-body">' . $this->actions($id) . '</div>
+    //             </div>
+    //         </div>
+    //     </div>
+
+    //     <div class="modal fade" id="offline' . $id . '" role="dialog">
+    //         <div class="modal-dialog modal-lg">
+    //             <div class="modal-content modal-widths">
+    //                 <div class="modal-header">
+    //                     <div class="pull-right">
+    //                         <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+    //                     </div>
+    //                     <h4 class="modal-title">Update offline booking: ' . $y->fullname . '</h4>
+    //                 </div>
+
+    //                 ' . form_open_multipart('admin_travellers/add_offline_booking/' . $y->id, 'id="offline_booking_form"') . '
+
+    //                 <div class="modal-body">
+
+    //                     <div class="form-group">
+    //                         <label class="form-control-label">Select SMB User *</label>
+    //                         <select name="user_id" id="user_id_' . $id . '" class="form-control select2-user" required>
+    //                             <option value="">-- Select User --</option>
+    //                             ' . $user_options . '
+    //                         </select>
+    //                     </div>
+
+    // 					<hr>
+    //                     <h5 class="mt-3"><strong>Agent Details</strong></h5>
+
+    //                     <div class="form-check mb-2">
+    //                         <input class="form-check-input autofill-agent" type="checkbox" id="autofill-agent-' . $id . '">
+    //                         <label class="form-check-label" for="autofill-agent-' . $id . '">
+    //                             Fill with selected SMB User details
+    //                         </label>
+    //                     </div>
+
+    //                     <div class="row">
+    //                         <div class="col-lg-12 mb-2">
+    //                             <label>Full Name *</label>
+    // 							<br>
+    //                             <input type="text" name="agent_name" class="form-controls" required>
+    //                         </div>
+    //                         <div class="col-lg-6 mb-2">
+    //                             <label>Email *</label>
+    // 							<br>
+    //                             <input type="email" name="agent_email" class="form-controls" required>
+    //                         </div>
+    //                         <div class="col-lg-6 mb-2">
+    //                             <label>Phone *</label>
+    // 							<br>
+    //                             <input type="text" name="agent_phone" class="form-controls" required>
+    //                         </div>
+    //                         <div class="col-lg-12 mb-2">
+    //                             <label>Address *</label>
+    // 							<br>
+    //                             <input type="text" name="agent_address" class="form-controls" required>
+    //                         </div>
+    //                         <div class="col-lg-6 mb-2">
+    //                             <label>City *</label>
+    // 							<br>
+    //                             <input type="text" name="agent_locality" class="form-controls" required>
+    //                         </div>
+    //                         <div class="col-lg-6 mb-2">
+    //                             <label>Postal Code *</label>
+    // 							<br>
+    //                             <input type="text" name="agent_postcode" class="form-controls" required>
+    //                         </div>
+    //                     </div>
+
+    // 					<hr>
+    //                     <h5 class="mt-3"><strong>Receiver Details</strong></h5>
+
+    //                     <div class="form-check mb-2">
+    //                         <input class="form-check-input autofill-receiver" type="checkbox" id="autofill-receiver-' . $id . '">
+    //                         <label class="form-check-label" for="autofill-receiver-' . $id . '">
+    //                             Fill with selected SMB User details
+    //                         </label>
+    //                     </div>
+
+    //                     <div class="row">
+    //                         <div class="col-md-12 mb-2">
+    //                             <label>Full Name *</label>
+    // 							<br>
+    //                             <input type="text" name="receiver_name" class="form-controls" required>
+    //                         </div>
+    //                         <div class="col-md-6 mb-2">
+    //                             <label>Email *</label>
+    //                             <input type="email" name="receiver_email" class="form-controls" required>
+    //                         </div>
+    //                         <div class="col-md-6 mb-2">
+    //                             <label>Phone *</label>
+    //                             <input type="text" name="receiver_phone" class="form-controls" required>
+    //                         </div>
+    //                         <div class="col-md-12 mb-2">
+    //                             <label>Address *</label>
+    // 							<br>
+    //                             <input type="text" name="receiver_address" class="form-controls" required>
+    //                         </div>
+    //                         <div class="col-md-6 mb-2">
+    //                             <label>City *</label>
+    //                             <input type="text" name="receiver_locality" class="form-controls" required>
+    //                         </div>
+    //                         <div class="col-md-6 mb-2">
+    //                             <label>Postal Code *</label>
+    //                             <input type="text" name="receiver_postcode" class="form-controls" required>
+    //                         </div>
+    //                     </div>
+
+    // 					<hr>
+    //                     <h5 class="mt-3"><strong>Bag Space Details</strong></h5>
+    //                     <div class="form-group mt-3">
+    //                         <label>How much Bag Space was bought? *</label>
+    //                         <br>
+    //                         <select class="form-control select2container" name="selected_space" required>
+    //                             ' . $bag_space_options . '
+    //                         </select>
+    //                     </div>
+    //                 </div>
+
+    // 				<div class="modal-footer">
+
+    //                     <div class="mt-3">
+    //                         <button type="submit" id="send_mail_btn" class="btn btn-md btn-primary">
+    //                             <span id="btn_text">Update Traveller</span>
+    //                             <span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
+    //                         </button>
+    //                     </div>
+
+    // 				</div>
+
+    //                 ' . form_close() . '
+
+    //             </div>
+    //         </div>
+    //     </div>';
+    // }
 
 
     public function modals($id)

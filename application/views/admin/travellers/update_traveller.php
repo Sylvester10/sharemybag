@@ -132,17 +132,8 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
     <div class="col-md-6 col-sm-12 col-xs-12">
 
         <div class="form-group">
-            <label class="form-control-label">Bag Space *</label>
-            <select class="form-control" name="available_space" required>
-                <option selected value="<?php echo $y->available_space; ?>"><?php echo $y->available_space; ?> KG</option>
-                <?php
-                $available_spaces = kilogram();
-                foreach ($available_spaces as $available_space) { ?>
-                    <option value="<?php echo $available_space; ?>" <?php echo set_select('available_space', $available_space); ?>>
-                        <?php echo $available_space; ?> KG
-                    </option>
-                <?php } ?>
-            </select>
+            <label class="form-control-label">Bag Space (KG) *</label>
+            <input type="text" name="available_space" value="<?php echo set_value('available_space', $y->available_space); ?>" class="form-control" readonly/>
             <div class="form-error">
                 <?php echo form_error('available_space'); ?>
             </div>
@@ -220,7 +211,7 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
 
         <?php
         if ($y->destination == $NIGERIA) {
-            //NIGERIA ARRIVAL 
+            //NIGERIA ARRIVAL
             $airports = ng_airports();
             $cities = ng_cities();
         ?>
@@ -274,7 +265,7 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
             </div>
 
         <?php } else {
-            // UNITED KINGDOM ARRIVAL 
+            // UNITED KINGDOM ARRIVAL
             $airports = uk_airports(); // Assuming this helper function is available
             $cities = uk_cities(); // This function was referenced in your original code
         ?>

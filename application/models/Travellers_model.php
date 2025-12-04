@@ -131,6 +131,15 @@ class Travellers_model extends MY_Model
 		return true;
 	}
 
+	public function update_traveller_bag_space($id)
+	{
+		$data['original_bag_space'] = $this->input->post('original_bag_space', TRUE);
+
+		$this->db->where('id', $id);
+		$this->db->update('travellers', $data);
+		return true;
+	}
+
 
 
 	public function recycle_traveller($id, $itinerary_photo, $thumbnail)
