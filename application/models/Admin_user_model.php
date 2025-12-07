@@ -12,6 +12,23 @@ class Admin_user_model extends CI_Model
 
 
 
+	public function update_user($id)
+	{
+		$data['firstname'] = ucfirst($this->input->post('firstname', TRUE));
+		$data['lastname'] = ucfirst($this->input->post('lastname', TRUE));
+		$data['number'] = $this->input->post('number', TRUE);
+		$data['email'] = $this->input->post('email', TRUE);
+		$data['country'] = $this->input->post('country', TRUE);
+		$data['address'] = $this->input->post('address', TRUE);
+		$data['state'] = $this->input->post('state', TRUE);
+		$data['post_code'] = $this->input->post('post_code', TRUE);
+
+		$this->db->where('id', $id);
+		$this->db->update('users', $data);
+		return true;
+	}
+
+
 	public function get_active_user($limit, $offset)
 	{
 		$this->db->limit($limit, $offset); //limit to be used as per_page, offset to be used as pagination segment
@@ -99,7 +116,7 @@ class Admin_user_model extends CI_Model
 							<img src="cid:logo" style="width:150px;" width="150">
 						</div>
 					</div>
-					
+
 					<div id="paymentContainer" style="max-width: 400px; height: auto; background-color: white; margin:auto; position: relative; padding:10px 0px 10px 0px; border-radius:20px; ">
 
 

@@ -74,7 +74,7 @@ class Admin_Users extends MY_Controller
     }
 
 
-    /* ========== Pending travellers ========== */
+    /* ========== Pending users ========== */
     public function pending_users()
     {
         $inner_page_title = 'Pending Users (' . $this->common_model->count_pending_users() . ')';
@@ -132,7 +132,7 @@ class Admin_Users extends MY_Controller
     }
 
 
-    /* ========== Approved travellers ========== */
+    /* ========== Approved users ========== */
     public function approved_users()
     {
         $inner_page_title = 'Approved Users (' . $this->common_model->count_approved_users() . ')';
@@ -202,6 +202,36 @@ class Admin_Users extends MY_Controller
         $data['bookings'] = $this->common_model->get_bookings_by_id($id);
         $this->load->view('admin/users/user_profile', $data);
         $this->admin_footer();
+    }
+
+
+    public function update_user_ajax($id)
+    {
+        //check user exists
+        $this->check_data_exists($id, 'id', 'users', 'admin');
+        // validation rules
+        $this->form_validation->set_rules('firstname', 'First Name', 'trim|min_length[2]|max_length[500]|required');
+        $this->form_validation->set_rules('lastname', 'Last Name', 'trim|min_length[2]|max_length[500]|required');
+        $this->form_validation->set_rules('number', 'Mobile', 'trim|required');
+        $this->form_validation->set_rules('email','Email','trim|required|valid_email',
+            array('valid_email' => 'Enter a valid email.')
+        );
+        $this->form_validation->set_rules('country', 'Country', 'trim|required');
+        $this->form_validation->set_rules('address', 'Address', 'trim|required');
+        $this->form_validation->set_rules('state', 'State', 'trim|required');
+        $this->form_validation->set_rules('post_code', 'Post code', 'trim|required');
+
+        if (!$this->form_validation->run()) {
+            $this->user_profile($id);
+        }
+
+        if ($this->admin_user_model->update_user($id)) {
+            $this->session->set_flashdata('status_msg', "User data updated successfully.");
+            redirect('admin_users/user_profile/' . $id);
+            return;
+        }
+        $this->session->set_flashdata('status_msg_error', 'User data could not be updated');
+        redirect('admin_users/user_profile/' . $id);
     }
 
 
