@@ -45,6 +45,103 @@
 		</div>
 	</div>
 
+		<div class="modal fade" id="update<?= $y->id ?>" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content modal-widths">
+				<div class="modal-header">
+					<div class="pull-right">
+						<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+					</div>
+					<h4 class="modal-title">Update Details: <?= $y->firstname ?> </h4>
+				</div>
+
+				<?php echo form_open_multipart('admin_users/update_user_ajax/' . $y->id, 'id="offline_booking_form"'); ?>
+
+				<div class="modal-body">
+
+					<div class="row">
+						<div class="col-lg-6 mb-2">
+							<div class="form-group">
+							<label>First Name *</label>
+							<br>
+							<input type="text" name="firstname" value="<?php echo set_value('firstname', $y->firstname); ?>" class="form-controls" required>
+							</div>
+						</div>
+						<div class="col-lg-6 mb-2">
+							<div class="form-group">
+							<label>Last Name *</label>
+							<br>
+							<input type="text" name="lastname" value="<?php echo set_value('lastname', $y->lastname); ?>" class="form-controls" required>
+							</div>
+						</div>
+						<div class="col-lg-6 mb-2">
+							<div class="form-group">
+							<label>Email *</label>
+							<br>
+							<input type="email" name="email" value="<?php echo set_value('email', $y->email); ?>" class="form-controls" required>
+							</div>
+						</div>
+						<div class="col-lg-6 mb-2">
+							<div class="form-group">
+							<label>Phone *</label>
+							<br>
+							<input type="tel" name="number" value="+<?php echo set_value('number', $y->number); ?>" class="form-controls" maxlength="13" pattern="\d*" title="Enter a valid phone number" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+							</div>
+						</div>
+						<div class="col-lg-6 mb-2">
+							<div class="form-group">
+								<label class="form-control-label">Country*</label>
+								<select class="form-control" name="country">
+									<option selected value="<?php echo $y->country; ?>"><?php echo $y->country; ?></option>
+									<?php
+									$countries = countries();
+									foreach ($countries as $country) { ?>
+										<option value="<?php echo $country; ?>"><?php echo $country; ?></option>
+									<?php } ?>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-6 mb-2">
+							<div class="form-group">
+							<label>Address *</label>
+							<br>
+							<input type="text" name="address" value="<?php echo set_value('address', $y->address); ?>" class="form-controls" required>
+									</div>
+						</div>
+						<div class="col-lg-6 mb-2">
+							<div class="form-group">
+							<label>City *</label>
+							<br>
+							<input type="text" name="state" value="<?php echo set_value('state', $y->state); ?>" class="form-controls" required>
+									</div>
+						</div>
+						<div class="col-lg-6 mb-2">
+							<div class="form-group">
+							<label>Postal Code *</label>
+							<br>
+							<input type="text" name="post_code" value="<?php echo set_value('post_code', $y->post_code); ?>" class="form-controls" required>
+									</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal-footer">
+
+					<div class="mt-3">
+						<button type="submit" id="send_mail_btn" class="btn btn-md btn-primary">
+							<span id="btn_text">Update</span>
+							<span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
+						</button>
+					</div>
+
+				</div>
+
+				<?php echo form_close(); ?>
+
+			</div>
+		</div>
+	</div>
+
 </div>
 
 <div class="m-b-20">
@@ -204,102 +301,3 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 <?php echo form_close(); ?>
 
 <?php  ?>
-
-
-
-	<div class="modal fade" id="update<?= $y->id ?>" role="dialog">
-		<div class="modal-dialog modal-lg">
-			<div class="modal-content modal-widths">
-				<div class="modal-header">
-					<div class="pull-right">
-						<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
-					</div>
-					<h4 class="modal-title">Update Details: <?= $y->firstname ?> </h4>
-				</div>
-
-				<?php echo form_open_multipart('admin_users/update_user_ajax/' . $y->id, 'id="offline_booking_form"'); ?>
-
-				<div class="modal-body">
-
-					<div class="row">
-						<div class="col-lg-6 mb-2">
-							<div class="form-group">
-							<label>First Name *</label>
-							<br>
-							<input type="text" name="firstname" value="<?php echo set_value('firstname', $y->firstname); ?>" class="form-controls" required>
-							</div>
-						</div>
-						<div class="col-lg-6 mb-2">
-							<div class="form-group">
-							<label>Last Name *</label>
-							<br>
-							<input type="text" name="lastname" value="<?php echo set_value('lastname', $y->lastname); ?>" class="form-controls" required>
-							</div>
-						</div>
-						<div class="col-lg-6 mb-2">
-							<div class="form-group">
-							<label>Email *</label>
-							<br>
-							<input type="email" name="email" value="<?php echo set_value('email', $y->email); ?>" class="form-controls" required>
-							</div>
-						</div>
-						<div class="col-lg-6 mb-2">
-							<div class="form-group">
-							<label>Phone *</label>
-							<br>
-							<input type="tel" name="number" value="+<?php echo set_value('number', $y->number); ?>" class="form-controls" maxlength="13" pattern="\d*" title="Enter a valid phone number" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
-							</div>
-						</div>
-						<div class="col-lg-6 mb-2">
-							<div class="form-group">
-								<label class="form-control-label">Country*</label>
-								<select class="form-control" name="country">
-									<option selected value="<?php echo $y->country; ?>"><?php echo $y->country; ?></option>
-									<?php
-									$countries = countries();
-									foreach ($countries as $country) { ?>
-										<option value="<?php echo $country; ?>"><?php echo $country; ?></option>
-									<?php } ?>
-								</select>
-							</div>
-						</div>
-						<div class="col-lg-6 mb-2">
-							<div class="form-group">
-							<label>Address *</label>
-							<br>
-							<input type="text" name="address" value="<?php echo set_value('address', $y->address); ?>" class="form-controls" required>
-									</div>
-						</div>
-						<div class="col-lg-6 mb-2">
-							<div class="form-group">
-							<label>City *</label>
-							<br>
-							<input type="text" name="state" value="<?php echo set_value('state', $y->state); ?>" class="form-controls" required>
-									</div>
-						</div>
-						<div class="col-lg-6 mb-2">
-							<div class="form-group">
-							<label>Postal Code *</label>
-							<br>
-							<input type="text" name="post_code" value="<?php echo set_value('post_code', $y->post_code); ?>" class="form-controls" required>
-									</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="modal-footer">
-
-					<div class="mt-3">
-						<button type="submit" id="send_mail_btn" class="btn btn-md btn-primary">
-							<span id="btn_text">Update</span>
-							<span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
-						</button>
-					</div>
-
-				</div>
-
-				<?php echo form_close(); ?>
-
-			</div>
-		</div>
-	</div>
