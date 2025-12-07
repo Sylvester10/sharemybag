@@ -19,6 +19,13 @@
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/main.css">
     <!-- endbuild -->
 
+    <!-- Nice Select CSS -->
+    <link href="<?php echo base_url(); ?>assets/website/css/nice-select.css" rel="stylesheet" />
+
+    <!-- country flags -->
+    <link href="<?php echo base_url(); ?>assets/general/countryflags/dist/flat.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/country-flags-css@1.1.2/dist/flat.min.css" rel="stylesheet">
+
     <!--custom css start-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css">
     <!--custom css end-->
@@ -161,6 +168,19 @@
                                                 <input type="email" class="form-control" placeholder="xyz@example.com" name="email" id="email" required aria-label="email">
                                             </div>
                                         </div>
+                                        <div class="col-sm-12 mb-3">
+                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <div class="">
+                                                    <select id="country_code" class="country-code" name="c_code" required>
+                                                        <option value="+1" data-flag="cf-16 cf-ca ms-1">+1 </option>
+                                                        <option value="+234" data-flag="cf-16 cf-ng ms-1">+234 </option>
+                                                        <option value="+44" data-flag="cf-16 cf-gb ms-1">+44 </option>
+                                                    </select>
+                                                </div>
+                                                <input class="form-control" type="tel" name="phone" placeholder="8011140017" required maxlength="10" pattern="\d{10}" title="Enter a valid 10-digit phone number">
+                                            </div>
+                                        </div>
                                         <div class="col-sm-12">
                                             <label for="password" class="mb-1">Country of Residence <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
@@ -237,10 +257,13 @@
     <script src="<?php echo base_url(); ?>assets/login/js/vendors/aos.js"></script>
     <script src="<?php echo base_url(); ?>assets/login/js/vendors/massonry.min.js"></script>
     <script src="<?php echo base_url(); ?>assets/login/js/app.js"></script>
+    <!-- Nice Select  -->
+    <script src="<?php echo base_url(); ?>assets/website/js/jquery.nice-select.min.js"></script>
     <!--endbuild-->
 
     <!-- custom scripts -->
     <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
+    <script src="<?php echo base_url(); ?>assets/website/js/custom.js"></script>
     <script src="<?php echo base_url(); ?>assets/website/js/home.js"></script>
 
     <!-- pass base_url to js -->

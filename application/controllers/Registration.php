@@ -18,7 +18,7 @@ class Registration extends MY_Controller
         $data['captcha_code'] = mt_rand(111111, 999999);
         $this->load->view('user_login/signup', $data);
     }
-    
+
 
     public function signup()
     {
@@ -27,6 +27,8 @@ class Registration extends MY_Controller
         $this->form_validation->set_rules('email',  'Email',  'trim|required|valid_email|is_unique[users.email]',
             array('is_unique' => 'This email address is already registered to another user')
         );
+        $this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
+        $this->form_validation->set_rules('phone', 'Phone Number', 'trim|is_natural|required');
         $this->form_validation->set_rules('country', 'Country', 'trim|required');
         $this->form_validation->set_rules('captcha_code', 'Captcha Code', 'trim');
         $this->form_validation->set_rules('c_captcha_code', 'Captcha Code', 'trim|required|matches[captcha_code]',

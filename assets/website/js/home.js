@@ -47,7 +47,7 @@ jQuery(document).ready(function ($) {
           let availableSpaceText =
             parseFloat(response.available_space) > 0
               ? `${response.available_space} kg`
-              : `<span class="text-danger fw-bold">Bag is Full</span>`;
+              : `<span class="text-danger fw-bold">Bag Full</span>`;
 
           let html_response = `
 					<section id="section-1" class="bg-white rounded shadow-md">
@@ -397,4 +397,162 @@ jQuery(document).ready(function ($) {
       },
     });
   });
+
+  // Login - specific
+  // $(document).ready(function () {
+  //   // --- Send OTP ---
+  //   $("#send_otp_btn").on("click", function (e) {
+  //     e.preventDefault();
+
+  //     var phone = $("#phone_number").val();
+  //     var country_code = $("#country_code").val();
+
+  //     if (!phone) {
+  //       $("#status_msg")
+  //         .html(
+  //           '<div class="alert alert-danger text-center" style="color: #000">Please enter your phone number.</div>'
+  //         )
+  //         .fadeIn("fast")
+  //         .delay(5000)
+  //         .fadeOut("slow");
+  //       return;
+  //     }
+
+  //     $("#send_otp_spinner").removeClass("d-none");
+  //     $("#send_otp_btn").addClass("d-none");
+  //     $("#status_msg").html("");
+
+  //     var postData = {
+  //       phone: phone,
+  //       country_code: country_code,
+  //     };
+  //     postData[csrf_token_name] = csrf_token_hash;
+
+  //     $.ajax({
+  //       url: base_url + "user_login/send_otp",
+  //       type: "POST",
+  //       data: postData,
+  //       dataType: "json",
+  //       success: function (res) {
+  //         update_csrf(res.csrf_hash); // Update CSRF token if you're sending it back
+
+  //         if (res.status) {
+  //           $("#status_msg")
+  //             .html(
+  //               '<div class="alert alert-success text-center" style="color: #000">Verification code sent!</div>'
+  //             )
+  //             .fadeIn("fast")
+  //             .delay(5000)
+  //             .fadeOut("slow");
+  //           $("#send_otp_wrapper")
+  //             .html('<span class="text-success">Verification code sent!</span>')
+  //             .fadeIn("fast")
+  //             .delay(5000)
+  //             .fadeOut("slow");
+  //           $("#otp1").focus(); // Focus on the first OTP box
+  //         } else {
+  //           $("#status_msg")
+  //             .html(
+  //               '<div class="alert alert-danger text-center" style="color: #000">' +
+  //                 (res.msg || "Failed to send code.") +
+  //                 "</div>"
+  //             )
+  //             .fadeIn("fast")
+  //             .delay(5000)
+  //             .fadeOut("slow");
+  //           $("#send_otp_spinner").addClass("d-none");
+  //           $("#send_otp_btn").removeClass("d-none");
+  //         }
+  //       },
+  //       error: function (xhr, status, error) {
+  //         $("#status_msg").html(
+  //           '<div class="alert alert-danger text-center" style="color: #000">An error occurred. Please try again.</div>'
+  //         );
+  //         $("#send_otp_spinner").addClass("d-none");
+  //         $("#send_otp_btn").removeClass("d-none");
+  //       },
+  //     });
+  //   });
+
+  //   // --- Verify OTP (Form Submission) ---
+  //   $("#verify_otp_form").on("submit", function (e) {
+  //     e.preventDefault();
+
+  //     // Combine OTP fields into the hidden input
+  //     var otp_code =
+  //       $("#otp1").val() +
+  //       $("#otp2").val() +
+  //       $("#otp3").val() +
+  //       $("#otp4").val();
+  //     $("#full_otp_code").val(otp_code);
+
+  //     if (otp_code.length !== 4) {
+  //       $("#status_msg").html(
+  //         '<div class="alert alert-danger text-center" style="color: #000">Please enter the 4-digit code.</div>'
+  //       );
+  //       return;
+  //     }
+
+  //     $("#login_spinner").removeClass("d-none");
+  //     $("#submit_otp_btn").prop("disabled", true);
+  //     $("#status_msg").html("");
+
+  //     var postData = {
+  //       otp: otp_code,
+  //     };
+  //     postData[csrf_token_name] = csrf_token_hash;
+
+  //     $.ajax({
+  //       url: $(this).attr("action"), // Get action from form
+  //       type: "POST",
+  //       data: postData,
+  //       dataType: "json",
+  //       success: function (res) {
+  //         update_csrf(res.csrf_hash); // Update CSRF
+
+  //         if (res.status) {
+  //           $("#status_msg").html(
+  //             '<div class="alert alert-success text-center" style="color: #000">Login Successful! Redirecting...</div>'
+  //           );
+  //           // Redirect to dashboard (or requested page)
+  //           window.location.href = base_url + "dashboard";
+  //         } else {
+  //           $("#status_msg").html(
+  //             '<div class="alert alert-danger text-center">' +
+  //               (res.msg || "Invalid or expired OTP.") +
+  //               "</div>"
+  //           );
+  //           $("#login_spinner").addClass("d-none");
+  //           $("#submit_otp_btn").prop("disabled", false);
+  //         }
+  //       },
+  //       error: function (xhr, status, error) {
+  //         $("#status_msg").html(
+  //           '<div class="alert alert-danger text-center" style="color: #000">An error occurred. Please try again.</div>'
+  //         );
+  //         $("#login_spinner").addClass("d-none");
+  //         $("#submit_otp_btn").prop("disabled", false);
+  //       },
+  //     });
+  //   });
+
+  //   // --- OTP Input Auto-Focus ---
+  //   $(".otp-input").on("keyup", function (e) {
+  //     var $this = $(this);
+  //     if ($this.val().length === $this.attr("maxlength")) {
+  //       var $next = $this.next(".otp-input");
+  //       if ($next.length) {
+  //         $next.focus();
+  //       }
+  //     }
+  //     // Handle Backspace
+  //     if (e.key === "Backspace") {
+  //       var $prev = $this.prev(".otp-input");
+  //       if ($prev.length) {
+  //         $prev.focus();
+  //       }
+  //     }
+  //   });
+  // });
+
 });

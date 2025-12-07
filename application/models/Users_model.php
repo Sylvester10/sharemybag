@@ -28,6 +28,11 @@ class Users_model extends MY_Model
         $referral_link = base_url('travellers' . '/' . '?refer=' . $username);
         $email = $this->input->post('email', TRUE);
 
+        $c_code = $this->input->post('c_code', TRUE);
+        $phone = $this->input->post('phone', TRUE);
+
+        $number = $c_code . "" . $phone;
+
         $data = array(
             'verification_code' => $verification_code,
             'pass_reset_code' => $pass_reset_code,
@@ -37,6 +42,7 @@ class Users_model extends MY_Model
             'firstname' => $this->input->post('firstname', TRUE),
             'lastname' => $this->input->post('lastname', TRUE),
             'email' => $email,
+            'number' => $number,
             'country' => $this->input->post('country', TRUE),
             'referral_link' => $referral_link,
         );

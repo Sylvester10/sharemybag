@@ -2,7 +2,7 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 
-/* ===== Documentation ===== 
+/* ===== Documentation =====
 Name: Home
 Role: Controller
 Description: Controls access to messages, travellers and track pages and functions in admin panel
@@ -26,26 +26,74 @@ class Home extends MY_Controller
 	}
 
 
-    public function index()
-    {
-        $data['schema'] = $this->get_schema();
-        $this->website_header('Share My Bag', $data); // Schema is passed here
-        $this->load->view('website/home', $data);     // Pass it again to the main view
-        $this->website_footer();
-    }
+	public function index()
+	{
+		$data['schema'] = $this->get_schema();
+		$this->website_header('Share My Bag', $data); // Schema is passed here
+		$this->load->view('website/home', $data);     // Pass it again to the main view
+		$this->website_footer();
+	}
 
 	// Search
+	// public function search()
+	// {
+	// 	$destination = $this->input->post('destination');
+	// 	$this->load->model('common_model', 'common');
+	// 	$travellers = $this->common_model->get_travellers_by_destination($destination);
+
+	// 	if (count($travellers) > 0) {
+	// 		$traveller = $travellers[0];
+	// 		$days = get_date_difference(date('Y-m-d H:i:s'), $traveller->travel_date);
+	// 		$days = !$days ? 'Today' : ($days > 1 ? "$days Days" : "$days Day");
+	// 		$location = ($traveller->destination == 'Nigeria') ? $traveller->location : $traveller->current_state;
+	// 		$data = array(
+	// 			'travel_date' => x_date($traveller->travel_date),
+	// 			'days_remaining' => $days,
+	// 			'current_state' => $traveller->current_state,
+	// 			'departure_state' => $traveller->departure_state,
+	// 			'arrival_airport' => $traveller->arrival_airport,
+	// 			'arrival_state' => $traveller->arrival_state,
+	// 			'available_space' => $traveller->available_space,
+	// 			'id' => $traveller->id,
+	// 			'status' => true
+	// 		);
+	// 		echo json_encode($data);
+	// 	} else {
+	// 		$data = array(
+	// 			'status' => false,
+	// 			'msg' => 'No Traveller Available'
+	// 		);
+	// 		echo json_encode($data);
+	// 	}
+	// }
+
 	public function search()
 	{
 		$destination = $this->input->post('destination');
 		$this->load->model('common_model', 'common');
 		$travellers = $this->common_model->get_travellers_by_destination($destination);
 
+		$selected_traveller = null;
+
+		// Loop through all travellers to find the first valid one
 		if (count($travellers) > 0) {
-			$traveller = $travellers[0];
+			foreach ($travellers as $t) {
+				// Check if space > 0 AND bag is NOT locked (bag_locked != 1)
+				if ($t->available_space > 0 && $t->bag_locked != 1) {
+					$selected_traveller = $t;
+					break; // Stop loop once we find the first match
+				}
+			}
+		}
+
+		// If a valid traveller was found, prepare the data
+		if ($selected_traveller) {
+			$traveller = $selected_traveller;
+
 			$days = get_date_difference(date('Y-m-d H:i:s'), $traveller->travel_date);
 			$days = !$days ? 'Today' : ($days > 1 ? "$days Days" : "$days Day");
-			$location = ($traveller->destination == 'Nigeria') ? $traveller->location : $traveller->current_state;
+			// $location = ($traveller->destination == 'Nigeria') ? $traveller->location : $traveller->current_state;
+
 			$data = array(
 				'travel_date' => x_date($traveller->travel_date),
 				'days_remaining' => $days,
@@ -58,7 +106,9 @@ class Home extends MY_Controller
 				'status' => true
 			);
 			echo json_encode($data);
-		} else {
+		}
+		// If list was empty OR no traveller met the criteria
+		else {
 			$data = array(
 				'status' => false,
 				'msg' => 'No Traveller Available'
@@ -199,7 +249,7 @@ class Home extends MY_Controller
 		$this->load->view('website/terms_use');
 		$this->website_footer();
 	}
-	
+
 
 	public function terms_conditions()
 	{
@@ -239,8 +289,110 @@ class Home extends MY_Controller
 
 	public function check()
 	{
-		$this->load->view('website/check');
-		// var_dump(production_url('assets/general/logo/colored_logo.png'));
+		// NOTE: Place this file in your CodeIgniter root directory and run it from your browser ONCE.
+		// Example: http://your-site.com/infobip_setup.php
+		//
+		// After you get your 'applicationId' and 'messageId', DELETE THIS FILE.
+
+		// Your API Key
+		$apiKey = 'c5cc8e91f2c07ef2d9e8eb2490dbf451-0ae2948d-75de-41cf-af66-e91a6dc73c55';
+
+		// Your Base URL (this one is from your helper file)
+		$baseUrl = 'https://m3e629.api.infobip.com';
+
+
+		// ---------------------------------------------------------------
+		// STEP 1: CREATE 2FA APPLICATION
+		// ---------------------------------------------------------------
+		echo "<h1>Step 1: Creating Application...</h1>";
+
+		$app_payload = json_encode([
+			"name" => "ShareMyBag 2FA Application",
+			"enabled" => true,
+			"configuration" => [
+				"pinAttempts" => 10,
+				"allowMultiplePinVerifications" => true,
+				"pinTimeToLive" => "15m",
+				"verifyPinLimit" => "1/3s",
+				"sendPinPerApplicationLimit" => "1000/1d",
+				"sendPinPerPhoneNumberLimit" => "10/1d"
+			]
+		]);
+
+		$ch_app = curl_init("$baseUrl/2fa/2/applications");
+		curl_setopt_array($ch_app, [
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HTTPHEADER => [
+				"Authorization: App $apiKey",
+				"Content-Type: application/json",
+				"Accept: application/json"
+			],
+			CURLOPT_POST => true,
+			CURLOPT_POSTFIELDS => $app_payload,
+		]);
+
+		$response_app = curl_exec($ch_app);
+		$httpCode_app = curl_getinfo($ch_app, CURLINFO_HTTP_CODE);
+		curl_close($ch_app);
+
+		if ($httpCode_app === 200 || $httpCode_app === 201) { // 201 is 'Created'
+			$app_result = json_decode($response_app, true);
+			$applicationId = $app_result['applicationId'];
+			echo "<p><b>Success!</b></p>";
+			echo "<p>Your Application ID is: <b>" . htmlspecialchars($applicationId) . "</b></p>";
+			echo "<p>Copy this ID into your `infobip_helper.php` file.</p>";
+			echo "<pre>" . htmlspecialchars($response_app) . "</pre>";
+		} else {
+			echo "<p><b>Error creating application!</b></p>";
+			echo "<p>HTTP Status: " . $httpCode_app . "</p>";
+			echo "<pre>" . htmlspecialchars($response_app) . "</pre>";
+			// Stop if app creation failed
+			exit;
+		}
+
+
+		// ---------------------------------------------------------------
+		// STEP 2: CREATE MESSAGE TEMPLATE (using the Application ID from Step 1)
+		// ---------------------------------------------------------------
+		echo "<hr><h1>Step 2: Creating Message Template...</h1>";
+
+		$msg_payload = json_encode([
+			"pinType" => "NUMERIC",
+			"messageText" => "Your ShareMyBag verification pin is {{pin}}",
+			"pinLength" => 4,
+			"senderId" => "ShareMyBag" // This may require registration with Infobip
+		]);
+
+		$ch_msg = curl_init("$baseUrl/2fa/2/applications/$applicationId/messages");
+		curl_setopt_array($ch_msg, [
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HTTPHEADER => [
+				"Authorization: App $apiKey",
+				"Content-Type: application/json",
+				"Accept: application/json"
+			],
+			CURLOPT_POST => true,
+			CURLOPT_POSTFIELDS => $msg_payload,
+		]);
+
+		$response_msg = curl_exec($ch_msg);
+		$httpCode_msg = curl_getinfo($ch_msg, CURLINFO_HTTP_CODE);
+		curl_close($ch_msg);
+
+		if ($httpCode_msg === 200 || $httpCode_msg === 201) {
+			$msg_result = json_decode($response_msg, true);
+			$messageId = $msg_result['messageId'];
+			echo "<p><b>Success!</b></p>";
+			echo "<p>Your Message ID is: <b>" . htmlspecialchars($messageId) . "</b></p>";
+			echo "<p>Copy this ID into your `infobip_helper.php` file.</p>";
+			echo "<pre>" . htmlspecialchars($response_msg) . "</pre>";
+		} else {
+			echo "<p><b>Error creating message template!</b></p>";
+			echo "<p>HTTP Status: " . $httpCode_msg . "</p>";
+			echo "<pre>" . htmlspecialchars($response_msg) . "</pre>";
+		}
+
+		echo "<hr><h2>Setup Complete. Now, delete this file!</h2>";
 	}
 
 
