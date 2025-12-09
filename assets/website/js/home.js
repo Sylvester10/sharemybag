@@ -80,7 +80,7 @@ jQuery(document).ready(function ($) {
 							</div>
 
 							<h6>
-								<a href="${base_url}registration" class="main-btn primary wow fadeInUp animated" data-wow-delay=".15s" type="submit">
+								<a href="${base_url}registration" class="login-btn primary wow fadeInUp animated" data-wow-delay=".15s" type="submit">
 									Sign up to see all available travellers
 								</a>
 							</h6>
@@ -107,7 +107,7 @@ jQuery(document).ready(function ($) {
 											</div>
 
                       <h6>
-                        <a href="${base_url}registration" class="main-btn primary wow fadeInUp animated" data-wow-delay=".15s" type="submit">
+                        <a href="${base_url}registration" class="login-btn primary wow fadeInUp animated" data-wow-delay=".15s" type="submit">
                           Sign up to join the wait list
                         </a>
                       </h6>
