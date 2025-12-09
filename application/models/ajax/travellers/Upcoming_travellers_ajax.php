@@ -209,7 +209,8 @@ class Upcoming_travellers_ajax extends CI_Model
                                     ' . $original_space . '
                                 </select>
                             </div>
-                            <small>Select space will be added to the original bag space</small>
+                            <br>
+                            <small>Selected space will be added to the original bag space</small>
                         </div>
 
                         <div class="modal-footer">
