@@ -66,14 +66,14 @@ class Admin_travellers extends MY_Controller
 			];
 
 			$payment_type = $paymentTypes[$y->payment_type] ?? 'None Selected';
-			$is_locked = ($y->is_locked == 1) ? '<i class="fa fa-lock" style="color: red"></i>' : '';
+			$bag_locked = ($y->bag_locked == 1) ? '<i class="fa fa-lock" style="color: red"></i>' : '';
 
 			$row = array();
 			$row[] = checkbox_bulk_action($y->id);
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
 			$row[] = x_date($y->travel_date);
 			$row[] = $itinerary;
-			$row[] = ucwords($y->fullname) . '' . $is_locked;
+			$row[] = ucwords($y->fullname) . '' . $bag_locked;
 			$row[] = $y->phone;
 			$row[] = $y->alt_phone;
 			$row[] = $y->email;
