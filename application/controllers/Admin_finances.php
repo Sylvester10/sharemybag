@@ -99,17 +99,19 @@ class Admin_finances extends MY_Controller
 
 			$row = array();
 			$row[] = $rowNumber++;
-			// 1. Traveller's Date (Using Drop Date 1 as Travel Date)
+			// Traveller's Date (Using Drop Date 1 as Travel Date)
 			$row[] = x_date_month_time_full($y->traveller_departure_date);
 			$row[] = $y->traveller_name;
 			$row[] = $sign . number_format($y->total_amount, 2);
 			$row[] = $sign . number_format($y->selected_price, 2);
 			$row[] = $sign . number_format($y->service_charge, 2);
-			$row[] = $sign . number_format($special_fee, 2); // NEW: Special Fee Column
+			$row[] = $sign . number_format($special_fee, 2); // Special Fee Column
 
-			// 3. Special and Premium Columns (Yes/No)
+			// Special and Premium Columns (Yes/No)
 			$row[] = $is_special;
 			$row[] = $is_premium;
+
+			$row[] = $y->selected_space.'KG';
 
 			$row[] = $sign . number_format($y->insurance, 2);
 			$row[] = $sign . number_format($profit, 2);
@@ -200,17 +202,19 @@ class Admin_finances extends MY_Controller
 
 			$row = array();
 			$row[] = $rowNumber++;
-			// 1. Traveller's Date
+			// Traveller's Date
 			$row[] = x_date_month_time_full($y->traveller_departure_date);
 			$row[] = $y->traveller_name;
 			$row[] = $sign . number_format($y->total_amount, 2);
 			$row[] = $sign . number_format($y->selected_price, 2);
 			$row[] = $sign . number_format($y->service_charge, 2);
-			$row[] = $sign . number_format($special_fee, 2); // NEW: Special Fee Column
+			$row[] = $sign . number_format($special_fee, 2); // Special Fee Column
 
-			// 3. Special and Premium Columns (Yes/No)
+			// Special and Premium Columns (Yes/No)
 			$row[] = $is_special;
 			$row[] = $is_premium;
+
+			$row[] = $y->selected_space . 'KG';
 
 			$row[] = $sign . number_format($y->insurance, 2);
 			$row[] = $sign . number_format($profit, 2);

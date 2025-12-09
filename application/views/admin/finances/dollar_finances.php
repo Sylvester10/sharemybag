@@ -84,6 +84,7 @@
                 <th class=""> Special Fee </th>
                 <th class=""> Special Item? </th>
                 <th class=""> Premium Item? </th>
+                <th class=""> Total KG </th>
                 <th class=""> Insurance </th>
                 <th class=""> Profit</th>
                 <th class=""> Traveller Commission</th>
