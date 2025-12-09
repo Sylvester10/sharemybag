@@ -73,7 +73,7 @@ class Admin_travellers extends MY_Controller
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
 			$row[] = x_date($y->travel_date);
 			$row[] = $itinerary;
-			$row[] = ucwords($y->fullname) . '' . $bag_locked;
+			$row[] = ucwords($y->fullname) . ' ' . $bag_locked;
 			$row[] = $y->phone;
 			$row[] = $y->alt_phone;
 			$row[] = $y->email;
