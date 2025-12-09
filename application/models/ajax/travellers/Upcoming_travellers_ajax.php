@@ -195,7 +195,7 @@ class Upcoming_travellers_ajax extends CI_Model
                             <div class="pull-right">
                                 <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
                             </div>
-                            <h4 class="modal-title">Update Original Bag Space: ' . $y->original_bag_space . '</h4>
+                            <h4 class="modal-title">Update Original Bag Space: ' . $y->original_bag_space . 'KG</h4>
                         </div>
 
                         ' . form_open_multipart('admin_travellers/update_bag_space/' . $y->id, 'id="update_bag_form"') . '
