@@ -163,11 +163,10 @@ class Upcoming_travellers_ajax extends CI_Model
             $user_options .= '<option value="' . $u->id . '">' . htmlspecialchars($u->firstname . ' ' . $u->lastname . ' (' . $u->email . ')') . '</option>';
         }
 
-        // Generate Available Space Options HTML (Fixed: Loop cannot be inside return string)
+        // Generate Available Space Options HTML
         $original_space = '<option selected value="' . $y->original_bag_space . '">' . $y->original_bag_space . ' KG</option>';
         if (!empty($original_spaces)) {
             foreach ($original_spaces as $space) {
-                // set_select cannot be used easily inside a string return without breaking flow,
                 // so we generate standard options here.
                 $original_space .= '<option value="' . $space . '">' . $space . ' KG</option>';
             }
@@ -196,7 +195,7 @@ class Upcoming_travellers_ajax extends CI_Model
                             <div class="pull-right">
                                 <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
                             </div>
-                            <h4 class="modal-title">Update Original Bag Space: ' . $y->fullname . '</h4>
+                            <h4 class="modal-title">Update Original Bag Space: ' . $y->original_bag_space . '</h4>
                         </div>
 
                         ' . form_open_multipart('admin_travellers/update_bag_space/' . $y->id, 'id="update_bag_form"') . '
