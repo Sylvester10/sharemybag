@@ -172,7 +172,7 @@
                                             <label class="form-label">Phone Number <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="">
-                                                    <select id="country_code" class="country-code" name="c_code" required>
+                                                    <select id="country_code" class="country-code" name="country_code" required>
                                                         <option value="+1" data-flag="cf-16 cf-ca ms-1">+1 </option>
                                                         <option value="+234" data-flag="cf-16 cf-ng ms-1">+234 </option>
                                                         <option value="+44" data-flag="cf-16 cf-gb ms-1">+44 </option>

@@ -28,10 +28,10 @@ class Users_model extends MY_Model
         $referral_link = base_url('travellers' . '/' . '?refer=' . $username);
         $email = $this->input->post('email', TRUE);
 
-        $c_code = $this->input->post('c_code', TRUE);
+        $country_code = $this->input->post('country_code', TRUE);
         $phone = $this->input->post('phone', TRUE);
 
-        $number = $c_code . "" . $phone;
+        $number = $country_code . "" . $phone;
 
         $data = array(
             'verification_code' => $verification_code,
