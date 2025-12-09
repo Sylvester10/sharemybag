@@ -131,13 +131,29 @@ class Travellers_model extends MY_Model
 		return true;
 	}
 
-	public function update_traveller_bag_space($id)
+	// public function update_traveller_bag_space($id)
+	// {
+	// 	$data['original_bag_space'] = $this->input->post('original_bag_space', TRUE);
+
+	// 	$this->db->where('id', $id);
+	// 	$this->db->update('travellers', $data);
+	// 	return true;
+	// }
+
+	public function update_traveller_bag_space($id, $space_to_add)
 	{
-		$data['original_bag_space'] = $this->input->post('original_bag_space', TRUE);
+		// 1. Add to 'original_bag_space'
+		// The FALSE parameter tells CodeIgniter NOT to escape the string,
+		// allowing the math "original_bag_space + value" to happen in SQL.
+		$this->db->set('original_bag_space', 'original_bag_space + ' . (float)$space_to_add, FALSE);
+
+		// 2. OPTIONAL: Usually, if you increase original capacity,
+		// you also want to increase the 'available_space' by the same amount.
+		// If you want this, uncomment the line below:
+		$this->db->set('available_space', 'available_space + ' . (float)$space_to_add, FALSE);
 
 		$this->db->where('id', $id);
-		$this->db->update('travellers', $data);
-		return true;
+		return $this->db->update('travellers');
 	}
 
 

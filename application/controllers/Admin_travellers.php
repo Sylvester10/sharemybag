@@ -431,24 +431,51 @@ class Admin_travellers extends MY_Controller
 		redirect('admin_travellers/update_traveller/' . $id);
 	}
 
+	// public function update_bag_space($id)
+	// {
+	// 	//check travellers exists
+	// 	$this->check_data_exists($id, 'id', 'travellers', 'admin');
+	// 	// validation rules
+	// 	$this->form_validation->set_rules('original_bag_space', 'Original Bag Space', 'trim|required');
+
+	// 	if (!$this->form_validation->run()) {
+	// 		$this->update_traveller($id);
+	// 	}
+
+	// 	if ($this->travellers_model->update_traveller_bag_space($id)) {
+	// 		$this->session->set_flashdata('status_msg', "Traveller data updated successfully.");
+	// 		redirect('admin_travellers');
+	// 		return;
+	// 	}
+	// 	$this->session->set_flashdata('status_msg_error', 'Traveller data could not be updated');
+	// 	redirect('admin_travellers' . $id);
+	// }
+
 	public function update_bag_space($id)
 	{
-		//check travellers exists
+		// Check traveller exists
 		$this->check_data_exists($id, 'id', 'travellers', 'admin');
-		// validation rules
-		$this->form_validation->set_rules('original_bag_space', 'Original Bag Space', 'trim|required');
+
+		// Validation rules
+		$this->form_validation->set_rules('selected_space', 'Bag Space', 'trim|required|numeric');
 
 		if (!$this->form_validation->run()) {
-			$this->update_traveller($id);
+			$this->session->set_flashdata('status_msg_error', validation_errors());
+			redirect('admin_travellers'); // Or your edit page
+			return;
 		}
 
-		if ($this->travellers_model->update_traveller_bag_space($id)) {
+		// Pass the ID and the amount to ADD
+		$space_to_add = $this->input->post('selected_space', TRUE);
+
+		if ($this->travellers_model->update_traveller_bag_space($id, $space_to_add)) {
 			$this->session->set_flashdata('status_msg', "Traveller data updated successfully.");
 			redirect('admin_travellers');
 			return;
 		}
+
 		$this->session->set_flashdata('status_msg_error', 'Traveller data could not be updated');
-		redirect('admin_travellers' . $id);
+		redirect('admin_travellers');
 	}
 
 

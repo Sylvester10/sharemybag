@@ -146,34 +146,34 @@ class Upcoming_travellers_ajax extends CI_Model
 
     public function modal_options($id)
     {
-        // 1. Fetch Data
+        // Fetch Data
         $y = $this->common_model->get_traveller_details_by_id($id);
         $bag_space_options = $this->generate_bag_space_options($y->available_space, $id);
         $original_spaces = kilogram(); // Assuming this helper exists
         $users = $this->common_model->get_approved_users();
 
-        // 2. Sort Users Alphabetically
+        // Sort Users Alphabetically
         usort($users, function ($a, $b) {
             return strcmp($a->firstname, $b->firstname);
         });
 
-        // 3. Generate User Options HTML
+        // Generate User Options HTML
         $user_options = '';
         foreach ($users as $u) {
             $user_options .= '<option value="' . $u->id . '">' . htmlspecialchars($u->firstname . ' ' . $u->lastname . ' (' . $u->email . ')') . '</option>';
         }
 
-        // 4. Generate Available Space Options HTML (Fixed: Loop cannot be inside return string)
+        // Generate Available Space Options HTML (Fixed: Loop cannot be inside return string)
         $original_space = '<option selected value="' . $y->original_bag_space . '">' . $y->original_bag_space . ' KG</option>';
         if (!empty($original_spaces)) {
             foreach ($original_spaces as $space) {
-                // Note: set_select cannot be used easily inside a string return without breaking flow,
+                // set_select cannot be used easily inside a string return without breaking flow,
                 // so we generate standard options here.
                 $original_space .= '<option value="' . $space . '">' . $space . ' KG</option>';
             }
         }
 
-        // 5. Return the HTML String
+        // Return the HTML String
         return '
             <div class="modal fade" id="options' . $id . '" role="dialog">
                 <div class="modal-dialog">
@@ -206,7 +206,7 @@ class Upcoming_travellers_ajax extends CI_Model
                             <div class="form-group">
                                 <label class="form-control-label">Select Bag Space</label>
                                 <br>
-                                <select class="form-control select2-user" name="original_bag_space" required>
+                                <select class="form-control select2-user" name="selected_space" required>
                                     ' . $original_space . '
                                 </select>
                             </div>
