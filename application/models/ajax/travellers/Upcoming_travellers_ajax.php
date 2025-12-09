@@ -105,7 +105,9 @@ class Upcoming_travellers_ajax extends CI_Model
 
 		<p><a type="button" href="' . base_url('admin_travellers/update_traveller/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-pencil" style="color: blue"></i> &nbsp; Update Traveller </a></p>
 
-		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#update_bag' . $id . '"> <i class="fa fa-briefcase" style="color: blue"></i> &nbsp; Update Bag Space </a></p>
+		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#add_bag' . $id . '"> <i class="fa fa-plus" style="color: green"></i> <i class="fa fa-briefcase" style="color: green"></i> &nbsp; Add Bag Space </a></p>
+
+		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#remove_bag' . $id . '"> <i class="fa fa-minus" style="color: red"></i> <i class="fa fa-briefcase" style="color: red"></i> </i> &nbsp; Remove Bag Space </a></p>
 
 		<p><a type="button" href="' . base_url('admin_travellers/recycle_traveller/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-recycle" style="color: blue"></i> &nbsp; Recycle Traveller </a></p>
 
@@ -188,17 +190,56 @@ class Upcoming_travellers_ajax extends CI_Model
                 </div>
             </div>
 
-            <div class="modal fade" id="update_bag' . $id . '" role="dialog">
+            <div class="modal fade" id="add_bag' . $id . '" role="dialog">
                 <div class="modal-dialog modal-md">
                     <div class="modal-content">
                         <div class="modal-header">
                             <div class="pull-right">
                                 <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
                             </div>
-                            <h4 class="modal-title">Update Original Bag Space: ' . $y->original_bag_space . 'KG</h4>
+                            <h4 class="modal-title">Add Original Bag Space: ' . $y->original_bag_space . 'KG</h4>
                         </div>
 
-                        ' . form_open_multipart('admin_travellers/update_bag_space/' . $y->id, 'id="update_bag_form"') . '
+                        ' . form_open_multipart('admin_travellers/add_traveller_bag_space/' . $y->id, 'id="update_bag_form"') . '
+
+                        <div class="modal-body">
+
+                            <div class="form-group">
+                                <label class="form-control-label">Select Bag Space</label>
+                                <br>
+                                <select class="form-control select2-user" name="selected_space" required>
+                                    ' . $original_space . '
+                                </select>
+                            </div>
+                            <br>
+                            <small>Selected space will be added to the original bag space</small>
+                        </div>
+
+                        <div class="modal-footer">
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-md btn-primary">
+                                    <span>Update Bag Space</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        ' . form_close() . '
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="remove_bag' . $id . '" role="dialog">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="pull-right">
+                                <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+                            </div>
+                            <h4 class="modal-title">Remove Original Bag Space: ' . $y->original_bag_space . 'KG</h4>
+                        </div>
+
+                        ' . form_open_multipart('admin_travellers/remove_traveller_bag_space/' . $y->id, 'id="update_bag_form"') . '
 
                         <div class="modal-body">
 

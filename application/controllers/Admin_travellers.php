@@ -451,7 +451,7 @@ class Admin_travellers extends MY_Controller
 	// 	redirect('admin_travellers' . $id);
 	// }
 
-	public function update_bag_space($id)
+	public function add_traveller_bag_space($id)
 	{
 		// Check traveller exists
 		$this->check_data_exists($id, 'id', 'travellers', 'admin');
@@ -468,7 +468,34 @@ class Admin_travellers extends MY_Controller
 		// Pass the ID and the amount to ADD
 		$space_to_add = $this->input->post('selected_space', TRUE);
 
-		if ($this->travellers_model->update_traveller_bag_space($id, $space_to_add)) {
+		if ($this->travellers_model->add_traveller_bag_space($id, $space_to_add)) {
+			$this->session->set_flashdata('status_msg', "Traveller data updated successfully.");
+			redirect('admin_travellers');
+			return;
+		}
+
+		$this->session->set_flashdata('status_msg_error', 'Traveller data could not be updated');
+		redirect('admin_travellers');
+	}
+
+	public function remove_traveller_bag_space($id)
+	{
+		// Check traveller exists
+		$this->check_data_exists($id, 'id', 'travellers', 'admin');
+
+		// Validation rules
+		$this->form_validation->set_rules('selected_space', 'Bag Space', 'trim|required|numeric');
+
+		if (!$this->form_validation->run()) {
+			$this->session->set_flashdata('status_msg_error', validation_errors());
+			redirect('admin_travellers'); // Or your edit page
+			return;
+		}
+
+		// Pass the ID and the amount to ADD
+		$space_to_add = $this->input->post('selected_space', TRUE);
+
+		if ($this->travellers_model->remove_traveller_bag_space($id, $space_to_add)) {
 			$this->session->set_flashdata('status_msg', "Traveller data updated successfully.");
 			redirect('admin_travellers');
 			return;
