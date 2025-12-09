@@ -103,7 +103,7 @@ jQuery(document).ready(function ($) {
 										<div class="prohibited_items bg-white rounded shadow-md mt-3 p-4 text-center">
 											<div class="prohibited_icon wow fadeInUp animated" data-wow-delay=".8s">
 												<img src="${base_url}assets/website/icons/no-bag.png">
-												<h5>No Traveller Available</h5>
+												<h5>No Traveller currently available</h5>
 											</div>
 
                       <h6>
@@ -112,7 +112,7 @@ jQuery(document).ready(function ($) {
                         </a>
                       </h6>
 										</div>
-                    
+
 									</section>`;
           setTimeout(function () {
             $('body').addClass('search-active');
