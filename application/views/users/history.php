@@ -5,6 +5,15 @@
             <h4 class="mb-0 text-white">Booking History</h4>
         </div>
         <div class="card-body">
+
+            <div class="card !tw-bg-[#020713]">
+                <div class="card-body">
+                    <h6 class="card-text text-white text-center fw-bolder ">
+                        <i class="ti ti-alert-circle fs-7"></i>
+                        <p class="text-white text-center text-uppercase mt-2">There is no refund or transfer of service to another traveler  </p>
+                </div>
+            </div>
+
             <div class="datatables">
 
                 <div class="table-responsive">
@@ -12,7 +21,9 @@
                     <table id="default_order" class="table table-striped table-bordered text-nowrap align-middle">
 
                         <div>
-                            <p class="!tw-absolute !tw-pt-[42px] max-sm:!tw-pt-[69px] !tw-text-[10px] max-sm:!tw-text-[13px]">Swipe to view more details <i class="ti ti-arrow-right text-primary"></i></p>
+                            <p
+                                class="!tw-absolute !tw-pt-[42px] max-sm:!tw-pt-[69px] !tw-text-[10px] max-sm:!tw-text-[13px]">
+                                Swipe to view more details <i class="ti ti-arrow-right text-primary"></i></p>
                         </div>
 
                         <thead>
@@ -33,7 +44,7 @@
                                 // Determine the currency symbol based on the currency_charged field stored in the booking record
                                 // 'dollars' corresponds to CAD ($)
                                 // 'pounds' corresponds to GBP (£)
-                                // NOTE: The currency field in the booking table is assumed to be 'currency_charged' based on previous context, 
+                                // NOTE: The currency field in the booking table is assumed to be 'currency_charged' based on previous context,
                                 // but is referenced here as $y->currency, which I will maintain.
                                 $symbol = ($y->currency == 'dollars') ? '$' : '&pound;';
 
@@ -93,7 +104,7 @@
                                 // delivery status
                                 $delivery_status = ($y->delivery_status == 'Delivered') ? '<span class="text-success">Delivered <i class="ti ti-circle-check text-success fs-5"></i> </span>' : (($y->delivery_status == 'In Transit') ? '<span class="text-secondary">In Transit <i class="ti ti-clock text-secondary fs-5"></i> </span>' : (($y->delivery_status == 'Shipment Created') ? '<span class="text-primary">Shipment Created <i class="ti ti-checklist text-primary fs-5"></i></span>' : '<span class="text_danger">Pending <span class="spinner-border spinner-border-sm text_pending ms-1" role="status" aria-hidden="true"></span></span>'));
 
-                            ?>
+                                ?>
 
                                 <tr class="fs-3">
                                     <td> <?= $traveller_details ?> </td>

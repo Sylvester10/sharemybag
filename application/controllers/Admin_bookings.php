@@ -2,7 +2,7 @@
 defined('BASEPATH') or die('Direct access not allowed');
 
 
-/* ===== Documentation ===== 
+/* ===== Documentation =====
 Name: Home
 Role: Controller
 Description: Controls access to Booking pages and functions in admin panel
@@ -59,16 +59,16 @@ class Admin_bookings extends MY_Controller
 							<i class="fa-solid fa-at"></i> ' . $y->user_email;
 
 			$agent_details = '<i class="fa-solid fa-user"></i> ' . $y->agent_name . '<br />
-							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br /> 
-							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br /> 
+							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br />
+							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br />
 							<i class="fa-solid fa-location-dot"></i> ' . $y->agent_address . ', ' . $y->agent_locality . ', ' . $y->agent_postcode . '';
 
 			// receiver details
 			$receiver_details = $y->payment_method == 'offline'
 				? 'N/A'
 				: '<i class="fa-solid fa-user"></i> ' . $y->receiver_name . ' <br />
-								<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br /> 
-								<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br /> 
+								<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br />
+								<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br />
 								<i class="fa-solid fa-location-dot"></i> ' . $y->receiver_address . ', ' . $y->receiver_locality . ', ' . $y->receiver_postcode . '';
 
 			$item_details = ''; // Initialize $item_details variable
@@ -117,7 +117,7 @@ class Admin_bookings extends MY_Controller
 			$item_details .= '</table>';
 
 			// --- NEW: Format the total item size for display ---
-			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : 'N/A';
+			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : $y->selected_space.' KG';
 
 			// Calculate base traveller commission
 			$traveller_commission = $traveller->destination == 'Nigeria'
@@ -148,12 +148,12 @@ class Admin_bookings extends MY_Controller
 			$row[] = checkbox_bulk_action($y->id);
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
 			$row[] = x_datetime_full($y->date_added);
+			$row[] = $y->need_help;
 			$row[] = $traveller_details;
 			$row[] = $commission;
 			$row[] = $user_details;
 			$row[] = $agent_details;
 			$row[] = $receiver_details;
-			$row[] = $y->need_help;
 			$row[] = $item_details;
 			$row[] = $item_sizes; // The new item size column
 			$row[] = $total_amount;
@@ -204,14 +204,14 @@ class Admin_bookings extends MY_Controller
 					<i class="fa-solid fa-at"></i> ' . $y->user_email;
 
 			$agent_details = '<i class="fa-solid fa-user"></i> ' . $y->agent_name . '<br />
-							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br /> 
-							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br /> 
+							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br />
+							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br />
 							<i class="fa-solid fa-location-dot"></i> ' . $y->agent_address . ', ' . $y->agent_locality . ', ' . $y->agent_postcode . '';
 
 			// receiver details
 			$receiver_details = '<i class="fa-solid fa-user"></i> ' . $y->receiver_name . ' <br />
-								<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br /> 
-								<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br /> 
+								<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br />
+								<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br />
 								<i class="fa-solid fa-location-dot"></i> ' . $y->receiver_address . ', ' . $y->receiver_locality . ', ' . $y->receiver_postcode . '';
 
 			$item_details = ''; // Initialize $item_details variable
@@ -262,7 +262,7 @@ class Admin_bookings extends MY_Controller
 			$item_details .= '</table>';
 
 			// --- NEW: Format the total item size for display ---
-			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : 'N/A';
+			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : $y->selected_space . ' KG';
 
 			// Calculate base traveller commission
 			$traveller_commission = $traveller->destination == 'Nigeria'
@@ -277,8 +277,7 @@ class Admin_bookings extends MY_Controller
 				? $currency . number_format($traveller_commission, 2)
 				: 'N/A';
 
-			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
-				'<span class="text-warning"><b>Pending</b></span>');
+			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' : '<span class="text-warning"><b>Pending</b></span>');
 
 			$payment_method = match ($y->payment_method) {
 				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
@@ -293,12 +292,12 @@ class Admin_bookings extends MY_Controller
 			$row[] = checkbox_bulk_action($y->id);
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
 			$row[] = x_datetime_full($y->date_added);
+			$row[] = $y->need_help;
 			$row[] = $traveller_details;
 			$row[] = $commission;
 			$row[] = $user_details;
 			$row[] = $agent_details;
 			$row[] = $receiver_details;
-			$row[] = $y->need_help;
 			$row[] = $item_details;
 			$row[] = $item_sizes;
 			$row[] = $total_amount;
@@ -346,14 +345,14 @@ class Admin_bookings extends MY_Controller
 							<i class="fa-solid fa-at"></i> ' . $y->user_email;
 
 			$agent_details = '<i class="fa-solid fa-user"></i> ' . $y->agent_name . '<br />
-							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br /> 
-							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br /> 
+							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br />
+							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br />
 							<i class="fa-solid fa-location-dot"></i> ' . $y->agent_address . ', ' . $y->agent_locality . ', ' . $y->agent_postcode . '';
 
 			// receiver details
 			$receiver_details = '<i class="fa-solid fa-user"></i> ' . $y->receiver_name . ' <br />
-									<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br /> 
-									<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br /> 
+									<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br />
+									<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br />
 									<i class="fa-solid fa-location-dot"></i> ' . $y->receiver_address . ', ' . $y->receiver_locality . ', ' . $y->receiver_postcode . '';
 
 			$item_details = ''; // Initialize $item_details variable
@@ -404,7 +403,7 @@ class Admin_bookings extends MY_Controller
 			$item_details .= '</table>';
 
 			// --- NEW: Format the total item size for display ---
-			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : 'N/A';
+			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : $y->selected_space . ' KG';
 
 			// Calculate base traveller commission
 			$traveller_commission = $traveller->destination == 'Nigeria'
