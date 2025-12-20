@@ -452,3 +452,40 @@ table.dataTable thead > tr > th.sorting:before {
     height: 150px !important;
   }
 }
+
+
+/* The container for the snow elements */
+.snow-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1; /* Behind text, above background */
+    pointer-events: none; /* Important: lets you click text through snow */
+}
+
+/* The individual snowflake styling */
+.snowflake {
+    position: absolute;
+    top: -20px;
+    color: white;
+    font-size: 1em;
+    opacity: 0.8;
+    user-select: none;
+    /* The crystal shape */
+    content: '❄';
+}
+
+/* The Falling Animation */
+@keyframes fall {
+    0% {
+        transform: translateY(-20px) translateX(0px) rotate(0deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(300px) translateX(20px) rotate(360deg); /* Adjust 300px based on card height */
+        opacity: 0;
+    }
+}

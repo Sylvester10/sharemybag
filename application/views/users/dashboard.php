@@ -43,7 +43,7 @@
 		</div>
 
 		<?php
-		// Confirm is user is verified 
+		// Confirm is user is verified
 		if ($is_verified == 0) { ?>
 
 			<?php
@@ -133,15 +133,18 @@
 		<!-- welcome area -->
 		<div class="col-lg-12">
 			<div class="card bg-primary-gt text-white overflow-hidden shadow-none">
+				<div id="snow-container" class="snow-container"></div>
+
 				<div class="card-body">
 					<div class="row justify-content-between align-items-center">
 						<div class="col-sm-8">
-							<h5 class="fw-semibold mb-9 fs-7 text-white">Welcome back, <?= $firstname ?>!</h5>
+							<h5 class="fw-semibold mb-9 fs-7 text-white">Season's greetings, <?= $firstname ?>!</h5>
 							<p class="mb-2 opacity-75"><?= $random_quotes; ?></p>
 						</div>
 						<div class="col-sm-4">
 							<div class="position-relative mb-n7 text-end">
-								<img src="<?php echo base_url(); ?>assets/users/images/backgrounds/welcome-bg.svg" alt="flexy-img" class="img-fluid">
+								<!-- <img src="<?php echo base_url(); ?>assets/users/images/backgrounds/welcome-bg.svg" alt="flexy-img" class="img-fluid"> -->
+								<img src="<?php echo base_url(); ?>assets/users/images/illustrations/christmas-tree.png" alt="flexy-img" class="img-fluid" width="100px">
 							</div>
 						</div>
 					</div>

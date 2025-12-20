@@ -108,6 +108,34 @@
 	};
 </script>
 
+<!-- christmas -->
+<script>
+	document.addEventListener("DOMContentLoaded", function() {
+		const snowContainer = document.getElementById('snow-container');
+
+		// ONLY run if the snow-container actually exists on this page
+		if (snowContainer) {
+
+			const flakeCount = 30;
+
+			for (let i = 0; i < flakeCount; i++) {
+				const flake = document.createElement('div');
+				flake.classList.add('snowflake');
+				flake.innerHTML = '❄';
+
+				// Randomize positions and animation
+				flake.style.left = Math.random() * 100 + '%';
+				flake.style.animation = `fall ${Math.random() * 3 + 2}s linear infinite`;
+				flake.style.animationDelay = `${Math.random() * 5}s`;
+				flake.style.fontSize = `${Math.random() * 10 + 10}px`;
+				flake.style.opacity = Math.random();
+
+				snowContainer.appendChild(flake);
+			}
+		}
+	});
+</script>
+
 <!-- solar icons -->
 <script src="<?php echo base_url(); ?>assets/users/libs/cdn.jsdelivr.net/iconify-icon.min.js"></script>
 <!-- <script src="<?php echo base_url(); ?>assets/users/libs/apexcharts/dist/apexcharts.min.js"></script> -->
