@@ -193,7 +193,7 @@
 		</div>
 
 		<div class="col-lg-12">
-			<div class="card card-border overflow-hidden shadow-none">
+			<div class="card card-border overflow-hidden">
 				<div class="card-body">
 					<div class="row justify-content-between align-items-center">
 						<div class="col-sm-8">
