@@ -299,7 +299,7 @@ div#default_order_info {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid #dee2e6;
+  border: 1.5px solid #000;
   padding: 0rem 0.1rem;
   border-radius: 5px;
   height: 10px !important;
@@ -329,6 +329,7 @@ div#default_order_info {
 
 .page-titles {
   display: flex;
+  /* align-items: baseline; */
   /*justify-content: space-between;*/
 }
 
