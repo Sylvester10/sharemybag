@@ -132,19 +132,19 @@
 
 		<!-- welcome area -->
 		<div class="col-lg-12">
-			<div class="card bg-primary-gt text-white overflow-hidden shadow-none">
+			<div class="card text-bg-primary text-white overflow-hidden shadow-none">
 				<div id="snow-container" class="snow-container"></div>
 
 				<div class="card-body">
 					<div class="row justify-content-between align-items-center">
 						<div class="col-sm-8">
-							<h5 class="fw-semibold mb-9 fs-7 text-white">Season's greetings, <?= $firstname ?>!</h5>
-							<p class="mb-2 opacity-75"><?= $random_quotes; ?></p>
+							<h5 class="fw-semibold fs-7 text-white">Season's greetings, <?= $firstname ?>!</h5>
+							<p class="opacity-75"><?= $random_quotes; ?></p>
 						</div>
 						<div class="col-sm-4">
 							<div class="position-relative mb-n7 text-end">
-								<!-- <img src="<?php echo base_url(); ?>assets/users/images/backgrounds/welcome-bg.svg" alt="flexy-img" class="img-fluid"> -->
-								<img src="<?php echo base_url(); ?>assets/users/images/illustrations/christmas-tree.png" alt="flexy-img" class="img-fluid" width="100px">
+								<img src="<?php echo base_url(); ?>assets/users/images/backgrounds/welcome-bg.svg" alt="flexy-img" class="" height="150">
+								<!-- <img src="<?php echo base_url(); ?>assets/users/images/illustrations/christmas-tree.png" alt="flexy-img" class="img-fluid" width="100px"> -->
 							</div>
 						</div>
 					</div>
@@ -159,13 +159,13 @@
 				<div class="col-md-6">
 					<!-- earnings card -->
 					<a href="<?php echo base_url('history'); ?>">
-						<div class="card text-bg-dark">
+						<div class="card card-border">
 							<div class="card-body p-4">
 								<span>
 									<i class="ti ti-briefcase fs-8"></i>
 								</span>
-								<h4 class="card-title mt-3 mb-0 text-white"><?= $total_bookings ?></h4>
-								<p class="card-text text-white opacity-75 fs-3 fw-normal">
+								<h4 class="card-title mt-3 mb-0"><?= $total_bookings ?></h4>
+								<p class="card-text opacity-75 fs-3 fw-normal">
 									Total Bookings
 								</p>
 							</div>
@@ -176,13 +176,13 @@
 				<div class="col-md-6">
 					<!-- earnings card -->
 					<a href="<?php echo base_url('user_bookings'); ?>">
-						<div class="card text-bg-primary">
+						<div class="card card-border">
 							<div class="card-body p-4">
 								<span>
 									<i class="ti ti-plane-departure fs-8"></i>
 								</span>
-								<h4 class="card-title mt-3 mb-0 text-white"><?= $approved_travellers ?></h4>
-								<p class="card-text text-white opacity-75 fs-3 fw-normal">
+								<h4 class="card-title mt-3 mb-0"><?= $approved_travellers ?></h4>
+								<p class="card-text opacity-75 fs-3 fw-normal">
 									Available Travellers
 								</p>
 							</div>

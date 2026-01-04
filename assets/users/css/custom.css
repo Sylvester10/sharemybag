@@ -489,3 +489,7 @@ table.dataTable thead > tr > th.sorting:before {
         opacity: 0;
     }
 }
+
+.card-border {
+  border: 1px solid #000;
+}
