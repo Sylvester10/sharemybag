@@ -193,15 +193,6 @@
 					</ul>
 				</nav>
 
-				<div class="fixed-profile px-4 py-9 mx-4 mb-2 bg-primary-subtle rounded position-relative cta">
-					<div class="sidebar-footer-text position-relative z-1">
-						<h4 class="fw-bolder fs-5">Want to </h4>
-						<h4 class="fw-bolder fs-5">earn money?</h4>
-						<a href="<?php echo base_url('travellers'); ?>" target="_blank" class="btn btn-primary mt-2">Become a Traveller</a>
-					</div>
-					<img src="<?php echo base_url(); ?>assets/users/images/backgrounds/sidebar-buynow.png" alt="" class="buynow-img img-fluid position-absolute end-0 bottom-0">
-				</div>
-
 				<div class="fixed-profile px-4 mx-4 mb-2 rounded mt-7 position-relative">
 					<ul id="sidebarnav">
 						<li class="sidebar-item">

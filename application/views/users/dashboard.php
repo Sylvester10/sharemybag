@@ -32,16 +32,6 @@
 		$random_quotes = $quotes[array_rand($quotes)];
 		?>
 
-		<!-- tracking form -->
-		<div class="page-titles mb-3">
-			<div class="referal-link-btn ">
-				<button type="button" id="referal-link-to-us" class="copy-referral" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-original-title="Click To Copy Referral Link">
-					<span class="r-link"><?= $referral_link ?></span>
-					<span class="r-icon"><i class="ti ti-link"></i></span>
-				</button>
-			</div>
-		</div>
-
 		<?php
 		// Confirm is user is verified
 		if ($is_verified == 0) { ?>
@@ -131,7 +121,7 @@
 		<?php } ?>
 
 		<!-- welcome area -->
-		<div class="col-lg-12">
+		<!-- <div class="col-lg-12">
 			<div class="card text-bg-primary text-white overflow-hidden shadow-none">
 				<div id="snow-container" class="snow-container"></div>
 
@@ -144,10 +134,19 @@
 						<div class="col-sm-4">
 							<div class="position-relative mb-n7 text-end">
 								<img src="<?php echo base_url(); ?>assets/users/images/backgrounds/welcome-bg.svg" alt="flexy-img" class="" height="150">
-								<!-- <img src="<?php echo base_url(); ?>assets/users/images/illustrations/christmas-tree.png" alt="flexy-img" class="img-fluid" width="100px"> -->
+								<img src="<?php echo base_url(); ?>assets/users/images/illustrations/christmas-tree.png" alt="flexy-img" class="img-fluid" width="100px">
 							</div>
 						</div>
 					</div>
+				</div>
+			</div>
+		</div> -->
+
+		<div class="col-lg-12">
+			<div class="row justify-content-between align-items-center">
+				<div class="col-sm-8">
+					<h5 class="fw-semibold fs-7">Hello, <?= $firstname ?> 👋 </h5>
+					<p class="opacity-75"><?= $random_quotes; ?></p>
 				</div>
 			</div>
 		</div>
@@ -159,13 +158,13 @@
 				<div class="col-md-6">
 					<!-- earnings card -->
 					<a href="<?php echo base_url('history'); ?>">
-						<div class="card card-border">
+						<div class="card text-bg-primary">
 							<div class="card-body p-4">
 								<span>
 									<i class="ti ti-briefcase fs-8"></i>
 								</span>
-								<h4 class="card-title mt-3 mb-0"><?= $total_bookings ?></h4>
-								<p class="card-text opacity-75 fs-3 fw-normal">
+								<h4 class="card-title text-white mt-3 mb-0"><?= $total_bookings ?></h4>
+								<p class="card-text text-white opacity-75 fs-3 fw-normal">
 									Total Bookings
 								</p>
 							</div>
@@ -176,13 +175,13 @@
 				<div class="col-md-6">
 					<!-- earnings card -->
 					<a href="<?php echo base_url('user_bookings'); ?>">
-						<div class="card card-border">
+						<div class="card text-bg-primary">
 							<div class="card-body p-4">
 								<span>
 									<i class="ti ti-plane-departure fs-8"></i>
 								</span>
-								<h4 class="card-title mt-3 mb-0"><?= $approved_travellers ?></h4>
-								<p class="card-text opacity-75 fs-3 fw-normal">
+								<h4 class="card-title text-white mt-3 mb-0"><?= $approved_travellers ?></h4>
+								<p class="card-text text-white fs-3 fw-normal">
 									Available Travellers
 								</p>
 							</div>
@@ -192,6 +191,48 @@
 
 			</div>
 		</div>
+
+
+		<!-- tracking form -->
+		<div class="page-titles mb-3">
+			<!-- <p class="me-2">Referral Link</p> -->
+			<div class="referal-link-btn">
+				<button type="button" id="referal-link-to-us" class="copy-referral" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-original-title="Click To Copy Referral Link">
+					<span class="r-link"><?= $referral_link ?></span>
+					<span class="r-icon"><i class="ti ti-link"></i></span>
+				</button>
+			</div>
+		</div>
+
+		<div class="col-lg-12">
+			<div class="card bg-primary-subtle overflow-hidden shadow-none">
+				<div class="card-body">
+					<div class="row justify-content-between align-items-center">
+						<div class="col-sm-8">
+							<h5 class="fw-semibold fs-7">Want to earn some money?</h5>
+							<p class="opacity-75">Register as a traveller and advertise your bag space to earn some extra cash.</p>
+							<a href="<?php echo base_url('travellers'); ?>" target="_blank" class="btn btn-primary mt-2">Register Now</a>
+						</div>
+						<div class="col-sm-4">
+							<div class="position-relative mb-n7 text-end">
+								<img src="<?php echo base_url(); ?>assets/users/images/backgrounds/welcome-bg.svg" alt="flexy-img" class="" height="150">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+		<!-- <div class="px-4 py-9 mx-4 mb-2 bg-primary-subtle rounded position-relative cta">
+			<div class="sidebar-footer-text position-relative z-1">
+				<h4 class="fw-bolder fs-5">Want to </h4>
+				<h4 class="fw-bolder fs-5">earn money?</h4>
+				<a href="<?php echo base_url('travellers'); ?>" target="_blank" class="btn btn-primary mt-2">Become a Traveller</a>
+			</div>
+			<img src="<?php echo base_url(); ?>assets/users/images/backgrounds/sidebar-buynow.png" alt="" class="buynow-img img-fluid position-absolute end-0 bottom-0">
+		</div> -->
 
 
 		<!-- Tracking results modal -->
