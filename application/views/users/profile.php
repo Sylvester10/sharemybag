@@ -20,6 +20,17 @@
             </li>
         </ul>
 
+        <!-- referral link -->
+        <div class="page-titles mb-0">
+            <!-- <p class="me-2">Referral Link</p> -->
+            <div class="referal-link-btn">
+                <button type="button" id="referal-link-to-us" class="copy-referral" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-original-title="Click To Copy Referral Link">
+                    <span class="r-link"><?= $referral_link ?></span>
+                    <span class="r-icon"><i class="ti ti-link"></i></span>
+                </button>
+            </div>
+        </div>
+
         <div class="card-body">
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
@@ -29,12 +40,8 @@
                                 <div class="card-body p-4">
                                     <h4 class="card-title mb-4">User Account</h4>
 
-                                    <form action="<?= base_url('profile/profile_ajax/' . $user_details->id) ?>"
-                                        class="form-ajax"
-                                        method="POST"
-                                        enctype="multipart/form-data"
-                                        target="_blank"
-                                        redirect="<?= base_url('kyc') ?>">
+                                    <form action="<?= base_url('profile/profile_ajax/' . $user_details->id) ?>" class="form-ajax" method="POST" enctype="multipart/form-data"
+                                        target="_blank" redirect="<?= base_url('kyc') ?>">
 
                                         <div class="row">
                                             <div class="col-lg-6">

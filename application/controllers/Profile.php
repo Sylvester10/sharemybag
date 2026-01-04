@@ -23,6 +23,7 @@ class Profile extends MY_Controller
         $user_details = $this->common_model->get_user_details($this->session->email);
         $this->dashboard_header('Profile');
         $data['user_details'] = $user_details;
+        $data['referral_link'] = $this->user_details->referral_link;
         $this->load->view('users/profile', $data);
         $this->dashboard_footer();
     }
@@ -41,7 +42,7 @@ class Profile extends MY_Controller
 
         if ($this->form_validation->run()) {
 
-            // 
+            //
             if ($this->users_model->update_profile_to_db($id)) {
 
                 $res = ['status' => true, 'msg' => 'Your profile has been updated successfully.', 'title' => 'Profile Updated.', 'msg_timeout' =>  6000];
@@ -62,7 +63,7 @@ class Profile extends MY_Controller
         //check user exists
         $this->check_data_exists($id, 'id', 'users', 'profile');
 
-        // validation rules		
+        // validation rules
         $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]');
         $this->form_validation->set_rules(
             'confirm_password',

@@ -23,7 +23,6 @@ class Dashboard extends MY_Controller
         $data['firstname'] = $this->user_details->firstname;
         $data['account_status'] = $this->user_details->account_status;
         $data['is_verified'] = $this->user_details->is_verified;
-        $data['referral_link'] = $this->user_details->referral_link;
         $data['user_details'] = $this->users_model->is_profile_complete($id);
         $data['approved_travellers'] = count($this->common_model->get_active_approved_travellers());
         $data['total_bookings'] = count($this->common_model->get_bookings_by_id($id));
@@ -84,7 +83,7 @@ class Dashboard extends MY_Controller
     {
         //check user exists
         $this->check_data_exists($id, 'id', 'users', 'profile');
-        // validation rules		
+        // validation rules
         $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]');
         $this->form_validation->set_rules(
             'confirm_password',

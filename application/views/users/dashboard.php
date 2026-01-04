@@ -192,18 +192,6 @@
 			</div>
 		</div>
 
-
-		<!-- tracking form -->
-		<div class="page-titles mb-3">
-			<!-- <p class="me-2">Referral Link</p> -->
-			<div class="referal-link-btn">
-				<button type="button" id="referal-link-to-us" class="copy-referral" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-original-title="Click To Copy Referral Link">
-					<span class="r-link"><?= $referral_link ?></span>
-					<span class="r-icon"><i class="ti ti-link"></i></span>
-				</button>
-			</div>
-		</div>
-
 		<div class="col-lg-12">
 			<div class="card card-border overflow-hidden shadow-none">
 				<div class="card-body">
@@ -222,17 +210,6 @@
 				</div>
 			</div>
 		</div>
-
-
-
-		<!-- <div class="px-4 py-9 mx-4 mb-2 bg-primary-subtle rounded position-relative cta">
-			<div class="sidebar-footer-text position-relative z-1">
-				<h4 class="fw-bolder fs-5">Want to </h4>
-				<h4 class="fw-bolder fs-5">earn money?</h4>
-				<a href="<?php echo base_url('travellers'); ?>" target="_blank" class="btn btn-primary mt-2">Become a Traveller</a>
-			</div>
-			<img src="<?php echo base_url(); ?>assets/users/images/backgrounds/sidebar-buynow.png" alt="" class="buynow-img img-fluid position-absolute end-0 bottom-0">
-		</div> -->
 
 
 		<!-- Tracking results modal -->
