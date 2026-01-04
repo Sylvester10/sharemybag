@@ -205,7 +205,7 @@
 		</div>
 
 		<div class="col-lg-12">
-			<div class="card bg-primary-subtle overflow-hidden shadow-none">
+			<div class="card card-border overflow-hidden shadow-none">
 				<div class="card-body">
 					<div class="row justify-content-between align-items-center">
 						<div class="col-sm-8">
