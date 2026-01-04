@@ -341,14 +341,14 @@
                             <h4 class="card-title mb-5"> Payment Summary</h4>
                             <div class="text-center">
 
-                                <div class="card !tw-bg-[#020713]">
+                                <!-- <div class="card !tw-bg-[#020713]">
                                     <div class="card-body p-4">
                                         <h6 class="card-text text-white text-center fw-bolder ">
                                             <i class="ti ti-alert-circle"></i> Important!!
                                         </h6>
                                         <p class="text-white text-center">Please drop your items off with the traveller by your regions last drop-off date. There will be no refund or transfer of service to another traveller.</p>
                                     </div>
-                                </div>
+                                </div> -->
 
                                 <h5 class="mt-2 mb-3"> <?= $traveller_details->location ?> <span class="cf-16 cf-<?php echo country_to_code($traveller_details->location); ?> fs-7"></span> <i class=" ti ti-plane-departure fs-7 ms-3 me-3"></i> <?= $traveller_details->destination ?> <span class="cf-16 cf-<?php echo country_to_code($traveller_details->destination); ?> fs-7"></span></h5>
 
@@ -369,6 +369,7 @@
                                         <h6 class="card-text text-white text-center fw-bolder ">
                                             <i class="ti ti-alert-circle"></i> Important!!
                                         </h6>
+                                        <p class="text-white text-center">Please drop your items off with the traveller by your regions last drop-off date. There will be no refund or transfer of service to another traveller.</p>
                                         <p class="text-white text-center">Payment must be made with a bank card bearing the same name as the one on your profile.</p>
                                     </div>
                                 </div>

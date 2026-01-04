@@ -9,8 +9,8 @@
             <div class="card !tw-bg-[#020713]">
                 <div class="card-body">
                     <h6 class="card-text text-white text-center fw-bolder ">
-                        <i class="ti ti-alert-circle fs-7"></i>
-                        <p class="text-white text-center text-uppercase mt-2">There is no refund or transfer of service to another traveler  </p>
+                        <i class="ti ti-alert-circle fs-5"></i> Important!!
+                        <p class="text-white text-center text-uppercase mt-3 mb-0">There is no refund or transfer of service to another traveler </p>
                 </div>
             </div>
 
@@ -104,7 +104,7 @@
                                 // delivery status
                                 $delivery_status = ($y->delivery_status == 'Delivered') ? '<span class="text-success">Delivered <i class="ti ti-circle-check text-success fs-5"></i> </span>' : (($y->delivery_status == 'In Transit') ? '<span class="text-secondary">In Transit <i class="ti ti-clock text-secondary fs-5"></i> </span>' : (($y->delivery_status == 'Shipment Created') ? '<span class="text-primary">Shipment Created <i class="ti ti-checklist text-primary fs-5"></i></span>' : '<span class="text_danger">Pending <span class="spinner-border spinner-border-sm text_pending ms-1" role="status" aria-hidden="true"></span></span>'));
 
-                                ?>
+                            ?>
 
                                 <tr class="fs-3">
                                     <td> <?= $traveller_details ?> </td>

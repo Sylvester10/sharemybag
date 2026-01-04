@@ -101,7 +101,7 @@
 
                                                 <div class="card !tw-bg-[#020713]">
                                                     <div class="card-body p-4">
-                                                        <p class="text-white text-center">Contact Admin to update your profile details </p>
+                                                        <p class="text-white text-center mb-0">Contact Admin to update your profile details </p>
                                                     </div>
                                                 </div>
 
