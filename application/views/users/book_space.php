@@ -119,7 +119,7 @@
                                 if ($currency === 'pounds') {
 
                                     $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
-                                    $shopper_price = 7.5; // Only applies when destination is Nigeria
+                                    $shopper_price = 9.5; // Updated from 7.5 to 9.5 Only applies when destination is Nigeria
                                     $special_price = $is_to_nigeria ? 6.5 : 8.5;
                                     $premium_price = 15;
                                 } else {
@@ -155,7 +155,7 @@
                                         <select name="category" id="select1" class="required form-select border border-primary">
                                             <option value="">Select</option>
                                             <option value="Normal" data-price="<?= round($normal_price, 2) ?>">Normal</option>
-                                            <option value="Personal Shopper" data-price="<?= round($shopper_price, 2) ?>">Personal Shopper</option>
+                                            <option value="Duty Free" data-price="<?= round($shopper_price, 2) ?>">Duty Free</option>
                                             <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>">Medicine (special)</option>
                                             <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>">Documents/Electronics/Gold (premium)</option>
                                         </select>

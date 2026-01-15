@@ -235,10 +235,14 @@ class User_bookings extends MY_Controller
                     $decoded_items = json_decode($items_json);
                     if (is_array($decoded_items)) {
                         foreach ($decoded_items as $item) {
-                            if (isset($item->category) && $item->category === 'Documents/Electronics') {
-                                // Assuming premium items add 10 to the commission
-                                $traveller_commission += 10.00;
-                                break;
+                            if (isset($item->category)) {
+                                if ($item->category === 'Documents/Electronics') {
+                                    $traveller_commission += 10.00; // £10 commission
+                                } elseif ($item->category === 'Fish/Medicine') {
+                                    $traveller_commission += 10.00; // £10 commission
+                                } elseif ($item->category === 'Duty Free') {
+                                    $traveller_commission += 6.50;  // £6.50 commission
+                                }
                             }
                         }
                     }

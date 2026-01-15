@@ -86,13 +86,19 @@ class Admin_bookings extends MY_Controller
 				$decoded_items = [];
 			}
 
-			// --- START: COMMISSION MODIFICATION (unchanged) ---
-			$documents_electronics_count = 0;
+			// --- START: COMMISSION MODIFICATION ---
+			$extra_commission = 0;
 			if (!empty($decoded_items)) {
 				foreach ($decoded_items as $item) {
-					// Check for the specific category
-					if (isset($item->category) && $item->category === 'Documents/Electronics') {
-						$documents_electronics_count++;
+					// Check for specific categories to apply extra commission
+					if (isset($item->category)) {
+						if ($item->category === 'Documents/Electronics') {
+							$extra_commission += 10.00; // £10 for electronics
+						} elseif ($item->category === 'Fish/Medicine') {
+							$extra_commission += 10.00; // £10 for medicine
+						} elseif ($item->category === 'Duty Free') {
+							$extra_commission += 6.50;  // £6.50 for duty free
+						}
 					}
 
 					// Original logic for item details display remains here
@@ -117,15 +123,14 @@ class Admin_bookings extends MY_Controller
 			$item_details .= '</table>';
 
 			// --- NEW: Format the total item size for display ---
-			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : $y->selected_space.' KG';
+			$item_sizes = $total_item_size > 0 ? $total_item_size . ' KG' : $y->selected_space . ' KG';
 
 			// Calculate base traveller commission
 			$traveller_commission = $traveller->destination == 'Nigeria'
 				? 4.50 * $y->selected_space
 				: 5 * $y->selected_space;
 
-			// Add 10 to commission for each "Documents/Electronics" item
-			$extra_commission = 10 * $documents_electronics_count;
+			// Add the calculated extra commission from the item loop
 			$traveller_commission += $extra_commission;
 
 			$commission = $y->payment_status == 'completed'
@@ -229,13 +234,19 @@ class Admin_bookings extends MY_Controller
 				$decoded_items = [];
 			}
 
-			// --- START: COMMISSION MODIFICATION (unchanged) ---
-			$documents_electronics_count = 0;
+			// --- START: COMMISSION MODIFICATION ---
+			$extra_commission = 0;
 			if (!empty($decoded_items)) {
 				foreach ($decoded_items as $item) {
-					// Check for the specific category
-					if (isset($item->category) && $item->category === 'Documents/Electronics') {
-						$documents_electronics_count++;
+					// Check for specific categories to apply extra commission
+					if (isset($item->category)) {
+						if ($item->category === 'Documents/Electronics') {
+							$extra_commission += 10.00; //
+						} elseif ($item->category === 'Fish/Medicine') {
+							$extra_commission += 10.00; //
+						} elseif ($item->category === 'Duty Free') {
+							$extra_commission += 6.50;  //
+						}
 					}
 
 					$currency = ($y->currency == 'dollars') ? '$' : '&pound;';
@@ -269,8 +280,7 @@ class Admin_bookings extends MY_Controller
 				? 4.50 * $y->selected_space
 				: 5 * $y->selected_space;
 
-			// Add 10 to commission for each "Documents/Electronics" item
-			$extra_commission = 10 * $documents_electronics_count;
+			// Add the total extra commission calculated above
 			$traveller_commission += $extra_commission;
 
 			$commission = $y->payment_status == 'completed'
@@ -370,13 +380,19 @@ class Admin_bookings extends MY_Controller
 				$decoded_items = [];
 			}
 
-			// --- START: COMMISSION MODIFICATION (unchanged) ---
-			$documents_electronics_count = 0;
+			// --- START: COMMISSION MODIFICATION ---
+			$extra_commission = 0;
 			if (!empty($decoded_items)) {
 				foreach ($decoded_items as $item) {
-					// Check for the specific category
-					if (isset($item->category) && $item->category === 'Documents/Electronics') {
-						$documents_electronics_count++;
+					// Check for specific categories to apply extra commission
+					if (isset($item->category)) {
+						if ($item->category === 'Documents/Electronics') {
+							$extra_commission += 10.00; //
+						} elseif ($item->category === 'Fish/Medicine') {
+							$extra_commission += 10.00; //
+						} elseif ($item->category === 'Duty Free') {
+							$extra_commission += 6.50;  //
+						}
 					}
 
 					$currency = ($y->currency == 'dollars') ? '$' : '&pound;';
@@ -410,8 +426,7 @@ class Admin_bookings extends MY_Controller
 				? 4.50 * $y->selected_space
 				: 5 * $y->selected_space;
 
-			// Add 10 to commission for each "Documents/Electronics" item
-			$extra_commission = 10 * $documents_electronics_count;
+			// Add the total extra commission calculated above
 			$traveller_commission += $extra_commission;
 
 			$commission = $y->payment_status == 'completed'

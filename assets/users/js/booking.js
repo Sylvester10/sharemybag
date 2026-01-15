@@ -798,23 +798,36 @@ function updateBooking() {
 // get special charge
 function getSpecialCharge() {
   let specialCharge = 0;
-  let specialCharges = {
-    "Fish/Medicine": 10, // Special charge for this category
-    // "Documents/Electronics": 15, // Special charge for this category
-  };
-  let items = $("#items_input").val();
+  let items = $('#items_input').val();
   if (items) {
     items = JSON.parse(items);
     let categories = items.map((item) => item.category);
-    if (categories.includes("Fish/Medicine")) {
-      specialCharge += 10;
+    if (categories.includes('Fish/Medicine')) {
+      specialCharge += 10; // Medicine special charge logic
     }
-    // if (categories.includes("Documents/Electronics")) {
-    //   specialCharge += 15;
-    // }
   }
   return specialCharge;
 }
+
+// function getSpecialCharge() {
+//   let specialCharge = 0;
+//   let specialCharges = {
+//     "Fish/Medicine": 10, // Special charge for this category
+//     // "Documents/Electronics": 15, // Special charge for this category
+//   };
+//   let items = $("#items_input").val();
+//   if (items) {
+//     items = JSON.parse(items);
+//     let categories = items.map((item) => item.category);
+//     if (categories.includes("Fish/Medicine")) {
+//       specialCharge += 10;
+//     }
+//     // if (categories.includes("Documents/Electronics")) {
+//     //   specialCharge += 15;
+//     // }
+//   }
+//   return specialCharge;
+// }
 
 // Function to convert Data URI to Blob
 function dataURItoBlob(dataURI) {
