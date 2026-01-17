@@ -149,10 +149,13 @@ class Admin_bookings extends MY_Controller
 			$total_amount = 'Total amount: ' . $currency . '' . $y->total_amount . ' <br />
                              Payment method: ' . $payment_method . '';
 
+			//  New tag
+			$new_tag = ($y->new == 0) ? ' <span class="badge badge-success">NEW</span>' : '';
+
 			$row = array();
 			$row[] = checkbox_bulk_action($y->id);
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
-			$row[] = x_datetime_full($y->date_added);
+			$row[] = x_datetime_full($y->date_added) . $new_tag;
 			$row[] = $y->need_help;
 			$row[] = $traveller_details;
 			$row[] = $commission;
@@ -298,10 +301,13 @@ class Admin_bookings extends MY_Controller
 			$total_amount = 'Total amount: ' . $currency . '' . $y->total_amount . ' <br />
                              Payment method: ' . $payment_method . '';
 
+			//  New tag
+			$new_tag = ($y->new == 0) ? ' <span class="badge badge-success">NEW</span>' : '';
+
 			$row = array();
 			$row[] = checkbox_bulk_action($y->id);
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
-			$row[] = x_datetime_full($y->date_added);
+			$row[] = x_datetime_full($y->date_added) . $new_tag;
 			$row[] = $y->need_help;
 			$row[] = $traveller_details;
 			$row[] = $commission;
@@ -555,6 +561,14 @@ class Admin_bookings extends MY_Controller
 		} else {
 			echo validation_errors();
 		}
+	}
+
+
+	public function update_new_status($id)
+	{
+		$this->bookings_model->update_new_status($id);
+		$this->session->set_flashdata('status_msg', 'Booking Marked as Seen.');
+		redirect($this->agent->referrer());
 	}
 
 

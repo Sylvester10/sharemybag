@@ -12,7 +12,7 @@ class Completed_bookings_ajax extends CI_Model
 
     var $table = 'bookings';
     var $column_order = array(null, 'date_added', 'traveller_name', 'selected_space', 'user_fullname', 'agent_name', 'receiver_name', 'need_help', 'items', 'payment_status'); //set column field database for datatable orderable
-    var $column_search = array('date_added', 'traveller_name', 'currency', 'selected_space', 'user_fullname', 'agent_name', 'receiver_name', 'need_help', 'items', 'payment_status'); //set column field database for datatable searchable 
+    var $column_search = array('date_added', 'traveller_name', 'currency', 'selected_space', 'user_fullname', 'agent_name', 'receiver_name', 'need_help', 'items', 'payment_status'); //set column field database for datatable searchable
     var $order = array('date_added' => 'desc');
 
 
@@ -20,7 +20,7 @@ class Completed_bookings_ajax extends CI_Model
     {
         $this->db->from($this->table);
         $i = 0;
-        foreach ($this->column_search as $item) // loop column 
+        foreach ($this->column_search as $item) // loop column
         {
             if ($_POST['search']['value']) // if datatable send POST for search
             {
@@ -36,7 +36,7 @@ class Completed_bookings_ajax extends CI_Model
             }
             $i++;
         }
-        if (isset($_POST['order'])) { // here order processing 
+        if (isset($_POST['order'])) { // here order processing
             $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
         } else if (isset($this->order)) {
             $order = $this->order;
@@ -96,15 +96,21 @@ class Completed_bookings_ajax extends CI_Model
     {
         $y = $this->common_model->get_booking_details_by_id($id);
 
-        if ($y->payment_status != 'completed') {
-			$booking_action = '<p><a type="button" href="' . base_url('admin_bookings/confirm_booking/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Confirm Booking </a></p>';
-		} else {
-			$booking_action = '<p><a type="button" href="' . base_url('admin_bookings/cancel_booking/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Cancel Booking </a></p>';
-		};
+        $new_action = '';
+        $booking_action = '';
 
-		return '' . $booking_action . '
-		
-		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $id . '"> <i class="fa fa-trash" style="color: red"></i> &nbsp; Delete </a></p>';
+        if ($y->new != 1) {
+            $new_action = '<p><a type="button" href="' . base_url('admin_bookings/update_new_status/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-eye" style="color: green"></i> &nbsp; Mark as Seen </a></p>';
+        }
+
+        if ($y->payment_status != 'completed') {
+            $booking_action = '<p><a type="button" href="' . base_url('admin_bookings/confirm_booking/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Confirm Booking </a></p>';
+        } else {
+            $booking_action = '<p><a type="button" href="' . base_url('admin_bookings/cancel_booking/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Cancel Booking </a></p>';
+        }
+
+        return $new_action . $booking_action . '
+        <p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $id . '"> <i class="fa fa-trash" style="color: red"></i> &nbsp; Delete </a></p>';
     }
 
 

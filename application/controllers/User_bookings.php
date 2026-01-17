@@ -446,6 +446,10 @@ class User_bookings extends MY_Controller
             $this->db->update('bookings', $data);
 
             if ($status == 'completed') {
+                $data['new'] = 0;
+
+                $this->db->where('id', $booking->id);
+                $this->db->update('bookings', $data);
 
                 $data['tracking_id'] = $booking->tracking_id;
                 $data['total_amount'] = $booking->total_amount;
@@ -573,7 +577,7 @@ class User_bookings extends MY_Controller
 
             // Update bookings table
             $this->db->where('id', $booking->id);
-            $this->db->update('bookings', ['payment_status' => $status]);
+            $this->db->update('bookings', ['payment_status' => $status, 'new' => 0]);
 
             if ($status === 'completed') {
                 $data = [

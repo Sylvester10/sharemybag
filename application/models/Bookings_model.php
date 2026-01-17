@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('Direct access to script not allowed');
 
-/* ===== Documentation ===== 
+/* ===== Documentation =====
 Name: Booking_model
 Role: Model
 Description: Controls the DB processes of Bookings_model from admin panel
@@ -46,6 +46,7 @@ class Bookings_model extends MY_Model
 		$data['id_photo'] = $id_photo;
 		$data['selfie'] = $selfie;
 		$data['tracking_id'] = $tracking_id;
+		$data['new'] = 0;
 
 
 		$this->db->insert('bookings', $data);
@@ -207,6 +208,7 @@ class Bookings_model extends MY_Model
 		$data['currency_symbol'] = ($y->currency == 'naira' ? '&#8358;' : '&pound;');
 		$data['items'] = $y->items;
 		$data['insurance'] = ($y->insurance == '0') ? 'N/A' : $y->insurance;
+		$data['new'] = 0;
 
 		//Send email to agent
 		try {
@@ -258,8 +260,8 @@ class Bookings_model extends MY_Model
 
 		return;
 	}
-	
-	
+
+
 	public function confirm_booking($id)
 	{
 		$data = array(
@@ -301,13 +303,23 @@ class Bookings_model extends MY_Model
 
 		return;
 	}
-	
-	
+
+
 	public function cancel_booking($id)
 	{
 		$data = array(
 			'payment_status' => 'canceled',
 		);
+		$this->db->where('id', $id);
+		$this->db->update('bookings', $data);
+
+		return;
+	}
+
+
+	public function update_new_status($id)
+	{
+		$data['new'] = 1;
 		$this->db->where('id', $id);
 		$this->db->update('bookings', $data);
 
@@ -348,7 +360,7 @@ class Bookings_model extends MY_Model
 
 		return;
 	}
-	
+
 
 	public function bulk_actions_booking($selected_rows)
 	{
@@ -357,6 +369,9 @@ class Bookings_model extends MY_Model
 		if (is_array($selected_rows)) {
 			foreach ($selected_rows as $id) {
 				switch ($bulk_action_type) {
+				    case 'update_new_status':
+						$this->update_new_status($id);
+						break;
 				    case 'confirm':
 						$this->confirm_booking($id);
 						break;
