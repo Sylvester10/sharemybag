@@ -2,6 +2,7 @@
 //select options bulk actions
 $options_array = array(
     //'value' => 'Caption'
+    'update_new_status' => 'Mark as Seen',
     'confirm' => 'Confirm',
     'cancel' => 'Cancel',
     'delete' => 'Delete'
