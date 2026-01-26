@@ -2,7 +2,7 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 
-/* ===== Documentation ===== 
+/* ===== Documentation =====
 Name: MY_Controller
 Role: Core (super) Controller
 Description: MY_Controller Class is the super class that holds global info accessible to the regular controller and model classes. The headers and footers for Site, Admin and Customer are created here. Database, libraries and helpers used by the app are loaded here. This class extends the main CI controller, and at such, every other controller inherits it.
@@ -81,9 +81,9 @@ class MY_Controller extends CI_Controller
 		//get array of controllers to be excluded
 		$excluded_controllers = array();
 		return $excluded_controllers;
-	}	
-	
-	
+	}
+
+
 	/* ===== Refresh Last Login ===== */
 	private function refresh_last_login($user_id, $table)
 	{
@@ -229,10 +229,10 @@ class MY_Controller extends CI_Controller
 	}
 
 
-	// Validate image of upload 
+	// Validate image of upload
 	public function validate_file_upload($id_photo, $input_name = false, $file_size = (1024 * 5), $file_size_word = '5MB')
 	{
-		// If files are selected to upload 
+		// If files are selected to upload
 		if (!empty($_FILES[$id_photo]['name'])) {
 
 			$error_list = '';
@@ -242,7 +242,7 @@ class MY_Controller extends CI_Controller
 			$_FILES['file']['error'] = $_FILES[$id_photo]['error'];
 			$_FILES['file']['size'] = $_FILES[$id_photo]['size'];
 
-			// File upload configuration 
+			// File upload configuration
 			$config['max_size'] = $file_size;
 			$current_file = $_FILES['file']['name'];
 
@@ -328,7 +328,7 @@ class MY_Controller extends CI_Controller
 		}
 		return ''; // No error
 	}
-	
+
 
 	// Add this method to a controller like Admin_bookings.php or a temporary Migration controller
 	public function backfill_traveller_commission()
@@ -387,9 +387,26 @@ class MY_Controller extends CI_Controller
 		// echo "Backfill complete. Total bookings updated: {$records_updated}.\n";
 		$this->session->set_flashdata('status_msg', "Backfill complete. Total bookings updated: {$records_updated}.\n");
 	}
-	
-	
-    // 	schema
+
+
+	public function activate_user_account()
+	{
+		// 1. Target only users where status is 0
+		$this->db->where('account_status', 0);
+		$this->db->update('users', ['account_status' => 1]);
+
+		$affected_rows = $this->db->affected_rows();
+
+		// 2. Only show the message if changes were actually made
+		if ($affected_rows > 0) {
+			$this->session->set_flashdata('status_msg', "Success: {$affected_rows} user accounts have been activated.");
+		}
+
+		return $affected_rows;
+	}
+
+
+	// 	schema
 	protected function get_schema()
 	{
 		return [
@@ -420,5 +437,4 @@ class MY_Controller extends CI_Controller
 			]
 		];
 	}
-
 }
