@@ -5,7 +5,7 @@
 
 
 <?php
-//select options bulk actions 
+//select options bulk actions
 $options_array = array(
 	//'value' => 'Caption'
 	'activate' => 'Verify',
@@ -29,6 +29,7 @@ echo modal_bulk_actions('admin_users/bulk_actions_user', $options_array); ?>
 				<th class="min-w-200"> Name </th>
 				<th class="min-w-300"> Contact Details </th>
 				<th class="min-w-100"> Country </th>
+				<th class=""> Verification Status </th>
 				<th class=""> Account Status </th>
 				<th class="min-w-100"> Last Login </th>
 				<th class="min-w-100"> Date Registered </th>

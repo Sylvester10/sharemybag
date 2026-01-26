@@ -12,7 +12,7 @@ class Admin_users_model_ajax extends CI_Model
 
 	var $table = 'users';
 	var $column_order = array(null, 'selfie', 'id_card', 'firstname', 'number', 'email', 'country', 'account_status', 'last_login', 'date_registered'); //set column field database for datatable orderable
-	var $column_search = array('selfie', 'id_card', 'firstname', 'number', 'email', 'country', 'account_status', 'last_login', 'date_registered'); //set column field database for datatable searchable 
+	var $column_search = array('selfie', 'id_card', 'firstname', 'number', 'email', 'country', 'account_status', 'last_login', 'date_registered'); //set column field database for datatable searchable
 	var $order = array('date_registered' => 'DESC');
 
 
@@ -20,7 +20,7 @@ class Admin_users_model_ajax extends CI_Model
 	{
 		$this->db->from($this->table);
 		$i = 0;
-		foreach ($this->column_search as $item) // loop column 
+		foreach ($this->column_search as $item) // loop column
 		{
 			if ($_POST['search']['value']) // if datatable send POST for search
 			{
@@ -36,7 +36,7 @@ class Admin_users_model_ajax extends CI_Model
 			}
 			$i++;
 		}
-		if (isset($_POST['order'])) { // here order processing 
+		if (isset($_POST['order'])) { // here order processing
 			$this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
 		} else if (isset($this->order)) {
 			$order = $this->order;
@@ -75,6 +75,12 @@ class Admin_users_model_ajax extends CI_Model
 		$this->common_model->get_user_details_by_id($id);
 		$y = $this->common_model->get_user_details_by_id($id);
 
+		if ($y->account_status == 1) {
+			$block_action = '<p><a type="button" href="' . base_url('admin_users/block_user/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Block User </a></p>';
+		} else {
+			$block_action = '<p><a type="button" href="' . base_url('admin_users/unblock_user/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Unblock User </a></p>';
+		};
+
 		if ($y->is_verified == 0) {
 
 			$verify_action = null;
@@ -82,8 +88,8 @@ class Admin_users_model_ajax extends CI_Model
 		} elseif ($y->is_verified == 1) {
 
 			$verify_action = '<p><a type="button" href="' . base_url('admin_users/activate_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Verify Account </a></p>
-			
-			<p><a type="button" href="' . base_url('admin_users/deactivate_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>'; 
+
+			<p><a type="button" href="' . base_url('admin_users/deactivate_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
 
 		} elseif ($y->is_verified == 2) {
 
@@ -92,10 +98,12 @@ class Admin_users_model_ajax extends CI_Model
 		}
 
 		return '<p><a type="button" href="' . base_url('admin_users/user_login_admin/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable" target="_blank"> <i class="fa fa-sign-in text-success"></i> Login as Super User </a></p>
-		
+
 		'. $verify_action . '
 
 		<p><a type="button" href="' . base_url('admin_users/user_profile/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-user" style="color: green"></i> &nbsp; View Profile </a></p>
+
+		' . $block_action . '
 
 		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $id . '"> <i class="fa fa-trash" style="color: red"></i> &nbsp; Delete </a></p>';
 	}

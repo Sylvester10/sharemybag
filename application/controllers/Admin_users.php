@@ -39,7 +39,9 @@ class Admin_Users extends MY_Controller
             $id_card = user_avatar_table($y->id_card, $id_src, id_card);
             $utility = user_avatar_table($y->utility, $utility_src, pdf_icon);
 
-            $account_status = ($y->is_verified == 0) ? '<span class="text-danger"><b>Unverified</b></span>' : (($y->is_verified == 1) ? '<span class="text-warning">Pending</span>' : '<span class="text-success"><b>Verified</b></span>');
+            $is_verified = ($y->is_verified == 0) ? '<span class="badge badge-danger"><b>Unverified</b></span>' : (($y->is_verified == 1) ? '<span class="badge badge-warning">Pending</span>' : '<span class="badge badge-success"><b>Verified</b></span>');
+
+            $account_status = ($y->account_status == 0) ? '<span class="badge badge-danger"><b>Blocked</b></span>' : '<span class="badge badge-success"><b>Active</b></span>';
 
             $platform = ($y->platform == 'facebook') ? '<i class="fa-brands fa-facebook"></i>' : (($y->platform == 'instagram') ? '<i class="fa-brands fa-instagram"></i>' : '<i class="fa-brands fa-twitter"></i>');
 
@@ -58,6 +60,7 @@ class Admin_Users extends MY_Controller
             $row[] = $y->firstname . " " . $y->lastname;
             $row[] = $contact_details;
             $row[] = $y->country;
+            $row[] = $is_verified;
             $row[] = $account_status;
             $row[] = get_last_login_ago($y->last_login);
             $row[] = x_date($y->date_registered);
@@ -97,7 +100,9 @@ class Admin_Users extends MY_Controller
             $id_card = user_avatar_table($y->id_card, $id_src, id_card);
             $utility = user_avatar_table($y->utility, $utility_src, pdf_icon);
 
-            $account_status = ($y->is_verified == 0) ? '<span class="text-danger"><b>Unverified</b></span>' : (($y->is_verified == 1) ? '<span class="text-warning">Pending</span>' : '<span class="text-success"><b>Verified</b></span>');
+            $is_verified = ($y->is_verified == 0) ? '<span class="badge badge-danger"><b>Unverified</b></span>' : (($y->is_verified == 1) ? '<span class="badge badge-warning">Pending</span>' : '<span class="badge badge-success"><b>Verified</b></span>');
+
+            $account_status = ($y->account_status == 0) ? '<span class="badge badge-danger"><b>Blocked</b></span>' : '<span class="badge badge-success"><b>Active</b></span>';
 
             $platform = ($y->platform == 'facebook') ? '<i class="fa-brands fa-facebook"></i>' : (($y->platform == 'instagram') ? '<i class="fa-brands fa-instagram"></i>' : '<i class="fa-brands fa-twitter"></i>');
 
@@ -116,6 +121,7 @@ class Admin_Users extends MY_Controller
             $row[] = $y->firstname . " " . $y->lastname;
             $row[] = $contact_details;
             $row[] = $y->country;
+            $row[] = $is_verified;
             $row[] = $account_status;
             $row[] = get_last_login_ago($y->last_login);
             $row[] = x_date($y->date_registered);
@@ -155,7 +161,9 @@ class Admin_Users extends MY_Controller
             $id_card = user_avatar_table($y->id_card, $id_src, id_card);
             $utility = user_avatar_table($y->utility, $utility_src, pdf_icon);
 
-            $account_status = ($y->is_verified == 0) ? '<span class="text-danger"><b>Unverified</b></span>' : (($y->is_verified == 1) ? '<span class="text-warning">Pending</span>' : '<span class="text-success"><b>Verified</b></span>');
+            $is_verified = ($y->is_verified == 0) ? '<span class="badge badge-danger"><b>Unverified</b></span>' : (($y->is_verified == 1) ? '<span class="badge badge-warning">Pending</span>' : '<span class="badge badge-success"><b>Verified</b></span>');
+
+            $account_status = ($y->account_status == 0) ? '<span class="badge badge-danger"><b>Blocked</b></span>' : '<span class="badge badge-success"><b>Active</b></span>';
 
             $platform = ($y->platform == 'facebook') ? '<i class="fa-brands fa-facebook"></i>' : (($y->platform == 'instagram') ? '<i class="fa-brands fa-instagram"></i>' : '<i class="fa-brands fa-twitter"></i>');
 
@@ -174,6 +182,7 @@ class Admin_Users extends MY_Controller
             $row[] = $y->firstname . " " . $y->lastname;
             $row[] = $contact_details;
             $row[] = $y->country;
+            $row[] = $is_verified;
             $row[] = $account_status;
             $row[] = get_last_login_ago($y->last_login);
             $row[] = x_date($y->date_registered);
@@ -263,6 +272,22 @@ class Admin_Users extends MY_Controller
     {
         $this->admin_user_model->deactivate_user($id);
         $this->session->set_flashdata('status_msg', 'User unverified successfully.');
+        redirect($this->agent->referrer());
+    }
+
+
+    public function block_user($id)
+    {
+        $this->admin_user_model->block_user($id);
+        $this->session->set_flashdata('status_msg', 'User blocked successfully.');
+        redirect($this->agent->referrer());
+    }
+
+
+    public function unblock_user($id)
+    {
+        $this->admin_user_model->unblock_user($id);
+        $this->session->set_flashdata('status_msg', 'User unblocked successfully.');
         redirect($this->agent->referrer());
     }
 

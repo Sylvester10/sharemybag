@@ -166,7 +166,6 @@ class Admin_user_model extends CI_Model
 	}
 
 
-
 	public function activate_user($id)
 	{
 		$data = array(
@@ -200,6 +199,30 @@ class Admin_user_model extends CI_Model
 
 		//Send email to user
 		send_email_notification($this, $email, 'Identity Verification Unsuccessful', $data, 'user_document_verification_failed_email');
+
+		return;
+	}
+
+
+	public function block_user($id)
+	{
+		$data = array(
+			'account_status' => 0,
+		);
+		$this->db->where('id', $id);
+		$this->db->update('users', $data);
+
+		return;
+	}
+
+
+	public function unblock_user($id)
+	{
+		$data = array(
+			'account_status' => 1,
+		);
+		$this->db->where('id', $id);
+		$this->db->update('users', $data);
 
 		return;
 	}
