@@ -260,17 +260,17 @@ class Admin_Users extends MY_Controller
     }
 
 
-    public function activate_user($id)
+    public function verify_user($id)
     {
-        $this->admin_user_model->activate_user($id);
-        $this->session->set_flashdata('status_msg', 'User activated successfully.');
+        $this->admin_user_model->verify_user($id);
+        $this->session->set_flashdata('status_msg', 'User verified successfully.');
         redirect($this->agent->referrer());
     }
 
 
-    public function deactivate_user($id)
+    public function unverify_user($id)
     {
-        $this->admin_user_model->deactivate_user($id);
+        $this->admin_user_model->unverify_user($id);
         $this->session->set_flashdata('status_msg', 'User unverified successfully.');
         redirect($this->agent->referrer());
     }

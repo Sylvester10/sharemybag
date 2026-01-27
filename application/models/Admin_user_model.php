@@ -166,7 +166,7 @@ class Admin_user_model extends CI_Model
 	}
 
 
-	public function activate_user($id)
+	public function verify_user($id)
 	{
 		$data = array(
 			'is_verified' => 2,
@@ -185,7 +185,7 @@ class Admin_user_model extends CI_Model
 	}
 
 
-	public function deactivate_user($id)
+	public function unverify_user($id)
 	{
 		$data = array(
 			'is_verified' => 0,
@@ -253,11 +253,17 @@ class Admin_user_model extends CI_Model
 		if (is_array($selected_rows)) {
 			foreach ($selected_rows as $id) {
 				switch ($bulk_action_type) {
-					case 'activate':
-						$this->activate_user($id);
+					case 'verify':
+						$this->verify_user($id);
 						break;
-					case 'deactivate':
-						$this->deactivate_user($id);
+					case 'unverify':
+						$this->unverify_user($id);
+						break;
+					case 'block':
+						$this->block_user($id);
+						break;
+					case 'unblock':
+						$this->unblock_user($id);
 						break;
 					case 'delete':
 						$this->delete_user($id);
@@ -267,8 +273,10 @@ class Admin_user_model extends CI_Model
 
 			// Set the flash message using count of the selected rows
 			$action_message = match ($bulk_action_type) {
-				'activate' => 'user(s) verified successfully.',
-				'deactivate' => 'user(s) unverified successfully.',
+				'verify' => 'user(s) verified successfully.',
+				'unverify' => 'user(s) unverified successfully.',
+				'block' => 'user(s) blocked successfully.',
+				'unblock' => 'user(s) unblocked successfully.',
 				'delete' => 'user(s) deleted successfully.',
 				default => 'action completed successfully.'
 			};

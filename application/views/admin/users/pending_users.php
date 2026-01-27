@@ -8,8 +8,10 @@
 //select options bulk actions
 $options_array = array(
 	//'value' => 'Caption'
-	'activate' => 'Verify',
-	'deactivate' => 'Un-verify',
+	'verify' => 'Verify',
+	'unverify' => 'Un-verify',
+	'block' => 'Block',
+	'unblock' => 'Unblock',
 	'delete' => 'Delete'
 );
 echo modal_bulk_actions('admin_users/bulk_actions_user', $options_array); ?>
