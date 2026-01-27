@@ -45,7 +45,7 @@
 		</div>
 	</div>
 
-		<div class="modal fade" id="update<?= $y->id ?>" role="dialog">
+	<div class="modal fade" id="update<?= $y->id ?>" role="dialog">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content modal-widths">
 				<div class="modal-header">
@@ -272,10 +272,10 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					$items .= '</table>';
 
 					// payment status
-					$payment_status = ($y->payment_status == 'completed') ? '<span class="text-success">Paid</span>' : '<span class="text-danger">Canceled</span>';
+					$payment_status = ($y->payment_status == 'completed') ? '<span class="badge badge-success">Paid</span>' : '<span class="badge badge-danger">Canceled</span>';
 
 					// delivery status
-					$delivery_status = ($y->delivery_status == 'Delivered') ? '<span class="text-success">Delivered</span>' : (($y->delivery_status == 'In Transit') ? '<span class="text-primary">In Transit </span>' : (($y->delivery_status == 'Shipment Created') ? '<span class="text-primary">Shipment Created </span>' : '<span  class="text-danger">Pending </span>'));
+					$delivery_status = ($y->delivery_status == 'Delivered') ? '<span class="badge badge-success">Delivered</span>' : (($y->delivery_status == 'In Transit') ? '<span class="badge badge-primary">In Transit </span>' : (($y->delivery_status == 'Shipment Created') ? '<span class="badge badge-primary">Shipment Created </span>' : '<span  class="badge badge-danger">Pending </span>'));
 
 					?>
 
