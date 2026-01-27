@@ -54,7 +54,7 @@ class Admin_travellers extends MY_Controller
 			$referrer_details = $this->common_model->get_referrer_details($y->id);
 			$referrer = $referrer_details ? $referrer_details->firstname : 'No Referral';
 
-			$status = '<span class="text-success"><b> ' . $y->status . ' </b></span>';
+			$status = '<span class="badge badge-success"><b> ' . $y->status . ' </b></span>';
 			$original_bag_space = "$y->original_bag_space KG";
 			$used_space = empty($y->used_space) ? '0 KG' : "$y->used_space KG";
 			$available_space = empty($y->available_space) ? '0 KG' : "$y->available_space KG";
@@ -129,7 +129,7 @@ class Admin_travellers extends MY_Controller
 			$referrer_details = $this->common_model->get_referrer_details($y->id);
 			$referrer = $referrer_details ? $referrer_details->firstname : 'No Referral';
 
-			$status = '<span class="text-success"><b> ' . $y->status . ' </b></span>';
+			$status = '<span class="badge badge-success"><b> ' . $y->status . ' </b></span>';
 			$original_bag_space = "$y->original_bag_space KG";
 			$used_space = empty($y->used_space) ? '0 KG' : "$y->used_space KG";
 			$available_space = empty($y->available_space) ? '0 KG' : "$y->available_space KG";
@@ -198,7 +198,7 @@ class Admin_travellers extends MY_Controller
 			$itinerary_src = base_url('assets/itinerary/' . $y->itinerary_photo);
 			$itinerary = user_avatar_table($y->itinerary_photo, $itinerary_src, user_avatar);
 
-			$status = '<span class="text-primary"><b> ' . $y->status . '</b> </span>';
+			$status = '<span class="badge badge-warning"><b> ' . $y->status . '</b> </span>';
 
 			$paymentTypes = [
 				'£5_per_kg' => '£5 per kg',
@@ -253,7 +253,7 @@ class Admin_travellers extends MY_Controller
 			$itinerary_src = base_url('assets/itinerary/' . $y->itinerary_photo);
 			$itinerary = user_avatar_table($y->itinerary_photo, $itinerary_src, user_avatar);
 
-			$status = '<span class="text-danger"><b> ' . $y->status . ' </b></span>';
+			$status = '<span class="badge badge-danger"><b> ' . $y->status . ' </b></span>';
 			$bag_space = "$y->bag_space KG";
 			$row = array();
 			$row[] = checkbox_bulk_action($y->id);
