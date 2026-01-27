@@ -120,6 +120,8 @@ jQuery(document).ready(function ($) {
   }
 
   // Initialize DataTables
+
+  // all users
   initializeDataTable(
     '#users_table',
     base_url + 'admin_users/user_ajax',
@@ -130,16 +132,18 @@ jQuery(document).ready(function ($) {
 
   /////////////////////////////////////////////////////////
 
+  // approved users
   initializeDataTable(
     '#approved_users_table',
     base_url + 'admin_users/approved_users_ajax',
     'Search/filter user:'
   )
-    .order([9, 'desc'])
+    .order([11, 'desc'])
     .draw();
 
   /////////////////////////////////////////////////////////
 
+  // pending users
   initializeDataTable(
     '#pending_users_table',
     base_url + 'admin_users/pending_users_ajax',
@@ -247,7 +251,6 @@ jQuery(document).ready(function ($) {
     .order([1, 'asc'])
     .draw();
 
-  
   /////////////////////////////////////////////////////////
   // FINANCE (GBP)
   // ------------------------------------------------------
