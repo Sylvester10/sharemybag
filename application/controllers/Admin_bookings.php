@@ -137,8 +137,7 @@ class Admin_bookings extends MY_Controller
 				? $currency . number_format($traveller_commission, 2)
 				: 'N/A';
 
-			$payment_status = $y->payment_status == 'completed' ? '<span class="text-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="text-danger"><b>Canceled</b></span>' :
-				'<span class="text-warning"><b>Pending</b></span>');
+			$payment_status = $y->payment_status == 'completed' ? '<span class="badge badge-success"><b>Paid</b></span>' : ($y->payment_status == 'canceled' ? '<span class="badge badge-danger"><b>Canceled</b></span>' : '<span class="badge badge-warning"><b>Pending</b></span>');
 
 			$payment_method = match ($y->payment_method) {
 				'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
