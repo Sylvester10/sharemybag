@@ -301,7 +301,7 @@ class Admin_travellers extends MY_Controller
 			$itinerary_src = base_url('assets/itinerary/' . $y->itinerary_photo);
 			$itinerary = user_avatar_table($y->itinerary_photo, $itinerary_src, user_avatar);
 
-			$status = '<span class="text-danger"><b> ' . $y->status . ' </b></span>';
+			$status = '<span class="badge badge-danger"><b> ' . $y->status . ' </b></span>';
 			$row = array();
 			$row[] = checkbox_bulk_action($y->id);
 			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
