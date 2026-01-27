@@ -138,7 +138,7 @@ jQuery(document).ready(function ($) {
     base_url + 'admin_users/approved_users_ajax',
     'Search/filter user:'
   )
-    .order([11, 'asc'])
+    .order([11, 'desc'])
     .draw();
 
   /////////////////////////////////////////////////////////
