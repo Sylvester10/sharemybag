@@ -80,10 +80,10 @@ class User_login extends MY_Controller
 			if ($user && password_verify($password, $user->password)) {
 
 				// check if the account is active
-				if ($user->account_status == 0) {
-					echo json_encode(['status' => false, 'msg' => 'Your account is inactive. Please contact Admin.']);
-					return; // Use return instead of die for cleaner execution
-				}
+				// if ($user->account_status == 0) {
+				// 	echo json_encode(['status' => false, 'msg' => 'Your account is inactive. Please contact Admin.']);
+				// 	return; // Use return instead of die for cleaner execution
+				// }
 
 				// Success: Set session and update login time
 				$login_data = [
