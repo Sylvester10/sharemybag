@@ -45,6 +45,7 @@ class Users_model extends MY_Model
             'number' => $number,
             'country' => $this->input->post('country', TRUE),
             'referral_link' => $referral_link,
+            'account_status' => 1,
         );
 
 
