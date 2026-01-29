@@ -90,10 +90,10 @@ class Approved_users_model_ajax extends CI_Model
 			$verify_action = null;
 		} elseif ($y->is_verified == 1) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/activate_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Verify Account </a></p>';
+			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Verify Account </a></p>';
 		} elseif ($y->is_verified == 2) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/deactivate_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+			$verify_action = '<p><a type="button" href="' . base_url('admin_users/unverify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
 		}
 
 		return '<p><a type="button" href="' . base_url('admin_users/user_login_admin/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable" target="_blank"> <i class="fa fa-sign-in text-success"></i> Login as Super User </a></p>

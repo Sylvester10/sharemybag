@@ -87,13 +87,13 @@ class Admin_users_model_ajax extends CI_Model
 
 		} elseif ($y->is_verified == 1) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/activate_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Verify Account </a></p>
+			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Verify Account </a></p>
 
-			<p><a type="button" href="' . base_url('admin_users/deactivate_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+			<p><a type="button" href="' . base_url('admin_users/unverify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
 
 		} elseif ($y->is_verified == 2) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/deactivate_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+			$verify_action = '<p><a type="button" href="' . base_url('admin_users/unverify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
 
 		}
 
