@@ -376,10 +376,7 @@
 
                                 <p class="mt-2 mb-3">Select payment method and click "finish" to continue to payments </p>
 
-                                <?php
-                                // Logic: Paystack only for Nigerian users
-                                if ($user_details->country == 'Nigeria') { ?>
-
+                                <div class="d-flex justify-content-center gap-3">
                                     <div class="mb-4 radio_buttons">
                                         <div class="form-check radio_check">
                                             <input class="form-check-input" type="radio" name="payment_method" id="paystack" value="paystack" checked>
@@ -389,18 +386,41 @@
                                         </div>
                                     </div>
 
+                                    <div class="mb-4 radio_buttons">
+                                        <div class="form-check radio_check">
+                                            <input class="form-check-input" type="radio" name="payment_method" id="stripe" value="stripe">
+                                            <label class="form-check-label d-flex align-items-center gap-2" for="stripe">
+                                                <img src="<?php echo base_url('assets/general/stripe.svg'); ?>" alt="Stripe" width="100" height="20">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <?php
+                                // Logic: Paystack only for Nigerian users
+                                if ($user_details->country == 'Nigeria') { ?>
+
+                                    <!-- <div class="mb-4 radio_buttons">
+                                        <div class="form-check radio_check">
+                                            <input class="form-check-input" type="radio" name="payment_method" id="paystack" value="paystack" checked>
+                                            <label class="form-check-label d-flex align-items-center gap-2" for="paystack">
+                                                <img src="<?php echo base_url('assets/general/paystack.svg'); ?>" alt="Paystack" width="100" height="20">
+                                            </label>
+                                        </div>
+                                    </div> -->
+
                                 <?php } else {
                                     // Stripe for Canada and UK users
                                 ?>
 
-                                    <div class="mb-4 radio_buttons">
+                                    <!-- <div class="mb-4 radio_buttons">
                                         <div class="form-check radio_check">
                                             <input class="form-check-input" type="radio" name="payment_method" id="stripe" value="stripe" checked>
                                             <label class="form-check-label d-flex align-items-center gap-2" for="stripe">
                                                 <img src="<?php echo base_url('assets/general/stripe.svg'); ?>" alt="Stripe" width="100" height="20">
                                             </label>
                                         </div>
-                                    </div>
+                                    </div> -->
 
                                 <?php } ?>
 
