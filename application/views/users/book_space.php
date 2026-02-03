@@ -409,9 +409,8 @@
                                         </div>
                                     </div> -->
 
-                                <?php } else {
-                                    // Stripe for Canada and UK users
-                                ?>
+                                <?php } else { ?>
+                                    <!-- // Stripe for Canada and UK users -->
 
                                     <!-- <div class="mb-4 radio_buttons">
                                         <div class="form-check radio_check">
