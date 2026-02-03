@@ -4,10 +4,10 @@
 
         <div class="card !tw-bg-[#020713]">
             <div class="card-body">
-                <h6 class="card-text text-white text-center fw-bolder ">
+                <h6 class="card-text text-white text-center fw-bolder text-uppercase">
                     <i class="ti ti-alert-circle fs-5"></i> Access Restricted!!
                 </h6>
-                <p class="text-white text-center text-uppercase mt-3 mb-0">
+                <p class="text-white text-center mt-3 mb-0">
                     You are unable to access this page. Please contact Admin.
                 </p>
             </div>
