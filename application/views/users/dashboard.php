@@ -1,5 +1,7 @@
 <div class="container-fluid">
 
+	<!-- <div id="snow-container" class="snow-container"></div> -->
+
 	<!-- Row -->
 	<div class="row">
 
@@ -32,9 +34,8 @@
 		$random_quotes = $quotes[array_rand($quotes)];
 		?>
 
-		<?php
-		// Confirm is user is verified
-		if ($is_verified == 0) { ?>
+		<!-- // Confirm is user is verified -->
+		<?php if ($is_verified == 0) { ?>
 
 			<?php
 			if ($user_details) { ?>
