@@ -1,56 +1,63 @@
 <div class="container-fluid">
 
-    <div class="card">
-        <div class="card-header text-bg-primary">
-            <h4 class="mb-0 text-white">Search for Travellers</h4>
+    <?php if ($account_status == 0): ?>
+
+        <div class="card !tw-bg-[#020713]">
+            <div class="card-body">
+                <h6 class="card-text text-white text-center fw-bolder ">
+                    <i class="ti ti-alert-circle fs-5"></i> Access Restricted!!
+                </h6>
+                <p class="text-white text-center text-uppercase mt-3 mb-0">
+                    You are unable to access this page. Please contact Admin.
+                </p>
+            </div>
         </div>
-        <div class="card-body">
 
-            <?php
-            $form_attributes = array("id" => "search_form",);
-            echo form_open('user_bookings/search', $form_attributes); ?>
+    <?php else: ?>
 
-            <div class="row">
-                <div class="col-lg-6 col-sm-12">
-                    <div class="input-group mt-2 mb-2">
-                        <select class="form-select required" name="destination" id="select_destination" required>
-                            <option value="">Where is your parcel going?</option>
+        <div class="card">
+            <div class="card-header text-bg-primary">
+                <h4 class="mb-0 text-white">Search for Travellers</h4>
+            </div>
+            <div class="card-body">
 
-                            <?php if ($user_details->country == 'Canada') { ?>
+                <?php $form_attributes = array("id" => "search_form");
+                echo form_open('user_bookings/search', $form_attributes); ?>
 
-                                <option value="Canada">Canada</option>
-                                <option value="Nigeria">Nigeria</option>
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12">
+                        <div class="input-group mt-2 mb-2">
+                            <select class="form-select required" name="destination" id="select_destination" required>
+                                <option value="">Where is your parcel going?</option>
 
-                            <?php } elseif ($user_details->country == 'United Kingdom') { ?>
+                                <?php if ($user_details->country == 'Canada'): ?>
+                                    <option value="Canada">Canada</option>
+                                    <option value="Nigeria">Nigeria</option>
+                                <?php elseif ($user_details->country == 'United Kingdom'): ?>
+                                    <option value="Nigeria">Nigeria</option>
+                                    <option value="United Kingdom">United Kingdom</option>
+                                <?php else: ?>
+                                    <?php foreach (countries() as $country): ?>
+                                        <option value="<?php echo $country; ?>" <?php echo set_select('destination', $country); ?>>
+                                            <?php echo $country; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
 
-                                <option value="Nigeria">Nigeria</option>
-                                <option value="United Kingdom">United Kingdom</option>
-
-                            <?php } else { ?>
-
-                                <?php
-                                $countries = countries();
-                                foreach ($countries as $country):
-                                ?>
-                                    <option value="<?php echo $country; ?>" <?php echo set_select('destination', $country); ?>>
-                                        <?php echo $country; ?>
-                                    </option>
-                                <?php endforeach; ?>
-
-                            <?php } ?>
-
-                        </select>
-                        <button class="btn btn-rounded btn-primary justify-content-center" type="submit">
-                            Search
-                        </button>
+                            </select>
+                            <button class="btn btn-rounded btn-primary justify-content-center" type="submit">
+                                Search
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                <?php echo form_close(); ?>
+
             </div>
-
-            <?php echo form_close(); ?>
-
         </div>
-    </div>
+
+    <?php endif; ?>
 
     <!-- search loading -->
     <div class="card d-none mb-0" id="search-spinner">
