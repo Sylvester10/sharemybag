@@ -9,7 +9,7 @@
 
             </div>
             <div class="text-center mt-3">
-                <h4 class="card-title fs-8">Coming Soon!</h4>
+                <p class="card-title fs-5">Coming Soon</p>
             </div>
         </div>
     </div>
