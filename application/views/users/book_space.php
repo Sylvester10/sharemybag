@@ -100,7 +100,15 @@
 
                         <h3> <i class="ti ti-package fs-5"></i> About Your Item </h3>
                         <fieldset>
-                            <h4 class="card-title mb-5"> Provide details about the <b class="!tw-text-[#f36b24]">parcel.</b></h4>
+                            <h4 class="card-title mb-2"> Provide details about the <b class="!tw-text-[#f36b24]">parcel.</b></h4>
+
+                            <div class="card !tw-bg-[#020713]">
+                                <div class="card-body">
+                                    <p class="text-white text-center mb-0">
+                                        If you don’t know the exact weight of your item, you should book an underestimated weight. You can confirm pay the difference once the traveller confirms the weight.
+                                    </p>
+                                </div>
+                            </div>
 
                             <div class="row">
                                 <input name="items" type="text" class="form-control" id="items_input" hidden />
