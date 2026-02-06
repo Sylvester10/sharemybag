@@ -63,6 +63,7 @@ class User_bookings extends MY_Controller
                 $data[] = array(
                     'travel_date' => x_date($traveller->travel_date),
                     'days_remaining' => $days,
+                    'drop_off_date' => x_date($traveller->drop_date1),
                     'current_state' => $traveller->current_state,
                     'departure_state' => $traveller->departure_state,
                     'arrival_airport' => $traveller->arrival_airport,
@@ -80,6 +81,7 @@ class User_bookings extends MY_Controller
             echo json_encode(array('status' => false, 'msg' => 'No Traveller Available'));
         }
     }
+
 
     public function buy_bag_space($hash)
     {

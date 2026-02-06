@@ -27,6 +27,12 @@ jQuery(document).ready(function ($) {
 
         if (response.status) {
           html_response += `
+                    <div class="card !tw-bg-[#020713]">
+                        <div class="card-body">
+                            <p class="text-white text-center mt-0 mb-0"> Last drop off date is 24hrs before a traveller’s departure </p>
+                        </div>
+                    </div>
+
                     <div style="margin-top: 15px; margin-left: 15px; font-size: 13px;">
                         <p>Swipe to view more details <i class="ti ti-arrow-right text-primary"></i></p>
                     </div>

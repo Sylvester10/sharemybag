@@ -80,6 +80,7 @@
                     <tr>
                         <th scope="col"> <i class="ti ti-calendar fs-5"></i> Date</th>
                         <th scope="col"> <i class="ti ti-clock fs-5"></i> Time Left</th>
+                        <th scope="col"> <i class="ti ti-calendar fs-5"></i>Drop Off Date</th>
                         <th scope="col"> <i class="ti ti-map fs-5"></i> Current Location</th>
                         <th scope="col"> <i class="ti ti-plane-departure fs-5"></i> Departure Airport </th>
                         <th scope="col"> <i class="ti ti-weight fs-5"></i> Available Space</th>
@@ -90,6 +91,7 @@
                     <tr>
                         <td> ${response.travel_date} </td>
                         <td> ${response.days_remaining} </td>
+                        <td> ${traveller.drop_off_date} </td>
                         <td> ${response.current_state} </td>
                         <td> ${response.departure_state} </td>
                         <td> ${response.available_space} KG </td>
@@ -104,8 +106,6 @@
         </div>
 
     </div>
-
-
 
     <!-- Verify ID modal -->
     <div class="modal fade" id="verifyID" tabindex="-1" aria-labelledby="vertical-center-modal" aria-hidden="true">
@@ -163,7 +163,6 @@
             </div>
         </div>
     </div>
-
 
     <!--Goto profile modal -->
     <div class="modal fade" id="goToProfile" tabindex="-1" aria-labelledby="vertical-center-modal" aria-hidden="true">
