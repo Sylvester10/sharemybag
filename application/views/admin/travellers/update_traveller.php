@@ -50,6 +50,15 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
             </div>
         </div>
 
+        <div class="form-group">
+            <label class="form-control-label">Area * </label>
+            <br />
+            <input type="text" name="area" value="<?php echo set_value('area', $y->area); ?>" class="form-control" required/>
+            <div class="form-error">
+                <?php echo form_error('area'); ?>
+            </div>
+        </div>
+
 
         <div class="form-group d-none">
             <label class="form-control-label">Residential Country *</label>
@@ -133,7 +142,7 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
 
         <div class="form-group">
             <label class="form-control-label">Bag Space (KG) *</label>
-            <input type="text" name="available_space" value="<?php echo set_value('available_space', $y->available_space); ?>" class="form-control" readonly/>
+            <input type="text" name="available_space" value="<?php echo set_value('available_space', $y->available_space); ?>" class="form-control" readonly />
             <div class="form-error">
                 <?php echo form_error('available_space'); ?>
             </div>

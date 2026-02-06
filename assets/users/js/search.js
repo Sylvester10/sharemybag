@@ -115,7 +115,7 @@ jQuery(document).ready(function ($) {
             html_response += `<tr>
                                 <td> ${traveller.travel_date} </td>
                                 <td> ${traveller.days_remaining} </td>
-                                <td> ${traveller.current_state} </td>
+                                <td> ${traveller.area}, ${traveller.current_state} </td>
                                 <td> ${traveller.departure_state} </td>
                                 <td> ${traveller.arrival_airport} </td>
                                 <td> ${traveller.arrival_state} </td>

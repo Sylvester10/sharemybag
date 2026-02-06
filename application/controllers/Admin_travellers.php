@@ -77,7 +77,7 @@ class Admin_travellers extends MY_Controller
 			$row[] = $y->phone;
 			$row[] = $y->alt_phone;
 			$row[] = $y->email;
-			$row[] = $y->current_state . ', ' . $y->location;
+			$row[] = $y->area . ', ' . $y->current_state;
 			$row[] = $y->arrival_airport;
 			$row[] = $y->arrival_state . ', ' . $y->destination;
 			$row[] = $y->address;
@@ -152,7 +152,7 @@ class Admin_travellers extends MY_Controller
 			$row[] = $y->phone;
 			$row[] = $y->alt_phone;
 			$row[] = $y->email;
-			$row[] = $y->current_state . ', ' . $y->location;
+			$row[] = $y->area . ', ' . $y->current_state;
 			$row[] = $y->arrival_airport;
 			$row[] = $y->arrival_state . ', ' . $y->destination;
 			$row[] = $y->address;
@@ -411,6 +411,7 @@ class Admin_travellers extends MY_Controller
 		$this->form_validation->set_rules('arrival_airport', 'Arrival Airport', 'trim|required');
 		$this->form_validation->set_rules('arrival_state', 'Final Destination', 'trim|required');
 		$this->form_validation->set_rules('airline', 'Airline', 'required');
+		$this->form_validation->set_rules('area', 'Area', 'trim|min_length[2]|max_length[100]');
 		$this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
 		$this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
 		$this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim|required');
