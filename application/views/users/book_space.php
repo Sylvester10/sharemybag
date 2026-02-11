@@ -105,7 +105,7 @@
                             <div class="card !tw-bg-[#020713]">
                                 <div class="card-body">
                                     <p class="text-white text-center mb-0">
-                                        If you don’t know the exact weight of your item, you should book an underestimated weight. You can confirm pay the difference once the traveller confirms the weight.
+                                        If you don’t know the exact weight of your item, you should book an underestimated weight. You can pay the difference once the traveller confirms the weight.
                                     </p>
                                 </div>
                             </div>
