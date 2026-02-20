@@ -63,7 +63,28 @@ class Kyc extends MY_Controller
             }
 
             // Upload selfie
+            // if (!empty($_FILES['selfie']['name'])) {
+            //     $upload_error .= $this->upload_file('selfie', './assets/selfie', 'jpg|jpeg|png');
+            //     if ($upload_error === '') {
+            //         $upload_data = $this->upload->data();
+            //         $selfie = $upload_data['file_name'];
+            //     }
+            // }
+
             if (!empty($_FILES['selfie']['name'])) {
+                $allowed_types = ['image/jpeg', 'image/jpg', 'image/png'];
+                $file_type = $_FILES['selfie']['type'];
+
+                // Check if the MIME type is actually recognized
+                if (!in_array($file_type, $allowed_types)) {
+                    $res = [
+                        'status' => false,
+                        'msg' => "Unsupported format ($file_type). Please ensure you are using a standard browser and try again."
+                    ];
+                    echo json_encode($res);
+                    return;
+                }
+
                 $upload_error .= $this->upload_file('selfie', './assets/selfie', 'jpg|jpeg|png');
                 if ($upload_error === '') {
                     $upload_data = $this->upload->data();
