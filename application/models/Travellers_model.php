@@ -121,13 +121,17 @@ class Travellers_model extends MY_Model
 		$hash = getRandomName(134);
 		$data['hash'] = $hash;
 
-		//Send email to traveller
-		$email = $this->input->post('email', TRUE);
-		send_email_notification($this, $email, 'Approved', $data, 'traveller_approval_notification_email');
-
 		$this->db->where('id', $id);
-		$this->db->update('travellers', $data);
-		return true;
+		$updated = $this->db->update('travellers', $data);
+
+		if ($updated) {
+			// ONLY send email to traveller if the database update was successful
+			$email = $this->input->post('email', TRUE);
+			send_email_notification($this, $email, 'Update Received', $data, 'traveller_approval_notification_email');
+			return true;
+		}
+
+		return false;
 	}
 
 	// public function update_traveller_bag_space($id)

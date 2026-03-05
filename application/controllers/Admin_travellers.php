@@ -418,6 +418,7 @@ class Admin_travellers extends MY_Controller
 
 		if (!$this->form_validation->run()) {
 			$this->update_traveller($id);
+			return;
 		}
 
 		if ($this->travellers_model->update_traveller($id)) {
