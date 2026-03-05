@@ -12,7 +12,7 @@
 <hr>
 
 <?php
-echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id="submit_button"', 'target="_blank"'); ?>
+echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id="submit_button"'); ?>
 
 <!-- Travel details -->
 <div class="tw-text-[20px] max-[460px]:tw-text-[20px] tw-mt-3 tw-mb-4">

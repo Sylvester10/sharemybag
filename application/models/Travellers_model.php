@@ -115,7 +115,6 @@ class Travellers_model extends MY_Model
 		$data['available_space'] = $this->input->post('available_space', TRUE);
 		$data['original_bag_space'] = $this->input->post('available_space', TRUE);
 		$data['area'] = ucfirst($this->input->post('area', TRUE));
-// 		$data['unwanted_items'] = implode(", ", $this->input->post('unwanted_items', TRUE));
 		$unwanted_items = $this->input->post('unwanted_items', TRUE);
 		$data['unwanted_items'] = is_array($unwanted_items) ? implode(", ", $unwanted_items) : '';
 		$data['status'] = 'Approved';
@@ -123,8 +122,8 @@ class Travellers_model extends MY_Model
 		$data['hash'] = $hash;
 
 		//Send email to traveller
-		// $email = $this->input->post('email', TRUE);
-		// send_email_notification($this, $email, 'Approved', $data, 'traveller_approval_notification_email');
+		$email = $this->input->post('email', TRUE);
+		send_email_notification($this, $email, 'Approved', $data, 'traveller_approval_notification_email');
 
 		$this->db->where('id', $id);
 		$this->db->update('travellers', $data);

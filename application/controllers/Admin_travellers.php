@@ -404,7 +404,7 @@ class Admin_travellers extends MY_Controller
 			array('valid_email' => 'Enter a valid email.')
 		);
 		$this->form_validation->set_rules('travel_date', 'Travel Date', 'trim|required');
-		$this->form_validation->set_rules('arrival_date', 'Arrival Date', 'trim!required');
+		$this->form_validation->set_rules('arrival_date', 'Arrival Date', 'trim|required');
 		$this->form_validation->set_rules('location', 'Current Location', 'trim|required');
 		$this->form_validation->set_rules('current_state', 'State', 'trim');
 		$this->form_validation->set_rules('destination', 'Destination', 'trim|required');
@@ -417,10 +417,6 @@ class Admin_travellers extends MY_Controller
 		$this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim|required');
 
 		if (!$this->form_validation->run()) {
-			// $this->session->set_flashdata('status_msg_error', validation_errors());
-			// redirect('admin_travellers/update_traveller/' . $id);
-
-			// $error = validation_errors();
 			$this->update_traveller($id);
 		}
 
