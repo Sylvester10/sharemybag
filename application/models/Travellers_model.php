@@ -123,8 +123,8 @@ class Travellers_model extends MY_Model
 		$data['hash'] = $hash;
 
 		//Send email to traveller
-		$email = $this->input->post('email', TRUE);
-		send_email_notification($this, $email, 'Approved', $data, 'traveller_approval_notification_email');
+		// $email = $this->input->post('email', TRUE);
+		// send_email_notification($this, $email, 'Approved', $data, 'traveller_approval_notification_email');
 
 		$this->db->where('id', $id);
 		$this->db->update('travellers', $data);
