@@ -13,9 +13,28 @@ Date Created: 4th January, 2020
 
 require_once FCPATH . 'vendor/autoload.php';
 
+/**
+ * @property CI_DB_query_builder $db
+ * @property CI_Form_validation $form_validation
+ * @property CI_Upload $upload
+ * @property CI_Pagination $pagination
+ * @property CI_User_agent $agent
+ * @property CI_URI $uri
+ * @property CI_Router $router
+ * @property CI_Output $output
+ * @property CI_Session $session
+ * @property Common_model $common_model
+ * @property Phpmailer_library $phpmailer
+ * @property Html_template $template*
+ * @property object $admin_details
+ * @property object $user_details
+ * @property object $traveller_details
+ * @property object $current_model
+ */
 
 class MY_Controller extends CI_Controller
 {
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -26,6 +45,7 @@ class MY_Controller extends CI_Controller
 		$this->load->library('session');
 		$this->load->library('pagination');
 		$this->load->library('user_agent');
+		$this->load->library('upload');
 		$this->load->library("phpmailer_library", null, 'phpmailer');
 		$this->load->library("html_template", null, 'template');
 		$this->load->helper('form');
