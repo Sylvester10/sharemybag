@@ -526,6 +526,7 @@ function ca_cities()
 		'Markham',
 		'Mississauga',
 		'Montreal',
+		'Ontario',
 		'Ottawa',
 		'Québec City',
 		'Regina',
