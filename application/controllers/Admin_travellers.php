@@ -234,52 +234,52 @@ class Admin_travellers extends MY_Controller
 
 
 	/* ========== Unavailable travellers ========== */
-	public function unavailable()
-	{
-		$inner_page_title = 'Unavailable Travellers (' . count($this->common_model->get_unavailable_travellers()) . ')';
-		$this->admin_header('Admin', $inner_page_title);
-		$this->load->view('admin/travellers/unavailable_travellers');
-		$this->admin_footer();
-	}
+	// public function unavailable()
+	// {
+	// 	$inner_page_title = 'Unavailable Travellers (' . count($this->common_model->get_unavailable_travellers()) . ')';
+	// 	$this->admin_header('Admin', $inner_page_title);
+	// 	$this->load->view('admin/travellers/unavailable_travellers');
+	// 	$this->admin_footer();
+	// }
 
 
-	public function unavailable_travellers_ajax()
-	{
-		$this->load->model('ajax/travellers/unavailable_travellers_ajax', 'current_model');
-		$list = $this->current_model->get_records();
-		$data = array();
-		foreach ($list as $y) {
+	// public function unavailable_travellers_ajax()
+	// {
+	// 	$this->load->model('ajax/travellers/unavailable_travellers_ajax', 'current_model');
+	// 	$list = $this->current_model->get_records();
+	// 	$data = array();
+	// 	foreach ($list as $y) {
 
-			$itinerary_src = base_url('assets/itinerary/' . $y->itinerary_photo);
-			$itinerary = user_avatar_table($y->itinerary_photo, $itinerary_src, user_avatar);
+	// 		$itinerary_src = base_url('assets/itinerary/' . $y->itinerary_photo);
+	// 		$itinerary = user_avatar_table($y->itinerary_photo, $itinerary_src, user_avatar);
 
-			$status = '<span class="badge badge-danger"><b> ' . $y->status . ' </b></span>';
-			$bag_space = "$y->bag_space KG";
-			$row = array();
-			$row[] = checkbox_bulk_action($y->id);
-			$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
-			$row[] = $itinerary;
-			$row[] = ucfirst($y->fullname);
-			$row[] = $y->phone;
-			$row[] = $y->email;
-			$row[] = $y->destination;
-			$row[] = $y->address;
-			$row[] = $y->airline;
-			$row[] = x_date($y->travel_date);
-			$row[] = $bag_space;
-			$row[] = $status;
-			$row[] = x_datetime_full($y->date_added);
-			$data[] = $row;
-		}
-		$output = array(
-			"draw" => $_POST['draw'],
-			"recordsTotal" => $this->current_model->count_all_records(),
-			"recordsFiltered" => $this->current_model->count_filtered_records(),
-			"data" => $data,
-		);
-		//output to json format
-		echo json_encode($output);
-	}
+	// 		$status = '<span class="badge badge-danger"><b> ' . $y->status . ' </b></span>';
+	// 		$bag_space = "$y->bag_space KG";
+	// 		$row = array();
+	// 		$row[] = checkbox_bulk_action($y->id);
+	// 		$row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
+	// 		$row[] = $itinerary;
+	// 		$row[] = ucfirst($y->fullname);
+	// 		$row[] = $y->phone;
+	// 		$row[] = $y->email;
+	// 		$row[] = $y->destination;
+	// 		$row[] = $y->address;
+	// 		$row[] = $y->airline;
+	// 		$row[] = x_date($y->travel_date);
+	// 		$row[] = $bag_space;
+	// 		$row[] = $status;
+	// 		$row[] = x_datetime_full($y->date_added);
+	// 		$data[] = $row;
+	// 	}
+	// 	$output = array(
+	// 		"draw" => $_POST['draw'],
+	// 		"recordsTotal" => $this->current_model->count_all_records(),
+	// 		"recordsFiltered" => $this->current_model->count_filtered_records(),
+	// 		"data" => $data,
+	// 	);
+	// 	//output to json format
+	// 	echo json_encode($output);
+	// }
 
 
 	public function unapproved()
@@ -329,50 +329,50 @@ class Admin_travellers extends MY_Controller
 
 
 	/* ========== Add Traveller ========== */
-	public function add_traveller($error = array('error' => ''))
-	{
-		$this->admin_header('Admin', 'Add Traveller');
-		$this->load->view('admin/travellers/add_traveller');
-		$this->admin_footer();
-	}
+	// public function add_traveller($error = array('error' => ''))
+	// {
+	// 	$this->admin_header('Admin', 'Add Traveller');
+	// 	$this->load->view('admin/travellers/add_traveller');
+	// 	$this->admin_footer();
+	// }
 
 
-	public function add_traveller_ajax($error = array('error' => ''))
-	{
-		// validation rules
-		$this->form_validation->set_rules('fullname', 'Name', 'trim|min_length[2]|max_length[500]|required');
-		$this->form_validation->set_rules('phone', 'Phone Number', 'trim|required');
-		$this->form_validation->set_rules('alt_phone', ' Alternate Phone Number', 'trim|required');
-		$this->form_validation->set_rules(
-			'email',
-			'Email',
-			'trim|required|valid_email',
-			array('valid_email' => 'Enter a valid email.')
-		);
-		$this->form_validation->set_rules('location', 'Current Location', 'trim|required');
-		$this->form_validation->set_rules('current_state', 'State', 'trim');
-		$this->form_validation->set_rules('drop_address1', 'Drop off Address', 'trim');
-		$this->form_validation->set_rules('drop_date1', 'Drop off Date', 'trim');
-		$this->form_validation->set_rules('departure_state', 'State of Departure', 'trim');
-		$this->form_validation->set_rules('drop_address2', '2nd Drop off Address', 'trim');
-		$this->form_validation->set_rules('drop_date2', '2nd Drop off Date', 'trim');
-		$this->form_validation->set_rules('destination', 'Destination', 'trim|required');
-		//$this->form_validation->set_rules('destination_address', 'Address on Arrival', 'trim|required');
-		$this->form_validation->set_rules('travel_date', 'Travel Date', 'trim|required');
-		$this->form_validation->set_rules('arrival_date', 'Arrival Date', 'trim');
-		$this->form_validation->set_rules('airline', 'Airline', 'required');
-		$this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
-		$this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
-		$this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'required');
+	// public function add_traveller_ajax($error = array('error' => ''))
+	// {
+	// 	// validation rules
+	// 	$this->form_validation->set_rules('fullname', 'Name', 'trim|min_length[2]|max_length[500]|required');
+	// 	$this->form_validation->set_rules('phone', 'Phone Number', 'trim|required');
+	// 	$this->form_validation->set_rules('alt_phone', ' Alternate Phone Number', 'trim|required');
+	// 	$this->form_validation->set_rules(
+	// 		'email',
+	// 		'Email',
+	// 		'trim|required|valid_email',
+	// 		array('valid_email' => 'Enter a valid email.')
+	// 	);
+	// 	$this->form_validation->set_rules('location', 'Current Location', 'trim|required');
+	// 	$this->form_validation->set_rules('current_state', 'State', 'trim');
+	// 	$this->form_validation->set_rules('drop_address1', 'Drop off Address', 'trim');
+	// 	$this->form_validation->set_rules('drop_date1', 'Drop off Date', 'trim');
+	// 	$this->form_validation->set_rules('departure_state', 'State of Departure', 'trim');
+	// 	$this->form_validation->set_rules('drop_address2', '2nd Drop off Address', 'trim');
+	// 	$this->form_validation->set_rules('drop_date2', '2nd Drop off Date', 'trim');
+	// 	$this->form_validation->set_rules('destination', 'Destination', 'trim|required');
+	// 	//$this->form_validation->set_rules('destination_address', 'Address on Arrival', 'trim|required');
+	// 	$this->form_validation->set_rules('travel_date', 'Travel Date', 'trim|required');
+	// 	$this->form_validation->set_rules('arrival_date', 'Arrival Date', 'trim');
+	// 	$this->form_validation->set_rules('airline', 'Airline', 'required');
+	// 	$this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
+	// 	$this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
+	// 	$this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'required');
 
-		if ($this->form_validation->run()) {
-			$this->travellers_model->add_traveller_to_db();
-			$this->session->set_flashdata('status_msg', "Traveller data added successfully.");
-			redirect('admin_travellers');
-		} else {
-			echo validation_errors();
-		}
-	}
+	// 	if ($this->form_validation->run()) {
+	// 		$this->travellers_model->add_traveller_to_db();
+	// 		$this->session->set_flashdata('status_msg', "Traveller data added successfully.");
+	// 		redirect('admin_travellers');
+	// 	} else {
+	// 		echo validation_errors();
+	// 	}
+	// }
 
 
 	/* ========== Update Travellers ========== */
@@ -414,7 +414,7 @@ class Admin_travellers extends MY_Controller
 		$this->form_validation->set_rules('area', 'Area', 'trim|min_length[2]|max_length[100]');
 		$this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
 		$this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
-		$this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim|required');
+		$this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim');
 
 		if (!$this->form_validation->run()) {
 			$this->update_traveller($id);
@@ -598,20 +598,20 @@ class Admin_travellers extends MY_Controller
 	}
 
 
-	public function message_travellers($id)
-	{
-		//check admin exists
-		$this->check_data_exists($id, 'id', 'travellers', 'admin');
-		$this->form_validation->set_rules('message', 'Message', 'trim|required');
-		$y = $this->common_model->get_traveller_details_by_id($id);
-		if ($this->form_validation->run()) {
-			$this->travellers_model->message_travellers($id);
-			$this->session->set_flashdata('status_msg', "Message successfully sent to {$y->name}.");
-		} else {
-			$this->session->set_flashdata('status_msg_error', 'Error sending message to travellers.');
-		}
-		redirect($this->agent->referrer());
-	}
+	// public function message_travellers($id)
+	// {
+	// 	//check admin exists
+	// 	$this->check_data_exists($id, 'id', 'travellers', 'admin');
+	// 	$this->form_validation->set_rules('message', 'Message', 'trim|required');
+	// 	$y = $this->common_model->get_traveller_details_by_id($id);
+	// 	if ($this->form_validation->run()) {
+	// 		$this->travellers_model->message_travellers($id);
+	// 		$this->session->set_flashdata('status_msg', "Message successfully sent to {$y->name}.");
+	// 	} else {
+	// 		$this->session->set_flashdata('status_msg_error', 'Error sending message to travellers.');
+	// 	}
+	// 	redirect($this->agent->referrer());
+	// }
 
 	/**
 	 * [NEW METHOD]
