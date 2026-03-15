@@ -10,24 +10,31 @@
             <div class="text-center lottie_success">
                 <h4 class="card-title fs-8 mb-10">Thank you for your purchase!</h4>
 
-                <h5 class="text-center" style="color: red; text-transform: uppercase;"> <i class="ti ti-alert-circle"></i> There is no refund or transfer of service to another traveler </h5>
-
                 <h5>Here’s what you need to do next:</h5>
 
                 <div class="the_list mt-3">
-                    <li class="d-flex align-items-start">
-                        <i class="ti ti-brand-chrome fs-4 me-2 mb-2 mb-md-0 flex-shrink-0 text-primary"></i> Check your
-                        email for the traveller’s drop off address
-                    </li>
-                    <li class="d-flex align-items-start">
-                        <i class="ti ti-brand-chrome fs-4 me-2 mb-2 mb-md-0 flex-shrink-0 text-primary"></i> Package
-                        your parcel appropriately
-                    </li>
-                    <li class="d-flex align-items-start">
-                        <i class="ti ti-brand-chrome fs-4 me-2 mb-2 mb-md-0 flex-shrink-0 text-primary"></i> ⁠Send us
-                        tracking details if you are sending your items via Royal Mail or Evri
-                    </li>
+                    <div class="list-item">
+                        <i class="ti ti-brand-chrome fs-4 text-primary flex-shrink-0"></i>
+                        <span class="list-text">Check your email for the traveller’s drop off address</span>
+                    </div>
+
+                    <div class="list-item">
+                        <i class="ti ti-brand-chrome fs-4 text-primary flex-shrink-0"></i>
+                        <span class="list-text">If you are posting your items, label your parcel like this: name or traveller + SMB[sender’s name].</span>
+                    </div>
+
+                    <div class="list-item">
+                        <i class="ti ti-brand-chrome fs-4 text-primary flex-shrink-0"></i>
+                        <span class="list-text">Remember to include a return address.</span>
+                    </div>
+
+                    <div class="list-item">
+                        <i class="ti ti-brand-chrome fs-4 text-primary flex-shrink-0"></i>
+                        <span class="list-text">Send us tracking details if you are sending your items via Royal Mail or Evri</span>
+                    </div>
                 </div>
+
+                <h4 class="card-title fs-5 mt-3 mb-10" style="color: red;"> There is no refund or transfer of service to another traveler </h4>
 
                 <a class="btn btn-primary mt-9" href="<?php echo base_url('history'); ?>" role="button">Booking
                     History</a>
