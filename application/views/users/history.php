@@ -36,7 +36,7 @@
 
                             <div class="list-item">
                                 <i class="ti ti-brand-chrome fs-4 flex-shrink-0"></i>
-                                <span class="list-text text-white">If you are posting your items, label your parcel like this: name or traveller + SMB[sender’s name].</span>
+                                <span class="list-text text-white">If you are posting your items, label your parcel like this: name of traveller + SMB[sender’s name].</span>
                             </div>
 
                             <div class="list-item">
