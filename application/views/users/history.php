@@ -29,10 +29,6 @@
                         </h1>
 
                         <div class="the_list mt-3 text-white">
-                            <div class="list-item">
-                                <i class="ti ti-brand-chrome fs-4 flex-shrink-0"></i>
-                                <span class="list-text text-white">Check your email for the traveller’s drop off address</span>
-                            </div>
 
                             <div class="list-item">
                                 <i class="ti ti-brand-chrome fs-4 flex-shrink-0"></i>
