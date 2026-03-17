@@ -330,6 +330,7 @@ class Admin_bookings extends MY_Controller
 		echo json_encode($output);
 	}
 
+
 	public function canceled_bookings()
 	{
 		$inner_page_title = 'Canceled Bookings (' . count($this->common_model->get_canceled_bookings()) . ')';
@@ -578,10 +579,30 @@ class Admin_bookings extends MY_Controller
 	}
 
 
+	// public function cancel_booking($id)
+	// {
+	// 	$this->bookings_model->cancel_booking($id);
+	// 	$this->session->set_flashdata('status_msg', 'Booking Cancelled Successfully.');
+	// 	redirect($this->agent->referrer());
+	// }
+
 	public function cancel_booking($id)
 	{
-		$this->bookings_model->cancel_booking($id);
-		$this->session->set_flashdata('status_msg', 'Booking Cancelled Successfully.');
+		// Get booking details FIRST to know which traveller is affected
+		$booking = $this->common_model->get_booking_details_by_id($id);
+
+		if ($booking) {
+			// Change status to canceled
+			$this->bookings_model->cancel_booking($id);
+
+			// Recalculate the traveller's space
+			// This method sums up ONLY 'completed' bookings, so by canceling this one,
+			// its space is automatically removed from the 'used_space' total.
+			$this->travellers_model->update_traveller_space($booking->traveller_id);
+
+			$this->session->set_flashdata('status_msg', 'Booking Cancelled and Bag Space Reverted.');
+		}
+
 		redirect($this->agent->referrer());
 	}
 
