@@ -26,6 +26,9 @@
 	<link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/general/countryflags/dist/flat.css" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/country-flags-css@1.1.2/dist/flat.min.css">
 
+	<!-- Swiper -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
 	<!-- Core Css -->
 	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/users/css/styles.css" />
 	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/users/css/custom.css" />

@@ -153,7 +153,7 @@
 		</div>
 
 		<!-- Column -->
-		<div class="col-lg-12">
+		<div class="col-lg-12 swiper-web">
 			<div class="row">
 
 				<div class="col-md-6">
@@ -190,6 +190,49 @@
 					</a>
 				</div>
 
+			</div>
+		</div>
+
+		<div class="col-12 swiper-mobile">
+			<div class="swiper mySwiper">
+				<div class="swiper-wrapper">
+
+					<div class="swiper-slide">
+						<!-- earnings card -->
+						<a href="<?php echo base_url('history'); ?>">
+							<div class="card text-bg-primary">
+								<div class="card-body p-4">
+									<span>
+										<i class="ti ti-briefcase fs-8"></i>
+									</span>
+									<h4 class="card-title text-white mt-3 mb-0"><?= $total_bookings ?></h4>
+									<p class="card-text text-white opacity-75 fs-3 fw-normal">
+										Total Bookings
+									</p>
+								</div>
+							</div>
+						</a>
+					</div>
+
+					<div class="swiper-slide">
+						<!-- earnings card -->
+						<a href="<?php echo base_url('user_bookings'); ?>">
+							<div class="card text-bg-primary">
+								<div class="card-body p-4">
+									<span>
+										<i class="ti ti-plane-departure fs-8"></i>
+									</span>
+									<h4 class="card-title text-white mt-3 mb-0"><?= $approved_travellers ?></h4>
+									<p class="card-text text-white fs-3 fw-normal">
+										Available Travellers
+									</p>
+								</div>
+							</div>
+						</a>
+					</div>
+
+				</div>
+				<div class="swiper-pagination"></div>
 			</div>
 		</div>
 

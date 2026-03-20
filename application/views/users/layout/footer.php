@@ -72,7 +72,7 @@
 	const script = document.getElementById('search-js');
 	// Wait for the Mapbox Search JS script to load before using it
 	script.onload = function() {
-		mapboxsearch.config.accessToken = 'pk.eyJ1IjoicGV0ZTIxMiIsImEiOiJjbHp1N20zc3cyNnhlMmlxdzFjbXVnZ3B4In0.JzZPZQyk-DmLtwczUuqJUA';
+		mapboxsearch.config.accessToken = '<?= getenv("MAPBOX_TOKEN") ?>';
 
 		mapboxsearch.autofill({
 			options: {
@@ -108,31 +108,34 @@
 	};
 </script>
 
-<!-- christmas -->
+<!-- swiper -->
 <script>
-	document.addEventListener("DOMContentLoaded", function() {
-		const snowContainer = document.getElementById('snow-container');
+	document.addEventListener('DOMContentLoaded', function() {
+		let swiper;
 
-		// ONLY run if the snow-container actually exists on this page
-		if (snowContainer) {
-
-			const flakeCount = 30;
-
-			for (let i = 0; i < flakeCount; i++) {
-				const flake = document.createElement('div');
-				flake.classList.add('snowflake');
-				flake.innerHTML = '❄';
-
-				// Randomize positions and animation
-				flake.style.left = Math.random() * 100 + '%';
-				flake.style.animation = `fall ${Math.random() * 3 + 2}s linear infinite`;
-				flake.style.animationDelay = `${Math.random() * 5}s`;
-				flake.style.fontSize = `${Math.random() * 10 + 10}px`;
-				flake.style.opacity = Math.random();
-
-				snowContainer.appendChild(flake);
+		function initSwiper() {
+			if (window.innerWidth < 576) {
+				if (!swiper) {
+					swiper = new Swiper('.mySwiper', {
+						slidesPerView: 'auto',
+						spaceBetween: 16,
+						grabCursor: true,
+						pagination: {
+							el: '.swiper-pagination',
+							clickable: true,
+						},
+					});
+				}
+			} else {
+				if (swiper) {
+					swiper.destroy(true, true);
+					swiper = undefined;
+				}
 			}
 		}
+
+		initSwiper();
+		window.addEventListener('resize', initSwiper);
 	});
 </script>
 
@@ -143,6 +146,9 @@
 
 <!-- Lottie -->
 <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.1/dist/dotlottie-wc.js" type="module"></script>
+
+<!-- Swiper's JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 <!-- iconify -->
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
