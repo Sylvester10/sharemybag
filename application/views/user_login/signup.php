@@ -150,13 +150,13 @@
                                     echo form_open('registration/signup', $form_attributes); ?>
 
                                     <div class="row">
-                                        <div class="col-sm-6">
+                                        <div class="col-6">
                                             <label for="firstname" class="mb-1">First Name <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
                                                 <input type="text" class="form-control" placeholder="John" name="firstname" id="firstname" required aria-label="firstname">
                                             </div>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-6">
                                             <label for="lastname" class="mb-1">Last name <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
                                                 <input type="text" class="form-control" placeholder="Doe" name="lastname" id="lastname" required aria-label="lastname">
@@ -195,14 +195,15 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-sm-6">
+
+                                        <div class="col-6">
                                             <label class="mb-1">Captcha code</label>
                                             <div class="input-group mb-3">
                                                 <input type="tel" class="form-control" name="captcha_code" id="captcha_code" value="<?php echo $captcha_code; ?>">
                                             </div>
                                         </div>
 
-                                        <div class="col-sm-6">
+                                        <div class="col-6">
                                             <label class="mb-1">Enter captcha code <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
                                                 <input type="tel" class="form-control" placeholder="Enter code here" name="c_captcha_code" value="<?php echo set_value('c_captcha_code'); ?>" required>
