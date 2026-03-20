@@ -140,8 +140,8 @@
 
                             <div class="price-feature-col pricing-action-info p-5 right-radius bg-light-subtle order-0 order-lg-1">
                                 <a href="<?php echo base_url(); ?>" class="mb-5 d-block d-xl-none d-lg-none"><img src="<?= business_logo ?>" alt="logo" width="150" class="img-fluid"></a>
-                                <h1 class="h3">Create an Account</h1>
-                                <p class="text-muted">Let's get started</p>
+                                <h1 class="h3">Let's get started</h1>
+                                <!-- <p class="text-muted">Let's get started</p> -->
 
                                 <div class="mt-4 register-form">
 
