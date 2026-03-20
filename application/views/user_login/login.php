@@ -7,27 +7,27 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
     <meta name="description" content="<?php echo business_description; ?>">
-	<meta name="robots" content="index, follow">
-	<link rel="canonical" href="<?= current_url(); ?>">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<?= current_url(); ?>">
 
-	<!-- Open Graph Tags -->
-	<meta property="og:title" content="Login" />
-	<meta property="og:description" content="<?php echo business_description; ?>" />
-	<meta property="og:image" content="<?php echo base_url(); ?>assets/website/img/home.png" />
-	<meta property="og:url" content="<?php echo current_url(); ?>" />
-	<meta property="og:type" content="website" />
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Login" />
+    <meta property="og:description" content="<?php echo business_description; ?>" />
+    <meta property="og:image" content="<?php echo base_url(); ?>assets/website/img/home.png" />
+    <meta property="og:url" content="<?php echo current_url(); ?>" />
+    <meta property="og:type" content="website" />
 
-	<!-- Twitter Card Tags -->
-	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:title" content="Login" />
-	<meta name="twitter:description" content="<?php echo business_description; ?>" />
-	<meta name="twitter:image" content="<?php echo base_url(); ?>assets/website/img/home.png" />
-	<meta name="twitter:url" content="<?php echo current_url(); ?>" />
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Login" />
+    <meta name="twitter:description" content="<?php echo business_description; ?>" />
+    <meta name="twitter:image" content="<?php echo base_url(); ?>assets/website/img/home.png" />
+    <meta name="twitter:url" content="<?php echo current_url(); ?>" />
 
-	<meta name="mswebdialog-title" content="Login" />
-	<meta name="mswebdialog-logo" content="<?php echo business_logo; ?>" />
-	<meta name="mswebdialog-header-color" content="#FFF" />
-	<meta name="mswebdialog-newwindowurl" content="*" />
+    <meta name="mswebdialog-title" content="Login" />
+    <meta name="mswebdialog-logo" content="<?php echo business_logo; ?>" />
+    <meta name="mswebdialog-header-color" content="#FFF" />
+    <meta name="mswebdialog-newwindowurl" content="*" />
 
     <!--favicon icon-->
     <link href="<?php echo business_favicon; ?>" rel="icon" type="image/png" sizes="16x16" />
@@ -153,8 +153,8 @@
 
                             <div class="price-feature-col pricing-action-info p-5 right-radius bg-light-subtle order-0 order-lg-1">
                                 <a href="<?php echo base_url(); ?>" class="mb-5 d-block d-xl-none d-lg-none"><img src="<?= business_logo ?>" alt="logo" width="150" class="img-fluid"></a>
-                                <h1 class="h3">Welcome Back!</h1>
-                                <p class="text-muted">Login your account</p>
+                                <h1 class="h3">Login your account</h1>
+                                <!-- <p class="text-muted">Login your account</p> -->
 
                                 <div class="mt-4 register-form">
 
@@ -205,6 +205,12 @@
 
                                     <?php echo form_close(); ?>
 
+                                    <!-- <p class="text-center text-muted mt-4 mb-4 copyright">Or</p>
+
+                                    <div class="col-12">
+                                        <a href="<?php echo base_url('login-phone'); ?>" class="main-btn primary">Log in using number <i class="fa fa-mobile-screen"></i></a>
+                                    </div> -->
+
                                     <p class="text-center text-muted mt-4 mb-0 copyright">Don't have an account? <a href="<?php echo base_url('registration'); ?>" class="text-decoration-none">Sign up</a></p>
 
                                 </div>
@@ -232,8 +238,8 @@
     <script src="<?php echo base_url(); ?>assets/login/js/vendors/massonry.min.js"></script>
     <script src="<?php echo base_url(); ?>assets/login/js/app.js"></script>
     <!--endbuild-->
-    
-    
+
+
     <!-- schema -->
     <script>
         fetch("<?= base_url('seo/schema') ?>")
