@@ -2,20 +2,32 @@
 SharemyBag
 ###################
 
-A cross-border delivery and item-sharing platform that connects travelers and senders,  
-making it easier, faster, and more affordable to send items between Nigeria and the UK.  
+A cross-border peer-to-peer delivery platform connecting people who need to send items between Nigeria and the UK with trusted travellers who have available luggage space.
+ 
+Live site: https://sharemybag.co.uk
+
+*******************
+What It Does
+*******************
+
+ShareMyBag solves a real problem: sending parcels internationally through couriers is expensive and slow. This platform lets senders find verified travellers heading their way, purchase bag space, and track their items — all in one place.
+ 
+- Travellers list their available bag space and travel dates
+- Senders browse listings, pay for space, and submit items for delivery
+- Both parties are KYC-verified before transacting
+- Payments handled in GBP (Stripe) and NGN (Paystack) with dynamic currency conversion
+- Admin dashboard manages users, trips, and transaction records
 
 *******************
 Features 🚀
 *******************
 
-- Traveler & sender registration with KYC verification  
-- Real-time form submission via AJAX with validation and file uploads  
-- Stripe (GBP) and Paystack (NGN) payment integrations  
-- Dynamic currency conversion for transactions  
-- Admin dashboard for managing users, trips, and transactions  
-- Mobile-responsive UI built with prefixed Tailwind CSS (`tw-`)  
-- Notification and email alerts for status updates  
+- Dual-currency payment system (Stripe + Paystack) with real-time conversion
+- KYC verification flow for travellers and senders
+- AJAX-driven form submissions with client-side validation and file uploads
+- Admin panel for managing trips, users, and dispute resolution
+- Email and in-app notifications for booking status updates
+- Fully mobile-responsive UI 
 
 **************************
 Tech Stack 🛠
@@ -26,3 +38,6 @@ Tech Stack 🛠
 - Tailwind CSS (`tw-` prefix)  
 - JavaScript / jQuery  
 - Stripe & Paystack APIs  
+- Session-based with KYC verification
+
+
