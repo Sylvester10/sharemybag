@@ -5,7 +5,7 @@
             <div class="row">
                 <div class="col-lg-6">
                     <div class="breadcrumb-title">
-                        <h1>Our Cookie Policy</h1>
+                        <h1>Our Cookie Policy </h1>
                     </div>
                 </div>
             </div>
