@@ -26,7 +26,7 @@
     </div>
 
     <!-- Process Area -->
-    <div class="process-area bg-cover section-padding">
+    <!-- <div class="process-area bg-cover section-padding">
         <div class="container">
             <div class="row">
                 <div class="offset-lg-2 col-lg-8 text-center">
@@ -75,6 +75,30 @@
                         <h4>Delivery</h4>
                         <p>Once you arrive at your destination, we will arrange local couriers to collect the parcels from you and deliver to the receiver. We will release payment to your chosen account.</p>
                         <span class="count-big">04</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+    <div class="process-area bg-cover section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="offset-lg-2 col-lg-8 text-center">
+                    <div class="section-title">
+                        <p>It’s simple. ShareMyBag connects verified senders to you.</p>
+                        <h2>How it Works</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1 col-md-12 text-center wow fadeInUp animated" data-wow-delay="100ms">
+                    <div class="video-wrapper" style="border-radius: 15px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.15);">
+                        <video controls width="100%" poster="<?php echo base_url(); ?>assets/website/videos/how-it-works.jpg" style="display: block;">
+                            <source src="<?php echo base_url(); ?>assets/website/videos/how-it-works.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
                     </div>
                 </div>
             </div>
@@ -190,6 +214,7 @@
                                         <div class="input-group">
                                             <div class=" p-0">
                                                 <select id="country_code" class="nice-select form-control bg-transparent" name="c_code1">
+                                                    <option value="+1" data-flag="cf-16 cf-ca ms-1">+1 </option>
                                                     <option value="+234" data-flag="cf-16 cf-ng ms-1">+234 </option>
                                                     <option value="+44" data-flag="cf-16 cf-gb ms-1">+44 </option>
                                                 </select>
@@ -203,6 +228,7 @@
                                         <div class="input-group">
                                             <div class=" p-0">
                                                 <select id="country_code2" class="nice-select form-control bg-transparent" name="c_code2">
+                                                    <option value="+1" data-flag="cf-16 cf-ca ms-1">+1 </option>
                                                     <option value="+234" data-flag="cf-16 cf-ng ms-1">+234 </option>
                                                     <option value="+44" data-flag="cf-16 cf-gb ms-1">+44 </option>
                                                 </select>
@@ -230,37 +256,6 @@
                                         <label class="form-label">Enter Captcha code here</label>
                                         <input type="text" class="form-control" name="c_captcha_code" placeholder="">
                                     </div>
-
-                                    <!-- <div class="col-12 col-md-6 payment_types">
-                                        <label class="form-label">How do you want to be paid? (Applies to NG to UK route only)</label>
-                                        <div class="d-flex">
-                                            <div>
-                                                <input type="radio" id="option1" name="payment_type" value="£5_per_kg">
-                                                <label for="option1">£5 per kg</label>
-                                            </div>
-                                            <div>
-                                                <input type="radio" id="option2" name="payment_type" value="guaranteed_£115">
-                                                <label for="option2">Guaranteed £115 for 23kg</label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12 col-md-6 payment_types2">
-                                        <div class="description d-none" id="description_card">
-                                            <label id="description_1" class="form-label d-none">
-                                                <b>Your commitment to us:</b> You can tell us beforehand what you’d like to carry.
-                                                <br>
-                                                <br>
-                                                <b>Our commitment to you:</b> We can’t guarantee a full bag.
-                                            </label>
-                                            <label id="description_2" class="form-label d-none">
-                                                <b>Your commitment to us:</b> You’ll guarantee 23kg and are happy to carry food items including fish.
-                                                <br>
-                                                <br>
-                                                <b>Our commitment to you:</b> We’ll guarantee you this payment even if we are unable to fill up your bag.
-                                            </label>
-                                        </div>
-                                    </div> -->
 
                                     <div class="col-12 mt-3">
                                         <div class="form-check d-flex justify-content-center mb-2">
