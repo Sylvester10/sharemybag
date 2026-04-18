@@ -14,10 +14,14 @@
                     </div>
                     <div class="col-12 col-lg-4">
                         <?php
+                        $csrf_token_name = $this->security->get_csrf_token_name();
+                        $csrf_token_hash = $this->security->get_csrf_hash();
                         $form_attributes = array("id" => "search_form");
                         echo form_open('home/search', $form_attributes); ?>
+                        <input type="hidden" id="homepage_csrf_name" value="<?php echo html_escape($csrf_token_name); ?>">
+                        <input type="hidden" id="homepage_csrf_hash" value="<?php echo html_escape($csrf_token_hash); ?>">
 
-                        <div class="the_form">
+                        <div class="the_form" style="margin-bottom: -62px;">
                             <div class="">
                                 <select class="form-control" name="destination" id="select_destination" required>
                                     <option value="">Where is your parcel going?</option>
@@ -37,6 +41,14 @@
                         </div>
 
                         <?php echo form_close(); ?>
+                        <!-- <div class="text-center text-bold mb-4">
+                            <h3 class="text-white ">Or</h3>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="main-btn primary mb-0" id="openPriceChecker">
+                                <i class="ti ti-calculator me-1"></i> Get Estimate
+                            </button>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -111,7 +123,7 @@
     </div>
 
     <!-- Process Area -->
-    <!-- <div class="process-area bg-cover section-padding">
+    <div class="process-area bg-cover section-padding">
         <div class="container">
             <div class="row">
                 <div class="offset-lg-2 col-lg-8 text-center">
@@ -154,30 +166,8 @@
                 </div>
             </div>
         </div>
-    </div> -->
-    <div class="process-area bg-cover section-padding">
-        <div class="container">
-            <div class="row">
-                <div class="offset-lg-2 col-lg-8 text-center">
-                    <div class="section-title">
-                        <p>Effortlessly send your items between Nigeria and the UK with our simple and secure process.</p>
-                        <h2>How it Works</h2>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-lg-10 offset-lg-1 col-md-12 text-center wow fadeInUp animated" data-wow-delay="100ms">
-                    <div class="video-wrapper" style="border-radius: 15px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.15);">
-                        <video controls width="100%" poster="<?php echo base_url(); ?>assets/website/videos/how-it-works.jpg" style="display: block;">
-                            <source src="<?php echo base_url(); ?>assets/website/videos/how-it-works.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
+
 
     <!-- FAQs Area -->
     <div class="faq-section gray-bg section-padding pb-50">
@@ -773,3 +763,289 @@
             </div>
         </div>
     </div>
+
+
+    <!-- =================== PRICE CHECKER MODAL =================== -->
+    <div class="modal fade" id="priceCheckerModal" tabindex="-1" role="dialog" aria-labelledby="priceCheckerTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header text-white" style="background-image: linear-gradient(300deg, rgb(243, 107, 36) 50%, rgb(243, 107, 36) 100%);">
+                    <h5 class="modal-title text-white" id="priceCheckerTitle">
+                        <i class="ti ti-calculator me-2"></i> Get a Price Estimate
+                    </h5>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- INPUT FORM -->
+                    <div id="priceCheckerForm">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">From *</label>
+                            <select id="pc_origin" class="form-control">
+                                <option value="">Select origin</option>
+                                <option value="Nigeria">Nigeria</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                                <option value="Canada">Canada</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">To *</label>
+                            <select id="pc_destination" class="form-control">
+                                <option value="">Select destination</option>
+                                <option value="Nigeria">Nigeria</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                                <option value="Canada">Canada</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Category *</label>
+                            <select id="pc_category" class="form-control">
+                                <option value="">Select category</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Fish/Medicine">Fish/Medicine/Snail/Oil (special)</option>
+                                <option value="Documents/Electronics">Documents/Electronics/Gold (premium)</option>
+                            </select>
+                            <small class="text-muted" id="pc_category_hint"></small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" id="pc_weight_label">Weight (KG) *</label>
+                            <input type="number" id="pc_weight" class="form-control" placeholder="e.g. 5" min="1" max="50" step="0.5" />
+                        </div>
+
+                        <div id="pc_error" class="alert alert-danger d-none"></div>
+
+                        <button type="button" class="main-btn primary w-100" id="pc_submit_btn">
+                            <span id="pc_btn_text"><i class="ti ti-search me-1"></i> Calculate</span>
+                            <span id="pc_spinner" class="d-none"><i class="ti ti-loader ti-spin me-1"></i> Calculating...</span>
+                        </button>
+                    </div>
+
+                    <!-- RESULTS (hidden until response) -->
+                    <div id="priceCheckerResult" class="d-none mt-3">
+                        <section id="section-1" class="">
+                            <div class="p-3 p-md-4">
+
+                                <div class="estimate-box" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; text-align: center; margin-bottom: 20px;">
+                                    <div class="estimate_icon">
+                                        <img src="<?php echo base_url(); ?>assets/website/icons/destination.png" alt="Route" style="width: 40px; margin-bottom: 10px;">
+                                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 5px;">Route</h4>
+                                        <p id="pc_res_route" style="font-size: 13px; margin: 0; color: #666;"></p>
+                                    </div>
+                                    <div class="estimate_icon">
+                                        <img src="<?php echo base_url(); ?>assets/website/icons/package.png" alt="Category" style="width: 40px; margin-bottom: 10px;">
+                                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 5px;">Category</h4>
+                                        <p id="pc_res_category" style="font-size: 13px; margin: 0; color: #666; line-height: 1.2;"></p>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-success mb-3 text-center">
+                                    <h5 class="mb-0 fw-bold" id="pc_res_total_box"></h5>
+                                    <!-- <small class="text-muted" id="pc_result_route"></small> -->
+                                </div>
+
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-sm table-borderless border-top mb-0 pt-2">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-muted small">Weight / Qty</td>
+                                                <td class="fw-semibold text-end small" id="pc_res_weight"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted small">Rate</td>
+                                                <td class="fw-semibold text-end small" id="pc_res_rate"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted small">Item Cost</td>
+                                                <td class="fw-semibold text-end small" id="pc_res_item_price"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted small">Service Charge</td>
+                                                <td class="fw-semibold text-end small" id="pc_res_service"></td>
+                                            </tr>
+                                            <tr id="pc_res_special_row" class="d-none">
+                                                <td class="text-muted small">Special Fee</td>
+                                                <td class="fw-semibold text-warning text-end small" id="pc_res_special"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <p class="text-muted" style="font-size: 13px; text-align: center;" id="pc_disclaimer"></p>
+
+                                <div class="d-flex gap-2 mt-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-md flex-fill" id="pc_recalculate_btn">
+                                        <i class="ti ti-arrow-left me-1"></i> Recalculate
+                                    </button>
+                                    <a href="<?php echo site_url('signin'); ?>" class="btn btn-primary btn-md flex-fill text-center m-0" style="line-height: 1.5; padding: 8px 15px;">
+                                        <i class="ti ti-bag me-1"></i> Book Now
+                                    </a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =================== PRICE CHECKER JS =================== -->
+    <script>
+        (function() {
+            'use strict';
+
+            var baseUrl = '<?php echo base_url(); ?>';
+            var csrfTokenName = document.getElementById('homepage_csrf_name').value;
+            var csrfTokenHashEl = document.getElementById('homepage_csrf_hash');
+
+            function getCsrfHash() {
+                return csrfTokenHashEl.value;
+            }
+
+            function updateCsrfHash(newHash) {
+                if (!newHash) {
+                    return;
+                }
+                csrfTokenHashEl.value = newHash;
+                var searchTokenInput = document.querySelector('#search_form input[name="' + csrfTokenName + '"]');
+                if (searchTokenInput) {
+                    searchTokenInput.value = newHash;
+                }
+            }
+
+            // Category hint text
+            var categoryHints = {
+                'Normal': '',
+                'Fish/Medicine': 'A special handling fee of £10 / $10 applies to this category.',
+                'Documents/Electronics': 'Premium pricing applies. Weight is counted in pieces (PC), not KG.'
+            };
+
+            // Update weight label and hint on category change
+            document.getElementById('pc_category').addEventListener('change', function() {
+                var cat = this.value;
+                var weightLabel = document.getElementById('pc_weight_label');
+                var hint = document.getElementById('pc_category_hint');
+
+                weightLabel.textContent = (cat === 'Documents/Electronics') ? 'Quantity (PC) *' : 'Weight (KG) *';
+                hint.textContent = categoryHints[cat] || '';
+            });
+
+            // Calculate button
+            document.getElementById('pc_submit_btn').addEventListener('click', function() {
+                var origin = document.getElementById('pc_origin').value;
+                var destination = document.getElementById('pc_destination').value;
+                var category = document.getElementById('pc_category').value;
+                var weight = parseFloat(document.getElementById('pc_weight').value);
+                var errBox = document.getElementById('pc_error');
+
+                errBox.classList.add('d-none');
+                errBox.textContent = '';
+
+                if (!origin || !destination || !category || !weight || weight <= 0) {
+                    errBox.textContent = 'Please fill in all fields.';
+                    errBox.classList.remove('d-none');
+                    return;
+                }
+
+                if (origin === destination) {
+                    errBox.textContent = 'Origin and destination cannot be the same.';
+                    errBox.classList.remove('d-none');
+                    return;
+                }
+
+                // Show spinner
+                document.getElementById('pc_btn_text').classList.add('d-none');
+                document.getElementById('pc_spinner').classList.remove('d-none');
+                document.getElementById('pc_submit_btn').disabled = true;
+
+                // AJAX call
+                fetch(baseUrl + 'home/price_estimate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            [csrfTokenName]: getCsrfHash(),
+                            origin: origin,
+                            destination: destination,
+                            category: category,
+                            weight: weight
+                        })
+                    })
+                    .then(function(res) {
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        updateCsrfHash(data.csrf_hash);
+                        document.getElementById('pc_btn_text').classList.remove('d-none');
+                        document.getElementById('pc_spinner').classList.add('d-none');
+                        document.getElementById('pc_submit_btn').disabled = false;
+
+                        if (!data.status) {
+                            errBox.textContent = data.msg || 'Something went wrong. Please try again.';
+                            errBox.classList.remove('d-none');
+                            return;
+                        }
+
+                        // Populate results
+                        document.getElementById('pc_res_route').textContent = data.route;
+                        document.getElementById('pc_res_category').textContent = data.category;
+                        document.getElementById('pc_res_weight').textContent = data.weight;
+                        document.getElementById('pc_res_total_box').textContent = data.total;
+
+                        document.getElementById('pc_res_rate').textContent = data.price_per_unit;
+                        document.getElementById('pc_res_item_price').textContent = data.item_price;
+                        document.getElementById('pc_res_service').textContent = data.service_charge;
+                        document.getElementById('pc_disclaimer').textContent = data.disclaimer;
+
+                        var specialRow = document.getElementById('pc_res_special_row');
+                        if (data.special_fee) {
+                            document.getElementById('pc_res_special').textContent = data.special_fee;
+                            specialRow.classList.remove('d-none');
+                        } else {
+                            specialRow.classList.add('d-none');
+                        }
+
+                        // Show result, hide form
+                        document.getElementById('priceCheckerForm').classList.add('d-none');
+                        document.getElementById('priceCheckerResult').classList.remove('d-none');
+                    })
+                    .catch(function() {
+                        document.getElementById('pc_btn_text').classList.remove('d-none');
+                        document.getElementById('pc_spinner').classList.add('d-none');
+                        document.getElementById('pc_submit_btn').disabled = false;
+                        errBox.textContent = 'Network error. Please try again.';
+                        errBox.classList.remove('d-none');
+                    });
+            });
+
+            // Recalculate — show form again
+            document.getElementById('pc_recalculate_btn').addEventListener('click', function() {
+                document.getElementById('priceCheckerResult').classList.add('d-none');
+                document.getElementById('priceCheckerForm').classList.remove('d-none');
+                document.getElementById('pc_error').classList.add('d-none');
+            });
+
+            // Reset modal state on close
+            document.getElementById('priceCheckerModal').addEventListener('hidden.bs.modal', function() {
+                document.getElementById('priceCheckerResult').classList.add('d-none');
+                document.getElementById('priceCheckerForm').classList.remove('d-none');
+                document.getElementById('pc_error').classList.add('d-none');
+                document.getElementById('pc_weight').value = '';
+            });
+
+            // "Get Estimate" button hook (if you use a separate trigger outside the modal)
+            var openBtn = document.getElementById('openPriceChecker');
+            if (openBtn) {
+                openBtn.addEventListener('click', function() {
+                    $('#priceCheckerModal').modal('show');
+                });
+            }
+        }());
+    </script>
