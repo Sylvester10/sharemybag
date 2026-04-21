@@ -10,8 +10,8 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="<?= current_url(); ?>">
 
-    <title><?php echo $title; ?> - <?php echo sub_tagline; ?></title> 
-    
+    <title><?php echo $title; ?> - <?php echo sub_tagline; ?></title>
+
     <!-- Open Graph Tags -->
     <meta property="og:title" content="<?php echo $title; ?>" />
     <meta property="og:description" content="<?php echo business_description; ?>" />
@@ -70,7 +70,7 @@
 
     <!-- Tailwind -->
     <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/general/css/tw-output.css" />
-    
+
     <!-- schema -->
     <?php if (isset($schema)): ?>
         <script type="application/ld+json">
@@ -99,7 +99,7 @@
                     <marquee width="100%" direction="left">
                         <p class="text-4 text-white">
                             <i class="las la-bullhorn tw-mr-2"></i>
-                            For best experience, please use Chrome browser.
+                            This is the Sandbox for testing
                         </p>
                     </marquee>
                 </div>
