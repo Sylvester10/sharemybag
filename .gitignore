@@ -5,6 +5,8 @@
 
 # Environment secrets
 .env
+.index.php
+application/config/config.php
 
 # Archives
 *.zip
