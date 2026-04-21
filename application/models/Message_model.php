@@ -51,22 +51,6 @@ class Message_model extends CI_Model
 		send_email_notification($this, $email, $subject, $data, 'admin_general_notification_email');
 	}
 
-
-// 	public function send_bulk_email($mail_list)
-// 	{
-// 		// Extract email addresses from the objects
-// 		$emails = array_map(function ($user) {
-// 			return $user->email;
-// 		}, $mail_list);
-
-// 		$subject = ucwords($this->input->post('subject', TRUE));
-// 		$data['message'] = nl2br(ucfirst($this->input->post('message', TRUE)));
-
-// 		// Send emails using the extracted email list
-// 		return send_bulk_email_notification($this, $emails, $subject, $data, 'admin_general_notification_email');
-// 	}
-
-    
     public function send_bulk_email($mail_list)
 	{
 		// Extract email addresses from the objects

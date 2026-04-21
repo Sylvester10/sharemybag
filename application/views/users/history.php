@@ -28,7 +28,7 @@
                             <i class="ti ti-alert-triangle fs-9"></i>
                         </h1>
 
-                        <div class="the_list mt-3 text-white">
+                        <div class="the_list mt-3 fs-2 text-white">
 
                             <div class="list-item">
                                 <i class="ti ti-brand-chrome fs-4 flex-shrink-0"></i>
@@ -69,6 +69,7 @@
                                     <th>Item Details</th>
                                     <th>Payment Status</th>
                                     <th>Date</th>
+                                    <th>Invoice</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -78,14 +79,11 @@
                                 foreach ($booking as $y) {
 
                                     // Determine the currency symbol based on the currency_charged field stored in the booking record
-                                    // 'dollars' corresponds to CAD ($)
-                                    // 'pounds' corresponds to GBP (£)
-                                    // NOTE: The currency field in the booking table is assumed to be 'currency_charged' based on previous context,
-                                    // but is referenced here as $y->currency, which I will maintain.
-                                    $symbol = ($y->currency == 'dollars') ? '$' : '&pound;';
+                                    $symbol = currency_symbol($y->currency);
 
 
-                                    $traveller_details = ($y->payment_status == 'canceled' || $y->payment_status == '')
+                                    $normalized_status = payment_status_normalize($y->payment_status);
+                                    $traveller_details = ($normalized_status == 'canceled' || $normalized_status == 'pending')
                                         ? '<i class="ti ti-user"></i> N/A <br />
                                     <i class="ti ti-location"></i> N/A <br />
                                     <i class="ti ti-calendar"></i> N/A'
@@ -135,10 +133,13 @@
                                     $items .= '</table>';
 
                                     // payment status
-                                    $payment_status = ($y->payment_status == 'completed') ? '<span class="badge bg-success-subtle text-success">Completed</span>' : (($y->payment_status == 'canceled') ? '<span class="badge bg-danger-subtle text_danger">Canceled</span>' : '<span class="badge bg-warning-subtle text-warning">Pending</span>');
+                                    $payment_status = (payment_status_normalize($y->payment_status) == 'completed') ? '<span class="badge bg-success-subtle text-success">Completed</span>' : ((payment_status_normalize($y->payment_status) == 'canceled') ? '<span class="badge bg-danger-subtle text_danger">Canceled</span>' : '<span class="badge bg-warning-subtle text-warning">Pending</span>');
 
                                     // delivery status
-                                    $delivery_status = ($y->delivery_status == 'Delivered') ? '<span class="text-success">Delivered <i class="ti ti-circle-check text-success fs-5"></i> </span>' : (($y->delivery_status == 'In Transit') ? '<span class="text-secondary">In Transit <i class="ti ti-clock text-secondary fs-5"></i> </span>' : (($y->delivery_status == 'Shipment Created') ? '<span class="text-primary">Shipment Created <i class="ti ti-checklist text-primary fs-5"></i></span>' : '<span class="text_danger">Pending <span class="spinner-border spinner-border-sm text_pending ms-1" role="status" aria-hidden="true"></span></span>'));
+                                    $normalized_delivery_status = delivery_status_normalize($y->delivery_status);
+                                    $delivery_status = ($normalized_delivery_status == 'Completed')
+                                        ? '<span class="text-success">Completed <i class="ti ti-circle-check text-success fs-5"></i> </span>'
+                                        : '<span class="text-secondary">In Transit <i class="ti ti-clock text-secondary fs-5"></i> </span>';
 
                                 ?>
 
@@ -148,6 +149,16 @@
                                         <td> <?= $items ?> </td>
                                         <td> <?= $payment_status ?> </td>
                                         <td data-order="<?= $y->date_added ?>"> <?= x_date($y->date_added) ?> </td>
+                                        <td>
+                                            <?php if ($normalized_status == 'completed') { ?>
+                                                <div class="d-flex flex-column gap-2">
+                                                    <a class="btn btn-sm btn-primary" href="<?= base_url('invoice/' . $y->id) ?>" target="_blank">View Invoice</a>
+                                                    <!-- <a class="btn btn-sm btn-outline-primary" href="<?= base_url('invoice/download/' . $y->id) ?>">Download</a> -->
+                                                </div>
+                                            <?php } else { ?>
+                                                <span class="text-muted">Not available</span>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
 
                                 <?php } ?>

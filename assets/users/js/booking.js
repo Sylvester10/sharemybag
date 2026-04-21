@@ -6,6 +6,66 @@ jQuery(document).ready(function ($) {
   let totalKg = 0;
   let totalSpecialCharge = 0; // Initialize a variable to store the total special charge
 
+  function updateCategoryAdvisory() {
+    const selectedCategory = $('#select1').val();
+    const advisory = $('#category-advisory');
+
+    if (!advisory.length) {
+      return;
+    }
+
+    if (selectedCategory === 'Fish/Meat') {
+      advisory.text(
+        'Fish and meat travel at your own risk. ShareMyBag will not be responsible if the item goes bad during the traveller’s journey.'
+      );
+    } else if (selectedCategory === 'Medication') {
+      advisory.text(
+        'Medication security notice: please ensure all medications are properly packaged, clearly labelled, and compliant with airline and destination-country regulations.'
+      );
+    } else {
+      advisory.text('');
+    }
+  }
+
+  function getSelectedPaymentMethod() {
+    return $('input[name="payment_method"]:checked').val() || 'paystack';
+  }
+
+  function syncPaymentMethod() {
+    $('#payment_method').val(getSelectedPaymentMethod());
+  }
+
+  function calculateTravellerCommissionForSummary(selectedSpace) {
+    let currency = $('#holdThisInfo').attr('currency');
+    let destination = (
+      $('input[name="traveller_destination"]').val() || ''
+    ).trim();
+    let travellerCommission = 0;
+
+    if (currency === 'CAD') {
+      travellerCommission = 10.0 * selectedSpace;
+    } else {
+      travellerCommission = (destination === 'Nigeria' ? 4.5 : 5.0) * selectedSpace;
+    }
+
+    $('.select_item').each(function () {
+      let category = $(this).attr('category');
+      if (
+        category === 'Documents/Electronics' ||
+        category === 'Gold' ||
+        category === 'Fish/Medicine' ||
+        category === 'Fish/Meat' ||
+        category === 'Medication'
+      ) {
+        travellerCommission += 10.0;
+      } else if (category === 'Duty Free') {
+        travellerCommission += 6.5;
+      }
+    });
+
+    return parseFloat(travellerCommission.toFixed(2));
+  }
+
   // --- NEW: Function to update weight unit in the dropdown ---
   function updateWeightUnit(unit) {
     // Update the label text
@@ -32,17 +92,20 @@ jQuery(document).ready(function ($) {
   // --- NEW: Event listener for category change ---
   $('#select1').change(function () {
     let selectedCategory = $(this).val();
-    if (selectedCategory === 'Documents/Electronics') {
+    if (selectedCategory === 'Documents/Electronics' || selectedCategory === 'Gold') {
       updateWeightUnit('PC');
     } else {
       updateWeightUnit('KG');
     }
+    updateCategoryAdvisory();
   });
   // --- END NEW LOGIC ---
 
   // NOTE: Calling updateBooking() once immediately to fix initial currency display
+  syncPaymentMethod();
   updateBooking();
   updateitems();
+  updateCategoryAdvisory();
 
   $('#item-list')
     .children('.select_item')
@@ -166,8 +229,9 @@ jQuery(document).ready(function ($) {
 
         // Define special charges for the two categories
         const specialCharges = {
-          'Fish/Medicine': 10, // Special charge for this category
-          //   "Documents/Electronics": 15, // Special charge for this category
+          'Fish/Medicine': 10,
+          'Fish/Meat': 10,
+          Medication: 10,
         };
 
         // Determine the special charge based on the category
@@ -236,6 +300,11 @@ jQuery(document).ready(function ($) {
 
   // Update booking on insurance select change
   $('#insuranceBox').change(function () {
+    updateBooking();
+  });
+
+  $('input[name="payment_method"]').change(function () {
+    syncPaymentMethod();
     updateBooking();
   });
 
@@ -630,6 +699,43 @@ function updateitems() {
   return items;
 }
 
+function getSelectedPaymentMethod() {
+  return $('input[name="payment_method"]:checked').val() || 'paystack';
+}
+
+function syncPaymentMethod() {
+  $('#payment_method').val(getSelectedPaymentMethod());
+}
+
+function calculateTravellerCommissionForSummary(selectedSpace) {
+  let currency = $('#holdThisInfo').attr('currency');
+  let destination = ($('input[name="traveller_destination"]').val() || '').trim();
+  let travellerCommission = 0;
+
+  if (currency === 'CAD') {
+    travellerCommission = 10.0 * selectedSpace;
+  } else {
+    travellerCommission = (destination === 'Nigeria' ? 4.5 : 5.0) * selectedSpace;
+  }
+
+  $('.select_item').each(function () {
+    let category = $(this).attr('category');
+    if (
+      category === 'Documents/Electronics' ||
+      category === 'Gold' ||
+      category === 'Fish/Medicine' ||
+      category === 'Fish/Meat' ||
+      category === 'Medication'
+    ) {
+      travellerCommission += 10.0;
+    } else if (category === 'Duty Free') {
+      travellerCommission += 6.5;
+    }
+  });
+
+  return parseFloat(travellerCommission.toFixed(2));
+}
+
 $('#items_input').change(function () {
   let val = $(this).val().trim();
   let category = $('select[name="category"]');
@@ -654,6 +760,7 @@ function calculateBooking() {
   let selectedSpace = 0;
   let selectedPrice = 0;
   let insurance = 0;
+  let paymentMethod = $('input[name="payment_method"]:checked').val() || 'paystack';
 
   // --- UPDATED CURRENCY ATTRIBUTES ---
   let currency = $('#holdThisInfo').attr('currency');
@@ -670,30 +777,30 @@ function calculateBooking() {
   // or incomplete and is generally avoided in production code unless necessary.
   // We'll keep the original structure but note the currency difference.
   firstSelectedPrice =
-    currency == 'pounds'
+    currency == 'GBP'
       ? 50000 / parseFloat(onePound)
-      : currency == 'dollars'
+      : currency == 'CAD'
       ? 50000 / parseFloat(oneDollar)
       : 50000;
 
   secondSelectedPrice =
-    currency == 'pounds'
+    currency == 'GBP'
       ? 100000 / parseFloat(onePound)
-      : currency == 'dollars'
+      : currency == 'CAD'
       ? 100000 / parseFloat(oneDollar)
       : 100000;
 
   insuranceOne =
-    currency == 'pounds'
+    currency == 'GBP'
       ? 1500 / parseFloat(onePound)
-      : currency == 'dollars'
+      : currency == 'CAD'
       ? 1500 / parseFloat(oneDollar)
       : 1500;
 
   insuranceTwo =
-    currency == 'pounds'
+    currency == 'GBP'
       ? 3000 / parseFloat(onePound)
-      : currency == 'dollars'
+      : currency == 'CAD'
       ? 3000 / parseFloat(oneDollar)
       : 3000;
 
@@ -706,19 +813,33 @@ function calculateBooking() {
   insurance = selectedInsurance ? selectedInsurance : 0;
 
   let currentAvailableSpace = initialAvailableSpace - selectedSpace;
+  let specialCharge = getSpecialCharge();
   let subTotal = serviceCharge + selectedPrice;
-  // 	let vat = (7.5 / 100) * subTotal;
-  let totalAmount = subTotal + insurance + getSpecialCharge();
+  let baseTotal = subTotal + insurance + specialCharge;
+  let travellerCommission = calculateTravellerCommissionForSummary(selectedSpace);
+  let platformCommission = Math.max(
+    0,
+    baseTotal - travellerCommission - serviceCharge - insurance
+  );
+  let vatBase = platformCommission + serviceCharge;
+  let vat = paymentMethod === 'paystack' ? (7.5 / 100) * vatBase : 0;
+  let totalAmount = baseTotal + vat;
   let calculatedValues = {
     initialAvailableSpace: initialAvailableSpace,
     selectedSpace: parseFloat(selectedSpace.toFixed(2)),
     selectedPrice: parseFloat(selectedPrice.toFixed(2)),
     totalAmount: parseFloat(totalAmount.toFixed(2)),
+    baseTotal: parseFloat(baseTotal.toFixed(2)),
     subTotal: parseFloat(subTotal.toFixed(2)),
-    // 		vat: parseFloat(vat.toFixed(2)),
+    vat: parseFloat(vat.toFixed(2)),
+    vatBase: parseFloat(vatBase.toFixed(2)),
+    platformCommission: parseFloat(platformCommission.toFixed(2)),
+    travellerCommission: parseFloat(travellerCommission.toFixed(2)),
     currentAvailableSpace: currentAvailableSpace,
     serviceCharge: parseFloat(serviceCharge.toFixed(2)),
     insurance: parseFloat(insurance.toFixed(2)),
+    specialCharge: parseFloat(specialCharge.toFixed(2)),
+    paymentMethod: paymentMethod,
     currency: currency,
     onePound: onePound,
     oneDollar: oneDollar, // Added oneDollar
@@ -752,6 +873,7 @@ function updateBooking() {
   let totalAmount = calculateBooking().totalAmount;
   let subTotal = calculateBooking().subTotal;
   let insurance = calculateBooking().insurance;
+  let vat = calculateBooking().vat;
   let specialCharge = getSpecialCharge();
 
   let displaySymbol = $('#holdThisInfo').attr('symbol');
@@ -765,9 +887,11 @@ function updateBooking() {
   $('#insurance-value').html(
     `${displaySymbol}${insurance.toFixed(2).toLocaleString()}`
   );
+  $('#vat-value').html(`${displaySymbol}${vat.toFixed(2).toLocaleString()}`);
   $('#special-charge-value').html(
     `${displaySymbol}${specialCharge.toFixed(2)}`
   );
+  $('.vat_row').toggle(vat > 0);
 
   // Explicitly update Service Charge with symbol (Fixes missing symbol on load/update)
   let serviceChargeValue = parseFloat($('.service_charge').attr('charge'));
@@ -777,7 +901,7 @@ function updateBooking() {
 
   // Determine the correct total amount to show in the large summary area
   let largeTotalDisplay = '';
-  if (currency === 'dollars') {
+  if (currency === 'CAD') {
     // Show CAD amount with $ symbol
     largeTotalDisplay =
       $('#holdThisInfo').attr('dollar_sign') +
@@ -801,12 +925,18 @@ function getSpecialCharge() {
   // Note: This reflects the customer-facing special charge displayed in the summary
   let specialCharges = {
     'Fish/Medicine': 10,
+    'Fish/Meat': 10,
+    Medication: 10,
   };
   let items = $('#items_input').val();
   if (items) {
     items = JSON.parse(items);
     let categories = items.map((item) => item.category);
-    if (categories.includes('Fish/Medicine')) {
+    if (
+      categories.includes('Fish/Medicine') ||
+      categories.includes('Fish/Meat') ||
+      categories.includes('Medication')
+    ) {
       specialCharge += 10; // Extra £10 displayed to user
     }
   }

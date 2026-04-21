@@ -16,8 +16,8 @@
                     <label class="form-control-label">Select Currency</label>
                     <select class="form-control selectpicker" name="currency" required>
                         <option value="">Select</option>
-                        <option value="cad">Canadian Dollars</option>
-                        <option value="pound">Pounds</option>
+                        <option value="CAD">Canadian Dollar (CAD)</option>
+                        <option value="GBP">British Pound (GBP)</option>
                     </select>
                 </div>
 

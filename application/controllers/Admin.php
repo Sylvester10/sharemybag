@@ -19,10 +19,11 @@ class Admin extends MY_Controller
 	{
 		parent::__construct();
 		$this->admin_restricted(); //allow only logged in users to access this class
-		// $this->backfill_traveller_commission();
-		// $this->activate_user_account();
 		$this->load->model('admin_model');
 		$this->load->model('travellers_model');
+		$this->load->model('finance_read_model');
+		$this->load->model('user_read_model');
+		$this->load->model('booking_read_model');
 		$this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
 	}
 
@@ -35,11 +36,11 @@ class Admin extends MY_Controller
 		$data['total_approved_travellers'] = $this->travellers_model->count_approved_travellers();
 		$data['total_pending_travellers'] = $this->travellers_model->count_pending_travellers();
 		$data['total_unapproved_travellers'] = $this->travellers_model->count_unapproved_travellers();
-		$data['total_amount'] = $this->common_model->get_all_total_amount();
-		$data['all_users'] = $this->common_model->count_users();
-		$data['approved_users'] = $this->common_model->count_approved_users();
-		$data['total_bookings'] = count($this->common_model->get_completed_bookings());
-		$data['total_users'] = $this->common_model->count_users();
+		$data['total_amount'] = $this->finance_read_model->get_all_total_amount();
+		$data['all_users'] = $this->user_read_model->count_users();
+		$data['approved_users'] = $this->user_read_model->count_approved_users();
+		$data['total_bookings'] = $this->booking_read_model->count_completed_bookings();
+		$data['total_users'] = $this->user_read_model->count_users();
 		$this->load->view('admin/dashboard/dashboard', $data);
 		$this->admin_footer();
 	}
@@ -128,5 +129,137 @@ class Admin extends MY_Controller
 		$this->admin_model->reset_profile_photo();
 		$this->session->set_flashdata('status_msg', 'Profile photo removed successfully.');
 		redirect($this->agent->referrer());
+	}
+
+
+	/* ====== All Admins ====== */
+	public function admins()
+	{
+		$this->admin_header('Admins', 'Manage Admin Accounts');
+		$data['admins'] = $this->admin_model->get_all_admins();
+		$this->load->view('admin/admins/all_admins', $data);
+		$this->admin_footer();
+	}
+
+
+	/* ====== Add Admin — show form ====== */
+	public function add()
+	{
+		$this->admin_header('Admins', 'Add New Admin');
+		$this->load->view('admin/admins/add_admin');
+		$this->admin_footer();
+	}
+
+
+	/* ====== Add Admin — process ====== */
+	public function add_ajax()
+	{
+		$this->form_validation->set_rules('name',  'Name',  'trim|required');
+		$this->form_validation->set_rules(
+			'email',
+			'Email',
+			'trim|required|valid_email|is_unique[admins.email]',
+			['is_unique' => 'An admin with this email already exists.']
+		);
+		$this->form_validation->set_rules('phone',    'Phone',    'trim|required');
+		$this->form_validation->set_rules('role',     'Role',     'trim|required|in_list[super_admin,customer_support,traveller_support]');
+		$this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]');
+		$this->form_validation->set_rules(
+			'c_password',
+			'Confirm Password',
+			'trim|required|matches[password]',
+			['matches' => 'Passwords do not match.']
+		);
+
+		if ($this->form_validation->run()) {
+			$this->admin_model->add_admin();
+			$this->session->set_flashdata('status_msg', 'Admin account created successfully.');
+			redirect(site_url('all_admins'));
+		} else {
+			$this->session->set_flashdata('status_msg_error', validation_errors());
+			redirect(site_url('add-admin'));
+		}
+	}
+
+
+	/* ====== Edit Admin — show form ====== */
+	public function edit($id)
+	{
+		$this->check_data_exists($id, 'id', 'admins', 'edit-admin');
+		$this->admin_header('Admins', 'Edit Admin');
+		$data['y'] = $this->admin_model->get_admin_by_id($id);
+		$this->load->view('admin/admins/edit_admin', $data);
+		$this->admin_footer();
+	}
+
+
+	/* ====== Edit Admin — process ====== */
+	public function edit_ajax($id)
+	{
+		$this->check_data_exists($id, 'id', 'admins', 'edit-admin');
+
+		// 1. Fetch the existing admin record from the database
+		// (Adjust the method name below to match your actual model method)
+		$current_admin = $this->admin_model->get_admin_by_id($id);
+
+		$this->form_validation->set_rules('name',  'Name',  'trim|required');
+
+		// 2. Conditionally set the email rule
+		$email_rule = 'trim|required|valid_email';
+		$submitted_email = $this->input->post('email');
+
+		if ($submitted_email !== $current_admin->email) {
+			// Only check for uniqueness if they are actually changing the email
+			$email_rule .= '|is_unique[admins.email]';
+		}
+
+		$this->form_validation->set_rules(
+			'email',
+			'Email',
+			$email_rule,
+			['is_unique' => 'Another admin account is already using this email address.']
+		);
+
+		$this->form_validation->set_rules('phone', 'Phone', 'trim|required');
+		$this->form_validation->set_rules('role',  'Role',  'trim|required|in_list[super_admin,customer_support,traveller_support]');
+
+		// Password only validated if the field is filled in
+		if ($this->input->post('password')) {
+			$this->form_validation->set_rules('password',   'Password',         'trim|min_length[6]');
+			$this->form_validation->set_rules(
+				'c_password',
+				'Confirm Password',
+				'trim|matches[password]',
+				['matches' => 'Passwords do not match.']
+			);
+		}
+
+		if ($this->form_validation->run()) {
+			$this->admin_model->update_admin($id);
+			$this->session->set_flashdata('status_msg', 'Admin account updated successfully.');
+			redirect(site_url('all_admins'));
+		} else {
+			$this->session->set_flashdata('status_msg_error', validation_errors());
+			redirect(site_url('edit-admin/' . $id));
+		}
+	}
+
+
+	/* ====== Delete Admin ====== */
+	public function delete($id)
+	{
+		$this->check_data_exists($id, 'id', 'admins', 'all_admins');
+
+		// Cannot delete yourself
+		$target = $this->admin_model->get_admin_by_id($id);
+		if ($target->email === $this->session->admin_email) {
+			$this->session->set_flashdata('status_msg_error', 'You cannot delete your own account.');
+			redirect(site_url('all_admins'));
+			return;
+		}
+
+		$this->admin_model->delete_admin($id);
+		$this->session->set_flashdata('status_msg', 'Admin account deleted.');
+		redirect(site_url('all_admins'));
 	}
 }

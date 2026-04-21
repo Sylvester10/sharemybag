@@ -53,7 +53,7 @@
                             <div class="card-body p-4">
                                 <h6 class="card-text text-white text-center fw-bolder ">
                                     <i class="ti ti-alert-circle"></i> Important!!
-                                </i>
+                                </h6>
                                 <p class="text-white text-center">' . $traveller_details->additional_info . ' </p>
                             </div>
                         </div>';
@@ -63,23 +63,23 @@
                     <form action="<?= base_url('user_bookings/add_booking_ajax') ?>" class="form-wizard-ajax mt-5" id="booking_form" key="<?= $traveller_details->id ?>" method="POST" enctype="multipart/form-data" target="_blank">
 
                         <div class="d-none">
-                            <input name="traveller_id" value="<?php echo set_value('traveller_id', $traveller_details->id); ?>" type=" text" class="form-control" />
-                            <input name="traveller_name" value="<?php echo set_value('traveller_name', $traveller_details->fullname); ?>" type=" text" class="form-control" />
-                            <input name="traveller_email" value="<?php echo set_value('traveller_email', $traveller_details->email); ?>" type=" text" class="form-control" />
-                            <input name="traveller_contact" value="<?php echo set_value('traveller_contact', $traveller_details->phone); ?>" type=" text" class="form-control" />
-                            <input name="traveller_departure_date" value="<?php echo set_value('traveller_departure_date', $traveller_details->travel_date); ?>" type=" text" class="form-control" />
-                            <input name="traveller_arrival_date" value="<?php echo set_value('traveller_arrival_date', $traveller_details->arrival_date); ?>" type=" text" class="form-control" />
-                            <input name="traveller_departure_state" value="<?php echo set_value('traveller_departure_state', $traveller_details->departure_state); ?>" type=" text" class="form-control" />
-                            <input name="traveller_drop_date1" value="<?php echo set_value('traveller_drop_date1', $traveller_details->drop_date1); ?>" type=" text" class="form-control" />
-                            <input name="traveller_drop_address1" value="<?php echo set_value('traveller_drop_address1', $traveller_details->drop_address1); ?>" type=" text" class="form-control" />
-                            <input name="traveller_drop_date2" value="<?php echo set_value('traveller_drop_date2', $traveller_details->drop_date2); ?>" type=" text" class="form-control" />
-                            <input name="traveller_drop_address2" value="<?php echo set_value('traveller_drop_address2', $traveller_details->drop_address2); ?>" type=" text" class="form-control" />
-                            <input name="traveller_current_state" value="<?php echo set_value('traveller_current_state', $traveller_details->current_state); ?>" type=" text" class="form-control" />
-                            <input name="traveller_arrival_airport" value="<?php echo set_value('traveller_arrival_airport', $traveller_details->arrival_airport); ?>" type=" text" class="form-control" />
-                            <input name="traveller_arrival_state" value="<?php echo set_value('traveller_arrival_state', $traveller_details->arrival_state); ?>" type=" text" class="form-control" />
-                            <input name="traveller_destination" value="<?php echo set_value('traveller_destination', $traveller_details->destination); ?>" type=" text" class="form-control" />
+                            <input name="traveller_id" value="<?php echo set_value('traveller_id', $traveller_details->id); ?>" type="text" class="form-control" />
+                            <input name="traveller_name" value="<?php echo set_value('traveller_name', $traveller_details->fullname); ?>" type="text" class="form-control" />
+                            <input name="traveller_email" value="<?php echo set_value('traveller_email', $traveller_details->email); ?>" type="text" class="form-control" />
+                            <input name="traveller_contact" value="<?php echo set_value('traveller_contact', $traveller_details->phone); ?>" type="text" class="form-control" />
+                            <input name="traveller_departure_date" value="<?php echo set_value('traveller_departure_date', $traveller_details->travel_date); ?>" type="text" class="form-control" />
+                            <input name="traveller_arrival_date" value="<?php echo set_value('traveller_arrival_date', $traveller_details->arrival_date); ?>" type="text" class="form-control" />
+                            <input name="traveller_departure_state" value="<?php echo set_value('traveller_departure_state', $traveller_details->departure_state); ?>" type="text" class="form-control" />
+                            <input name="traveller_drop_date1" value="<?php echo set_value('traveller_drop_date1', $traveller_details->drop_date1); ?>" type="text" class="form-control" />
+                            <input name="traveller_drop_address1" value="<?php echo set_value('traveller_drop_address1', $traveller_details->drop_address1); ?>" type="text" class="form-control" />
+                            <input name="traveller_drop_date2" value="<?php echo set_value('traveller_drop_date2', $traveller_details->drop_date2); ?>" type="text" class="form-control" />
+                            <input name="traveller_drop_address2" value="<?php echo set_value('traveller_drop_address2', $traveller_details->drop_address2); ?>" type="text" class="form-control" />
+                            <input name="traveller_current_state" value="<?php echo set_value('traveller_current_state', $traveller_details->current_state); ?>" type="text" class="form-control" />
+                            <input name="traveller_arrival_airport" value="<?php echo set_value('traveller_arrival_airport', $traveller_details->arrival_airport); ?>" type="text" class="form-control" />
+                            <input name="traveller_arrival_state" value="<?php echo set_value('traveller_arrival_state', $traveller_details->arrival_state); ?>" type="text" class="form-control" />
+                            <input name="traveller_destination" value="<?php echo set_value('traveller_destination', $traveller_details->destination); ?>" type="text" class="form-control" />
 
-                            <input type="hidden" name="rate" value="<?= $currency === 'pounds' ? $one_pound : $one_dollar ?>">
+                            <input type="hidden" name="rate" value="<?= $currency === 'GBP' ? $one_pound : $one_dollar ?>">
 
                             <input type="text" name="price_calculations" class="form-control" placeholder="Calculations" id="price_calculations">
 
@@ -123,8 +123,8 @@
                                     ($traveller_details->location === 'Canada' && $traveller_details->destination === 'Nigeria') ||
                                     ($traveller_details->location === 'Nigeria' && $traveller_details->destination === 'Canada');
 
-                                // Prices are set based on the user's currency type (pounds or dollars)
-                                if ($currency === 'pounds') {
+                                // Prices are set based on the user's currency type (GBP or CAD)
+                                if ($currency === 'GBP') {
 
                                     $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
                                     $shopper_price = 9.5; // Updated from 7.5 to 9.5 Only applies when destination is Nigeria
@@ -134,25 +134,18 @@
 
                                     if ($is_canada_nigeria_route) {
 
-                                        $normal_price  = 11.5;
+                                        // NEW:
+                                        $normal_price  = 18.50;
                                         $shopper_price = 0;
-                                        $special_price = 11.5;
-                                        $premium_price = 20;
+                                        $special_price = 18.50;
+                                        $premium_price = 38.75;
                                     } else {
 
-                                        if ($is_canada_nigeria_route) {
 
-                                            $normal_price  = 11.5;
-                                            $shopper_price = 0;
-                                            $special_price = 11.5;
-                                            $premium_price = 20;
-                                        } else {
-
-                                            $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
-                                            $shopper_price = 7.5; // Only applies when destination is Nigeria
-                                            $special_price = $is_to_nigeria ? 6.5 : 8.5;
-                                            $premium_price = 15;
-                                        }
+                                        $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
+                                        $shopper_price = 7.5; // Only applies when destination is Nigeria
+                                        $special_price = $is_to_nigeria ? 6.5 : 8.5;
+                                        $premium_price = 15;
                                     }
                                 }
 
@@ -164,9 +157,11 @@
                                             <option value="">Select</option>
                                             <option value="Normal" data-price="<?= round($normal_price, 2) ?>">Normal</option>
                                             <option value="Duty Free" data-price="<?= round($shopper_price, 2) ?>">Duty Free</option>
-                                            <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>">Medicine (special)</option>
+                                            <option value="Fish/Meat" data-price="<?= round($special_price, 2) ?>">Fish/Meat (special)</option>
+                                            <option value="Medication" data-price="<?= round($special_price, 2) ?>">Medication (special)</option>
                                             <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>">Documents/Electronics/Gold (premium)</option>
                                         </select>
+                                        <small id="category-advisory" class="text-muted d-block mt-2"></small>
                                     </div>
                                 <?php } else { ?>
                                     <div class="col-lg-4 mb-3">
@@ -174,9 +169,11 @@
                                         <select name="category" id="select1" class="required form-select border border-primary">
                                             <option value="">Select</option>
                                             <option value="Normal" data-price="<?= round($normal_price, 2) ?>">Normal</option>
-                                            <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>">Fish/Medicine/Snail/Oil (special)</option>
+                                            <option value="Fish/Meat" data-price="<?= round($special_price, 2) ?>">Fish/Meat (special)</option>
+                                            <option value="Medication" data-price="<?= round($special_price, 2) ?>">Medication (special)</option>
                                             <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>">Documents/Electronics/Gold (premium)</option>
                                         </select>
+                                        <small id="category-advisory" class="text-muted d-block mt-2"></small>
                                     </div>
                                 <?php } ?>
 
@@ -208,7 +205,7 @@
 
                         <h3> <i class="ti ti-user-circle fs-5"></i> Agent Details </h3>
                         <fieldset>
-                            <h4 class="card-title mb-4"> The Agent is whoever is <b class="!tw-text-[#f36b24]">currently in possession</b> of the parcel to be given to the traveller.</b></h4>
+                            <h4 class="card-title mb-4"> The Agent is whoever is <b class="!tw-text-[#f36b24]">currently in possession</b> of the parcel to be given to the traveller.</h4>
 
                             <div class="radio_buttons mb-3">
                                 <div class="form-check radio_check">
@@ -484,7 +481,7 @@
                     ?>
                     <div class="mb-3">
                         <p class="fw-bolder fs-3 total">
-                            Selected Space: <span class="text-black tw-float-right"><span id="total-kg"></span> KG</span></span>
+                            Selected Space: <span class="text-black tw-float-right"><span id="total-kg"></span> KG</span>
                         </p>
                         <p class="fw-bolder fs-3 total service_charge" charge="<?= round($service_charge, 2) ?>">
                             Service Charge: <span class="text-black tw-float-right"><span><?= $display_symbol . number_format($service_charge, 2) ?></span></span>
@@ -494,6 +491,9 @@
                         </p>
                         <p class="fw-bolder fs-3 total sub_total">
                             Sub Total: <span class="text-black tw-float-right"><span id="sub-total"></span></span>
+                        </p>
+                        <p class="fw-bolder fs-3 total vat_row" style="display:none;">
+                            VAT (Paystack Only): <span class="text-black tw-float-right"><span id="vat-value"></span></span>
                         </p>
                         <p class="fw-bolder fs-3 total special_charge">
                             Special Charge: <span class="text-black tw-float-right"><span id="special-charge-value"></span></span>

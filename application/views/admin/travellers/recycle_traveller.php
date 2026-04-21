@@ -1,12 +1,12 @@
 <div class="new-item">
-    <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_travellers'); ?>"><i class="fa-solid fa-person-walking-luggage"></i> Available Travellers</a>
-    <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_travellers/pending'); ?>">
-        <i class="fa-solid fa-clock-rotate-left"></i> Pending Travellers
+    <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_travellers'); ?>"><i class="las la-suitcase-rolling"></i> Available Travellers</a>
+    <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_travellers/pending_travellers'); ?>">
+        <i class="las la-history"></i> Pending Travellers
     </a>
 </div>
 
 <div class="tw-text-[25px] max-[460px]:tw-text-[20px] tw-text-center tw-d-flex tw-mt-4">
-    <?= $y->location ?> <i class="fa-solid fa-plane-departure"></i> <?= $y->destination ?>
+    <?= $y->location ?> <i class="las la-plane-departure"></i> <?= $y->destination ?>
 </div>
 
 <hr>
@@ -16,7 +16,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
 
 <!-- Itinerary details -->
 <div class="tw-text-[20px] max-[460px]:tw-text-[20px] tw-mt-3 tw-mb-4">
-    <i class="fa-solid fa-ticket"></i> Itinerary Details
+    <i class="las la-ticket-alt"></i> Itinerary Details
 </div>
 
 <div class="row">
@@ -40,7 +40,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
 
 <!-- Personal details -->
 <div class="tw-text-[20px] max-[460px]:tw-text-[20px] tw-mt-3 tw-mb-4">
-    <i class="fa-solid fa-user-circle"></i> Personal Details
+    <i class="las la-user-circle"></i> Personal Details
 </div>
 
 <div class="row">
@@ -143,7 +143,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
 
 <!-- Travel details -->
 <div class="tw-text-[20px] max-[460px]:tw-text-[20px] tw-mt-3 tw-mb-4 mt-5">
-    <i class="fa-solid fa-plane"></i> Travel Details
+    <i class="las la-plane"></i> Travel Details
 </div>
 
 <div class="row">
@@ -171,7 +171,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
             <div class="input-group date calendar_date_datepicker">
                 <input type="text" class="form-control" name="travel_date" value="<?php echo set_value('travel_date', $y->travel_date); ?>" readonly required />
                 <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
+                    <i class="las la-calendar"></i>
                 </div>
                 <div class="form-error">
                     <?php echo form_error('travel_date'); ?>
@@ -183,7 +183,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
             <label class="form-control-label">Arrival Date</label>
             <div class="input-group date calendar_date_datepicker">
                 <input type="text" class="form-control" name="arrival_date" value="<?php echo set_value('arrival_date', $y->arrival_date); ?>" readonly required />
-                <div class="input-group-addon"> <i class="fa fa-calendar"></i> </div>
+                <div class="input-group-addon"> <i class="las la-calendar"></i> </div>
                 <div class="form-error">
                     <?php echo form_error('arrival_date'); ?>
                 </div>
@@ -321,7 +321,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
             <div class="input-group date calendar_date_datepicker" data-date-format="yyyy-mm-dd">
                 <input type="text" class="form-control" name="drop_date1" value="<?php echo set_value('drop_date1', $y->drop_date1); ?>" readonly />
                 <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
+                    <i class="las la-calendar"></i>
                 </div>
                 <div class="form-error">
                     <?php echo form_error('drop_date1'); ?>
@@ -343,7 +343,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
             <div class="input-group date calendar_date_datepicker" data-date-format="yyyy-mm-dd">
                 <input type="text" class="form-control" name="drop_date2" value="<?php echo set_value('drop_date2', $y->drop_date2); ?>" readonly />
                 <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
+                    <i class="las la-calendar"></i>
                 </div>
                 <div class="form-error">
                     <?php echo form_error('drop_date2'); ?>
@@ -381,7 +381,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
         <div class="m-t-20">
             <button type="submit" id="send_mail_btn" class="btn btn-lg btn-primary">
                 <span id="btn_text">Update Traveller</span>
-                <span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
+                <span id="loading_icon" style="display: none;"><i class="las la-spinner la-spin"></i></span>
             </button>
         </div>
     </div>

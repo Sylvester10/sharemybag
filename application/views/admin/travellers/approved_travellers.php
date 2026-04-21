@@ -1,6 +1,6 @@
 <!-- <div class="new-item">
 	<a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_travellers/add_traveller'); ?>">
-		<i class="fa fa-user-plus"></i> Add Traveller
+		<i class="las la-user-plus"></i> Add Traveller
 	</a>
 </div> -->
 
@@ -12,56 +12,47 @@ $options_array = array(
 	'delete' => 'Delete'
 );
 echo modal_bulk_actions('admin_travellers/bulk_actions_traveller', $options_array); ?>
-
-<div class="row mb-4" style="margin-bottom: 30px;">
-	<div class="col-md-3">
-		<label for="destination_filter">Filter by Destination:</label>
-		<select id="destination_filter" class="form-control">
-			<option value="">All Countries</option>
-			<?php
-			$countries = countries();
-			foreach ($countries as $country) { ?>
-				<option value="<?php echo $country; ?>" <?php echo set_select('nationality', $country); ?>><?php echo $country; ?>
-				</option>
-			<?php } ?>
-		</select>
-	</div>
-</div>
-
-<div class="table-scroll">
-	<table id="approved_travellers_table" class="table table-bordered table-hover cell-text-middle"
-		style="text-align: left">
-
-		<input type="hidden" id="csrf_hash" value="<?php echo $this->security->get_csrf_hash(); ?>" />
-
-		<thead>
-			<tr>
-				<th class="w-15-p"> <input type="checkbox" class="radio-box select_all" /> </th>
-				<th> Actions </th>
-				<th class="min-w-150"> Travel Date </th>
-				<th class=""> Itinerary </th>
-				<th class="min-w-150"> Name </th>
-				<th class="min-w-150"> Phone </th>
-				<th class="min-w-150"> Alternative Phone </th>
-				<th class="min-w-150"> Email </th>
-				<th class="min-w-150"> Current Location </th>
-				<th class="min-w-150"> Arrival Airport </th>
-				<th class="min-w-150"> Final Destination </th>
-				<th class="min-w-300"> Address </th>
-				<th class="min-w-150"> Airline </th>
-				<th class="min-w-150"> Arrival Date </th>
-				<th class="min-w-100"> Total Bag Space </th>
-				<th class="min-w-100"> Used Bag Space </th>
-				<th class="min-w-100"> Available Bag Space </th>
-				<th class="min-w-150"> Referred By </th>
-				<!--<th class="min-w-100"> Payment Type </th>-->
-				<th class="min-w-100"> Status </th>
-				<th class="min-w-150"> Date Added</th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
-</div>
+<?php
+$country_options = array('' => 'All Countries');
+foreach (countries() as $country) {
+    $country_options[$country] = $country;
+}
+$filters = array(
+    array(
+        'id' => 'destination_filter',
+        'label' => 'Filter by Destination:',
+        'options' => $country_options,
+        'wrapper_class' => 'col-md-3',
+    ),
+);
+$columns = array(
+    array('label' => '<input type="checkbox" class="radio-box select_all" />', 'class' => 'w-15-p'),
+    array('label' => 'Actions'),
+    array('label' => 'Travel Date', 'class' => 'min-w-150'),
+    array('label' => 'Itinerary'),
+    array('label' => 'Name', 'class' => 'min-w-150'),
+    array('label' => 'Phone', 'class' => 'min-w-150'),
+    array('label' => 'Alternative Phone', 'class' => 'min-w-150'),
+    array('label' => 'Email', 'class' => 'min-w-150'),
+    array('label' => 'Current Location', 'class' => 'min-w-150'),
+    array('label' => 'Arrival Airport', 'class' => 'min-w-150'),
+    array('label' => 'Final Destination', 'class' => 'min-w-150'),
+    array('label' => 'Address', 'class' => 'min-w-300'),
+    array('label' => 'Airline', 'class' => 'min-w-150'),
+    array('label' => 'Arrival Date', 'class' => 'min-w-150'),
+    array('label' => 'Total Bag Space', 'class' => 'min-w-100'),
+    array('label' => 'Used Bag Space', 'class' => 'min-w-100'),
+    array('label' => 'Available Bag Space', 'class' => 'min-w-100'),
+    array('label' => 'Referred By', 'class' => 'min-w-150'),
+    array('label' => 'Status', 'class' => 'min-w-100'),
+    array('label' => 'Date Added', 'class' => 'min-w-150'),
+);
+$this->load->view('admin/partials/filter_row', array('filters' => $filters));
+$this->load->view('admin/partials/datatable_shell', array(
+    'table_id' => 'approved_travellers_table',
+    'columns' => $columns,
+    'csrf_hash' => $this->security->get_csrf_hash(),
+));
+?>
 
 <?php echo form_close(); ?>

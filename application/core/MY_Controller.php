@@ -8,6 +8,11 @@ Role: Core (super) Controller
 Description: MY_Controller Class is the super class that holds global info accessible to the regular controller and model classes. The headers and footers for Site, Admin and Customer are created here. Database, libraries and helpers used by the app are loaded here. This class extends the main CI controller, and at such, every other controller inherits it.
 Author: Sylvester Esso Nmakwe
 Date Created: 4th January, 2020
+
+UPDATED: Added employee role-based access control methods.
+  - admin_role_restricted($allowed_roles): Redirects if admin's role is not in the allowed list.
+  - get_admin_role(): Returns the current logged-in admin's role from the DB.
+Roles: 'super_admin', 'customer_support', 'traveller_support'
 */
 
 
@@ -15,20 +20,25 @@ require_once FCPATH . 'vendor/autoload.php';
 
 /**
  * @property CI_DB_query_builder $db
+ * @property CI_DB_utility $dbutil
  * @property CI_Form_validation $form_validation
- * @property CI_Upload $upload
+ * @property CI_Email $email
+ * @property CI_Session $session
  * @property CI_Pagination $pagination
  * @property CI_User_agent $agent
+ * @property CI_Upload $upload
  * @property CI_URI $uri
  * @property CI_Router $router
  * @property CI_Output $output
- * @property CI_Session $session
+ * @property CI_Security $security
  * @property Common_model $common_model
  * @property Phpmailer_library $phpmailer
- * @property Html_template $template*
+ * @property Html_template $template
  * @property object $admin_details
  * @property object $user_details
  * @property object $traveller_details
+ * @property object $traveller_read_model
+ * @property object $booking_presenter
  * @property object $current_model
  */
 
@@ -39,75 +49,45 @@ class MY_Controller extends CI_Controller
 	{
 		parent::__construct();
 		$this->load->database();
-		$this->load->dbutil(); //database utility
-		$this->load->library('form_validation');
-		$this->load->library('email');
-		$this->load->library('session');
-		$this->load->library('pagination');
-		$this->load->library('user_agent');
-		$this->load->library('upload');
+		$this->load->dbutil();
+		$this->load->library(['form_validation', 'email', 'session', 'pagination', 'user_agent', 'upload']);
 		$this->load->library("phpmailer_library", null, 'phpmailer');
 		$this->load->library("html_template", null, 'template');
-		$this->load->helper('form');
-		$this->load->helper('url');
-		$this->load->helper('captcha');
-		$this->load->helper('date');
-		$this->load->helper('inflector');
-		$this->load->helper('file');
-		$this->load->helper('download');
-		$this->load->helper('app'); //custom general app helper
-		$this->load->helper('email'); //custom email helper
-		$this->load->helper('sk'); //secret key helper
-		$this->load->model('common_model'); //general model for controllers
-		require_once "application/core/Constants.php"; //require constants
-		//require_once "Modules.php"; //require Modules
+		$this->load->helper(['form', 'url', 'captcha', 'date', 'inflector', 'file', 'download', 'app', 'email', 'my', 'sk']);
+		$this->load->model('common_model');
+		require_once "application/core/Constants.php";
 
 		//set CSRF
 		$this->set_csrf();
-
-		//profiler
-		//$this->check_profiler();
 	}
 
-
-
-	private function set_csrf()
+	protected function set_csrf()
 	{
-		//get array of controllers to be excluded
 		$excluded_controllers = $this->csrf_exclude_controllers();
-		//get current controller class and check if it's in the array of controllers to be excluded
 		$current_class = $this->router->fetch_class();
 		if (!in_array($current_class, $excluded_controllers)) {
-			$this->config->set_item('csrf_protection', TRUE); //allow CSRF
+			$this->config->set_item('csrf_protection', TRUE);
 		} else {
-			$this->config->set_item('csrf_protection', FALSE); //disable CSRF
+			$this->config->set_item('csrf_protection', FALSE);
 		}
 	}
 
 
-	private function check_profiler()
+	protected function check_profiler()
 	{
-		if (ENVIRONMENT != 'production') {
-			//allow profiling on development and testing servers only
-			$this->output->enable_profiler(TRUE);
-		} else {
-			$this->output->enable_profiler(FALSE);
-		}
+		$this->output->enable_profiler(ENVIRONMENT != 'production');
 	}
 
 
-	private function csrf_exclude_controllers()
+	protected function csrf_exclude_controllers()
 	{
-		//get array of controllers to be excluded
-		$excluded_controllers = array();
-		return $excluded_controllers;
+		return array();
 	}
 
 
 	/* ===== Refresh Last Login ===== */
-	private function refresh_last_login($user_id, $table)
+	protected function refresh_last_login($user_id, $table)
 	{
-		//refresh last login every time loggedin user loads or reloads a page
 		$this->common_model->update_last_login($user_id, $table);
 	}
 
@@ -126,8 +106,7 @@ class MY_Controller extends CI_Controller
 	}
 
 
-
-	/* =========== Admin Login =========== */
+	/* =========== Admin =========== */
 	public function admin_login_header($title)
 	{
 		$data['title'] = $title;
@@ -141,11 +120,8 @@ class MY_Controller extends CI_Controller
 	}
 
 
-
-	/* =========== Admin =========== */
 	public function admin_header($title, $inner_page_title)
 	{
-		//$this->load->model('admin_model');
 		$admin_details = $this->common_model->get_admin_details($this->session->email);
 		$requested_data = array(
 			'is_requested',
@@ -183,6 +159,42 @@ class MY_Controller extends CI_Controller
 	}
 
 
+	/**
+	 * EMPLOYEE ROLE RESTRICTION
+	 *
+	 * Call this AFTER admin_restricted() in any controller method that
+	 * should be limited to specific roles.
+	 *
+	 * Usage example in a controller:
+	 *   $this->admin_restricted();
+	 *   $this->admin_role_restricted(['super_admin']); // finances page
+	 *   $this->admin_role_restricted(['super_admin', 'customer_support']); // bookings
+	 *
+	 * @param array $allowed_roles  Roles that ARE allowed. Others get blocked.
+	 */
+	public function admin_role_restricted(array $allowed_roles)
+	{
+		$role = $this->get_admin_role();
+		if (!in_array($role, $allowed_roles)) {
+			$this->session->set_flashdata('status_msg_error', 'You do not have permission to access that page.');
+			redirect(site_url('admin'));
+		}
+	}
+
+
+	/**
+	 * Returns the current logged-in admin's role.
+	 * Falls back to 'super_admin' if the column doesn't exist yet (safe during migration).
+	 *
+	 * @return string
+	 */
+	public function get_admin_role()
+	{
+		$admin = $this->common_model->get_admin_details($this->session->admin_email ?? $this->session->email);
+		return $admin->role ?? 'super_admin';
+	}
+
+
 	public function return_to_dashboard()
 	{
 		//if admin is still logged in and tries to access login page, redirect to admin dashboard
@@ -194,7 +206,7 @@ class MY_Controller extends CI_Controller
 	}
 
 
-	/* =========== User Dashboard Functions =========== */
+	/* =========== User =========== */
 	public function user_restricted()
 	{
 		//check user's session
@@ -222,14 +234,12 @@ class MY_Controller extends CI_Controller
 	}
 
 
-	/* =========== Dashboard =========== */
 	public function dashboard_header($title)
 	{
-		$this->load->model('users_model');
-		$user_details = $this->common_model->get_user_details($this->session->email);
+		$this->load->model('user_read_model');
+		$user_details = $this->user_read_model->get_user_details($this->session->email);
 
 		$data['title'] = $title;
-		//$data['business_name'] = $this->business_name;
 		$data['user_details'] = $user_details;
 		return $this->load->view('users/layout/header', $data);
 	}
@@ -244,7 +254,7 @@ class MY_Controller extends CI_Controller
 	/* ===== Function to check that data exists ===== */
 	public function check_data_exists($data, $column, $table, $redirect_url)
 	{
-		$query = $this->db->get_where($table, array($column => $data))->row();
+		$query = $this->db->where(array($column => $data))->get($table)->row();
 		return ($query) ? TRUE : redirect(site_url($redirect_url));
 	}
 
@@ -286,11 +296,10 @@ class MY_Controller extends CI_Controller
 	}
 
 	// Function to handle file uploads
-	// $fileUploadConfig: Associative array with file input names as keys and their upload configurations as values
 	protected function handleFileUpload($fileUploadConfig = null)
 	{
 		if ($fileUploadConfig === null) {
-			return null; // No file uploads specified
+			return null;
 		}
 
 		$uploadedFiles = array();
@@ -300,7 +309,6 @@ class MY_Controller extends CI_Controller
 			$allowedTypes = $config['allowed_types'] ?? 'jpg|jpeg|png|svg|pdf';
 			$maxSize = $config['max_size'] ?? 1024 * 4;
 
-			// Configuration for the file upload
 			$config = array(
 				'upload_path'      => $uploadPath,
 				'allowed_types'    => $allowedTypes,
@@ -312,7 +320,6 @@ class MY_Controller extends CI_Controller
 
 			$this->load->library('upload', $config);
 
-			// Perform the file upload
 			if (!$this->upload->do_upload($fileInputName)) {
 				$uploadedFiles[$fileInputName] = $this->upload->display_errors();
 			} else {
@@ -323,6 +330,7 @@ class MY_Controller extends CI_Controller
 		return $uploadedFiles;
 	}
 
+
 	// Function for file upload
 	protected function upload_file($file_input, $upload_path, $allowed_types, $file_size = 1024 * 5)
 	{
@@ -332,101 +340,23 @@ class MY_Controller extends CI_Controller
 		$_FILES['file_int']['error'] = $_FILES[$file_input]['error'];
 		$_FILES['file_int']['size'] = $_FILES[$file_input]['size'];
 
-		// File upload configuration
-		$config['upload_path'] = $upload_path; // Path to save the files
-		$config['allowed_types'] = $allowed_types; // Allowed extensions
-		$config['max_size'] = $file_size; // Filesize cannot exceed 5MB
-		$config['file_ext_tolower'] = TRUE; // Force file extension to lower case
-		$config['remove_spaces'] = TRUE; // Replace space in file names with underscores to avoid break
-		$config['detect_mime'] = TRUE; // Detect type of file to avoid code injection
-		$config['encrypt_name'] = TRUE; // Encrypt file name
+		$config['upload_path'] = $upload_path;
+		$config['allowed_types'] = $allowed_types;
+		$config['max_size'] = $file_size;
+		$config['file_ext_tolower'] = TRUE;
+		$config['remove_spaces'] = TRUE;
+		$config['detect_mime'] = TRUE;
+		$config['encrypt_name'] = TRUE;
 
-		// Initialize upload library
 		$this->upload->initialize($config);
 		if (!$this->upload->do_upload('file_int')) {
 			return $this->upload->display_errors();
 		}
-		return ''; // No error
+		return '';
 	}
 
 
-	// Add this method to a controller like Admin_bookings.php or a temporary Migration controller
-	public function backfill_traveller_commission()
-	{
-		// 1. Fetch all completed bookings where commission is missing or 0
-		$this->db->where('payment_status', 'completed');
-		$this->db->group_start();
-		$this->db->where('traveller_commission IS NULL');
-		$this->db->or_where('traveller_commission', 0);
-		$this->db->group_end();
-		$query = $this->db->get('bookings');
-
-		$records_updated = 0;
-
-		if ($query->num_rows() > 0) {
-			foreach ($query->result() as $booking) {
-
-				// Fetch necessary details
-				$traveller = $this->common_model->get_traveller_details_by_id($booking->traveller_id);
-
-				// Skip if traveler details are somehow missing
-				if (!$traveller) {
-					// log_message('error', 'Backfill: Skipping booking ID ' . $booking->id . ' - Traveller not found.');
-					$this->session->set_flashdata('status_msg', 'Backfill: Skipping booking ID ' . $booking->id . ' - Traveller not found.');
-					continue;
-				}
-
-				$destination_country = $traveller->destination;
-				$selected_space = (float)$booking->selected_space;
-
-				// 2. Replicate the commission calculation logic from User_bookings.php
-				$base_commission_rate = ($destination_country == 'Nigeria') ? 4.50 : 5.00;
-				$calculated_commission = $base_commission_rate * $selected_space;
-
-				// Check for premium item surcharge (Documents/Electronics)
-				$items = json_decode($booking->items, true);
-				if (is_array($items)) {
-					foreach ($items as $item) {
-						if (isset($item['category']) && $item['category'] === 'Documents/Electronics') {
-							$calculated_commission += 10.00;
-							break; // Assuming only one premium surcharge is applied per booking
-						}
-					}
-				}
-				$calculated_commission = round($calculated_commission, 2);
-
-				// 3. Update the existing booking record
-				$update_data = ['traveller_commission' => $calculated_commission];
-				$this->db->where('id', $booking->id);
-				$this->db->update('bookings', $update_data);
-
-				$records_updated++;
-			}
-		}
-
-		// echo "Backfill complete. Total bookings updated: {$records_updated}.\n";
-		$this->session->set_flashdata('status_msg', "Backfill complete. Total bookings updated: {$records_updated}.\n");
-	}
-
-
-	public function activate_user_account()
-	{
-		// 1. Target only users where status is 0
-		$this->db->where('account_status', 0);
-		$this->db->update('users', ['account_status' => 1]);
-
-		$affected_rows = $this->db->affected_rows();
-
-		// 2. Only show the message if changes were actually made
-		if ($affected_rows > 0) {
-			$this->session->set_flashdata('status_msg', "Success: {$affected_rows} user accounts have been activated.");
-		}
-
-		return $affected_rows;
-	}
-
-
-	// 	schema
+	// Schema
 	protected function get_schema()
 	{
 		return [

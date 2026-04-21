@@ -35,7 +35,7 @@
 		?>
 
 		<!-- // Confirm is user is verified -->
-		<?php if ($is_verified == 0) { ?>
+		<?php if ($is_verified == VERIFY_NONE) { ?>
 
 			<?php
 			if ($user_details) { ?>
@@ -96,7 +96,7 @@
 
 			<?php } ?>
 
-		<?php } elseif ($is_verified == 1) { ?>
+		<?php } elseif ($is_verified == VERIFY_PENDING) { ?>
 
 			<div class="col-lg-12">
 				<div class="card !tw-bg-[#020713] overflow-hidden">

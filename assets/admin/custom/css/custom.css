@@ -77,3 +77,699 @@ ease-in-out .15s;
 .badge-danger {
     background-color: #dc3545 !important
 }
+
+body,
+body .nav-md,
+body .nav-sm,
+body .x_panel,
+body .x_content,
+body .form-control,
+body .btn,
+body .table,
+body .dropdown-menu,
+body .modal-body,
+body .modal-footer,
+body .panel,
+body .select2-container--default .select2-selection--single,
+body .select2-container--default .select2-selection--multiple {
+  font-family: "Figtree", sans-serif !important;
+}
+
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6,
+body .admin-section-title,
+body .admin-form-heading,
+body .admin-panel-card h2,
+body .admin-panel-card h3,
+body .admin-panel-card h4,
+body .modal-title,
+body .admin-parcel-modal__title,
+body .admin-shipping-modal__title,
+body .nav_title .site_title,
+body .page-title h3,
+body .x_title h2,
+body .profile_info h2,
+body .stat-label,
+body .stat-value {
+  font-family: "Be Vietnam Pro", sans-serif !important;
+}
+
+body [class^="la"],
+body [class*=" la"] {
+  vertical-align: middle;
+}
+
+.nav.side-menu > li > a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav.side-menu > li > a > span.las.la-angle-down {
+  margin-left: auto;
+  font-size: 16px;
+}
+
+.admin-stat-grid {
+  margin-bottom: 30px;
+}
+
+.admin-stat-grid::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.admin-section {
+  margin-bottom: 24px;
+}
+
+.admin-section-title {
+  margin-bottom: 16px;
+}
+
+.admin-filter-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.admin-filter-row {
+  margin-bottom: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.admin-table-shell {
+  margin-bottom: 16px;
+  clear: both;
+}
+
+.modal .modal-dialog {
+  margin: 30px auto;
+}
+
+.modal .modal-content {
+  border: 0;
+  border-radius: 10px !important;
+  overflow: hidden;
+  /* box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18); */
+}
+
+.modal .modal-header {
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid #eef2f7;
+  background: #2a3f54;
+  color: #fff;
+}
+
+.modal .modal-title {
+  /* color: #111827; */
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.modal .close {
+  opacity: 1;
+  color: #6b7280;
+  text-shadow: none;
+  font-size: 28px;
+}
+
+.modal .modal-body {
+  padding: 24px;
+  background: #fff;
+}
+
+.modal .modal-footer {
+  padding: 18px 24px 22px;
+  border-top: 1px solid #eef2f7;
+  background: #fbfcfe;
+}
+
+.modal .modal-footer .btn {
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 700;
+}
+
+.modal .form-control,
+.modal .select2-container--default .select2-selection--single,
+.modal .select2-container--default .select2-selection--multiple {
+  min-height: 42px;
+  border-radius: 12px;
+  border-color: #d5ddea;
+  box-shadow: none;
+}
+
+.modal textarea.form-control {
+  min-height: 96px;
+}
+
+.modal .form-control:focus,
+.modal .select2-container--default.select2-container--focus .select2-selection--multiple,
+.modal .select2-container--default.select2-container--open .select2-selection--single {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+}
+
+.admin-data-table {
+  text-align: left;
+}
+
+.admin-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.admin-profile-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.admin-detail-card {
+  margin-bottom: 20px;
+}
+
+.admin-detail-card .profile_view,
+.admin-detail-card .well {
+  height: 100%;
+}
+
+.admin-summary-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #f4f7fb;
+  border: 1px solid #dbe4f0;
+  font-weight: 600;
+  margin: 20px 0;
+}
+
+.admin-form-card {
+  max-width: 720px;
+}
+
+.admin-form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.admin-form-grid > [class*="col-"] {
+  float: none;
+}
+
+.admin-form-section {
+  margin-bottom: 24px;
+}
+
+.admin-form-heading {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.admin-form-note {
+  margin-bottom: 20px;
+  color: #5f6b7a;
+}
+
+.admin-panel-card {
+  border: 1px solid #dbe4f0;
+  border-radius: 10px;
+  background: #fff;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.admin-panel-card h2,
+.admin-panel-card h3,
+.admin-panel-card h4 {
+  margin-top: 0;
+}
+
+.admin-panel-table {
+  margin-bottom: 0;
+}
+
+.admin-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.admin-inline-table {
+  margin-top: 20px !important;
+}
+
+.admin-status-line {
+  margin-bottom: 16px;
+}
+
+.admin-parcel-modal .modal-dialog {
+  width: min(92vw, 640px);
+}
+
+.admin-parcel-modal .modal-content {
+  border: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+}
+
+.admin-parcel-modal__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px 18px;
+  border-bottom: 0;
+  color: #fff;
+}
+
+.admin-parcel-modal__header--add {
+  background: linear-gradient(135deg, #0f766e 0%, #159957 100%);
+}
+
+.admin-parcel-modal__header--remove {
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+}
+
+.admin-parcel-modal__eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.admin-parcel-modal__title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.admin-parcel-modal__title i {
+  margin-right: 8px;
+}
+
+.admin-parcel-modal__subtitle {
+  margin: 8px 0 0;
+  max-width: 460px;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.92;
+}
+
+.admin-parcel-modal__close {
+  color: #fff;
+  opacity: 1;
+  text-shadow: none;
+  font-size: 28px;
+}
+
+.admin-parcel-modal__body {
+  padding: 24px;
+  background: #f8fafc;
+}
+
+.admin-parcel-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-parcel-field--full {
+  grid-column: 1 / -1;
+}
+
+.admin-parcel-field--stacked {
+  margin-top: 16px;
+}
+
+.admin-parcel-field__label {
+  display: block;
+  margin-bottom: 8px;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.admin-parcel-field__input {
+  height: 42px;
+  border: 1px solid #d0d9e5;
+  border-radius: 12px;
+  box-shadow: none;
+  padding: 10px 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-parcel-field__input:focus {
+  border-color: #15803d;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.admin-parcel-field__textarea {
+  height: auto;
+  min-height: 96px;
+  resize: vertical;
+}
+
+.admin-parcel-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #eefbf3;
+  border: 1px solid #c9edd4;
+  color: #166534;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.admin-parcel-select-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.admin-parcel-select-header small {
+  font-weight: 600;
+  color: #64748b;
+}
+
+.admin-parcel-items {
+  display: grid;
+  gap: 12px;
+}
+
+.remove-item-option {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid #d7dee8;
+  border-radius: 14px;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.remove-item-option:hover {
+  border-color: #ef4444;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.08);
+  transform: translateY(-1px);
+}
+
+.remove-item-option input {
+  margin-top: 2px;
+}
+
+.remove-item-option.is-selected {
+  border-color: #dc2626;
+  background: #fff5f5;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.admin-parcel-alert {
+  margin: 16px 0 0;
+  border-radius: 12px;
+}
+
+.admin-parcel-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 18px 24px 24px;
+  border-top: 0;
+  background: #fff;
+}
+
+.admin-parcel-btn--muted {
+  border-radius: 999px;
+  padding: 10px 18px;
+}
+
+#confirmAddParcel,
+#confirmRemoveParcel {
+  min-width: 170px;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 700;
+}
+
+.admin-shipping-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-shipping-person {
+  line-height: 1.6;
+}
+
+.admin-shipping-modal .modal-dialog {
+  width: min(94vw, 920px);
+  margin: 24px auto;
+}
+
+.admin-shipping-modal .modal-content {
+  border: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 18px 56px rgba(15, 23, 42, 0.18);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 48px);
+}
+
+.admin-shipping-actions .btn,
+.action-btn,
+.modal-toggle-btn {
+  border-radius: 999px;
+}
+
+.modal-toggle-btn i,
+.action-btn i,
+.admin-page-actions i,
+.admin-section-title i,
+.admin-form-heading i,
+.site_title i,
+.nav.side-menu i,
+.nav.toggle i {
+  margin-right: 6px;
+}
+
+.modal-toggle-btn i:only-child,
+.nav.toggle i:only-child {
+  margin-right: 0;
+}
+
+.admin-shipping-modal__header {
+  /* padding: 24px 26px 18px;
+  color: #fff;
+  background: linear-gradient(135deg, #0f4c81 0%, #1479b8 100%); */
+}
+
+.admin-shipping-modal__header--status {
+  background: linear-gradient(135deg, #8a4b08 0%, #d97706 100%);
+}
+
+.admin-shipping-modal__eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.admin-shipping-modal__title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.admin-shipping-modal__subtitle {
+  margin: 8px 0 0;
+  max-width: 560px;
+  font-size: 14px;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+.admin-shipping-modal__close {
+  color: #fff;
+  opacity: 1;
+  text-shadow: none;
+  font-size: 30px;
+}
+
+.admin-shipping-modal__body {
+  padding: 24px 26px;
+  background: #f8fafc;
+  overflow-y: auto;
+}
+
+.admin-shipping-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 18px 26px 26px;
+  background: #fff;
+  flex-shrink: 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.admin-shipping-steps {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.admin-shipping-step {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 999px;
+  background: #e8eef6;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.admin-shipping-step.is-active {
+  background: #dbeafe;
+  color: #0f4c81;
+  box-shadow: inset 0 0 0 1px #93c5fd;
+}
+
+.admin-shipping-search-card {
+  margin-bottom: 18px;
+  padding: 20px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #dbe4f0;
+}
+
+.admin-shipping-search-btn {
+  height: 42px;
+  border-radius: 0 12px 12px 0;
+}
+
+.admin-shipping-search-results-wrap {
+  border: 1px solid #dbe4f0;
+  border-radius: 18px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.admin-shipping-search-results {
+  margin-bottom: 0;
+}
+
+.admin-shipping-context {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #ecfdf3;
+  border: 1px solid #c8ead6;
+}
+
+.admin-shipping-context__tracking {
+  color: #14532d;
+  font-weight: 700;
+}
+
+.admin-shipping-context__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+  color: #166534;
+}
+
+@media only screen and (max-width: 767px) {
+  .admin-page-actions {
+    flex-direction: column;
+  }
+
+  .admin-page-actions .btn {
+    width: 100%;
+  }
+
+  .admin-summary-chip {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .admin-panel-card {
+    padding: 18px;
+  }
+
+  .admin-form-actions .btn {
+    width: 100%;
+  }
+
+  .admin-parcel-modal__header,
+  .admin-parcel-modal__body,
+  .admin-parcel-modal__footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .admin-parcel-modal__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-parcel-modal__footer {
+    flex-direction: column-reverse;
+  }
+
+  .admin-parcel-modal__footer .btn {
+    width: 100%;
+  }
+
+  .admin-parcel-select-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-shipping-modal__header,
+  .admin-shipping-modal__body,
+  .admin-shipping-modal__footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .admin-shipping-steps,
+  .admin-shipping-context__meta {
+    flex-direction: column;
+  }
+
+  .admin-shipping-modal__footer {
+    flex-direction: column-reverse;
+  }
+
+  .admin-shipping-modal__footer .btn,
+  .admin-shipping-actions .btn {
+    width: 100%;
+  }
+}

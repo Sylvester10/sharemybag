@@ -14,7 +14,7 @@ class Admin_login_model extends CI_Model
 
     public function check_admin_email_exists($email)
     {
-        $email_exists = $this->db->get_where('admins', array('email' => $email))->row();
+        $email_exists = $this->db->where(array('email' => $email))->get('admins')->row();
         return ($email_exists) ? TRUE : FALSE;
     }
 
@@ -37,9 +37,16 @@ class Admin_login_model extends CI_Model
     }
 
 
+    public function update_password_hash_by_email($email, $password_hash)
+    {
+        $this->db->where('email', $email);
+        return $this->db->update('admins', ['password' => $password_hash]);
+    }
+
+
     public function change_password($id)
     {
-        $password = hash('ripemd128', $this->input->post('password', TRUE));
+        $password = password_hash($this->input->post('password', TRUE), PASSWORD_DEFAULT);
         $data = array(
             'password' => $password,
             'pass_reset_code' => NULL  //destroy the code

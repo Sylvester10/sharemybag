@@ -7,7 +7,7 @@ class Recover_password extends MY_Controller
     {
         parent::__construct();
         $this->load->model('user_login_model');
-        $this->load->model('common_model');
+        $this->load->model('user_read_model');
     }
 
 
@@ -31,7 +31,7 @@ class Recover_password extends MY_Controller
 
             if ($email_exists) {
 
-                $y = $this->common_model->get_user_details($email);
+                $y = $this->user_read_model->get_user_details($email);
                 $user_id = $y->id;
                 $data['firstname'] = $y->firstname;
                 $pass_reset_code = $y->pass_reset_code;
@@ -62,7 +62,7 @@ class Recover_password extends MY_Controller
 
     public function change_password($id, $pass_reset_code)
     {
-        $data['y'] = $this->common_model->get_user_details_by_id($id);
+        $data['y'] = $this->user_read_model->get_user_details_by_id($id);
         $data['valid_code'] = $this->user_login_model->validate_pass_reset_code($id, $pass_reset_code);
         $this->load->view('user_login/change_password', $data);
     }
@@ -86,7 +86,7 @@ class Recover_password extends MY_Controller
 
         if ($this->form_validation->run()) {
 
-            $y = $this->common_model->get_user_details($email);
+            $y = $this->user_read_model->get_user_details($email);
             $id = $y->id;
             if ($email_exists && $y->pass_reset_code === $pass_reset_code) {
 

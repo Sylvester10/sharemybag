@@ -70,19 +70,22 @@ $route['terms-of-use'] = 'home/terms_of_use';
 $route['terms-and-conditions'] = 'home/terms_conditions';
 $route['privacy-policy'] = 'home/policy';
 $route['cookies'] = 'home/cookies';
-$route['test'] = 'home/test';
 $route['success'] = 'home/success';
+$route['price-estimate'] = 'home/price_estimate';
 $route['coming-soon'] = 'home/coming_soon';
 //$route['success/(:any)'] = 'home/success/$1';
 
 
 // User routes
 $route['signin'] = 'user_login';
+$route['login-phone'] = 'user_login/loginPhone';
 $route['logout'] = 'user_login/logout';
 $route['verify-email'] = 'registration/verify_email';
 $route['forgot-password'] = 'recover_password';
 $route['change-password/(:any)'] = 'recover_password/change_password/$1';
 $route['buy-bag-space/(:any)'] = 'user_bookings/buy_bag_space/$1';
+$route['invoice/(:num)'] = 'invoice/booking/$1';
+$route['invoice/download/(:num)'] = 'invoice/download/$1';
 
 $route['checkout'] = 'user_bookings/checkout';
 $route['create-payment-intent'] = 'user_bookings/create_payment_intent';
@@ -90,7 +93,19 @@ $route['booking-success'] = 'user_bookings/booking_success';
 
 
 // Admin routes
+$route['all_admins']                  = 'admin/admins';
+$route['add-admin']              = 'admin/add';
+$route['add_admin_ajax']         = 'admin/add_ajax';
+$route['edit-admin/(:num)']      = 'admin/edit/$1';
+$route['edit_admin_ajax/(:num)'] = 'admin/edit_ajax/$1';
+$route['delete-admin/(:num)']    = 'admin/delete/$1';
+
 $route['admin_adverts'] = 'admin_adverts/index';
 $route['restricted_access'] = 'admin/restricted_access';
 $route['admin_adverts/(:num)'] = 'admin_adverts/index/$1';
 $route['admin_logout'] = 'admin_login/logout';
+$route['admin/invoice/(:num)'] = 'invoice/admin_booking/$1';
+$route['admin/invoice/download/(:num)'] = 'invoice/admin_download/$1';
+
+// Secure file access (SEC-004) — serves PII files through authenticated proxy
+$route['file/(:any)/(:any)'] = 'secure_file/serve/$1/$2';

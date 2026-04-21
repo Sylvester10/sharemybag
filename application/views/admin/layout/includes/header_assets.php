@@ -9,9 +9,8 @@
 	<!--DataTables-->
 	<link href="<?php echo base_url(); ?>assets/admin/vendors/DataTables/datatables.min.css" rel="stylesheet">
 
-	<!-- Font Awesome -->
-	<link href="<?php echo base_url(); ?>assets/admin/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-	<link href="<?php echo base_url(); ?>assets/general/fontawesome-6.4.0/css/all.css" rel="stylesheet">
+	<!-- Icon System -->
+	<link href="<?php echo base_url(); ?>assets/website/css/line-awesome.min.css" rel="stylesheet">
 	<link href="<?php echo base_url(); ?>assets/admin/custom/css/custom.css" rel="stylesheet">
 
 
@@ -34,7 +33,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2.27.3/dist/ui/trumbowyg.min.css">
 
 	<!--Google Fonts -->
-	<link href="https://fonts.googleapis.com/css?family=Nunito:400,700|Roboto:400,700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 	<!-- Tailwind -->
 	<link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/general/css/tw-output.css">

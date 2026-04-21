@@ -9,8 +9,8 @@ class Kyc extends MY_Controller
         parent::__construct();
         $this->user_restricted(); //allow only logged in users to access this class
         $this->load->model('users_model');
-        $this->load->model('common_model');
-        $this->user_details = $this->common_model->get_user_details($this->session->email);
+        $this->load->model('user_read_model');
+        $this->user_details = $this->user_read_model->get_user_details($this->session->email);
     }
 
 
@@ -61,15 +61,6 @@ class Kyc extends MY_Controller
                     $id_photo = $upload_data['file_name'];
                 }
             }
-
-            // Upload selfie
-            // if (!empty($_FILES['selfie']['name'])) {
-            //     $upload_error .= $this->upload_file('selfie', './assets/selfie', 'jpg|jpeg|png');
-            //     if ($upload_error === '') {
-            //         $upload_data = $this->upload->data();
-            //         $selfie = $upload_data['file_name'];
-            //     }
-            // }
 
             if (!empty($_FILES['selfie']['name'])) {
                 $allowed_types = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -134,10 +125,5 @@ class Kyc extends MY_Controller
             $res = ['status' => false, 'msg' => validation_errors()];
             echo json_encode($res); // Show validation errors
         }
-    }
-
-    public function check() {
-        print_p($_POST);
-        print_p($_FILES);
     }
 }

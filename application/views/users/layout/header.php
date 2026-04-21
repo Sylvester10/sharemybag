@@ -386,7 +386,7 @@
 														</p>
 
 														<?php
-														if ($user_details->is_verified == 2) { ?>
+														if ($user_details->is_verified == VERIFY_APPROVED) { ?>
 															<span class="badge bg-success-subtle text-success">Verified</span>
 														<?php } else { ?>
 															<span class="badge bg-danger-subtle text-danger">Unverified</span>

@@ -7,6 +7,7 @@ class User_login_model extends CI_Model
     public function __construct()
     {
         parent::__construct();
+        $this->load->model('user_read_model');
     }
 
 
@@ -14,7 +15,7 @@ class User_login_model extends CI_Model
 
     public function check_user_email_exists($email)
     {
-        $email_exists = $this->db->get_where('users', array('email' => $email))->row();
+        $email_exists = $this->db->where(array('email' => $email))->where('deleted_at IS NULL', null, false)->get('users')->row();
         return ($email_exists) ? TRUE : FALSE;
     }
 
@@ -32,7 +33,7 @@ class User_login_model extends CI_Model
     public function validate_pass_reset_code($id, $pass_reset_code)
     {
         //validate password reset code
-        $code = $this->common_model->get_user_details_by_id($id)->pass_reset_code;
+        $code = $this->user_read_model->get_user_details_by_id($id)->pass_reset_code;
         return ($code == $pass_reset_code) ? TRUE : FALSE;
     }
 

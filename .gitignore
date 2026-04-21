@@ -1,7 +1,10 @@
-# Ignore system and editor files
-.git
+# OS / editor
+.DS_Store
+**/.DS_Store
 .vscode/
-.htaccess
+
+# Environment secrets
+.env
 
 # Archives
 *.zip
@@ -9,5 +12,22 @@
 # Dependencies
 node_modules/
 
-#folder and files
-application/helpers/sk_helper.php
+# Runtime cache
+application/cache/*
+!application/cache/index.html
+!application/cache/.htaccess
+
+# Runtime uploads
+assets/selfie/*
+!assets/selfie/.htaccess
+
+assets/id_cards/*
+!assets/id_cards/.htaccess
+
+assets/itinerary/*
+!assets/itinerary/.htaccess
+
+# Optional local docs/helpers
+_ide_helper.php
+generate_ide_helper.php
+PROJECT_REFERENCE.md

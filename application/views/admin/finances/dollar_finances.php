@@ -1,100 +1,59 @@
-<div class="new-item" style="margin-bottom: 20px;">
-    <h4 class="text-bold"><b>Overview</b></h4>
-    <div class="row">
-
-
-        <?php
-
-        // Use the total commission and tax retrieved from the model
-        $traveller_payout = $total_cad_commission;
-        $gross_profit = $total_cad_amount - $traveller_payout - $total_cad_tax;
-
-        ?>
-
-        <div class="animated flipInY col-lg-4 col-md-6 col-sm-6 col-xs-12">
-            <div class="tile-stats custom-bg-blue">
-                <div class="icon"><i class="fa fa-chart-line"></i></div>
-                <div class="count">$<?php echo number_format($total_cad_amount, 2); ?></div>
-                <h3 class="stats-title">Total Revenue</h3>
-            </div>
-        </div>
-        <div class="animated flipInY col-lg-4 col-md-6 col-sm-6 col-xs-12">
-            <div class="tile-stats custom-bg-blue">
-                <div class="icon"><i class="fa-regular fa-money-bill-1"></i></div>
-                <div class="count">$<?php echo number_format($gross_profit, 2); ?></div>
-                <h3 class="stats-title">Gross Profit</h3>
-            </div>
-        </div>
-        <div class="animated flipInY col-lg-4 col-md-6 col-sm-6 col-xs-12">
-            <div class="tile-stats custom-bg-blue">
-                <div class="icon"><i class="fas fa-money-check"></i></div>
-                <div class="count">$<?php echo number_format($traveller_payout, 2); ?></div>
-                <h3 class="stats-title">Total Traveller Payout</h3>
-            </div>
-        </div>
-    </div>
+<?php
+$traveller_payout = $total_cad_commission;
+$gross_profit = $total_cad_amount - $traveller_payout - $total_cad_tax;
+$tiles = array(
+    array('icon' => 'las la-chart-line', 'value' => '$' . number_format($total_cad_amount, 2), 'label' => 'Total Revenue', 'col' => 4),
+    array('icon' => 'las la-money-bill', 'value' => '$' . number_format($gross_profit, 2), 'label' => 'Gross Profit', 'col' => 4),
+    array('icon' => 'las la-money-check', 'value' => '$' . number_format($traveller_payout, 2), 'label' => 'Total Traveller Payout', 'col' => 4),
+);
+?>
+<div class="admin-section">
+    <h4 class="text-bold admin-section-title"><b>Overview</b></h4>
+    <?php $this->load->view('admin/partials/stat_tiles', array('tiles' => $tiles)); ?>
 </div>
 
-
-<label for="month_filter_cad">Filter:</label>
-<div class="row mb-4" style="margin-bottom: 30px;">
-    <div class="col-lg-4 col-sm-12">
-        <select id="month_filter_cad" class="form-control">
-            <option value="">Month</option>
-            <?php
-            for ($i = 1; $i <= 12; $i++) {
-                echo '<option value="' . sprintf('%02d', $i) . '">' . date('F', mktime(0, 0, 0, $i, 10)) . '</option>';
-            }
-            ?>
-        </select>
-    </div>
-    <div class="col-lg-4 col-sm-12">
-        <select id="year_filter_cad" class="form-control">
-            <option value="">Year</option>
-            <?php
-            $currentYear = date('Y');
-            for ($y = $currentYear; $y >= $currentYear - 10; $y--) {
-                echo '<option value="' . $y . '">' . $y . '</option>';
-            }
-            ?>
-        </select>
-    </div>
-    <div class="col-lg-4 col-sm-12">
-        <select id="route_filter_cad" class="form-control">
-            <option value="">Route</option>
-            <option value="Canada-Nigeria">Canada - Nigeria</option>
-            <option value="Nigeria-Canada">Nigeria - Canada</option>
-        </select>
-    </div>
-</div>
-
-<div class="table-scroll">
-    <table id="finances_cad_table" class="table table-bordered table-hover cell-text-middle" style="text-align: left">
-
-        <input type="hidden" id="csrf_hash" value="<?php echo $this->security->get_csrf_hash(); ?>" />
-
-        <thead>
-            <tr>
-                <th> </th>
-                <th class="min-w-200"> Travel Date </th>
-                <th class="min-w-200"> Traveller </th>
-                <th class=""> Total Amount</th>
-                <th class="min-w-150"> Select Items Amount</th>
-                <th class=""> Service Charge </th>
-                <th class=""> Special Fee </th>
-                <th class=""> Special Item? </th>
-                <th class=""> Premium Item? </th>
-                <th class=""> Total KG </th>
-                <th class=""> Insurance </th>
-                <th class=""> Profit</th>
-                <th class=""> Traveller Commission</th>
-                <th class=""> Payment Method </th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-
-    </table>
-</div>
+<?php
+$month_options = array('' => 'Month');
+for ($i = 1; $i <= 12; $i++) {
+    $month_options[sprintf('%02d', $i)] = date('F', mktime(0, 0, 0, $i, 10));
+}
+$year_options = array('' => 'Year');
+$currentYear = date('Y');
+for ($y = $currentYear; $y >= $currentYear - 10; $y--) {
+    $year_options[$y] = $y;
+}
+$route_options = array(
+    '' => 'Route',
+    'Canada-Nigeria' => 'Canada - Nigeria',
+    'Nigeria-Canada' => 'Nigeria - Canada',
+);
+$filters = array(
+    array('id' => 'month_filter_cad', 'options' => $month_options),
+    array('id' => 'year_filter_cad', 'options' => $year_options),
+    array('id' => 'route_filter_cad', 'options' => $route_options),
+);
+$columns = array(
+    array('label' => ''),
+    array('label' => 'Travel Date', 'class' => 'min-w-200'),
+    array('label' => 'Traveller', 'class' => 'min-w-200'),
+    array('label' => 'Total Amount'),
+    array('label' => 'Select Items Amount', 'class' => 'min-w-150'),
+    array('label' => 'Service Charge'),
+    array('label' => 'Special Fee'),
+    array('label' => 'Special Item?'),
+    array('label' => 'Premium Item?'),
+    array('label' => 'Total KG'),
+    array('label' => 'Insurance'),
+    array('label' => 'Profit'),
+    array('label' => 'Traveller Commission'),
+    array('label' => 'Payment Method'),
+);
+$this->load->view('admin/partials/filter_row', array('label' => 'Filter', 'filters' => $filters));
+$this->load->view('admin/partials/datatable_shell', array(
+    'table_id' => 'finances_cad_table',
+    'columns' => $columns,
+    'csrf_hash' => $this->security->get_csrf_hash(),
+));
+?>
 
 <?php echo form_close(); ?>

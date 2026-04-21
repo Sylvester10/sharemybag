@@ -3,9 +3,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 
 /* ===== Documentation ===== 
-Name: Home
+Name: Seo
 Role: Controller
-Description: Controls access to SEO
+Description: Serves sitemap, robots, and schema endpoints
 Author: Sylvester Esso Nmakwe
 Date Created: 25th July, 2025
 */

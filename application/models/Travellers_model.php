@@ -2,13 +2,15 @@
 defined('BASEPATH') or exit('Direct access to script not allowed');
 
 
-class Travellers_model extends MY_Model
+class Travellers_model extends \MY_Model
 {
 	public function __construct()
 	{
 		parent::__construct();
 		$this->table = 'travellers';
 		$this->primary_cols = array('id');
+		$this->load->model('traveller_read_model');
+		$this->load->model('shipping_read_model');
 	}
 
 
@@ -52,7 +54,7 @@ class Travellers_model extends MY_Model
 			// If $unwanted_items is not an array, set it to an empty string
 			$unwanted_items = '';
 		}
-		$status = 'Pending';
+		$status = traveller_status_normalize('Pending');
 
 		$data = array(
 			'fullname' => $fullname,
@@ -87,6 +89,8 @@ class Travellers_model extends MY_Model
 		send_email_notification($this, 'admin@sharemybag.co.uk', 'New Traveller Alert', $data, 'admin_new_traveller_notification_email');
 
 		$this->db->insert('travellers', $data);
+		$this->traveller_read_model->clearTravellerCountCaches();
+		$this->shipping_read_model->clearShippingCountCaches();
 
 		return;
 	}
@@ -117,7 +121,7 @@ class Travellers_model extends MY_Model
 		$data['area'] = ucfirst($this->input->post('area', TRUE));
 		$unwanted_items = $this->input->post('unwanted_items', TRUE);
 		$data['unwanted_items'] = is_array($unwanted_items) ? implode(", ", $unwanted_items) : '';
-		$data['status'] = 'Approved';
+		$data['status'] = traveller_status_normalize('Approved');
 		$hash = getRandomName(134);
 		$data['hash'] = $hash;
 
@@ -127,6 +131,7 @@ class Travellers_model extends MY_Model
 		if ($updated) {
 			// ONLY send email to traveller if the database update was successful
 			$email = $this->input->post('email', TRUE);
+			$this->traveller_read_model->clearTravellerCountCaches();
 			send_email_notification($this, $email, 'Update Received', $data, 'traveller_approval_notification_email');
 			return true;
 		}
@@ -134,14 +139,6 @@ class Travellers_model extends MY_Model
 		return false;
 	}
 
-	// public function update_traveller_bag_space($id)
-	// {
-	// 	$data['original_bag_space'] = $this->input->post('original_bag_space', TRUE);
-
-	// 	$this->db->where('id', $id);
-	// 	$this->db->update('travellers', $data);
-	// 	return true;
-	// }
 
 	public function add_traveller_bag_space($id, $space_to_add)
 	{
@@ -156,7 +153,11 @@ class Travellers_model extends MY_Model
 		$this->db->set('available_space', 'available_space + ' . (float)$space_to_add, FALSE);
 
 		$this->db->where('id', $id);
-		return $this->db->update('travellers');
+		$updated = $this->db->update('travellers');
+		if ($updated) {
+			$this->traveller_read_model->clearTravellerCountCaches();
+		}
+		return $updated;
 	}
 
 	public function remove_traveller_bag_space($id, $space_to_add)
@@ -172,7 +173,11 @@ class Travellers_model extends MY_Model
 		$this->db->set('available_space', 'available_space - ' . (float)$space_to_add, FALSE);
 
 		$this->db->where('id', $id);
-		return $this->db->update('travellers');
+		$updated = $this->db->update('travellers');
+		if ($updated) {
+			$this->traveller_read_model->clearTravellerCountCaches();
+		}
+		return $updated;
 	}
 
 
@@ -204,32 +209,63 @@ class Travellers_model extends MY_Model
 		$data['itinerary_photo'] = $itinerary_photo;
 		$data['itinerary_photo'] = $itinerary_photo;
 		$data['itinerary_photo_thumb'] = $thumbnail;
-		$data['status'] = 'Approved';
+		$data['status'] = traveller_status_normalize('Approved');
 		$data['hash'] = getRandomName(134);
 
 		$email = $this->input->post('email', TRUE);
 		send_email_notification($this, $email, 'Approved', $data, 'traveller_approval_notification_email');
 
-		return $this->db->insert('travellers', $data);
+		$inserted = $this->db->insert('travellers', $data);
+		if ($inserted) {
+			$this->traveller_read_model->clearTravellerCountCaches();
+		}
+		return $inserted;
 	}
 
 
-	function update_traveller_space($id)
+	function update_traveller_space($id, $return_snapshot = false)
 	{
-		$traveller = $this->common_model->get_traveller_details_by_id($id);
+		$this->db->trans_start();
+
+		// Lock the traveller row to prevent concurrent read-modify-write (DB-005)
+		$traveller = $this->db->query(
+			"SELECT * FROM travellers WHERE id = ? FOR UPDATE",
+			array($id)
+		)->row();
+
 		if (!$traveller) {
+			$this->db->trans_complete();
 			return false;
 		}
+
+		// Atomic sum of confirmed bookings
 		$this->db->select_sum('selected_space');
-		$query = $this->db->get_where('bookings', array('traveller_id' => $id, 'payment_status' => 'completed'));
-		if ($query->num_rows()) {
-			$selected_space = $query->row()->selected_space;
-			$data['used_space'] = $selected_space;
-			$data['available_space'] = $traveller->original_bag_space - $data['used_space'];
-			$this->db->where('id', $traveller->id);
-			return $this->db->update('travellers', $data);
+		$this->db->where('traveller_id', $id);
+		$this->db->where('payment_status', 'completed');
+		$this->applyNotDeleted('bookings');
+		$booked = $this->db->get('bookings')->row();
+		$used = ($booked && $booked->selected_space) ? $booked->selected_space : 0;
+
+		$available = max(0, $traveller->original_bag_space - $used);
+
+		$this->db->where('id', $id);
+		$this->db->update('travellers', array(
+			'used_space'      => $used,
+			'available_space' => $available,
+		));
+
+		$this->db->trans_complete();
+		if (!$this->db->trans_status()) {
+			return false;
 		}
-		return false;
+
+		if ($return_snapshot) {
+			$traveller->used_space = $used;
+			$traveller->available_space = $available;
+			return $traveller;
+		}
+
+		return true;
 	}
 
 
@@ -238,6 +274,7 @@ class Travellers_model extends MY_Model
 		$this->db->limit($limit, $offset); //limit to be used as per_page, offset to be used as pagination segment
 		$this->db->order_by("travel_date", "asc"); //order by date_unix ASC so that the dates appear chronologically
 		$query = $this->db->where('status', 'Approved');
+		$this->applyNotDeleted();
 		$query = $this->db->get('travellers');
 		if ($query->num_rows() > 0) {
 			foreach ($query->result() as $row) {
@@ -253,6 +290,7 @@ class Travellers_model extends MY_Model
 	{
 		$this->db->limit($limit, $offset); //limit to be used as per_page, offset to be used as pagination segment
 		$this->db->order_by("travel_date", "DESC"); //order by date_unix ASC so that the dates appear chronologically
+		$this->applyNotDeleted();
 		$query = $this->db->get_where('travellers');
 		if ($query->num_rows() > 0) {
 			foreach ($query->result() as $row) {
@@ -266,27 +304,25 @@ class Travellers_model extends MY_Model
 
 	public function count_approved_travellers()
 	{ //count all approved travellers
-		$query = $this->db->where('status', 'Approved');
-		return $this->db->get_where('travellers')->num_rows();
+		return $this->traveller_read_model->getTravellerStatusCountSummary()->approved_travellers;
 	}
 
 
 	public function count_pending_travellers()
 	{ //count all pending traveller
-		$query = $this->db->where('status', 'Pending');
-		return $this->db->get_where('travellers')->num_rows();
+		return $this->traveller_read_model->getTravellerStatusCountSummary()->pending_travellers;
 	}
 
 
 	public function count_unapproved_travellers()
 	{ //count all unapproved traveller
-		$query = $this->db->where('status', 'Unapproved');
-		return $this->db->get_where('travellers')->num_rows();
+		return $this->traveller_read_model->getTravellerStatusCountSummary()->unapproved_travellers;
 	}
 
 
 	public function count_travellers()
 	{ //count all traveller
+		$this->applyNotDeleted();
 		return $this->db->get_where('travellers')->num_rows();
 	}
 
@@ -298,13 +334,17 @@ class Travellers_model extends MY_Model
 			'bag_locked' => 1       // lock it
 		];
 		$this->db->where('id', $id);
-		return $this->db->update('travellers', $data);
+		$updated = $this->db->update('travellers', $data);
+		if ($updated) {
+			$this->traveller_read_model->clearTravellerCountCaches();
+		}
+		return $updated;
 	}
 
 
 	public function unlock_traveller_bag($id)
 	{
-		$traveller = $this->common_model->get_traveller_details_by_id($id);
+		$traveller = $this->traveller_read_model->get_traveller_details_by_id($id);
 		if (!$traveller) return false;
 
 		$data = [
@@ -313,14 +353,18 @@ class Travellers_model extends MY_Model
 		];
 
 		$this->db->where('id', $id);
-		return $this->db->update('travellers', $data);
+		$updated = $this->db->update('travellers', $data);
+		if ($updated) {
+			$this->traveller_read_model->clearTravellerCountCaches();
+		}
+		return $updated;
 	}
 
 
 	public function approve_traveller($id)
 	{
 		$data = array(
-			'status' => 'Approved',
+			'status' => traveller_status_normalize('Approved'),
 		);
 		$this->db->where('id', $id);
 		return $this->db->update('travellers', $data);
@@ -330,7 +374,7 @@ class Travellers_model extends MY_Model
 	public function unapprove_traveller($id)
 	{
 		$data = array(
-			'status' => 'Unapproved',
+			'status' => traveller_status_normalize('Unapproved'),
 		);
 		$this->db->where('id', $id);
 		return $this->db->update('travellers', $data);
@@ -339,16 +383,46 @@ class Travellers_model extends MY_Model
 
 	public function delete_traveller($id)
 	{
-		$y = $this->common_model->get_traveller_details_by_id($id);
+		$y = $this->traveller_read_model->get_traveller_details_by_id($id);
+		if (!$y) {
+			return false;
+		}
 
-		// Delete the traveller from the bookings table
-		$this->db->delete('travellers', array('id' => $id));
+		// Collect booking tracking IDs BEFORE soft deleting bookings (DB-013 fix)
+		$booking_rows = $this->db
+			->select('tracking_id')
+			->where('traveller_id', $id)
+			->where('deleted_at IS NULL', null, false)
+			->get('bookings')
+			->result_array();
+		$tracking_ids = array_column($booking_rows, 'tracking_id');
 
-		// Delete the all bookings that shares the same traveller id from the bookings table
-		$this->db->delete('bookings', array('traveller_id' => $id));
+		$this->db->trans_start();
 
-		// Delete the all shipping that shares the same traveller id from the bookings table
-		$this->db->delete('shipping', array('tracking_id' => $id));
+		// Soft delete the traveller
+		$this->softDelete($id);
+
+		// Soft delete all bookings for this traveller
+		$this->db->where('traveller_id', $id);
+		$this->db->where('deleted_at IS NULL', null, false);
+		$this->db->set('deleted_at', 'NOW()', false);
+		$this->db->update('bookings');
+
+		// Delete shipping records by their actual tracking IDs
+		if (!empty($tracking_ids)) {
+			$this->db->where_in('tracking_id', $tracking_ids);
+			$this->db->delete('shipping');
+		}
+
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			log_message('error', 'Transaction failed in ' . __METHOD__);
+			return false;
+		}
+
+		$this->traveller_read_model->clearTravellerCountCaches();
+
 		return;
 	}
 
@@ -373,12 +447,20 @@ class Travellers_model extends MY_Model
 			}
 
 			// Set the flash message using count of the selected rows
-			$action_message = match ($bulk_action_type) {
-				'approve' => 'Traveller(s) approved successfully.',
-				'unapprove' => 'Traveller(s) unapproved successfully.',
-				'delete' => 'Traveller(s) deleted successfully.',
-				default => 'action completed successfully.'
-			};
+			switch ($bulk_action_type) {
+				case 'approve':
+					$action_message = 'Traveller(s) approved successfully.';
+					break;
+				case 'unapprove':
+					$action_message = 'Traveller(s) unapproved successfully.';
+					break;
+				case 'delete':
+					$action_message = 'Traveller(s) deleted successfully.';
+					break;
+				default:
+					$action_message = 'action completed successfully.';
+					break;
+			}
 
 			$this->session->set_flashdata('status_msg', count($selected_rows) . " " . $action_message);
 		} else {

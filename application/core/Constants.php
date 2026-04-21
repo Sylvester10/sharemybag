@@ -80,3 +80,10 @@ define('id_card', base_url('assets/general/id-card.png'));
 define('stripe', base_url('assets/general/stripe.svg'));
 define('paystack', base_url('assets/general/paystack.svg'));
 define('user_avatar', base_url('assets/users/images/profile/user-1.jpg'));
+
+
+// ── User Verification States (users.is_verified) ──
+// DB-010: Named constants replace magic numbers 0, 1, 2
+define('VERIFY_NONE',     0);  // Unverified — no documents submitted
+define('VERIFY_PENDING',  1);  // Documents submitted, awaiting admin review
+define('VERIFY_APPROVED', 2);  // Admin-approved — full access granted

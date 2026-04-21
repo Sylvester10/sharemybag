@@ -41,14 +41,14 @@
                         </div>
 
                         <?php echo form_close(); ?>
-                        <!-- <div class="text-center text-bold mb-4">
+                        <div class="text-center text-bold mb-4">
                             <h3 class="text-white ">Or</h3>
                         </div>
                         <div class="col-12">
                             <button type="button" class="main-btn primary mb-0" id="openPriceChecker">
                                 <i class="ti ti-calculator me-1"></i> Get Estimate
                             </button>
-                        </div> -->
+                        </div>
                     </div>
                 </div>
             </div>

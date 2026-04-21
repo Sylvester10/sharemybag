@@ -1,16 +1,20 @@
-<div class="new-item">
+<div class="new-item admin-page-actions">
 	<a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_travellers'); ?>"><i
-			class="fa fa-users"></i> Available Travellers</a>
+			class="las la-users"></i> Available Travellers</a>
 </div>
 
 <?php
 echo form_open_multipart('admin_travellers/add_traveller_ajax', 'id="submit_button"'); ?>
 
-All fields marked * are required.
+<div class="admin-form-card">
+	<p class="admin-form-note">All fields marked * are required.</p>
 
-<div class="row">
+<div class="row admin-form-grid">
 
 	<div class="col-md-6 col-sm-12 col-xs-12">
+
+		<div class="admin-form-section">
+			<h3 class="admin-form-heading">Personal Details</h3>
 
 		<div class="form-group">
 			<label class="form-control-label">Name* <small>(Surname first)</small></label>
@@ -49,6 +53,10 @@ All fields marked * are required.
 				required />
 			<div class="form-error"><?php echo form_error('address'); ?></div>
 		</div>
+		</div>
+
+		<div class="admin-form-section">
+			<h3 class="admin-form-heading">Travel Details</h3>
 
 		<div class="form-group">
 			<label class="form-control-label">Bag Space*</label>
@@ -73,7 +81,7 @@ All fields marked * are required.
 				<input type="text" class="form-control" name="travel_date"
 					value="<?php echo set_value('travel_date'); ?>" readonly required />
 				<div class="input-group-addon">
-					<i class="fa fa-calendar"></i>
+					<i class="las la-calendar"></i>
 				</div>
 				<div class="form-error"><?php echo form_error('travel_date'); ?></div>
 			</div>
@@ -85,7 +93,7 @@ All fields marked * are required.
 				<input type="text" class="form-control" name="arrival_date"
 					value="<?php echo set_value('arrival_date'); ?>" readonly required />
 				<div class="input-group-addon">
-					<i class="fa fa-calendar"></i>
+					<i class="las la-calendar"></i>
 				</div>
 				<div class="form-error"><?php echo form_error('arrival_date'); ?></div>
 			</div>
@@ -134,6 +142,7 @@ All fields marked * are required.
 			</select>
 			<div class="form-error"><?php echo form_error('destination'); ?></div>
 		</div>
+		</div>
 
 		<!--<div class="form-group">
 			<label class="form-control-label">Address on Arrival*</label>
@@ -146,6 +155,9 @@ All fields marked * are required.
 
 
 	<div class="col-md-6 col-sm-12 col-xs-12">
+
+		<div class="admin-form-section">
+			<h3 class="admin-form-heading">Drop-Off Details</h3>
 
 		<div class="form-group" id="state" style="display: none;">
 			<label class="form-control-label">State of Residence*</label>
@@ -176,7 +188,7 @@ All fields marked * are required.
 				<input type="text" class="form-control" name="drop_date1" value="<?php echo set_value('drop_date1'); ?>"
 					readonly />
 				<div class="input-group-addon">
-					<i class="fa fa-calendar"></i>
+					<i class="las la-calendar"></i>
 				</div>
 				<div class="form-error"><?php echo form_error('drop_date1'); ?></div>
 			</div>
@@ -210,11 +222,15 @@ All fields marked * are required.
 				<input type="text" class="form-control" name="drop_date2" value="<?php echo set_value('drop_date2'); ?>"
 					readonly />
 				<div class="input-group-addon">
-					<i class="fa fa-calendar"></i>
+					<i class="las la-calendar"></i>
 				</div>
 				<div class="form-error"><?php echo form_error('drop_date2'); ?></div>
 			</div>
 		</div>
+		</div>
+
+		<div class="admin-form-section">
+			<h3 class="admin-form-heading">Preferences</h3>
 
 		<div class="form-group">
 			<label class="form-control-label">Unwanted Items*</label>
@@ -231,16 +247,18 @@ All fields marked * are required.
 			</div>
 		</div>
 
-		<div class="m-t-20">
+		<div class="admin-form-actions">
 			<button type="submit" id="send_mail_btn" class="btn btn-lg btn-primary">
 				<span id="btn_text">Submit</span>
-				<span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
+				<span id="loading_icon" style="display: none;"><i class="las la-spinner la-spin"></i></span>
 			</button>
+		</div>
 		</div>
 
 	</div><!--/.col-->
 
 </div><!--/.row-->
+</div>
 
 
 <?php echo form_close(); ?>

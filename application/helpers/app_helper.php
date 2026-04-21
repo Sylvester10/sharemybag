@@ -254,6 +254,16 @@ function airlines()
 	return $airlines;
 }
 
+function datatable_search_value()
+{
+	if (!isset($_POST['search']) || !is_array($_POST['search'])) {
+		return '';
+	}
+
+	$value = $_POST['search']['value'] ?? '';
+	return is_string($value) ? trim($value) : '';
+}
+
 
 function kilogram()
 {
@@ -1332,10 +1342,12 @@ function x_time_12hour($date)
 	return date("h:i A", strtotime($date));
 }
 
+
 function x_time_period($date)
 { //eg 05:20 PM
 	return date("A", strtotime($date));
 }
+
 
 function x_time_12hours($date)
 { //eg 05:20
@@ -1633,6 +1645,20 @@ function generate_tracking_id($length = 6)
 }
 
 
+if (!function_exists('generate_unique_tracking_id')) {
+	function generate_unique_tracking_id($table = 'bookings', $column = 'tracking_id', $length = 6)
+	{
+		$code = generate_tracking_id($length);
+
+		while (isValue($table, $column, $code)) {
+			$code = generate_tracking_id($length);
+		}
+
+		return $code;
+	}
+}
+
+
 function generate_verification_code()
 {
 	$characters = '0123456789';
@@ -1666,7 +1692,7 @@ function hash_password($password)
 }
 
 
-if (! function_exists('isValue')) {
+if (!function_exists('isValue')) {
 	function isValue($table, $column, $value)
 	{
 		// Get CodeIgniter instance
@@ -1900,4 +1926,418 @@ if (! function_exists('addSeperator')) {
 function production_url($path = '')
 {
 	return trim('https://sharemybag.co.uk/' . $path);
+}
+
+
+/**
+ * DB-014: Convert a semantic shipping icon identifier to HTML markup.
+ * The database stores 'delivered', 'in_transit', or 'pending' — NOT raw HTML.
+ * This function generates the icon markup at render time.
+ *
+ * @param  string $status  Semantic identifier from shipping.icon_text
+ * @return string          HTML icon markup
+ */
+function shipping_icon($status)
+{
+	$map = array(
+		'delivered'  => '<i class="ti ti-circle-check text-success fs-5"></i>',
+		'in_transit' => '<i class="ti ti-truck text-secondary fs-5"></i>',
+		'pending'    => '<i class="ti ti-file-check text-primary fs-5"></i>',
+	);
+	// Fallback: if old HTML is still stored, render as-is (backward compat)
+	return isset($map[$status]) ? $map[$status] : $status;
+}
+
+
+/**
+ * Normalize a payment status value for safe comparison.
+ * NULL or empty → 'pending', 'canceled' stays 'canceled', others pass through.
+ *
+ * @param  string|null $status  Raw payment_status from DB
+ * @return string               Normalized status string
+ */
+function payment_status_normalize($status)
+{
+	$status = strtolower(trim((string) $status));
+
+	if ($status === '') {
+		return 'pending';
+	}
+
+	if (in_array($status, array('completed', 'complete', 'success', 'paid'), true)) {
+		return 'completed';
+	}
+
+	if (in_array($status, array('canceled', 'cancelled', 'failed', 'declined'), true)) {
+		return 'canceled';
+	}
+
+	return 'pending';
+}
+
+
+/**
+ * Normalize a payment method value for safe comparison.
+ * NULL or empty → 'unknown', others pass through.
+ *
+ * @param  string|null $method  Raw payment_method from DB
+ * @return string               Normalized method string
+ */
+function payment_method_normalize($method)
+{
+	if ($method === NULL || $method === '') {
+		return 'unknown';
+	}
+
+	$method = strtolower(trim((string) $method));
+
+	$map = array(
+		'paystack' => 'paystack',
+		'stripe' => 'stripe',
+		'offline' => 'offline',
+		'bank' => 'offline',
+		'unknown' => 'unknown',
+	);
+
+	return isset($map[$method]) ? $map[$method] : 'unknown';
+}
+
+
+function booking_vat_rate()
+{
+	return 0.075;
+}
+
+
+function booking_payment_requires_vat($payment_method)
+{
+	return payment_method_normalize($payment_method) === 'paystack';
+}
+
+
+function booking_platform_commission_amount($base_total, $traveller_commission, $service_charge = 0, $insurance = 0)
+{
+	$base_total = (float) $base_total;
+	$traveller_commission = (float) $traveller_commission;
+	$service_charge = (float) $service_charge;
+	$insurance = (float) $insurance;
+
+	return round(max(0, $base_total - $traveller_commission - $service_charge - $insurance), 2);
+}
+
+
+function booking_vat_amount($payment_method, $platform_commission, $service_charge = 0)
+{
+	if (!booking_payment_requires_vat($payment_method)) {
+		return 0.00;
+	}
+
+	$vat_base = max(0, (float) $platform_commission + (float) $service_charge);
+
+	return round($vat_base * booking_vat_rate(), 2);
+}
+
+
+function booking_price_breakdown($base_total, $traveller_commission, $service_charge = 0, $insurance = 0, $payment_method = 'unknown')
+{
+	$base_total = round((float) $base_total, 2);
+	$traveller_commission = round((float) $traveller_commission, 2);
+	$service_charge = round((float) $service_charge, 2);
+	$insurance = round((float) $insurance, 2);
+	$platform_commission = booking_platform_commission_amount($base_total, $traveller_commission, $service_charge, $insurance);
+	$vat = booking_vat_amount($payment_method, $platform_commission, $service_charge);
+
+	return array(
+		'base_total' => $base_total,
+		'traveller_commission' => $traveller_commission,
+		'platform_commission' => $platform_commission,
+		'service_charge' => $service_charge,
+		'insurance' => $insurance,
+		'vat' => $vat,
+		'total_amount' => round($base_total + $vat, 2),
+		'vat_applies' => booking_payment_requires_vat($payment_method),
+	);
+}
+
+
+function booking_status_normalize($status)
+{
+	$status = strtolower(trim((string) $status));
+
+	$map = array(
+		'' => 'Pending',
+		'pending' => 'Pending',
+		'booking pending' => 'Pending',
+		'approved' => 'Approved',
+		'booking approved' => 'Approved',
+		'declined' => 'Declined',
+		'booking declined' => 'Declined',
+		'available' => 'Available',
+		'unavailable' => 'Unavailable',
+	);
+
+	return isset($map[$status]) ? $map[$status] : 'Pending';
+}
+
+
+function traveller_status_normalize($status)
+{
+	$status = strtolower(trim((string) $status));
+
+	$map = array(
+		'' => 'Pending',
+		'pending' => 'Pending',
+		'approved' => 'Approved',
+		'unapproved' => 'Unapproved',
+	);
+
+	return isset($map[$status]) ? $map[$status] : 'Pending';
+}
+
+
+function delivery_status_normalize($status)
+{
+	$status = strtolower(trim((string) $status));
+
+	$map = array(
+		'' => 'In Transit',
+		'pending' => 'In Transit',
+		'booking pending' => 'In Transit',
+		'shipment created' => 'In Transit',
+		'in transit' => 'In Transit',
+		'completed' => 'Completed',
+		'delivered' => 'Completed',
+		'failed delivery' => 'In Transit',
+		'cancelled' => 'In Transit',
+		'canceled' => 'In Transit',
+	);
+
+	return isset($map[$status]) ? $map[$status] : 'In Transit';
+}
+
+
+function shipping_status_normalize($status)
+{
+	$status = strtolower(trim((string) $status));
+
+	$map = array(
+		'' => 'In Transit',
+		'pending' => 'In Transit',
+		'booking pending' => 'In Transit',
+		'shipment created' => 'In Transit',
+		'in transit' => 'In Transit',
+		'completed' => 'Completed',
+		'delivered' => 'Completed',
+		'failed delivery' => 'In Transit',
+		'cancelled' => 'In Transit',
+		'canceled' => 'In Transit',
+	);
+
+	return isset($map[$status]) ? $map[$status] : 'In Transit';
+}
+
+
+function shipping_status_badge($status)
+{
+	$status = shipping_status_normalize($status);
+
+	switch ($status) {
+		case 'Completed':
+			$class = 'badge-success';
+			break;
+		case 'In Transit':
+		default:
+			$class = 'badge-primary';
+			break;
+	}
+
+	return smb_badge($status, $class);
+}
+
+
+function shipping_courier_options()
+{
+	return array(
+		'DHL',
+		'FedEx',
+		'UPS',
+		'Royal Mail',
+		'Evri',
+		'DPD',
+		'USPS',
+		'Canada Post',
+		'GIG Logistics',
+		'EMS',
+		'Other',
+	);
+}
+
+
+function smb_badge($text, $class)
+{
+	return '<span class="badge ' . $class . '"><b>' . html_escape($text) . '</b></span>';
+}
+
+
+function user_verification_badge($status)
+{
+	switch ((int) $status) {
+		case VERIFY_APPROVED:
+			return smb_badge('Verified', 'badge-success');
+		case VERIFY_PENDING:
+			return smb_badge('Pending', 'badge-warning');
+		case VERIFY_NONE:
+		default:
+			return smb_badge('Unverified', 'badge-danger');
+	}
+}
+
+
+function account_status_badge($status)
+{
+	return ((int) $status === 0)
+		? smb_badge('Blocked', 'badge-danger')
+		: smb_badge('Active', 'badge-success');
+}
+
+
+function traveller_status_badge($status)
+{
+	$status = traveller_status_normalize($status);
+	$class = ($status === 'Approved') ? 'badge-success' : (($status === 'Unapproved') ? 'badge-danger' : 'badge-warning');
+	return smb_badge($status, $class);
+}
+
+
+function delivery_status_badge($status)
+{
+	$status = delivery_status_normalize($status);
+	$class = ($status === 'Completed') ? 'badge-success' : 'badge-primary';
+	return smb_badge($status, $class);
+}
+
+
+function currency_code_normalize($currency)
+{
+	$currency = strtoupper(trim((string) $currency));
+
+	$map = array(
+		'' => 'GBP',
+		'POUND' => 'GBP',
+		'POUNDS' => 'GBP',
+		'GBP' => 'GBP',
+		'DOLLARS' => 'CAD',
+		'DOLLAR' => 'CAD',
+		'CAD' => 'CAD',
+		'NAIRA' => 'NGN',
+		'NGN' => 'NGN',
+	);
+
+	return isset($map[$currency]) ? $map[$currency] : $currency;
+}
+
+
+function currency_db_values($currency)
+{
+	switch (currency_code_normalize($currency)) {
+		case 'CAD':
+			return array('CAD', 'DOLLAR', 'DOLLARS');
+		case 'NGN':
+			return array('NGN', 'NAIRA');
+		case 'GBP':
+		default:
+			return array('GBP', 'POUND', 'POUNDS', '');
+	}
+}
+
+
+function currency_symbol($currency)
+{
+	switch (currency_code_normalize($currency)) {
+		case 'CAD':
+			return '$';
+		case 'NGN':
+			return '&#8358;';
+		case 'GBP':
+		default:
+			return '&pound;';
+	}
+}
+
+
+function currency_symbol_text($currency)
+{
+	switch (currency_code_normalize($currency)) {
+		case 'CAD':
+			return '$';
+		case 'NGN':
+			return '₦';
+		case 'GBP':
+		default:
+			return '£';
+	}
+}
+
+
+function currency_label($currency)
+{
+	switch (currency_code_normalize($currency)) {
+		case 'CAD':
+			return 'Canadian Dollar';
+		case 'NGN':
+			return 'Nigerian Naira';
+		case 'GBP':
+		default:
+			return 'British Pound';
+	}
+}
+
+
+/**
+ * Apply a soft-delete filter to the current query builder instance.
+ *
+ * @param object      $db     CodeIgniter query builder / DB instance
+ * @param string|null $table  Optional table name or alias for qualified column
+ * @return object
+ */
+function ci_where_not_deleted($db, $table = NULL)
+{
+	static $soft_delete_support = array();
+
+	$cache_key = $table ?: '__default__';
+	if (!array_key_exists($cache_key, $soft_delete_support)) {
+		$lookup_table = $table;
+
+		if ($lookup_table !== NULL && strpos($lookup_table, '.') !== FALSE) {
+			$parts = explode('.', $lookup_table);
+			$lookup_table = end($parts);
+		}
+
+		if ($lookup_table !== NULL && stripos($lookup_table, ' as ') !== FALSE) {
+			$parts = preg_split('/\s+as\s+/i', $lookup_table);
+			$lookup_table = $parts[0];
+		}
+
+		if ($lookup_table !== NULL && preg_match('/\s+/', $lookup_table)) {
+			$parts = preg_split('/\s+/', trim($lookup_table));
+			$lookup_table = $parts[0];
+		}
+
+		try {
+			$fields = $lookup_table ? $db->list_fields($lookup_table) : array();
+			$soft_delete_support[$cache_key] = in_array('deleted_at', $fields, true);
+		} catch (Throwable $e) {
+			$soft_delete_support[$cache_key] = false;
+		} catch (Exception $e) {
+			$soft_delete_support[$cache_key] = false;
+		}
+	}
+
+	if (!$soft_delete_support[$cache_key]) {
+		return $db;
+	}
+
+	$column = $table ? $table . '.deleted_at' : 'deleted_at';
+	$db->where($column . ' IS NULL', NULL, FALSE);
+	return $db;
 }

@@ -1,35 +1,12 @@
-<div class="row m-b-50">
-
-	<div class="animated flipInY col-lg-3 col-md-6 col-sm-6 col-xs-12">
-		<div class="tile-stats custom-bg-blue">
-			<div class="icon"><i class="fa fa-users"></i></div>
-			<div class="count"><?php echo $total_users; ?></div>
-			<h3 class="stats-title">Total Users</h3>
-		</div>
-	</div>
-	<div class="animated flipInY col-lg-3 col-md-6 col-sm-6 col-xs-12">
-		<div class="tile-stats custom-bg-blue">
-			<div class="icon"><i class="fa-solid fa-person-walking-luggage"></i></div>
-			<div class="count"><?php echo $total_approved_travellers; ?></div>
-			<h3 class="stats-title">Approved Travellers</h3>
-		</div>
-	</div>
-	<div class="animated flipInY col-lg-3 col-md-6 col-sm-6 col-xs-12">
-		<div class="tile-stats custom-bg-blue">
-			<div class="icon"><i class="fa fa-clock-rotate-left"></i></div>
-			<div class="count"><?php echo $total_pending_travellers; ?></div>
-			<h3 class="stats-title">Pending Travellers</h3>
-		</div>
-	</div>
-	<div class="animated flipInY col-lg-3 col-md-6 col-sm-6 col-xs-12">
-		<div class="tile-stats custom-bg-blue">
-			<div class="icon"><i class="fa-solid fa-briefcase"></i></div>
-			<div class="count"><?php echo $total_bookings; ?></div>
-			<h3 class="stats-title">Total Bookings</h3>
-		</div>
-	</div>
-
-</div>
+<?php
+$tiles = array(
+    array('icon' => 'las la-users', 'value' => $total_users, 'label' => 'Total Users'),
+    array('icon' => 'las la-suitcase-rolling', 'value' => $total_approved_travellers, 'label' => 'Approved Travellers'),
+    array('icon' => 'las la-history', 'value' => $total_pending_travellers, 'label' => 'Pending Travellers'),
+    array('icon' => 'las la-briefcase', 'value' => $total_bookings, 'label' => 'Total Bookings'),
+);
+$this->load->view('admin/partials/stat_tiles', array('tiles' => $tiles));
+?>
 
 
 <div class="panel with-nav-tabs panel-default">
@@ -68,7 +45,7 @@
 						<div class="form-group">
 							<button type="submit" id="send_mail_btn" class="btn btn-lg btn-primary">
 								<span id="btn_text">Send Mail</span>
-								<span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
+								<span id="loading_icon" style="display: none;"><i class="las la-spinner la-spin"></i></span>
 							</button>
 						</div>
 
@@ -109,7 +86,7 @@
 						<div class="form-group">
 							<button type="submit" id="send_mail_btns" class="btn btn-lg btn-primary">
 								<span id="btn_texts">Send Mail</span>
-								<span id="loading_icons" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
+								<span id="loading_icons" style="display: none;"><i class="las la-spinner la-spin"></i></span>
 							</button>
 						</div>
 

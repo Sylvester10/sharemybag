@@ -145,20 +145,8 @@
 <script src="<?php echo base_url(); ?>assets/website/vendor/daterangepicker/moment.min.js"></script>
 <script src="<?php echo base_url(); ?>assets/website/vendor/daterangepicker/daterangepicker.js"></script>
 
-<!--<script>-->
-<!--    fetch("<?= base_url('seo/schema') ?>")-->
-<!--        .then(response => response.text())-->
-<!--        .then(json => {-->
-<!--            const script = document.createElement("script");-->
-<!--            script.type = "application/ld+json";-->
-<!--            script.text = json;-->
-            <!--document.head.appendChild(script); // or document.body if you prefer-->
-<!--        });-->
-<!--</script>-->
-
 <!-- general scripts -->
 <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
-<script src="<?php echo base_url(); ?>assets/website/js/traveller.js"></script>
 <script src="<?php echo base_url(); ?>assets/website/js/home.js"></script>
 <script src="<?php echo base_url(); ?>assets/website/js/track.js"></script>
 <script src="<?php echo base_url(); ?>assets/website/js/custom.js"></script>

@@ -1,118 +1,18 @@
-<!DOCTYPE html>
-<html>
+<?php $email_title = 'Email Verification';
+include 'email_header.php'; ?>
 
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-        }
+<p class="greeting">Hi <?= $firstname ?>,</p>
+<p>Welcome to <?= business ?>! To get started, please verify your email address using the code below. This confirms you own this account.</p>
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
+<div class="code-wrap">
+    <div class="code-label">Your verification code</div>
+    <div class="code-box"><?= $verification_code ?></div>
+</div>
 
-        .header-logo {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            border-radius: 5px;
-            box-sizing: border-box;
-            text-align: center;
-            background-color: #f5f5f5;
-        }
+<p>If you didn't create an account, you can safely ignore this email.</p>
+<p>If you have any questions or need further assistance, don't hesitate to reach out — we're here to help.</p>
 
-        .heading {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
+<hr class="divider">
+<p class="sign-off">Best regards,<br><strong>The <?= business ?> Team</strong></p>
 
-        .order-details {
-            margin-bottom: 20px;
-        }
-
-        .order-details b {
-            font-weight: bold;
-        }
-
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            text-align: center;
-            color: #777;
-        }
-
-        .logo {
-            display: inline-block;
-            width: 100px;
-            height: auto;
-            margin-bottom: 10px;
-        }
-
-        .item-table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        .item-table th,
-        .item-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .item-table th {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="header-logo">
-        <!--Logo-->
-        <div id="icon" style="position: center;">
-            <img src="<?php echo production_url('assets/general/logo/colored_logo.png'); ?>" style="width:100px;">
-        </div>
-    </div>
-
-    <div class="container">
-
-
-        <div class="order-details">
-            <p>Hi <?= $firstname ?>, </p>
-
-            <p>Welcome to <?= business ?>.</p>
-
-            <p> Please use the code below to verify your email address, this is required to confirm ownership of the email address.</p>
-
-            <h2 style="margin:1rem 0; letter-spacing: 5px;"><?= $verification_code ?></h2>
-
-            <p>If you have any questions or need further assistance, don't hesitate to reach out. We are here to help.</p>
-
-            <p class="mb-0">Best regards,</p>
-            <p><strong><?= business ?> Team</strong></p>
-
-
-
-        </div>
-
-        <div class="footer">
-            &copy; <?php echo date('Y'); ?> <?= business ?>. All rights reserved.
-        </div>
-    </div>
-</body>
-
-</html>
+<?php include 'email_footer.php'; ?>

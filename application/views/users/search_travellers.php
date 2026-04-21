@@ -118,7 +118,7 @@
                 </div>
                 <div class="modal-body !tw-text-center">
                     <?php
-                    if ($is_verified == 0) { ?>
+                    if ($is_verified == VERIFY_NONE) { ?>
 
                         <?php if ($is_profile_complete) { ?>
                             <div class="!tw-flex !tw-justify-center mt-2">
@@ -152,7 +152,7 @@
 
                         <?php } ?>
 
-                    <?php } elseif ($is_verified == 1) { ?>
+                    <?php } elseif ($is_verified == VERIFY_PENDING) { ?>
                         <p class="!tw-flex !tw-justify-center mt-3">Your documents have been submitted and are currently being reviewed</p>
 
                     <?php } ?>

@@ -8,6 +8,7 @@ class Pending_users_model_ajax extends CI_Model
 	{
 		parent::__construct();
 		$this->load->model('admin_user_model');
+		$this->load->model('user_read_model');
 	}
 
 	var $table = 'users';
@@ -18,18 +19,20 @@ class Pending_users_model_ajax extends CI_Model
 
 	private function the_query()
 	{
+		$search_value = datatable_search_value();
 		$this->db->from($this->table);
+		ci_where_not_deleted($this->db, $this->table);
 		$i = 0;
-		foreach ($this->column_search as $item) // loop column
+		foreach ($this->column_search as $item) // loop column 
 		{
-			if ($_POST['search']['value']) // if datatable send POST for search
+			if ($search_value !== '') // if datatable send POST for search
 			{
 				if ($i === 0) // first loop
 				{
 					$this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
-					$this->db->like($item, $_POST['search']['value']);
+					$this->db->like($item, $search_value);
 				} else {
-					$this->db->or_like($item, $_POST['search']['value']);
+					$this->db->or_like($item, $search_value);
 				}
 				if (count($this->column_search) - 1 == $i) //last loop
 					$this->db->group_end(); //close bracket
@@ -50,7 +53,7 @@ class Pending_users_model_ajax extends CI_Model
 		$this->the_query();
 		if ($_POST['length'] != -1)
 			$this->db->limit($_POST['length'], $_POST['start']);
-		$this->db->where('is_verified', 1);
+		$this->db->where('is_verified', VERIFY_PENDING);
 		$query = $this->db->get();
 		return $query->result();
 	}
@@ -60,7 +63,7 @@ class Pending_users_model_ajax extends CI_Model
 	function count_filtered_records()
 	{
 		$this->the_query();
-		$this->db->where('is_verified', 1);
+		$this->db->where('is_verified', VERIFY_PENDING);
 		$query = $this->db->get();
 		return $query->num_rows();
 	}
@@ -68,50 +71,52 @@ class Pending_users_model_ajax extends CI_Model
 
 	public function count_all_records()
 	{
-		$this->db->where('is_verified', 1);
+		$this->db->where('is_verified', VERIFY_PENDING);
 		$this->db->from($this->table);
+		ci_where_not_deleted($this->db, $this->table);
 		return $this->db->count_all_results();
 	}
 
 
-	public function actions($id)
+	public function actions($user)
 	{
-		$this->common_model->get_user_details_by_id($id);
-		$y = $this->common_model->get_user_details_by_id($id);
+		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
+		$id = $y->id;
 
-		if ($y->is_verified == 0) {
+		if ($y->is_verified == VERIFY_NONE) {
 
 			$verify_action = null;
-		} elseif ($y->is_verified == 1) {
+		} elseif ($y->is_verified == VERIFY_PENDING) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-check" style="color: green"></i> &nbsp; Verify Account </a></p>
+			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-check" style="color: green"></i> &nbsp; Verify Account </a></p>
 
-			<p><a type="button" href="' . base_url('admin_users/unverify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
-		} elseif ($y->is_verified == 2) {
+			<p><a type="button" href="' . base_url('admin_users/unverify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+		} elseif ($y->is_verified == VERIFY_APPROVED) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/unverify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+			$verify_action = '<p><a type="button" href="' . base_url('admin_users/unverify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
 		}
 
-		return '<p><a type="button" href="' . base_url('admin_users/user_login_admin/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable" target="_blank"> <i class="fa fa-sign-in text-success"></i> Login as Super User </a></p>
+		return '<p><a type="button" href="' . base_url('admin_users/user_login_admin/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable" target="_blank"> <i class="las la-sign-in-alt text-success"></i> Login as Super User </a></p>
 
 		' . $verify_action . '
 
-		<p><a type="button" href="' . base_url('admin_users/user_profile/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="fa fa-user" style="color: green"></i> &nbsp; View Profile </a></p>
+		<p><a type="button" href="' . base_url('admin_users/user_profile/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-user" style="color: green"></i> &nbsp; View Profile </a></p>
 
-		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $id . '"> <i class="fa fa-trash" style="color: red"></i> &nbsp; Delete </a></p>';
+		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $id . '"> <i class="las la-trash" style="color: red"></i> &nbsp; Delete </a></p>';
 	}
 
 
 	public function options($id)
 	{
 
-		return '<div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $id . '" title="Options"> <i class="fa fa-navicon"></i> </a></div>';
+		return '<div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $id . '" title="Options"> <i class="las la-bars"></i> </a></div>';
 	}
 
 
-	public function modal_options($id)
+	public function modal_options($user)
 	{
-		$y = $this->common_model->get_user_details_by_id($id);
+		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
+		$id = $y->id;
 		return '<div class="modal fade" id="options' . $id . '" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content modal-width">
@@ -122,7 +127,7 @@ class Pending_users_model_ajax extends CI_Model
 						<h4 class="modal-title">Actions: ' . $y->firstname . '</h4>
 					</div><!--/.modal-header-->
 					<div class="modal-body">'
-			. $this->actions($id) .
+			. $this->actions($y) .
 			'</div>
 				</div>
 			</div>
@@ -132,13 +137,13 @@ class Pending_users_model_ajax extends CI_Model
 
 	public function message_admin_form($id)
 	{
-		$y = $this->common_model->get_user_details_by_id($id);
+		$y = $this->user_read_model->get_user_details_by_id($id);
 		return form_open('admin_users/message_admin/' . $y->id) .
 			'<div>
 				<textarea class="t200 w-100 m-b-20" name="message" placeholder="Your message" required></textarea>
 			</div>
 			<div>
-				<button class="btn btn-primary"> <i class="fa fa-arrow-circle-right"></i> Send Message</button>
+				<button class="btn btn-primary"> <i class="las la-arrow-circle-right"></i> Send Message</button>
 			</div>'
 			. form_close();
 	}
@@ -146,7 +151,7 @@ class Pending_users_model_ajax extends CI_Model
 
 	public function modal_message_admin($id)
 	{
-		$y = $this->common_model->get_user_details_by_id($id);
+		$y = $this->user_read_model->get_user_details_by_id($id);
 		return '<div class="modal fade" id="message' . $id . '" role="dialog">
 					<div class="modal-dialog">
 						<div class="modal-content modal-form">
@@ -165,11 +170,11 @@ class Pending_users_model_ajax extends CI_Model
 	}
 
 
-	public function modals($id)
+	public function modals($user)
 	{
-		$y = $this->common_model->get_user_details_by_id($id);
-		$modal_delete_confirm = modal_delete_confirm($id, $y->firstname, 'user', 'admin_users/delete_user');
-		return 	$this->modal_options($id) .
+		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
+		$modal_delete_confirm = modal_delete_confirm($y->id, $y->firstname, 'user', 'admin_users/delete_user');
+		return 	$this->modal_options($y) .
 			$modal_delete_confirm;
 	}
 }

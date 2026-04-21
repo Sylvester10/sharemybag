@@ -455,7 +455,7 @@ $config['standardize_newlines'] = FALSE;
 |          for backwards compatibility purposes!
 |
 */
-$config['global_xss_filtering'] = FALSE;
+$config['global_xss_filtering'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -472,14 +472,24 @@ $config['global_xss_filtering'] = FALSE;
 | 'csrf_exclude_uris' = Array of URIs which ignore CSRF checks
 */
 
-//Note: $config['csrf_protection'] is commented off here so that some URIs (esp APIs) can be excluded from the CSRF protection, as $config['csrf_exclude_uris'] does not seem to work. See MY_Controller.php
-//$config['csrf_protection'] = TRUE;
+// CSRF is enabled globally below. Individual controllers are excluded
+// via MY_Controller::csrf_exclude_controllers() for legitimate AJAX
+// endpoints that cannot embed tokens (e.g., payment gateway callbacks).
+$config['csrf_protection'] = TRUE;
 
 $config['csrf_token_name'] = 'q2r_secure';
 $config['csrf_cookie_name'] = 'q2r_csrf_cookie';
 $config['csrf_expire'] = 7200;
 $config['csrf_regenerate'] = TRUE;
-$config['csrf_exclude_uris'] = array();
+$config['csrf_exclude_uris'] = array(
+	// Payment gateway callbacks (Stripe/Paystack webhooks hit these directly)
+	'user_bookings/stripe/.*',
+	'user_bookings/paystack/.*',
+	'user_bookings/paystack_cancel/.*',
+	// AJAX endpoints that submit JSON without form tokens
+	'user_bookings/add_booking_ajax',
+	'user_bookings/search',
+);
 
 /*
 |--------------------------------------------------------------------------
