@@ -55,7 +55,7 @@
     <div class="container copyright">
         <div class="copyright">
             <div class="col-xl-12 col-lg-12 col-12">
-                <p class="copyright-line">© 2025 <?php echo business; ?>. All rights reserved.</p>
+                <p class="copyright-line">© 2025 <?php echo business; ?>. Sandbox.</p>
             </div>
         </div>
     </div>
