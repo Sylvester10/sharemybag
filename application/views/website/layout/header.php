@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
     <meta name="description" content="<?php echo business_description; ?>">
     <meta name="author" content="ShareMyBag">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="<?= current_url(); ?>">
 
     <title><?php echo $title; ?> - <?php echo sub_tagline; ?></title>
