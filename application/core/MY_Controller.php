@@ -13,6 +13,11 @@ UPDATED: Added employee role-based access control methods.
   - admin_role_restricted($allowed_roles): Redirects if admin's role is not in the allowed list.
   - get_admin_role(): Returns the current logged-in admin's role from the DB.
 Roles: 'super_admin', 'customer_support', 'traveller_support'
+
+CSRF POLICY:
+  - CSRF protection is configured globally in application/config/config.php.
+  - This controller does not toggle CSRF at runtime because CI3 validates
+    incoming requests before controller construction.
 */
 
 
@@ -56,20 +61,6 @@ class MY_Controller extends CI_Controller
 		$this->load->helper(['form', 'url', 'captcha', 'date', 'inflector', 'file', 'download', 'app', 'email', 'my', 'sk']);
 		$this->load->model('common_model');
 		require_once "application/core/Constants.php";
-
-		//set CSRF
-		$this->set_csrf();
-	}
-
-	protected function set_csrf()
-	{
-		$excluded_controllers = $this->csrf_exclude_controllers();
-		$current_class = $this->router->fetch_class();
-		if (!in_array($current_class, $excluded_controllers)) {
-			$this->config->set_item('csrf_protection', TRUE);
-		} else {
-			$this->config->set_item('csrf_protection', FALSE);
-		}
 	}
 
 
@@ -77,13 +68,6 @@ class MY_Controller extends CI_Controller
 	{
 		$this->output->enable_profiler(ENVIRONMENT != 'production');
 	}
-
-
-	protected function csrf_exclude_controllers()
-	{
-		return array();
-	}
-
 
 	/* ===== Refresh Last Login ===== */
 	protected function refresh_last_login($user_id, $table)

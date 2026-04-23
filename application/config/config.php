@@ -472,9 +472,12 @@ $config['global_xss_filtering'] = TRUE;
 | 'csrf_exclude_uris' = Array of URIs which ignore CSRF checks
 */
 
-// CSRF is enabled globally below. Individual controllers are excluded
-// via MY_Controller::csrf_exclude_controllers() for legitimate AJAX
-// endpoints that cannot embed tokens (e.g., payment gateway callbacks).
+// CSRF is enabled globally here and this file is the single source of truth
+// for CSRF policy. Do not toggle CSRF at runtime in controllers because CI3
+// validates incoming requests before controller construction.
+//
+// Keep exclusions narrowly scoped to endpoints that cannot carry the token
+// (for example payment gateway callbacks or legacy JSON POST routes).
 $config['csrf_protection'] = TRUE;
 
 $config['csrf_token_name'] = 'q2r_secure';
