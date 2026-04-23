@@ -461,6 +461,14 @@ body {
     margin-top: 8px;
 }
 
+.invoice-paid-stamp {
+    display: inline-block;
+    max-width: 120px;
+    width: 100%;
+    height: auto;
+    margin-top: 4px;
+}
+
 .text-right{
     text-align: right !important;
 }

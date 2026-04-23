@@ -73,8 +73,9 @@
                                 <div class="invoice-heading"><?php echo html_escape($booking->traveller_name ?: 'N/A'); ?></div>
                             </td>
                             <td class="invoice-address-table__cell">
-                                <div class="invoice-label">Status</div>
-                                <div class="invoice-success">Paid</div>
+                                <?php if (!empty($invoice_paid_stamp_uri)) { ?>
+                                    <img src="<?php echo $invoice_paid_stamp_uri; ?>" alt="Paid" class="invoice-paid-stamp">
+                                <?php } ?>
                             </td>
                         </tr>
                     </table>

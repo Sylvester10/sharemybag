@@ -129,6 +129,7 @@ class Invoice extends MY_Controller
             'viewer' => $viewer,
             'invoice_css' => $this->getInvoiceCss($forPdf),
             'invoice_logo_uri' => $this->getInvoiceLogoUri(),
+            'invoice_paid_stamp_uri' => $this->getInvoicePaidStampUri(),
             'delivery_fee_total' => $travellerPayout,
             'delivery_fee_rate' => $travellerRate,
             'sharemybag_commission_total' => $shareMyBagCommission,
@@ -211,6 +212,19 @@ class Invoice extends MY_Controller
 
         $mimeType = function_exists('mime_content_type') ? mime_content_type($logoPath) : 'image/png';
         $encoded = base64_encode(file_get_contents($logoPath));
+
+        return 'data:' . $mimeType . ';base64,' . $encoded;
+    }
+
+    private function getInvoicePaidStampUri()
+    {
+        $stampPath = FCPATH . 'assets/general/paid-stamp.png';
+        if (!file_exists($stampPath)) {
+            return '';
+        }
+
+        $mimeType = function_exists('mime_content_type') ? mime_content_type($stampPath) : 'image/png';
+        $encoded = base64_encode(file_get_contents($stampPath));
 
         return 'data:' . $mimeType . ';base64,' . $encoded;
     }
