@@ -30,9 +30,9 @@
                                 <tr>
                                     <td class="invoice-brand-table__logo-cell">
                                         <?php if ($invoice_logo_uri) { ?>
-                                            <img src="<?php business_favicon ?>" alt="<?php echo business_name; ?>" class="invoice-brand-table__logo">
+                                            <img src="<?php echo $invoice_logo_uri; ?>" alt="<?php echo business_name; ?>" class="invoice-brand-table__logo">
                                         <?php } else { ?>
-                                            <img src="<?php echo base_url('assets/general/logo/favicon.ico') ?>" alt="<?php echo business_name; ?>" class="invoice-brand-table__logo">
+                                            <img src="<?php echo base_url('assets/general/logo/favicon.ico'); ?>" alt="<?php echo business_name; ?>" class="invoice-brand-table__logo">
                                         <?php } ?>
                                     </td>
                                     <td class="invoice-brand-table__text">
@@ -73,8 +73,8 @@
                                 <div class="invoice-heading"><?php echo html_escape($booking->traveller_name ?: 'N/A'); ?></div>
                             </td>
                             <td class="invoice-address-table__cell">
-                                <div class="invoice-success"><?php echo html_escape($payment_status_label); ?></div>
-
+                                <div class="invoice-label">Status</div>
+                                <div class="invoice-success">Paid</div>
                             </td>
                         </tr>
                     </table>
