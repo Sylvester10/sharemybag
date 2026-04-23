@@ -463,10 +463,9 @@ body {
 
 .invoice-paid-stamp {
     display: inline-block;
-    max-width: 120px;
+    max-width: 70px;
     width: 100%;
     height: auto;
-    margin-top: 4px;
 }
 
 .text-right{
