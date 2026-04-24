@@ -69,7 +69,7 @@
                             </div>
                             <div class="feature-title">
                                 <h5>NG - UK</h5>
-                                <h4><b>£8.50 Per Kilo</b></h4>
+                                <h4><b>£9.50 Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>
@@ -95,7 +95,7 @@
                             </div>
                             <div class="feature-title">
                                 <h5>NG - CA</h5>
-                                <h4><b>$11.50 Per Kilo</b></h4>
+                                <h4><b>$18.50 Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>
@@ -108,7 +108,7 @@
                             </div>
                             <div class="feature-title">
                                 <h5>CA - NG</h5>
-                                <h4><b>$11.50 Per Kilo</b></h4>
+                                <h4><b>$17.50 Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>
@@ -230,7 +230,7 @@
                             <div id="collapse3" class="collapse" aria-labelledby="heading3" data-parent="#accordionFaq">
                                 <div class="card-body">
                                     <div class="content">
-                                        <p>We charge £8.50 per kg. However, some items attract a premium fee e.g. personal quantity of fish, cigarettes, documents, or electronics.</p>
+                                        <p>Rates depend on route. Nigeria to the UK starts at £9.50 per kg, while Canada to Nigeria starts at $17.50 per kg. Premium and special items attract additional charges.</p>
                                     </div>
                                 </div>
                             </div>
@@ -248,7 +248,7 @@
                                 <div class="card-body">
                                     <div class="content">
                                         <p>
-                                            Premium fee is £10 on any parcel that contains premium items. Premium items are protein, medication, documents, and cigarettes. VIP items like electronics have a premium fee of £20 per parcel.
+                                            Premium and special-item pricing depends on route. For example, Nigeria to the UK premium items start from £15 per piece, while Canada to Nigeria premium items start from $36.93 per piece.
                                         </p>
                                     </div>
                                 </div>
@@ -362,7 +362,7 @@
                                 <div class="card-body">
                                     <div class="content">
                                         <p>
-                                            You can send as little as you want. However, our rate starts at £8.50 per kilo from Nigeria to the UK and £4.50 per kilo from UK to Nigeria. New rates are set to come into effect from 1st March, 2025.
+                                            You can send as little as you want. Current pricing starts from £9.50 per kilo from Nigeria to the UK, £6.50 per kilo from the UK to Nigeria, $18.50 per kilo from Nigeria to Canada, and $17.50 per kilo from Canada to Nigeria.
                                         </p>
                                     </div>
                                 </div>

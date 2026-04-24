@@ -288,6 +288,40 @@ class Users_model extends MY_Model
     public function calculate_traveller_commission($traveller, $selected_space, $items_json = null)
     {
         $selected_space = (float) $selected_space;
+        $route_key = booking_route_key($traveller->location, $traveller->destination);
+        $route_pricing = booking_route_pricing($traveller->location, $traveller->destination);
+
+        if (in_array($route_key, ['ng_uk', 'ca_ng'], true) && $items_json) {
+            $decoded_items = json_decode($items_json);
+            $traveller_commission = 0.0;
+
+            if (is_array($decoded_items)) {
+                foreach ($decoded_items as $item) {
+                    if (!isset($item->category)) {
+                        continue;
+                    }
+
+                    $item_size = isset($item->size) ? (float) $item->size : 0;
+                    if ($item_size <= 0) {
+                        continue;
+                    }
+
+                    if ($item->category === 'Documents/Electronics' || $item->category === 'Gold') {
+                        $traveller_commission += $route_pricing['premium_payout_rate'] * $item_size;
+                    } elseif (
+                        $item->category === 'Fish/Medicine' ||
+                        $item->category === 'Fish/Meat' ||
+                        $item->category === 'Medication'
+                    ) {
+                        $traveller_commission += $route_pricing['special_payout_rate'] * $item_size;
+                    } else {
+                        $traveller_commission += $route_pricing['normal_payout_rate'] * $item_size;
+                    }
+                }
+            }
+
+            return round($traveller_commission, 2);
+        }
 
         $ng_uk_base_commission_rate = ($traveller->destination == 'Nigeria') ? 4.50 : 5.00;
         $ng_uk_traveller_commission = $ng_uk_base_commission_rate * $selected_space;

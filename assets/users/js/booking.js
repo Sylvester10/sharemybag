@@ -40,7 +40,35 @@ jQuery(document).ready(function ($) {
     let destination = (
       $('input[name="traveller_destination"]').val() || ''
     ).trim();
+    let routeKey = ($('#holdThisInfo').attr('route_key') || '').trim();
+    let normalPayout = parseFloat($('#holdThisInfo').attr('normal_payout')) || 0;
+    let specialPayout = parseFloat($('#holdThisInfo').attr('special_payout')) || normalPayout;
+    let premiumPayout = parseFloat($('#holdThisInfo').attr('premium_payout')) || normalPayout;
     let travellerCommission = 0;
+
+    if (routeKey === 'ng_uk' || routeKey === 'ca_ng') {
+      $('.select_item').each(function () {
+        let category = $(this).attr('category');
+        let size = parseFloat($(this).attr('size')) || 0;
+
+        if (
+          category === 'Documents/Electronics' ||
+          category === 'Gold'
+        ) {
+          travellerCommission += premiumPayout * size;
+        } else if (
+          category === 'Fish/Medicine' ||
+          category === 'Fish/Meat' ||
+          category === 'Medication'
+        ) {
+          travellerCommission += specialPayout * size;
+        } else {
+          travellerCommission += normalPayout * size;
+        }
+      });
+
+      return parseFloat(travellerCommission.toFixed(2));
+    }
 
     if (currency === 'CAD') {
       travellerCommission = 10.0 * selectedSpace;
@@ -710,7 +738,35 @@ function syncPaymentMethod() {
 function calculateTravellerCommissionForSummary(selectedSpace) {
   let currency = $('#holdThisInfo').attr('currency');
   let destination = ($('input[name="traveller_destination"]').val() || '').trim();
+  let routeKey = ($('#holdThisInfo').attr('route_key') || '').trim();
+  let normalPayout = parseFloat($('#holdThisInfo').attr('normal_payout')) || 0;
+  let specialPayout = parseFloat($('#holdThisInfo').attr('special_payout')) || normalPayout;
+  let premiumPayout = parseFloat($('#holdThisInfo').attr('premium_payout')) || normalPayout;
   let travellerCommission = 0;
+
+  if (routeKey === 'ng_uk' || routeKey === 'ca_ng') {
+    $('.select_item').each(function () {
+      let category = $(this).attr('category');
+      let size = parseFloat($(this).attr('size')) || 0;
+
+      if (
+        category === 'Documents/Electronics' ||
+        category === 'Gold'
+      ) {
+        travellerCommission += premiumPayout * size;
+      } else if (
+        category === 'Fish/Medicine' ||
+        category === 'Fish/Meat' ||
+        category === 'Medication'
+      ) {
+        travellerCommission += specialPayout * size;
+      } else {
+        travellerCommission += normalPayout * size;
+      }
+    });
+
+    return parseFloat(travellerCommission.toFixed(2));
+  }
 
   if (currency === 'CAD') {
     travellerCommission = 10.0 * selectedSpace;

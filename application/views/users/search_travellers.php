@@ -29,20 +29,11 @@
                         <div class="input-group mt-2 mb-2">
                             <select class="form-select required" name="destination" id="select_destination" required>
                                 <option value="">Where is your parcel going?</option>
-
-                                <?php if ($user_details->country == 'Canada'): ?>
-                                    <option value="Canada">Canada</option>
-                                    <option value="Nigeria">Nigeria</option>
-                                <?php elseif ($user_details->country == 'United Kingdom'): ?>
-                                    <option value="Nigeria">Nigeria</option>
-                                    <option value="United Kingdom">United Kingdom</option>
-                                <?php else: ?>
-                                    <?php foreach (countries() as $country): ?>
-                                        <option value="<?php echo $country; ?>" <?php echo set_select('destination', $country); ?>>
-                                            <?php echo $country; ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
+                                <?php foreach (countries() as $country): ?>
+                                    <option value="<?php echo $country; ?>" <?php echo set_select('destination', $country); ?>>
+                                        <?php echo $country; ?>
+                                    </option>
+                                <?php endforeach; ?>
 
                             </select>
                             <button class="btn btn-rounded btn-primary justify-content-center" type="submit">

@@ -145,7 +145,7 @@ class Booking_presenter
     public function build_price_estimate($origin, $destination, $category, $weight)
     {
         $valid_destinations = ['Nigeria', 'United Kingdom', 'Canada'];
-        $valid_categories = ['Normal', 'Fish/Medicine', 'Fish/Meat', 'Medication', 'Documents/Electronics', 'Gold'];
+        $valid_categories = ['Normal', 'Duty Free', 'Fish/Medicine', 'Fish/Meat', 'Medication', 'Documents/Electronics', 'Gold'];
 
         if (!in_array($destination, $valid_destinations) || !in_array($origin, $valid_destinations)) {
             return ['status' => false, 'msg' => 'Please select a valid origin and destination.'];
@@ -175,18 +175,17 @@ class Booking_presenter
         $currency = $is_ng_ca_route ? 'CAD' : 'GBP';
         $symbol = currency_symbol_text($currency);
 
-        if ($is_ng_uk_route) {
-            $to_nigeria = ($destination === 'Nigeria');
-            $normal_price = $to_nigeria ? 6.5 : 8.5;
-            $special_price = $to_nigeria ? 6.5 : 8.5;
-            $premium_price = 15.00;
-        } else {
-            $normal_price = 18.50;
-            $special_price = 18.50;
-            $premium_price = 38.75;
-        }
+        $route_pricing = booking_route_pricing($origin, $destination);
+        $normal_price = $route_pricing['normal_rate'];
+        $special_price = $route_pricing['special_rate'];
+        $premium_price = $route_pricing['premium_rate'];
+        $duty_free_price = $route_pricing['duty_free_rate'];
 
         switch ($category) {
+            case 'Duty Free':
+                $price_per_unit = $duty_free_price > 0 ? $duty_free_price : $normal_price;
+                $category_label = 'Duty Free';
+                break;
             case 'Fish/Medicine':
             case 'Fish/Meat':
             case 'Medication':
@@ -206,7 +205,7 @@ class Booking_presenter
 
         $weight_unit = ($category === 'Documents/Electronics' || $category === 'Gold') ? 'PC' : 'KG';
         $item_price = round($price_per_unit * $weight, 2);
-        $service_charge = 2.99;
+        $service_charge = $route_pricing['service_charge'];
         $special_fee = in_array($category, ['Fish/Medicine', 'Fish/Meat', 'Medication'], true) ? 10.00 : 0.00;
         $sub_total = round($item_price + $service_charge, 2);
         $total = round($sub_total + $special_fee, 2);

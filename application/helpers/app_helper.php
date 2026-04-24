@@ -2060,6 +2060,91 @@ function booking_price_breakdown($base_total, $traveller_commission, $service_ch
 }
 
 
+function booking_route_key($origin, $destination)
+{
+	$origin = trim((string) $origin);
+	$destination = trim((string) $destination);
+
+	$route_map = array(
+		'Nigeria|United Kingdom' => 'ng_uk',
+		'United Kingdom|Nigeria' => 'uk_ng',
+		'Nigeria|Canada' => 'ng_ca',
+		'Canada|Nigeria' => 'ca_ng',
+	);
+
+	$key = $origin . '|' . $destination;
+
+	return isset($route_map[$key]) ? $route_map[$key] : 'default';
+}
+
+
+function booking_route_pricing($origin, $destination)
+{
+	$route_key = booking_route_key($origin, $destination);
+
+	$defaults = array(
+		'route_key' => $route_key,
+		'service_charge' => 2.99,
+		'normal_rate' => 8.50,
+		'special_rate' => 8.50,
+		'duty_free_rate' => 0.00,
+		'premium_rate' => 15.00,
+		'normal_payout_rate' => 5.00,
+		'special_payout_rate' => 5.00,
+		'premium_payout_rate' => 10.00,
+	);
+
+	switch ($route_key) {
+		case 'ng_uk':
+			return array_merge($defaults, array(
+				'service_charge' => 3.49,
+				'normal_rate' => 9.50,
+				'special_rate' => 9.50,
+				'premium_rate' => 15.00,
+				'normal_payout_rate' => 5.00,
+				'special_payout_rate' => 5.00,
+				'premium_payout_rate' => 10.00,
+			));
+
+		case 'uk_ng':
+			return array_merge($defaults, array(
+				'normal_rate' => 6.50,
+				'special_rate' => 6.50,
+				'duty_free_rate' => 9.50,
+				'premium_rate' => 15.00,
+				'normal_payout_rate' => 4.50,
+				'special_payout_rate' => 4.50,
+				'premium_payout_rate' => 10.00,
+			));
+
+		case 'ca_ng':
+			return array_merge($defaults, array(
+				'service_charge' => 6.44,
+				'normal_rate' => 17.50,
+				'special_rate' => 17.50,
+				'duty_free_rate' => 18.50,
+				'premium_rate' => 36.93,
+				'normal_payout_rate' => 10.00,
+				'special_payout_rate' => 10.00,
+				'premium_payout_rate' => 18.47,
+			));
+
+		case 'ng_ca':
+			return array_merge($defaults, array(
+				'normal_rate' => 18.50,
+				'special_rate' => 18.50,
+				'premium_rate' => 38.75,
+				'normal_payout_rate' => 10.00,
+				'special_payout_rate' => 10.00,
+				'premium_payout_rate' => 20.00,
+			));
+
+		default:
+			return $defaults;
+	}
+}
+
+
 function booking_status_normalize($status)
 {
 	$status = strtolower(trim((string) $status));

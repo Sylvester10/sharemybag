@@ -115,39 +115,11 @@
 
                                 <?php
 
-                                // Route between Nigeria and UK
-                                $is_to_nigeria = $traveller_details->destination === 'Nigeria';
-
-                                // Canadian Dollars (CAD)
-                                $is_canada_nigeria_route =
-                                    ($traveller_details->location === 'Canada' && $traveller_details->destination === 'Nigeria') ||
-                                    ($traveller_details->location === 'Nigeria' && $traveller_details->destination === 'Canada');
-
-                                // Prices are set based on the user's currency type (GBP or CAD)
-                                if ($currency === 'GBP') {
-
-                                    $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
-                                    $shopper_price = 9.5; // Updated from 7.5 to 9.5 Only applies when destination is Nigeria
-                                    $special_price = $is_to_nigeria ? 6.5 : 8.5;
-                                    $premium_price = 15;
-                                } else {
-
-                                    if ($is_canada_nigeria_route) {
-
-                                        // NEW:
-                                        $normal_price  = 18.50;
-                                        $shopper_price = 0;
-                                        $special_price = 18.50;
-                                        $premium_price = 38.75;
-                                    } else {
-
-
-                                        $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
-                                        $shopper_price = 7.5; // Only applies when destination is Nigeria
-                                        $special_price = $is_to_nigeria ? 6.5 : 8.5;
-                                        $premium_price = 15;
-                                    }
-                                }
+                                $route_pricing = booking_route_pricing($traveller_details->location, $traveller_details->destination);
+                                $normal_price  = $route_pricing['normal_rate'];
+                                $shopper_price = $route_pricing['duty_free_rate'];
+                                $special_price = $route_pricing['special_rate'];
+                                $premium_price = $route_pricing['premium_rate'];
 
                                 // Output select based on traveller destination (for category options)
                                 if ($traveller_details->destination === 'Nigeria') { ?>
@@ -476,7 +448,7 @@
 
                     <?php
                     // Set service charge based on currency.
-                    $service_charge = 2.99;
+                    $service_charge = $route_pricing['service_charge'];
                     $display_symbol = $symbol;
                     ?>
                     <div class="mb-3">
@@ -515,7 +487,11 @@
             naira_sign="&#8358;"
             one_pound="<?= $one_pound ?>"
             one_dollar="<?= $one_dollar ?>"
-            symbol="<?= $symbol ?>">
+            symbol="<?= $symbol ?>"
+            route_key="<?= html_escape($route_pricing['route_key']) ?>"
+            normal_payout="<?= html_escape($route_pricing['normal_payout_rate']) ?>"
+            special_payout="<?= html_escape($route_pricing['special_payout_rate']) ?>"
+            premium_payout="<?= html_escape($route_pricing['premium_payout_rate']) ?>">
         </span>
 
         <div class="btn_reserve_fixed text-center d-lg-none">
