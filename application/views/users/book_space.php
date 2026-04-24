@@ -128,7 +128,7 @@
                                         <select name="category" id="select1" class="required form-select border border-primary">
                                             <option value="">Select</option>
                                             <option value="Normal" data-price="<?= round($normal_price, 2) ?>">Normal</option>
-                                            <option value="Duty Free" data-price="<?= round($shopper_price, 2) ?>">Duty Free</option>
+                                            <option value="Duty Free" data-price="<?= round($shopper_price, 2) ?>">Duty Free </option>
                                             <option value="Fish/Meat" data-price="<?= round($special_price, 2) ?>">Fish/Meat (special)</option>
                                             <option value="Medication" data-price="<?= round($special_price, 2) ?>">Medication (special)</option>
                                             <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>">Documents/Electronics/Gold (premium)</option>
