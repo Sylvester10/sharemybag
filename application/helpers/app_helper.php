@@ -2084,7 +2084,7 @@ function booking_route_pricing($origin, $destination)
 
 	$defaults = array(
 		'route_key' => $route_key,
-		'service_charge' => 2.99,
+		'service_charge' => 3.99,
 		'normal_rate' => 8.50,
 		'special_rate' => 8.50,
 		'duty_free_rate' => 0.00,
@@ -2099,7 +2099,7 @@ function booking_route_pricing($origin, $destination)
 			return array_merge($defaults, array(
 				'service_charge' => 3.49,
 				'normal_rate' => 9.50,
-				'special_rate' => 9.50,
+				'special_rate' => 10.00,
 				'premium_rate' => 15.00,
 				'normal_payout_rate' => 5.00,
 				'special_payout_rate' => 5.00,
