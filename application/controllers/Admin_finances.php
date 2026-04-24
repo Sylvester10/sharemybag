@@ -73,13 +73,14 @@ class Admin_finances extends MY_Controller
 			$items = json_decode($y->items);
 			if (is_array($items)) {
 				foreach ($items as $item) {
-					// Check for Fish/Medicine (Special)
-					if (isset($item->category) && $item->category === 'Fish/Medicine') {
+					$category = smb_normalize_booking_category($item->category ?? '');
+
+					if (in_array($category, ['Fish/Meat', 'Medication'], true)) {
 						$is_special = 'Yes';
-						$special_fee += 10.00; // Add fee
+						$special_fee = 10.00;
 					}
-					// Check for Documents/Electronics (Premium)
-					if (isset($item->category) && $item->category === 'Documents/Electronics') {
+
+					if (in_array($category, ['Documents/Electronics/Gold', 'Laptop'], true)) {
 						$is_premium = 'Yes';
 					}
 				}
@@ -178,11 +179,14 @@ class Admin_finances extends MY_Controller
 			$items = json_decode($y->items);
 			if (is_array($items)) {
 				foreach ($items as $item) {
-					if (isset($item->category) && $item->category === 'Fish/Medicine') {
+					$category = smb_normalize_booking_category($item->category ?? '');
+
+					if (in_array($category, ['Fish/Meat', 'Medication'], true)) {
 						$is_special = 'Yes';
-						$special_fee += 10.00;
+						$special_fee = 10.00;
 					}
-					if (isset($item->category) && $item->category === 'Documents/Electronics') {
+
+					if (in_array($category, ['Documents/Electronics/Gold', 'Laptop'], true)) {
 						$is_premium = 'Yes';
 					}
 				}

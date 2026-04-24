@@ -29,16 +29,18 @@ jQuery(document).ready(function ($) {
     $('#total-unit').text(unit);
   }
 
-  // --- NEW: Event listener for category change ---
+  function syncCategoryMeta() {
+    const selectedOption = $('#select1 option:selected');
+    const unit = selectedOption.data('unit') || 'KG';
+    const hint = selectedOption.data('hint') || '';
+
+    updateWeightUnit(unit);
+    $('#category-help').text(hint);
+  }
+
   $('#select1').change(function () {
-    let selectedCategory = $(this).val();
-    if (selectedCategory === 'Documents/Electronics') {
-      updateWeightUnit('PC');
-    } else {
-      updateWeightUnit('KG');
-    }
+    syncCategoryMeta();
   });
-  // --- END NEW LOGIC ---
 
   // NOTE: Calling updateBooking() once immediately to fix initial currency display
   updateBooking();
@@ -103,12 +105,12 @@ jQuery(document).ready(function ($) {
 
         // Get the selected category, item name, and size
         const category = document.getElementById('select1').value;
-        const price = $(`option[value = "${category}"]`).attr('data-price');
+        const selectedOption = $('#select1 option:selected');
+        const price = selectedOption.attr('data-price');
         const itemName = document.getElementById('item-name').value;
         const size = document.getElementById('select2').value;
 
-        // --- NEW: Determine unit for the new item ---
-        const unit = $('#select2').attr('data-unit'); // Get the current unit (KG or Piece)
+        const unit = selectedOption.attr('data-unit') || $('#select2').attr('data-unit');
 
         $('.error_msg_item').html('');
 
@@ -164,18 +166,6 @@ jQuery(document).ready(function ($) {
         // Calculate the kg based on the selected size
         let kg = parseFloat(size);
 
-        // Define special charges for the two categories
-        const specialCharges = {
-          'Fish/Medicine': 10, // Special charge for this category
-          //   "Documents/Electronics": 15, // Special charge for this category
-        };
-
-        // Determine the special charge based on the category
-        let specialCharge = 0;
-        if (specialCharges[category]) {
-          specialCharge = specialCharges[category]; // Get the special charge value
-        }
-
         // Create a new item element with the selected category, item name, size, price, special charge, and delete icon
         const newItem = document.createElement('div');
         let currencySymbol = $('#holdThisInfo').attr('symbol');
@@ -188,7 +178,7 @@ jQuery(document).ready(function ($) {
         newItem.setAttribute('unitPrice', price);
         newItem.setAttribute('unit', unit); // --- NEW: Store the unit (KG or Piece) ---
         newItem.innerHTML = `
-                    <span class="category">${category}</span>
+                    <span class="category">${selectedOption.text()}</span>
                     <span class="name">${itemName}</span>
                     <span class="size">${size}${unit}</span>
                     <span class="price">${currencySymbol}${parseFloat(
@@ -218,6 +208,7 @@ jQuery(document).ready(function ($) {
 
         // Reset the unit display for the next item input in the form
         updateWeightUnit('KG');
+        $('#category-help').text('');
 
         $("span[for='select1']").remove();
         $("span[for='item-name']").remove();
@@ -406,6 +397,7 @@ jQuery(document).ready(function ($) {
   }
 
   activateSelect();
+  syncCategoryMeta();
 
   $('#bottom-wizard')
     .find('button.forward')
@@ -797,20 +789,17 @@ function updateBooking() {
 
 // get special charge
 function getSpecialCharge() {
-  let specialCharge = 0;
-  // Note: This reflects the customer-facing special charge displayed in the summary
-  let specialCharges = {
-    'Fish/Medicine': 10,
-  };
   let items = $('#items_input').val();
-  if (items) {
-    items = JSON.parse(items);
-    let categories = items.map((item) => item.category);
-    if (categories.includes('Fish/Medicine')) {
-      specialCharge += 10; // Extra £10 displayed to user
-    }
+  if (!items) {
+    return 0;
   }
-  return specialCharge;
+
+  items = JSON.parse(items);
+  let categories = items.map((item) => item.category);
+  let hasSpecialItem =
+    categories.includes('Fish/Meat') || categories.includes('Medication');
+
+  return hasSpecialItem ? 10 : 0;
 }
 
 // function getSpecialCharge() {

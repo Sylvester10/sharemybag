@@ -118,6 +118,69 @@ class Home extends MY_Controller
 	}
 
 
+	public function price_estimate()
+	{
+		$origin = trim((string) $this->input->post('origin', true));
+		$destination = trim((string) $this->input->post('destination', true));
+		$category = trim((string) $this->input->post('category', true));
+		$weight = (float) $this->input->post('weight', true);
+		$csrfHash = $this->security->get_csrf_hash();
+
+		if ($origin === '' || $destination === '' || $category === '' || $weight <= 0) {
+			echo json_encode([
+				'status' => false,
+				'msg' => 'Please complete all estimate fields.',
+				'csrf_hash' => $csrfHash,
+			]);
+			return;
+		}
+
+		if ($origin === $destination) {
+			echo json_encode([
+				'status' => false,
+				'msg' => 'Origin and destination cannot be the same.',
+				'csrf_hash' => $csrfHash,
+			]);
+			return;
+		}
+
+		$routePricing = smb_booking_route_pricing($origin, $destination);
+		$categoryConfig = smb_booking_category_config($origin, $destination, $category);
+
+		if (!$routePricing || !$categoryConfig) {
+			echo json_encode([
+				'status' => false,
+				'msg' => 'That route or category is not currently available for pricing.',
+				'csrf_hash' => $csrfHash,
+			]);
+			return;
+		}
+
+		$itemPrice = round($weight * (float) $categoryConfig['price'], 2);
+		$specialFee = smb_booking_special_fee_from_items([
+			(object) ['category' => $category],
+		]);
+		$serviceCharge = round((float) $routePricing['service_charge'], 2);
+		$total = round($itemPrice + $serviceCharge + $specialFee, 2);
+		$symbol = $routePricing['symbol'];
+		$unit = $categoryConfig['unit'];
+
+		echo json_encode([
+			'status' => true,
+			'route' => $origin . ' to ' . $destination,
+			'category' => $categoryConfig['label'],
+			'weight' => number_format($weight, $unit === 'PC' ? 0 : 2) . ' ' . $unit,
+			'price_per_unit' => $symbol . number_format((float) $categoryConfig['price'], 2) . ' / ' . $unit,
+			'item_price' => $symbol . number_format($itemPrice, 2),
+			'service_charge' => $symbol . number_format($serviceCharge, 2),
+			'special_fee' => $specialFee > 0 ? ($symbol . number_format($specialFee, 2)) : null,
+			'total' => $symbol . number_format($total, 2),
+			'disclaimer' => 'Estimate only. Final booking totals may change based on selected insurance and confirmed parcel details.',
+			'csrf_hash' => $csrfHash,
+		]);
+	}
+
+
 	public function travellers()
 	{
 		$this->website_header('Travellers');

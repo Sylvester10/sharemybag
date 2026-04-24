@@ -144,8 +144,8 @@
                         <?php
                         // Iterate over each item
                         foreach ($item_details as $item) {
-                            $unit_display = ($item->category == 'Documents/Electronics') ? 'PC' : 'KG';
-                            $category = $item->category;
+                            $category = smb_normalize_booking_category($item->category ?? '');
+                            $unit_display = smb_booking_category_unit($category);
                             $item_name = $item->item_name;
                             $size = $item->size;
                             $price = $item->price;

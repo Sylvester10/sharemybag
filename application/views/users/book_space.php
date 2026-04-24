@@ -115,70 +115,24 @@
 
                                 <?php
 
-                                // Route between Nigeria and UK
-                                $is_to_nigeria = $traveller_details->destination === 'Nigeria';
-
-                                // Canadian Dollars (CAD)
-                                $is_canada_nigeria_route =
-                                    ($traveller_details->location === 'Canada' && $traveller_details->destination === 'Nigeria') ||
-                                    ($traveller_details->location === 'Nigeria' && $traveller_details->destination === 'Canada');
-
-                                // Prices are set based on the user's currency type (pounds or dollars)
-                                if ($currency === 'pounds') {
-
-                                    $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
-                                    $shopper_price = 9.5; // Updated from 7.5 to 9.5 Only applies when destination is Nigeria
-                                    $special_price = $is_to_nigeria ? 6.5 : 8.5;
-                                    $premium_price = 15;
-                                } else {
-
-                                    if ($is_canada_nigeria_route) {
-
-                                        $normal_price  = 11.5;
-                                        $shopper_price = 0;
-                                        $special_price = 11.5;
-                                        $premium_price = 20;
-                                    } else {
-
-                                        if ($is_canada_nigeria_route) {
-
-                                            $normal_price  = 11.5;
-                                            $shopper_price = 0;
-                                            $special_price = 11.5;
-                                            $premium_price = 20;
-                                        } else {
-
-                                            $normal_price  = $is_to_nigeria ? 6.5 : 8.5;
-                                            $shopper_price = 7.5; // Only applies when destination is Nigeria
-                                            $special_price = $is_to_nigeria ? 6.5 : 8.5;
-                                            $premium_price = 15;
-                                        }
-                                    }
-                                }
-
-                                // Output select based on traveller destination (for category options)
-                                if ($traveller_details->destination === 'Nigeria') { ?>
-                                    <div class="col-lg-4 mb-3">
-                                        <label class="form-label">Category *</label>
-                                        <select name="category" id="select1" class="required form-select border border-primary">
-                                            <option value="">Select</option>
-                                            <option value="Normal" data-price="<?= round($normal_price, 2) ?>">Normal</option>
-                                            <option value="Duty Free" data-price="<?= round($shopper_price, 2) ?>">Duty Free</option>
-                                            <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>">Medicine (special)</option>
-                                            <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>">Documents/Electronics/Gold (premium)</option>
-                                        </select>
-                                    </div>
-                                <?php } else { ?>
-                                    <div class="col-lg-4 mb-3">
-                                        <label class="form-label">Category *</label>
-                                        <select name="category" id="select1" class="required form-select border border-primary">
-                                            <option value="">Select</option>
-                                            <option value="Normal" data-price="<?= round($normal_price, 2) ?>">Normal</option>
-                                            <option value="Fish/Medicine" data-price="<?= round($special_price, 2) ?>">Fish/Medicine/Snail/Oil (special)</option>
-                                            <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>">Documents/Electronics/Gold (premium)</option>
-                                        </select>
-                                    </div>
-                                <?php } ?>
+                                $category_options = smb_booking_category_options($traveller_details->location, $traveller_details->destination);
+                                ?>
+                                <div class="col-lg-4 mb-3">
+                                    <label class="form-label">Category *</label>
+                                    <select name="category" id="select1" class="required form-select border border-primary">
+                                        <option value="">Select</option>
+                                        <?php foreach ($category_options as $value => $config) : ?>
+                                            <option
+                                                value="<?= html_escape($value) ?>"
+                                                data-price="<?= round($config['price'], 2) ?>"
+                                                data-unit="<?= html_escape($config['unit']) ?>"
+                                                data-hint="<?= html_escape($config['hint']) ?>">
+                                                <?= html_escape($config['label']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <small class="text-muted d-block mt-2" id="category-help"></small>
+                                </div>
 
                                 <div class="col-lg-4 mb-3">
                                     <label class="form-label">Item name *</label>
@@ -478,8 +432,8 @@
                     <hr>
 
                     <?php
-                    // Set service charge based on currency.
-                    $service_charge = 2.99;
+                    $route_pricing = smb_booking_route_pricing($traveller_details->location, $traveller_details->destination);
+                    $service_charge = $route_pricing ? (float) $route_pricing['service_charge'] : 0.00;
                     $display_symbol = $symbol;
                     ?>
                     <div class="mb-3">

@@ -1901,3 +1901,243 @@ function production_url($path = '')
 {
 	return trim('https://sharemybag.co.uk/' . $path);
 }
+
+
+if (!function_exists('smb_booking_price_matrix')) {
+	function smb_booking_price_matrix()
+	{
+		return [
+			'ng_uk' => [
+				'currency' => 'pounds',
+				'symbol' => '&pound;',
+				'service_charge' => 3.49,
+				'categories' => [
+					'Normal' => [
+						'label' => 'Normal',
+						'price' => 9.50,
+						'unit' => 'KG',
+						'traveller_payout' => 5.00,
+						'special_fee' => 0,
+						'hint' => '',
+					],
+					'Fish/Meat' => [
+						'label' => 'Fish/Meat (special)',
+						'price' => 9.50,
+						'unit' => 'KG',
+						'traveller_payout' => 5.00,
+						'special_fee' => 10.00,
+						'hint' => 'ShareMyBag is not responsible if fish or meat goes bad during the traveller\'s journey.',
+					],
+					'Medication' => [
+						'label' => 'Medication (special)',
+						'price' => 9.50,
+						'unit' => 'KG',
+						'traveller_payout' => 5.00,
+						'special_fee' => 10.00,
+						'hint' => 'Please ensure your medication complies with airline and destination-country rules before booking.',
+					],
+					'Documents/Electronics/Gold' => [
+						'label' => 'Documents/Electronics/Gold (premium)',
+						'price' => 15.00,
+						'unit' => 'PC',
+						'traveller_payout' => 10.00,
+						'special_fee' => 0,
+						'hint' => 'Premium pricing applies. This category is counted in pieces (PC), not kilograms.',
+					],
+					'Laptop' => [
+						'label' => 'Laptop (premium)',
+						'price' => 20.00,
+						'unit' => 'PC',
+						'traveller_payout' => 15.00,
+						'special_fee' => 0,
+						'hint' => 'Laptop pricing is counted in pieces (PC), not kilograms.',
+					],
+				],
+			],
+			'ng_ca' => [
+				'currency' => 'dollars',
+				'symbol' => '$',
+				'service_charge' => 6.44,
+				'categories' => [
+					'Normal' => [
+						'label' => 'Normal',
+						'price' => 17.50,
+						'unit' => 'KG',
+						'traveller_payout' => 10.00,
+						'special_fee' => 0,
+						'hint' => '',
+					],
+					'Duty Free' => [
+						'label' => 'Duty Free',
+						'price' => 18.50,
+						'unit' => 'KG',
+						'traveller_payout' => 10.00,
+						'special_fee' => 0,
+						'hint' => 'Duty free pricing is currently available on the Nigeria/Canada route.',
+					],
+					'Fish/Meat' => [
+						'label' => 'Fish/Meat (special)',
+						'price' => 17.50,
+						'unit' => 'KG',
+						'traveller_payout' => 10.00,
+						'special_fee' => 10.00,
+						'hint' => 'ShareMyBag is not responsible if fish or meat goes bad during the traveller\'s journey.',
+					],
+					'Medication' => [
+						'label' => 'Medication (special)',
+						'price' => 17.50,
+						'unit' => 'KG',
+						'traveller_payout' => 10.00,
+						'special_fee' => 10.00,
+						'hint' => 'Please ensure your medication complies with airline and destination-country rules before booking.',
+					],
+					'Documents/Electronics/Gold' => [
+						'label' => 'Documents/Electronics/Gold (premium)',
+						'price' => 36.93,
+						'unit' => 'PC',
+						'traveller_payout' => 18.47,
+						'special_fee' => 0,
+						'hint' => 'Premium pricing applies. This category is counted in pieces (PC), not kilograms.',
+					],
+					'Laptop' => [
+						'label' => 'Laptop (premium)',
+						'price' => 46.16,
+						'unit' => 'PC',
+						'traveller_payout' => 27.70,
+						'special_fee' => 0,
+						'hint' => 'Laptop pricing is counted in pieces (PC), not kilograms.',
+					],
+				],
+			],
+		];
+	}
+}
+
+
+if (!function_exists('smb_booking_route_key')) {
+	function smb_booking_route_key($location, $destination)
+	{
+		$location = trim((string) $location);
+		$destination = trim((string) $destination);
+
+		$ngUkCountries = ['Nigeria', 'United Kingdom'];
+		$ngCaCountries = ['Nigeria', 'Canada'];
+
+		if (in_array($location, $ngUkCountries, true) && in_array($destination, $ngUkCountries, true) && $location !== $destination) {
+			return 'ng_uk';
+		}
+
+		if (in_array($location, $ngCaCountries, true) && in_array($destination, $ngCaCountries, true) && $location !== $destination) {
+			return 'ng_ca';
+		}
+
+		return null;
+	}
+}
+
+
+if (!function_exists('smb_normalize_booking_category')) {
+	function smb_normalize_booking_category($category)
+	{
+		$category = trim((string) $category);
+
+		$map = [
+			'Fish/Medicine' => 'Medication',
+			'Documents/Electronics' => 'Documents/Electronics/Gold',
+		];
+
+		return $map[$category] ?? $category;
+	}
+}
+
+
+if (!function_exists('smb_booking_route_pricing')) {
+	function smb_booking_route_pricing($location, $destination)
+	{
+		$routeKey = smb_booking_route_key($location, $destination);
+		$matrix = smb_booking_price_matrix();
+
+		return $routeKey && isset($matrix[$routeKey]) ? $matrix[$routeKey] : null;
+	}
+}
+
+
+if (!function_exists('smb_booking_category_config')) {
+	function smb_booking_category_config($location, $destination, $category)
+	{
+		$routePricing = smb_booking_route_pricing($location, $destination);
+		if (!$routePricing) {
+			return null;
+		}
+
+		$category = smb_normalize_booking_category($category);
+		return $routePricing['categories'][$category] ?? null;
+	}
+}
+
+
+if (!function_exists('smb_booking_category_options')) {
+	function smb_booking_category_options($location, $destination)
+	{
+		$routePricing = smb_booking_route_pricing($location, $destination);
+		return $routePricing ? $routePricing['categories'] : [];
+	}
+}
+
+
+if (!function_exists('smb_booking_category_unit')) {
+	function smb_booking_category_unit($category)
+	{
+		$category = smb_normalize_booking_category($category);
+		return in_array($category, ['Documents/Electronics/Gold', 'Laptop'], true) ? 'PC' : 'KG';
+	}
+}
+
+
+if (!function_exists('smb_booking_special_fee_from_items')) {
+	function smb_booking_special_fee_from_items($items)
+	{
+		$specialFee = 0.0;
+
+		if (!is_array($items)) {
+			return $specialFee;
+		}
+
+		foreach ($items as $item) {
+			$category = is_array($item) ? ($item['category'] ?? '') : ($item->category ?? '');
+			$category = smb_normalize_booking_category($category);
+
+			if (in_array($category, ['Fish/Meat', 'Medication'], true)) {
+				$specialFee = max($specialFee, 10.0);
+			}
+		}
+
+		return round($specialFee, 2);
+	}
+}
+
+
+if (!function_exists('smb_booking_traveller_commission_from_items')) {
+	function smb_booking_traveller_commission_from_items($location, $destination, $items)
+	{
+		if (!is_array($items)) {
+			return 0.0;
+		}
+
+		$total = 0.0;
+
+		foreach ($items as $item) {
+			$category = is_array($item) ? ($item['category'] ?? '') : ($item->category ?? '');
+			$size = is_array($item) ? ($item['size'] ?? 0) : ($item->size ?? 0);
+			$config = smb_booking_category_config($location, $destination, $category);
+
+			if (!$config) {
+				continue;
+			}
+
+			$total += ((float) $size) * ((float) $config['traveller_payout']);
+		}
+
+		return round($total, 2);
+	}
+}

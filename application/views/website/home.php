@@ -805,9 +805,6 @@
                             <label class="form-label fw-semibold">Category *</label>
                             <select id="pc_category" class="form-control">
                                 <option value="">Select category</option>
-                                <option value="Normal">Normal</option>
-                                <option value="Fish/Medicine">Fish/Medicine/Snail/Oil (special)</option>
-                                <option value="Documents/Electronics">Documents/Electronics/Gold (premium)</option>
                             </select>
                             <small class="text-muted" id="pc_category_hint"></small>
                         </div>
@@ -903,6 +900,7 @@
             var baseUrl = '<?php echo base_url(); ?>';
             var csrfTokenName = document.getElementById('homepage_csrf_name').value;
             var csrfTokenHashEl = document.getElementById('homepage_csrf_hash');
+            var pricingMatrix = <?php echo json_encode(smb_booking_price_matrix(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
 
             function getCsrfHash() {
                 return csrfTokenHashEl.value;
@@ -919,21 +917,55 @@
                 }
             }
 
-            // Category hint text
-            var categoryHints = {
-                'Normal': '',
-                'Fish/Medicine': 'A special handling fee of £10 / $10 applies to this category.',
-                'Documents/Electronics': 'Premium pricing applies. Weight is counted in pieces (PC), not KG.'
-            };
+            function getRouteKey(origin, destination) {
+                var key = [origin, destination].sort().join('|');
 
-            // Update weight label and hint on category change
+                if (key === 'Nigeria|United Kingdom') {
+                    return 'ng_uk';
+                }
+
+                if (key === 'Canada|Nigeria') {
+                    return 'ng_ca';
+                }
+
+                return null;
+            }
+
+            function populatePriceCheckerCategories() {
+                var origin = document.getElementById('pc_origin').value;
+                var destination = document.getElementById('pc_destination').value;
+                var routeKey = getRouteKey(origin, destination);
+                var categorySelect = document.getElementById('pc_category');
+
+                categorySelect.innerHTML = '<option value="">Select category</option>';
+                document.getElementById('pc_category_hint').textContent = '';
+                document.getElementById('pc_weight_label').textContent = 'Weight (KG) *';
+
+                if (!routeKey || !pricingMatrix[routeKey]) {
+                    return;
+                }
+
+                Object.keys(pricingMatrix[routeKey].categories).forEach(function(categoryKey) {
+                    var categoryConfig = pricingMatrix[routeKey].categories[categoryKey];
+                    var option = document.createElement('option');
+                    option.value = categoryKey;
+                    option.textContent = categoryConfig.label;
+                    option.dataset.unit = categoryConfig.unit;
+                    option.dataset.hint = categoryConfig.hint || '';
+                    categorySelect.appendChild(option);
+                });
+            }
+
+            document.getElementById('pc_origin').addEventListener('change', populatePriceCheckerCategories);
+            document.getElementById('pc_destination').addEventListener('change', populatePriceCheckerCategories);
+
             document.getElementById('pc_category').addEventListener('change', function() {
-                var cat = this.value;
-                var weightLabel = document.getElementById('pc_weight_label');
-                var hint = document.getElementById('pc_category_hint');
+                var selectedOption = this.options[this.selectedIndex];
+                var unit = selectedOption && selectedOption.dataset.unit ? selectedOption.dataset.unit : 'KG';
+                var hint = selectedOption && selectedOption.dataset.hint ? selectedOption.dataset.hint : '';
 
-                weightLabel.textContent = (cat === 'Documents/Electronics') ? 'Quantity (PC) *' : 'Weight (KG) *';
-                hint.textContent = categoryHints[cat] || '';
+                document.getElementById('pc_weight_label').textContent = (unit === 'PC') ? 'Quantity (PC) *' : 'Weight (KG) *';
+                document.getElementById('pc_category_hint').textContent = hint;
             });
 
             // Calculate button

@@ -87,24 +87,13 @@ class Admin_bookings extends MY_Controller
 			}
 
 			// --- START: COMMISSION MODIFICATION ---
-			$extra_commission = 0;
+			$extra_commission = smb_booking_traveller_commission_from_items($traveller->location, $traveller->destination, is_array($decoded_items) ? $decoded_items : []);
 			if (!empty($decoded_items)) {
 				foreach ($decoded_items as $item) {
-					// Check for specific categories to apply extra commission
-					if (isset($item->category)) {
-						if ($item->category === 'Documents/Electronics') {
-							$extra_commission += 10.00; // £10 for electronics
-						} elseif ($item->category === 'Fish/Medicine') {
-							$extra_commission += 10.00; // £10 for medicine
-						} elseif ($item->category === 'Duty Free') {
-							$extra_commission += 6.50;  // £6.50 for duty free
-						}
-					}
-
 					// Original logic for item details display remains here
 					$item_details .= '<tr>';
 					$item_details .= '<td>' . $item->item_name . '</td>';
-					$item_details .= '<td>' . $item->category . '</td>';
+					$item_details .= '<td>' . smb_normalize_booking_category($item->category ?? '') . '</td>';
 					// --- UPDATED: Removed size display from this cell ---
 					$item_details .= '<td>' . $currency . '' . number_format($item->price, 2) . '</td>';
 					$item_details .= '</tr>';
@@ -237,26 +226,15 @@ class Admin_bookings extends MY_Controller
 			}
 
 			// --- START: COMMISSION MODIFICATION ---
-			$extra_commission = 0;
+			$extra_commission = smb_booking_traveller_commission_from_items($traveller->location, $traveller->destination, is_array($decoded_items) ? $decoded_items : []);
 			if (!empty($decoded_items)) {
 				foreach ($decoded_items as $item) {
-					// Check for specific categories to apply extra commission
-					if (isset($item->category)) {
-						if ($item->category === 'Documents/Electronics') {
-							$extra_commission += 10.00; //
-						} elseif ($item->category === 'Fish/Medicine') {
-							$extra_commission += 10.00; //
-						} elseif ($item->category === 'Duty Free') {
-							$extra_commission += 6.50;  //
-						}
-					}
-
 					$currency = ($y->currency == 'dollars') ? '$' : '&pound;';
 
 					// Original logic for item details display remains here
 					$item_details .= '<tr>';
 					$item_details .= '<td>' . $item->item_name . '</td>';
-					$item_details .= '<td>' . $item->category . '</td>';
+					$item_details .= '<td>' . smb_normalize_booking_category($item->category ?? '') . '</td>';
 					// --- UPDATED: Removed size display from this cell ---
 					$item_details .= '<td>' . $currency . '' . number_format($item->price, 2) . '</td>';
 					$item_details .= '</tr>';
@@ -387,26 +365,15 @@ class Admin_bookings extends MY_Controller
 			}
 
 			// --- START: COMMISSION MODIFICATION ---
-			$extra_commission = 0;
+			$extra_commission = smb_booking_traveller_commission_from_items($traveller->location, $traveller->destination, is_array($decoded_items) ? $decoded_items : []);
 			if (!empty($decoded_items)) {
 				foreach ($decoded_items as $item) {
-					// Check for specific categories to apply extra commission
-					if (isset($item->category)) {
-						if ($item->category === 'Documents/Electronics') {
-							$extra_commission += 10.00; //
-						} elseif ($item->category === 'Fish/Medicine') {
-							$extra_commission += 10.00; //
-						} elseif ($item->category === 'Duty Free') {
-							$extra_commission += 6.50;  //
-						}
-					}
-
 					$currency = ($y->currency == 'dollars') ? '$' : '&pound;';
 
 					// Original logic for item details display remains here
 					$item_details .= '<tr>';
 					$item_details .= '<td>' . $item->item_name . '</td>';
-					$item_details .= '<td>' . $item->category . '</td>';
+					$item_details .= '<td>' . smb_normalize_booking_category($item->category ?? '') . '</td>';
 					// --- UPDATED: Removed size display from this cell ---
 					$item_details .= '<td>' . $currency . '' . number_format($item->price, 2) . '</td>';
 					$item_details .= '</tr>';

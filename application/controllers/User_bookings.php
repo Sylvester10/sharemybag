@@ -207,52 +207,15 @@ class User_bookings extends MY_Controller
                 }
             };
 
-            // Calculate Traveller Commission and inject into POST data ---
+            // Calculate traveller commission using the shared route pricing rules.
             $traveller_details = $this->common_model->get_traveller_details_by_id($traveller_id);
-            $destination_country = $traveller_details->destination ?? '';
-            $calculations = json_decode($this->input->post('price_calculations'));
-            $selected_space = $calculations->selectedSpace; // Use selectedSpace from calculations for accuracy
-
-            // Base commission calculation logic NG -> UK (4.50 for Nigeria, 5.00 for UK/CA per KG)
-            $ng_uk_base_commission_rate = ($destination_country == 'Nigeria') ? 4.50 : 5.00;
-            $ng_uk_traveller_commission = $ng_uk_base_commission_rate * (float)$selected_space;
-
-            // Base commission calculation logic NG -> CA
-            $ng_ca_base_commission_rate = 10.00;
-            $ng_ca_traveller_commission = $ng_ca_base_commission_rate * (float)$selected_space;
-
-            $is_ng_uk_route =
-                ($traveller_details->location === 'United Kingdom' && $traveller_details->destination === 'Nigeria') ||
-                ($traveller_details->location === 'Nigeria' && $traveller_details->destination === 'United Kingdom');
-
-            $is_ng_ca_route =
-                ($traveller_details->location === 'Canada' && $traveller_details->destination === 'Nigeria') ||
-                ($traveller_details->location === 'Nigeria' && $traveller_details->destination === 'Canada');
-
-            $traveller_commission = ($is_ng_uk_route) ? $ng_uk_traveller_commission : $ng_ca_traveller_commission;
-
-            // Get selected items to check for premium items (for commission increase)
-            if ($is_ng_uk_route) {
-                $items_json = $this->input->post('items');
-                if ($items_json) {
-                    $decoded_items = json_decode($items_json);
-                    if (is_array($decoded_items)) {
-                        foreach ($decoded_items as $item) {
-                            if (isset($item->category)) {
-                                if ($item->category === 'Documents/Electronics') {
-                                    $traveller_commission += 10.00; // £10 commission
-                                } elseif ($item->category === 'Fish/Medicine') {
-                                    $traveller_commission += 10.00; // £10 commission
-                                } elseif ($item->category === 'Duty Free') {
-                                    $traveller_commission += 6.50;  // £6.50 commission
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            $traveller_commission = round($traveller_commission, 2);
+            $items_json = $this->input->post('items');
+            $decoded_items = $items_json ? json_decode($items_json) : [];
+            $traveller_commission = smb_booking_traveller_commission_from_items(
+                $traveller_details->location ?? '',
+                $traveller_details->destination ?? '',
+                is_array($decoded_items) ? $decoded_items : []
+            );
 
             // Manually inject the calculated commission into $_POST so it is picked up by the model's extractKeys
             $_POST['traveller_commission'] = $traveller_commission;
