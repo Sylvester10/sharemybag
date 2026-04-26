@@ -1,6 +1,6 @@
 <div class="new-item">
     <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('bookings'); ?>"><i
-            class="fa fa-book"></i> All Bookings</a>
+            class="las la-book"></i> All Bookings</a>
 </div>
 
 <?php

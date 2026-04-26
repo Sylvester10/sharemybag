@@ -1,111 +1,57 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-
 class User_login extends MY_Controller
 {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model('user_login_model');
-		$this->load->model('common_model');
+		$this->load->model('user_read_model');
 	}
 
-
-
-	/* ========= User Login ============ */
 	public function index()
 	{
 		$this->load->view('user_login/login');
 	}
-
-
-	// public function login_ajax()
-	// {
-	// 	$this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
-	// 	$this->form_validation->set_rules('password', 'Password', 'required');
-
-	// 	$email = $this->input->post('email', TRUE);
-	// 	$password = $this->input->post('password', TRUE);
-	// 	$email_exists = $this->user_login_model->check_user_email_exists($email);
-
-	// 	if ($this->form_validation->run()) {
-
-	// 		$y = $this->common_model->get_user_details($email);
-
-	// 		if ($y->account_status == 0){
-	// 			$res = ['status' => false, 'msg' => 'Unable to login. Contact Admin'];
-	// 			echo json_encode($res);
-	// 			die;
-	// 		}
-
-	// 		if ($email_exists && password_verify($password, $y->password)) {
-
-	// 			//email and password correct and user is active, create session with email and create login session
-	// 			$login_data = array(
-	// 				'email' => $y->email,
-	// 				'user_id' => $y->id, // Store user_id as well
-	// 				'user_loggedin' => true
-	// 			);
-	// 			$this->session->set_userdata($login_data);
-	// 			$this->common_model->update_last_login($y->id);
-	// 			$res = ['status' => true];
-	// 			echo json_encode($res);
-	// 			die;
-	// 		} else {
-	// 			//admin supplied wrong password
-	// 			$res = ['status' => false, 'msg' => 'Invalid login. Username or password incorrect'];
-	// 			echo json_encode($res);
-	// 			die;
-	// 		}
-	// 	} else { //form validation is not successful
-	// 		$res = ['status' => false, 'msg' => validation_errors()];
-	// 		echo json_encode($res);
-	// 	}
-	// }
 
 	public function login_ajax()
 	{
 		$this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
 		$this->form_validation->set_rules('password', 'Password', 'required');
 
-		if ($this->form_validation->run()) {
-			$email = $this->input->post('email', TRUE);
-			$password = $this->input->post('password', TRUE);
-
-			// Fetch user details first
-			$user = $this->common_model->get_user_details($email);
-
-			// Check if user exists AND password matches
-			if ($user && password_verify($password, $user->password)) {
-
-				// check if the account is active
-				// if ($user->account_status == 0) {
-				// 	echo json_encode(['status' => false, 'msg' => 'Your account is inactive. Please contact Admin.']);
-				// 	return; // Use return instead of die for cleaner execution
-				// }
-
-				// Success: Set session and update login time
-				$login_data = [
-					'email'         => $user->email,
-					'user_id'       => $user->id,
-					'user_loggedin' => true
-				];
-				$this->session->set_userdata($login_data);
-				$this->common_model->update_last_login($user->id);
-
-				echo json_encode(['status' => true]);
-				return;
-			} else {
-				// Generic error for either wrong email or wrong password
-				echo json_encode(['status' => false, 'msg' => 'Invalid email or password.']);
-				return;
-			}
-		} else {
-			// Form validation failed
+		if (!$this->form_validation->run()) {
 			echo json_encode(['status' => false, 'msg' => validation_errors()]);
+			return;
+		}
+
+		$email = $this->input->post('email', TRUE);
+		$password = $this->input->post('password', TRUE);
+		$user = $this->user_read_model->get_user_details($email);
+
+		if ($user && password_verify($password, $user->password)) {
+			// Optional: Check account status here if needed
+			// if ($user->account_status == 0) { ... }
+
+			$this->session->set_userdata([
+				'email'         => $user->email,
+				'user_id'       => $user->id,
+				'user_loggedin' => true
+			]);
+
+			$this->common_model->update_last_login($user->id);
+			echo json_encode(['status' => true]);
+		} else {
+			echo json_encode(['status' => false, 'msg' => 'Invalid email or password.']);
 		}
 	}
+
+	public function logout()
+	{
+		$this->session->unset_userdata(['email', 'user_id', 'user_loggedin']);
+		redirect(site_url('signin'));
+	}
+
+
 
 
 	// public function loginPhone()
@@ -138,7 +84,7 @@ class User_login extends MY_Controller
 	// 	// 3. Check if user exists with this full phone number
 	// 	// *** THIS IS THE FIX ***
 	// 	// Search the database using the full international number ($dbPhone)
-	// 	$user = $this->common_model->get_users_phone($dbPhone);
+	// 	$user = $this->user_read_model->get_users_phone($dbPhone);
 
 	// 	if (!$user) {
 	// 		// This message is correct.
@@ -184,7 +130,7 @@ class User_login extends MY_Controller
 
 	// 	if ($verify['status']) {
 	// 		// 2. OTP verified successfully! Now, log the user in.
-	// 		$user = $this->common_model->get_user_details_by_id($user_id);
+	// 		$user = $this->user_read_model->get_user_details_by_id($user_id);
 	// 		if (!$user) {
 	// 			echo json_encode(['status' => false, 'msg' => 'User account not found.']);
 	// 			return;
@@ -209,12 +155,4 @@ class User_login extends MY_Controller
 	// 		echo json_encode(['status' => false, 'msg' => 'Invalid or expired OTP.']);
 	// 	}
 	// }
-
-
-	public function logout()
-	{
-		$data = array('email', 'user_id', 'user_loggedin');
-		$this->session->unset_userdata($data);
-		redirect(site_url('signin'));
-	}
 }

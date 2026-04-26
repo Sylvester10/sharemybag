@@ -3,7 +3,7 @@ defined('BASEPATH') or die('Direct access not allowed');
 
 
 /* ===== Documentation ===== 
-Name: Home
+Name: Admin_exchange
 Role: Controller
 Description: Controls access to Exchange pages and functions in admin panel
 Models: Exchange_model
@@ -25,7 +25,7 @@ class Admin_exchange extends MY_Controller
 
 
 
-	/* ========== All Bookings ========== */
+	/* ========== All Exchange Rates ========== */
 	public function index()
 	{
 		$inner_page_title = 'All Exchange Rates';
@@ -42,9 +42,9 @@ class Admin_exchange extends MY_Controller
 		$data = array();
 		foreach ($list as $y) {
 
-			// Corrected rate display using strict comparison
-			$rate = ($y->currency === 'pound') ? '₦' . $y->rate . ' = £1' : '₦' . $y->rate . ' = $1';
-			$currency = ($y->currency === 'pound') ? 'Pounds' : 'Canadian Dollars';
+			$code = currency_code_normalize($y->currency);
+			$rate = '₦' . $y->rate . ' = ' . currency_symbol_text($code) . '1';
+			$currency = currency_label($code) . ' (' . $code . ')';
 
 			$row = array();
 			$row[] = $currency;

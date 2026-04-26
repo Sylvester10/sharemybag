@@ -1,34 +1,25 @@
 <?php
 defined('BASEPATH') or exit('Direct access to script not allowed');
 
-/* ===== Documentation ===== 
+/* ===== Documentation =====
 Name: Admin_model
 Role: Model
 Description: Controls the DB processes of Admin from admin panel
-Controller: About
+Controller: Admin
 Author: Sylvester Nmakwe
 Date Created: 10th May, 2023
 */
 
 
 
-class Admin_model extends CI_Model
+class Admin_model extends \CI_Model
 {
+	public $admin_details;
+
 	public function __construct()
 	{
 		parent::__construct();
 		$this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
-	}
-
-
-
-	/* ===== Dashboard ===== */
-	public function send_quick_mail()
-	{
-		$email = $this->input->post('email', TRUE);
-		$subject = ucwords($this->input->post('subject', TRUE));
-		$message = nl2br(ucfirst($this->input->post('message', TRUE)));
-		return email_user($email, $subject, $message);
 	}
 
 
@@ -41,7 +32,7 @@ class Admin_model extends CI_Model
 		if ($this->input->post('password', TRUE) == '') {
 			$password = $current_password; //user does not change password, set password as old password
 		} else {
-			$password = hash('ripemd128', $this->input->post('password', TRUE));
+			$password = password_hash($this->input->post('password', TRUE), PASSWORD_DEFAULT);
 		}
 		$data = array(
 			'name' => $name,
@@ -83,5 +74,61 @@ class Admin_model extends CI_Model
 		$email = $this->session->admin_email;
 		$this->db->where('email', $email);
 		return $this->db->update('admins', $data);
+	}
+
+	public function get_all_admins()
+	{
+		$this->db->order_by('date_added', 'DESC');
+		return $this->db->get('admins')->result();
+	}
+
+
+	public function get_admin_by_id($id)
+	{
+		return $this->db->where(['id' => $id])->get('admins')->row();
+	}
+
+
+	public function add_admin()
+	{
+		$password = password_hash($this->input->post('password', TRUE), PASSWORD_DEFAULT);
+
+		$data = [
+			'name'     => ucwords(trim($this->input->post('name',  TRUE))),
+			'email'    => strtolower(trim($this->input->post('email', TRUE))),
+			'phone'    => trim($this->input->post('phone', TRUE)),
+			'role'     => $this->input->post('role',  TRUE),
+			'password' => $password,
+		];
+
+		$this->db->insert('admins', $data);
+		return;
+	}
+
+
+	public function update_admin($id)
+	{
+		$data = [
+			'name'  => ucwords(trim($this->input->post('name',  TRUE))),
+			'email' => strtolower(trim($this->input->post('email', TRUE))),
+			'phone' => trim($this->input->post('phone', TRUE)),
+			'role'  => $this->input->post('role', TRUE),
+		];
+
+		// Only update password if a new one was supplied
+		$new_password = trim($this->input->post('password', TRUE));
+		if ($new_password !== '') {
+			$data['password'] = password_hash($new_password, PASSWORD_DEFAULT);
+		}
+
+		$this->db->where('id', $id);
+		return $this->db->update('admins', $data);
+	}
+
+
+	public function delete_admin($id)
+	{
+		$this->db->where('id', $id);
+		return $this->db->delete('admins');
 	}
 }

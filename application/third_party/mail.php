@@ -9,21 +9,21 @@ require 'PHPMailer-master/src/SMTP.php';
 
 function getMailer()
 {
-        $mail = new PHPMailer(true);
+    $mail = new PHPMailer(true);
 
-        // Server settings
-        $mail->isSMTP();
-        $mail->Mailer = "smtp";
-        $mail->Host       = 'smtp.hostinger.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'customers@sharemybag.co.uk';
-        $mail->Password   = 'Customers-SMB1';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 465;
-        $mail->SMTPSecure = 'ssl';
-        $mail->Hostname   = 'localhost.localdomain';
-        $mail->addReplyTo('customers@sharemybag.co.uk', 'no-reply');
-        $mail->setFrom('customers@sharemybag.co.uk', 'SMB-Support');
+    // Server settings — all values sourced from .env
+    $mail->isSMTP();
+    $mail->Mailer     = 'smtp';
+    $mail->Host       = $_ENV['SMTP_HOST']   ?? 'smtp.hostinger.com';
+    $mail->SMTPAuth   = true;
+    $mail->Username   = $_ENV['SMTP_USER']   ?? '';
+    $mail->Password   = $_ENV['SMTP_PASS']   ?? '';
+    $mail->SMTPSecure = $_ENV['SMTP_CRYPTO'] ?? 'ssl';
+    $mail->Port       = (int) ($_ENV['SMTP_PORT'] ?? 465);
+    $mail->Hostname   = 'localhost.localdomain';
+    $mail->addReplyTo($_ENV['SMTP_USER'] ?? '', 'no-reply');
+    $mail->setFrom($_ENV['SMTP_USER'] ?? '', 'SMB-Support');
 
-        return $mail;
+    return $mail;
 }
+

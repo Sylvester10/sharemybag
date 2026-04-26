@@ -70,59 +70,31 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | The $query_builder variables lets you determine whether or not to load
 | the query builder class.
 */
-$active_group = 'default';
+$active_group  = 'default';
 $query_builder = TRUE;
 
-
-$live_db_username = 'u543551821_sharemybag';
-$live_db_password = 'L@w7Eb6J';
-
-switch (ENVIRONMENT) {
-
-	case 'production':
-		//live production server
-		$db_username 	= $live_db_username;
-		$db_password 	= $live_db_password;
-		$db_database 	= 'u543551821_sharemybag';
-		$db_debug		= FALSE;
-		break;
-
-	case 'testing':
-		//live sandbox/testing server
-		$db_username 	= $live_db_username;
-		$db_password 	= $live_db_password;
-		$db_database 	= '';
-		$db_debug		= TRUE;
-		break;
-
-	case 'development':
-		//development/local server
-		$db_username 	= 'root';
-		$db_password 	= '';
-		$db_database 	= 'smb';
-		$db_debug		= TRUE;
-		break;
-}
-
+// All credentials are loaded from the .env file via vlucas/phpdotenv.
+// Set the appropriate values in .env for each environment.
+// Never hardcode credentials here.
 
 $db['default'] = array(
-	'dsn'	=> '',
-	'username' => $db_username,
-	'password' => $db_password,
-	'database' => $db_database,
-	'db_debug' => $db_debug,
-	'dbdriver' => 'mysqli',
-	'dbprefix' => '',
-	'pconnect' => FALSE,
-	'db_debug' => (ENVIRONMENT !== 'production'),
-	'cache_on' => FALSE,
-	'cachedir' => '',
-	'char_set' => 'utf8',
-	'dbcollat' => 'utf8_general_ci',
-	'swap_pre' => '',
-	'encrypt' => FALSE,
-	'compress' => FALSE,
-	'stricton' => FALSE,
-	'failover' => array(),
+	'dsn'         => '',
+	'hostname'    => ($_ENV['APP_ENV'] === 'development') ? $_ENV['DB_HOSTNAME_LOCAL'] : $_ENV['DB_HOSTNAME'],
+	'username'    => ($_ENV['APP_ENV'] === 'development') ? $_ENV['DB_USERNAME_LOCAL'] : $_ENV['DB_USERNAME'],
+	'password'    => ($_ENV['APP_ENV'] === 'development') ? $_ENV['DB_PASSWORD_LOCAL'] : $_ENV['DB_PASSWORD'],
+	'database'    => ($_ENV['APP_ENV'] === 'development') ? $_ENV['DB_DATABASE_LOCAL'] : $_ENV['DB_DATABASE'],
+	'dbdriver'    => 'mysqli',
+	'dbprefix'     => '',
+	'pconnect'    => FALSE,
+	'db_debug'    => (ENVIRONMENT !== 'production'),
+	'cache_on'    => FALSE,
+	'cachedir'    => '',
+	'char_set'    => 'utf8',
+	'dbcollat'    => 'utf8_general_ci',
+	'swap_pre'    => '',
+	'encrypt'     => FALSE,
+	'compress'    => FALSE,
+	'stricton'    => FALSE,
+	'failover'    => array(),
 	'save_queries' => TRUE
 );

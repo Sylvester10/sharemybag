@@ -9,23 +9,25 @@ class Dashboard extends MY_Controller
         parent::__construct();
         $this->user_restricted(); //allow only logged in users to access this class
         $this->load->model('users_model');
-        $this->load->model('common_model');
-        $this->user_details = $this->common_model->get_user_details($this->session->email);
+        $this->load->model('user_read_model');
+        $this->load->model('booking_read_model');
+        $this->load->model('traveller_read_model');
+        $this->load->model('shipping_model');
+        $this->user_details = $this->user_read_model->get_user_details($this->session->email);
     }
 
 
 
     public function index()
-    { //user dashboard, routed as dashboard
-        // $this->return_to_user_dashboard(); //return user to dashboard if still loggedin
+    {
         $this->dashboard_header('Dashboard');
         $id = $this->user_details->id;
         $data['firstname'] = $this->user_details->firstname;
         $data['account_status'] = $this->user_details->account_status;
         $data['is_verified'] = $this->user_details->is_verified;
         $data['user_details'] = $this->users_model->is_profile_complete($id);
-        $data['approved_travellers'] = count($this->common_model->get_active_approved_travellers());
-        $data['total_bookings'] = count($this->common_model->get_bookings_by_id($id));
+        $data['approved_travellers'] = $this->traveller_read_model->count_active_approved_travellers();
+        $data['total_bookings'] = $this->booking_read_model->count_bookings_by_user_id($id);
         $this->load->view('users/dashboard', $data);
         $this->dashboard_footer();
     }
@@ -33,10 +35,7 @@ class Dashboard extends MY_Controller
 
     public function kyc()
     {
-        //	$user_details = $this->common_model->get_user_details($this->session->email);
-        //	$data['y'] = $user_details;
         $this->dashboard_header('KYC Verification');
-        $user_id = $this->user_details->id;
         $data['firstname'] = $this->user_details->firstname;
         $data['account_status'] = $this->user_details->account_status;
         $data['has_uploaded'] = $this->user_details->has_uploaded;
@@ -49,33 +48,25 @@ class Dashboard extends MY_Controller
     public function track_parcel()
     {
         $tracking_id = $this->input->post('parcel');
-        $shippings = $this->common_model->get_shipping_by_tracking_id($tracking_id);
+        echo json_encode($this->shipping_model->get_tracking_payload($tracking_id));
+    }
 
-        if (!empty($shippings)) {
-            $data = array(
-                'status' => true,
-                'data' => array()
-            );
 
-            foreach ($shippings as $shipping) {
-                $data['data'][] = array(
-                    'tracking_id' => $shipping->tracking_id,
-                    'icon_text' => $shipping->icon_text,
-                    'heading' => $shipping->heading,
-                    'description' => $shipping->body,
-                    'delivery_status' => $shipping->delivery_status,
-                    'date_added' => x_datetime_full($shipping->date_added)
-                );
-            }
+    public function profile_update()
+    {
+        $this->form_validation->set_rules('number', 'Phone Number', 'trim|required');
+        $this->form_validation->set_rules('address', 'Address', 'trim|required');
+        $this->form_validation->set_rules('state', 'State', 'trim|required');
+        $this->form_validation->set_rules('post_code', 'Post Code', 'trim|required');
 
-            echo json_encode($data);
+        if ($this->form_validation->run()) {
+            $id = $this->user_details->id;
+            $this->users_model->update_profile_to_db($id);
+            $this->session->set_flashdata('status_msg', "Profile Updated");
         } else {
-            $data = array(
-                'status' => false,
-                'msg' => 'No Shipping Info, please check again later.'
-            );
-            echo json_encode($data);
+            $this->session->set_flashdata('status_msg_error', validation_errors());
         }
+        redirect('profile');
     }
 
 
@@ -103,24 +94,4 @@ class Dashboard extends MY_Controller
     }
 
 
-    public function error_page()
-    {
-        $this->dashboard_header('Error 404');
-        $this->load->view('dashboard/dashboard');
-        $this->dashboard_footer();
-    }
-
-
-    public function check($user_id)
-    {
-        $available_balance = $this->withdraw_model->available_balance($user_id);
-        echo "total deposite " . $total_deposits = $this->deposit_model->total_deposits($user_id) . "<br>";
-        echo "total invested " . $total_invested = $this->investment_model->total_investments($user_id) . "<br>";
-        echo "total returns " . $total_returns = $this->investment_model->total_investments_returns($user_id) . "<br>";
-        echo "total request withdrawal " . $total_requested_withdrawals = $this->withdraw_model->total_withdrawals_requested($user_id) . "<br>";
-        echo "total approved withdrawal " . $total_approved_withdrawals = $this->withdraw_model->total_withdrawals_approved($user_id) . "<br>";
-        echo "total rejected withdrawal " . $total_rejected_withdrawals = $this->withdraw_model->total_withdrawals_rejected($user_id) . "<br>";
-        echo "<br>";
-        var_dump($available_balance);
-    }
 }

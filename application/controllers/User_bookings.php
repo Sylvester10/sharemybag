@@ -9,11 +9,13 @@ class User_bookings extends MY_Controller
         parent::__construct();
         $this->user_restricted(); //allow only logged in users to access this class
         $this->load->model('users_model');
-        $this->load->model('common_model');
+        $this->load->model('finance_read_model');
+        $this->load->model('user_read_model');
+        $this->load->model('traveller_read_model');
         $this->load->model('user_bookings_model');
         $this->load->model('travellers_model');
-        $this->user_details = $this->common_model->get_user_details($this->session->email);
-        $this->traveller_details = $this->common_model->get_traveller_details_by_id($this->session->id);
+        $this->user_details = $this->user_read_model->get_user_details($this->session->email);
+        $this->traveller_details = $this->traveller_read_model->get_traveller_details_by_id($this->session->id);
     }
 
 
@@ -35,18 +37,16 @@ class User_bookings extends MY_Controller
     public function search()
     {
         $destination = $this->input->post('destination');
-        $this->load->model('common_model', 'common');
-        $travellers = $this->common_model->get_travellers_by_destination($destination);
+        $travellers = $this->traveller_read_model->get_travellers_by_destination($destination);
         $is_verified = $this->user_details->is_verified;
 
         if (count($travellers) > 0) {
             $data = array();
             foreach ($travellers as $traveller) {
-                // Recalculate bag space before anything else
-                $this->travellers_model->update_traveller_space($traveller->id);
-
-                // Re-fetch traveller after updating space
-                $traveller = $this->common_model->get_traveller_details_by_id($traveller->id);
+                $traveller = $this->travellers_model->update_traveller_space($traveller->id, true);
+                if (!$traveller) {
+                    continue;
+                }
 
                 $days = get_date_difference(date('Y-m-d H:i:s'), $traveller->travel_date);
                 $days = !$days ? 'Today' : ($days > 1 ? "$days Days" : "$days Day");
@@ -86,24 +86,24 @@ class User_bookings extends MY_Controller
     public function buy_bag_space($hash)
     {
         $this->dashboard_header('Buy Space');
-        $traveller = $this->common_model->get_traveller_details_by_hash($hash);
+        $traveller = $this->traveller_read_model->get_traveller_details_by_hash($hash);
         $data['user_details'] = $this->user_details;
         $data['user_id'] = $this->user_details->id;
         $data['traveller_details'] = $traveller;
 
         // Canada users use CAD ($)
         if ($this->user_details->country == 'Canada') {
-            $data['currency'] = 'dollars'; // Used for JS logic
-            $data['symbol'] = '$';         // CAD symbol
+            $data['currency'] = 'CAD';
+            $data['symbol'] = currency_symbol('CAD');
         } else {
             // Nigeria and United Kingdom users use GBP (£)
-            $data['currency'] = 'pounds'; // Used for JS logic
-            $data['symbol'] = '&pound;';   // GBP symbol
+            $data['currency'] = 'GBP';
+            $data['symbol'] = currency_symbol('GBP');
         }
 
         // Safely retrieve exchange rates
-        $cad_rate_obj = $this->common_model->get_most_recent_cad_exchange_rate();
-        $pound_rate_obj = $this->common_model->get_most_recent_pound_exchange_rate();
+        $cad_rate_obj = $this->finance_read_model->get_most_recent_cad_exchange_rate();
+        $pound_rate_obj = $this->finance_read_model->get_most_recent_pound_exchange_rate();
 
         // Assign rates, using 0 as a safe fallback if the rate object is null
         $data['one_pound'] = $pound_rate_obj ? $pound_rate_obj->rate : 0; // GBP to NGN rate
@@ -120,8 +120,7 @@ class User_bookings extends MY_Controller
             echo 0;
             return;
         }
-        $this->travellers_model->update_traveller_space($id);
-        $traveller = $this->common_model->get_traveller_details_by_id($id);
+        $traveller = $this->travellers_model->update_traveller_space($id, true);
         echo !$traveller ? 0 : $traveller->available_space;
     }
 
@@ -130,12 +129,12 @@ class User_bookings extends MY_Controller
     public function add_booking_ajax()
     {
         // Traveller details validation
-        $this->form_validation->set_rules('traveller_id', 'Traveller ID', 'trim');
+        $this->form_validation->set_rules('traveller_id', 'Traveller ID', 'trim|is_natural_no_zero');
         $this->form_validation->set_rules('traveller_name', 'Traveller Name', 'trim');
-        $this->form_validation->set_rules('traveller_email', 'Traveller Email', 'trim');
+        $this->form_validation->set_rules('traveller_email', 'Traveller Email', 'trim|valid_email');
         $this->form_validation->set_rules('traveller_contact', 'Traveller contact', 'trim');
-        $this->form_validation->set_rules('available_space', 'Available Space', 'trim');
-        $this->form_validation->set_rules('traveller_travel_date', 'Traveller travel date', 'trim');
+        $this->form_validation->set_rules('available_space', 'Available Space', 'trim|numeric|greater_than[0]');
+        // $this->form_validation->set_rules('traveller_travel_date', 'Traveller travel date', 'trim');
         $this->form_validation->set_rules('traveller_departure_date', 'Traveller departure date', 'trim');
         $this->form_validation->set_rules('traveller_arrival_date', 'Traveller arrival date', 'trim');
         $this->form_validation->set_rules('traveller_drop_address1', '1st drop address', 'trim');
@@ -161,7 +160,7 @@ class User_bookings extends MY_Controller
         $this->form_validation->set_rules('receiver_address', 'receiver Address', 'trim|required', array('required' => 'Please enter receiver address'));
         $this->form_validation->set_rules('receiver_locality', 'receiver Local', 'trim|required', array('required' => 'Please enter receiver locale'));
         $this->form_validation->set_rules('receiver_postcode', 'receiver Postcode', 'trim', array('required' => 'Please enter receiver postcode'));
-        $this->form_validation->set_rules('payment_method', 'Payment Method', 'trim', array('required' => 'Please select a payment method'));
+        $this->form_validation->set_rules('payment_method', 'Payment Method', 'trim|required|in_list[stripe,paystack]', array('required' => 'Please select a payment method', 'in_list' => 'Invalid payment method selected.'));
 
         $payment_method = $this->input->post('payment_method');
 
@@ -207,30 +206,26 @@ class User_bookings extends MY_Controller
                 }
             };
 
-            // Calculate traveller commission using the shared route pricing rules.
-            $traveller_details = $this->common_model->get_traveller_details_by_id($traveller_id);
-            $items_json = $this->input->post('items');
-            $decoded_items = $items_json ? json_decode($items_json) : [];
-            $traveller_commission = smb_booking_traveller_commission_from_items(
-                $traveller_details->location ?? '',
-                $traveller_details->destination ?? '',
-                is_array($decoded_items) ? $decoded_items : []
+            $traveller_details = $this->traveller_read_model->get_traveller_details_by_id($traveller_id);
+            $calculations = json_decode($this->input->post('price_calculations'));
+            $selected_space = $calculations->selectedSpace; // Use selectedSpace from calculations for accuracy
+            $_POST['traveller_commission'] = $this->users_model->calculate_traveller_commission(
+                $traveller_details,
+                $selected_space,
+                $this->input->post('items')
             );
-
-            // Manually inject the calculated commission into $_POST so it is picked up by the model's extractKeys
-            $_POST['traveller_commission'] = $traveller_commission;
 
             $booking = $this->users_model->add_booking_to_db($user_id, $fullname, $email);
 
             // Safely retrieve exchange rates
-            $cad_rate_obj = $this->common_model->get_most_recent_cad_exchange_rate();
-            $pound_rate_obj = $this->common_model->get_most_recent_pound_exchange_rate();
+            $cad_rate_obj = $this->finance_read_model->get_most_recent_cad_exchange_rate();
+            $pound_rate_obj = $this->finance_read_model->get_most_recent_pound_exchange_rate();
 
             $cad_rate = $cad_rate_obj ? $cad_rate_obj->rate : 0;
             $pound_rate = $pound_rate_obj ? $pound_rate_obj->rate : 0;
 
             // Get traveller details (only needed for route title)
-            $traveller = $this->common_model->get_traveller_details_by_id($booking->traveller_id);
+            $traveller = $this->traveller_read_model->get_traveller_details_by_id($booking->traveller_id);
 
             // UPDATED CURRENCY LOGIC BASED ON USER'S COUNTRY (ORIGIN) ---
             $is_canada_user = ($this->user_details->country == 'Canada');
@@ -238,12 +233,12 @@ class User_bookings extends MY_Controller
             if ($booking) {
                 // Set currency and amount variables based on USER's country
                 if ($is_canada_user) {
-                    $currency = 'cad'; // Charge in CAD
+                    $currency = 'CAD';
                     $exchange_rate = $cad_rate; // CAD to NGN rate
                     $charge_amount = (float)$booking->total_amount; // Amount is in CAD
                     $title_route = $traveller->location . ' - ' . $traveller->destination;
                 } else {
-                    $currency = 'gbp'; // Charge in GBP (for UK and Nigerian users)
+                    $currency = 'GBP';
                     $exchange_rate = $pound_rate; // GBP to NGN rate
                     $charge_amount = (float)$booking->total_amount; // Amount is in GBP
                     $title_route = $traveller->location . ' - ' . $traveller->destination;
@@ -262,7 +257,7 @@ class User_bookings extends MY_Controller
                         $checkout_session = \Stripe\Checkout\Session::create([
                             'line_items' => [[
                                 'price_data' => array(
-                                    'currency' => $currency, // Dynamically set currency (gbp or cad)
+                                    'currency' => strtolower($currency),
                                     'unit_amount' => $charge_amount * 100, // Amount to charge
                                     'product_data' => array(
                                         'name' => $title,
@@ -342,11 +337,7 @@ class User_bookings extends MY_Controller
 
                         if ($response && $response->status) {
                             // Save reference and set initial payment status for your tracking
-                            $this->db->where('id', $booking->id);
-                            $this->db->update('bookings', [
-                                'paystack_ref' => $reference,
-                                'payment_status' => 'canceled'
-                            ]);
+                            $this->users_model->mark_paystack_initialized($booking->id, $reference);
 
                             $res = [
                                 'status' => true,
@@ -400,112 +391,9 @@ class User_bookings extends MY_Controller
 
     public function stripe($hash = false, $status = 'No status')
     {
-        $booking = $this->user_bookings_model->dataByHash($hash);
-        $traveller_id = $booking->traveller_id;
-        $email = $booking->agent_email;
-
-        if ($booking) {
-            $status = $status == '1' ? 'completed' : 'canceled';
-            $data['payment_status'] = $status;
-
-            $this->db->where('id', $booking->id);
-            $this->db->update('bookings', $data);
-
-            if ($status == 'completed') {
-                $data['new'] = 0;
-
-                $this->db->where('id', $booking->id);
-                $this->db->update('bookings', $data);
-
-                $data['tracking_id'] = $booking->tracking_id;
-                $data['total_amount'] = $booking->total_amount;
-                $data['agent_name'] = $booking->agent_name;
-                $data['date_added'] = x_date($booking->date_added);
-                $data['items'] = $booking->items;
-                $data['insurance'] = $booking->insurance;
-                $data['traveller_name'] = $booking->traveller_name;
-                $data['traveller_contact'] = $booking->traveller_contact;
-                $data['traveller_departure_state'] = $booking->traveller_departure_state;
-                $data['traveller_drop_address1'] = $booking->traveller_drop_address1;
-                $data['traveller_drop_date1'] = x_date($booking->traveller_drop_date1);
-                $data['traveller_drop_address2'] = $booking->traveller_drop_address2 == '' ? 'N/A' : $booking->traveller_drop_address2;
-                $data['traveller_drop_date2'] = $booking->traveller_drop_date2 == '' ? 'N/A' : $booking->traveller_drop_date2;
-                $data['traveller_departure_date'] = x_date($booking->traveller_departure_date);
-                $data['traveller_arrival_date'] = $booking->traveller_arrival_date == '' ? 'N/A' : x_date($booking->traveller_arrival_date);
-
-                $data['traveller_current_state'] = $booking->traveller_current_state;
-                $data['traveller_arrival_airport'] = $booking->traveller_arrival_airport;
-                $data['traveller_arrival_state'] = $booking->traveller_arrival_state;
-                $data['currency'] = ($booking->currency == 'dollars') ? '$' : '£';
-
-                //Update the tracking ID, used space and available space in the traveller table
-                $this->travellers_model->update_traveller_space($traveller_id);
-
-                // Send email to Admin and User
-                send_email_notification($this, 'customers@sharemybag.co.uk', 'New Booking', $data, 'admin_booking_notification_email');
-                send_email_notification($this, $email, 'Booking Successful', $data, 'user_booking_notification_email');
-
-                //set success booking notification
-                $res = [
-                    'status' => true,
-                    'msg' => 'Please check your email for details.',
-                    'title' => 'Booking Successful.',
-                    'msg_timeout' => 7000
-                ];
-                $this->session->set_flashdata('status_success', $res['msg']);
-                $this->session->set_flashdata('title', $res['title']);
-                $this->session->set_flashdata('msg_timeout', $res['msg_timeout']);
-
-                // Redirect to booking history where the flash message will be shown
-                redirect('booking-success');
-            } else {
-                // Send email to User
-                // send_email_notification($this, $email, 'Booking Canceled', $data, 'user_booking_notification_email');
-
-                // set cancel booking notification
-                $res = [
-                    'status' => false,
-                    'msg' => 'You canceled the payment.',
-                    'title' => 'Booking Canceled.',
-                    'msg_timeout' => 7000
-                ];
-                $this->session->set_flashdata('status_error', $res['msg']);
-                $this->session->set_flashdata('title', $res['title']);
-                $this->session->set_flashdata('msg_timeout', $res['msg_timeout']);
-
-                // Redirect to buy bag page where the flash message will be shown
-                redirect('history');
-            }
-        } else {
-
-            //set invalid booking notification
-            $res = [
-                'status' => false,
-                'msg' => 'This booking was invalid.',
-                'title' => 'Booking Invalid.',
-                'msg_timeout' => 6000
-            ];
-            $this->session->set_flashdata('status_error', $res['msg']);
-            $this->session->set_flashdata('title', $res['title']);
-            $this->session->set_flashdata('msg_timeout', $res['msg_timeout']);
-
-            // Redirect to booking history where the flash message will be shown
-            redirect('history');
-        }
-
-        // set cancel booking notification
-        $res = [
-            'status' => false,
-            'msg' => 'You canceled the payment.',
-            'title' => 'Booking Canceled.',
-            'msg_timeout' => 7000
-        ];
-        $this->session->set_flashdata('status_error', $res['msg']);
-        $this->session->set_flashdata('title', $res['title']);
-        $this->session->set_flashdata('msg_timeout', $res['msg_timeout']);
-
-        // Redirect to booking history where the flash message will be shown
-        redirect('history');
+        $result = $this->users_model->finalize_booking_payment_by_hash($hash, $status == '1');
+        $this->set_booking_flash($result);
+        redirect($result['redirect']);
     }
 
 
@@ -513,8 +401,6 @@ class User_bookings extends MY_Controller
     {
         $reference = $this->input->get('reference');
         $booking = $this->user_bookings_model->dataByHash($hash);
-        $traveller_id = $booking->traveller_id;
-        $email = $booking->agent_email;
 
         if (!$reference || !$booking) {
             $this->session->set_flashdata('status_error', 'This booking was invalid or missing reference.');
@@ -539,67 +425,51 @@ class User_bookings extends MY_Controller
             curl_close($ch);
 
             $response = json_decode($result);
-            $status = ($response && $response->status && $response->data->status === 'success') ? 'completed' : 'canceled';
-
-            // Update bookings table
-            $this->db->where('id', $booking->id);
-            $this->db->update('bookings', ['payment_status' => $status, 'new' => 0]);
+            $status = payment_status_normalize(($response && $response->status && $response->data->status === 'success') ? 'completed' : 'canceled');
 
             if ($status === 'completed') {
-                $data = [
-                    'tracking_id' => $booking->tracking_id,
-                    'total_amount' => $booking->total_amount,
-                    'agent_name' => $booking->agent_name,
-                    'date_added' => x_date($booking->date_added),
-                    'items' => $booking->items,
-                    'insurance' => $booking->insurance,
-                    'traveller_name' => $booking->traveller_name,
-                    'traveller_contact' => $booking->traveller_contact,
-                    'traveller_departure_state' => $booking->traveller_departure_state,
-                    'traveller_drop_address1' => $booking->traveller_drop_address1,
-                    'traveller_drop_date1' => x_date($booking->traveller_drop_date1),
-                    'traveller_drop_address2' => $booking->traveller_drop_address2 ?: 'N/A',
-                    'traveller_drop_date2' => $booking->traveller_drop_date2 ? x_date($booking->traveller_drop_date2) : 'N/A',
-                    'traveller_departure_date' => x_date($booking->traveller_departure_date),
-                    'traveller_arrival_date' => $booking->traveller_arrival_date ? x_date($booking->traveller_arrival_date) : 'N/A',
-                    'traveller_current_state' => $booking->traveller_current_state,
-                    'traveller_arrival_airport' => $booking->traveller_arrival_airport,
-                    'traveller_arrival_state' => $booking->traveller_arrival_state,
-                ];
-
-                $this->travellers_model->update_traveller_space($traveller_id);
-
-                send_email_notification($this, 'customers@sharemybag.co.uk', 'New Booking', $data, 'admin_booking_notification_email');
-                send_email_notification($this, $email, 'Booking Successful', $data, 'user_booking_notification_email');
-
-                $this->session->set_flashdata('status_success', 'Booking Successful. Check your email for details.');
-                $this->session->set_flashdata('title', 'Booking Successful.');
-                $this->session->set_flashdata('msg_timeout', 7000);
-                redirect('booking-success');
+                $result = $this->users_model->finalize_booking_payment_by_hash($hash, true);
+                $this->set_booking_flash($result);
+                redirect($result['redirect']);
             } else {
-                // Optional: log that user cancelled via $response->data->gateway_response
-                $this->session->set_flashdata('status_error', 'Payment was cancelled or failed.');
-                $this->session->set_flashdata('title', 'Booking Cancelled.');
-                $this->session->set_flashdata('msg_timeout', 7000);
-                redirect('history');
+                $result = [
+                    'status' => false,
+                    'msg' => 'Payment was cancelled or failed.',
+                    'title' => 'Booking Cancelled.',
+                    'msg_timeout' => 7000,
+                    'redirect' => 'history',
+                ];
+                $this->set_booking_flash($result);
+                redirect($result['redirect']);
             }
         }
     }
 
+
     public function paystack_cancel($hash = false)
     {
         if ($hash) {
-            $booking = $this->user_bookings_model->dataByHash($hash);
-            if ($booking) {
-                $this->db->where('id', $booking->id);
-                $this->db->update('bookings', ['payment_status' => 'canceled']);
-            }
+            $this->users_model->cancel_booking_payment_by_hash($hash);
         }
 
-        $this->session->set_flashdata('status_error', 'You canceled the payment.');
-        $this->session->set_flashdata('title', 'Booking Canceled.');
-        $this->session->set_flashdata('msg_timeout', 7000);
-        redirect('history');
+        $result = [
+            'status' => false,
+            'msg' => 'You canceled the payment.',
+            'title' => 'Booking Canceled.',
+            'msg_timeout' => 7000,
+            'redirect' => 'history',
+        ];
+        $this->set_booking_flash($result);
+        redirect($result['redirect']);
+    }
+
+
+    private function set_booking_flash($result)
+    {
+        $flash_key = !empty($result['status']) ? 'status_success' : 'status_error';
+        $this->session->set_flashdata($flash_key, $result['msg']);
+        $this->session->set_flashdata('title', $result['title']);
+        $this->session->set_flashdata('msg_timeout', $result['msg_timeout']);
     }
 
 
@@ -608,11 +478,5 @@ class User_bookings extends MY_Controller
         $this->dashboard_header('Booking Successful');
         $this->load->view('users/booking_success');
         $this->dashboard_footer();
-    }
-
-
-    public function check()
-    {
-        $this->load->view('users/check');
     }
 }

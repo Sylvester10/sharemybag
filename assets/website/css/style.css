@@ -1,20 +1,20 @@
 /*
 Template Name: Experia
-Template URI: 
+Template URI:
 Description: Courier & Delivery Service HTML Template
 Author: Capricorn-Theme
-Author URI: 
+Author URI:
 Version: 1.0
  */
 /*--
-    - Google Font Import 
+    - Google Font Import
 -----------------------------------------*/
 @import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
 @import url("https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap");
 
 
 /*--
-    - Common CSS 
+    - Common CSS
 -----------------------------------------*/
 html,
 body {
@@ -557,6 +557,7 @@ hr {
   font-size: 14px;
   font-weight: 500;
   border-radius: 7px;
+  border: none;
   text-align: center;
   vertical-align: middle;
   cursor: pointer;
@@ -718,7 +719,7 @@ textarea::placeholder {
   }
 }
 
-/* Bacground Color & Overlay CSS 
+/* Bacground Color & Overlay CSS
 ============== */
 .gray-bg {
   background: #F7FBFF;
@@ -779,7 +780,7 @@ textarea::placeholder {
   z-index: -1;
 }
 
-/* Scroll Top 
+/* Scroll Top
 ============== */
 .go-top {
   background-color: #F36B24;
@@ -823,7 +824,7 @@ textarea::placeholder {
   color: #020E28;
 }
 
-/* Sticky CSS 
+/* Sticky CSS
 ============== */
 .header-area .is-sticky .sticky-area {
   background: #fff;
@@ -869,7 +870,7 @@ textarea::placeholder {
   font-size: 14px;
 }
 
-/* services animation effect 
+/* services animation effect
 ----------------------------------*/
 @-webkit-keyframes hvr-buzz-out {
   10% {
@@ -1086,7 +1087,7 @@ textarea::placeholder {
   margin-left: 20px;
 }
 
-/* Header Area 
+/* Header Area
 ============== */
 .header-area .navigation {
   padding: 0px 30px;
@@ -1413,7 +1414,7 @@ li.nav-item a.nav-link i {
   align-items: center;
 }
 
-/* Main Menu 
+/* Main Menu
 ============== */
 .main-menu .navbar {
   padding: 0;
@@ -3912,7 +3913,7 @@ label.form-label {
   background: #253745;
 }
 
-/* Blog-Classic Page 
+/* Blog-Classic Page
 ============== */
 #blog-page .single-blog-item {
   background: #fff;
@@ -4155,7 +4156,7 @@ a.reply-btn {
   color: #fff;
 }
 
-/* Single Blog Page  
+/* Single Blog Page
 ============== */
 .blog-meta {
   margin: 20px 0;
@@ -4455,7 +4456,7 @@ p.privacy a:not(:last-of-type)::after {
 }
 
 /*--------------------------------------------------------------
-# Search Form 
+# Search Form
 --------------------------------------------------------------*/
 .search-box button {
   text-decoration: none;

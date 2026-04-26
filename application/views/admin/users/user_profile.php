@@ -2,14 +2,14 @@
 <?php echo flash_message_danger('status_msg_error'); ?>
 <?php echo custom_validation_errors(); ?>
 
-<div class="new-item">
-	<a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_users'); ?>"><i class="fa-solid fa-users"></i> All Users</a>
+<div class="new-item admin-page-actions">
+	<a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_users'); ?>"><i class="las la-users"></i> All Users</a>
 </div>
 
 
 <div class="row">
 
-	<div class="col-md-4 col-sm-12 col-xs-12 profile_details">
+	<div class="col-md-4 col-sm-12 col-xs-12 profile_details admin-detail-card">
 		<div class="well profile_view">
 
 			<div class="col-xs-12 bottom tw-flex tw-items-center tw-mt-[-10px]">
@@ -37,7 +37,7 @@
 					<li> <b>Post Code:</b> <span> <?php echo $y->post_code; ?> </span> </li>
 					<li> <b>Registered:</b> <span> <?php echo x_date($y->date_registered); ?> </span> </li>
 				</ul>
-				<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable tw-mt-8" data-toggle="modal" data-target="#update<?= $y->id ?>"> <i class="fa fa-pencil" style="color: blue"></i> &nbsp; Update Details </a></p>
+				<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable tw-mt-8" data-toggle="modal" data-target="#update<?= $y->id ?>"> <i class="las la-pen" style="color: blue"></i> &nbsp; Update Details </a></p>
 
 			</div>
 
@@ -130,7 +130,7 @@
 					<div class="mt-3">
 						<button type="submit" id="send_mail_btn" class="btn btn-md btn-primary">
 							<span id="btn_text">Update</span>
-							<span id="loading_icon" style="display: none;"><i class="fa fa-spinner fa-spin"></i></span>
+							<span id="loading_icon" style="display: none;"><i class="las la-spinner la-spin"></i></span>
 						</button>
 					</div>
 
@@ -144,10 +144,9 @@
 
 </div>
 
-<div class="m-b-20">
-	<div class="btn btn-lg" title="Total Booking">
-		<p>Total Bookings: </i> <?= $total_bookings ?> </p>
-	</div>
+<div class="admin-summary-chip" title="Total Booking">
+	<span>Total Bookings:</span>
+	<span><?= $total_bookings ?></span>
 </div>
 
 <?php ?>
@@ -160,7 +159,7 @@ $options_array = array(
 );
 echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
 
-<div class="table-scroll" style="margin-top: 20px!important;">
+<div class="table-scroll admin-inline-table">
 
 	<table id="" class="table table-bordered table-hover cell-text-middle" style="text-align: left">
 
@@ -185,7 +184,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 				<tr>
 					<td> <?php echo checkbox_bulk_action($y->id); ?></td>
-					<?php echo '<td> <div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $y->id . '" title="Options"> <i class="fa fa-navicon"></i> </a></div>';
+					<?php echo '<td> <div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $y->id . '" title="Options"> <i class="las la-bars"></i> </a></div>';
 
 					echo '<div class="modal fade" id="options' . $y->id . '" role="dialog">
 							<div class="modal-dialog">
@@ -198,7 +197,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 									</div><!--/.modal-header-->
 									<div class="modal-body">
 
-										<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $y->id . '"> <i class="fa fa-trash" style="color: red"></i> &nbsp; Delete </a></p>
+										<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $y->id . '"> <i class="las la-trash" style="color: red"></i> &nbsp; Delete </a></p>
 
 									</div>
 								</div>
@@ -231,20 +230,20 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					<?php
 
 					// traveller details
-					$traveller_details = '<i class="fa-solid fa-user"></i> ' . $y->traveller_name . ' <br />
-									<i class="fa-solid fa-phone"></i> ' . $y->traveller_contact . ' <br />
-									<i class="fa-solid fa-location"></i> ' . $y->traveller_drop_address1 . '';
+					$traveller_details = '<i class="las la-user"></i> ' . $y->traveller_name . ' <br />
+									<i class="las la-phone"></i> ' . $y->traveller_contact . ' <br />
+									<i class="las la-map-marker-alt"></i> ' . $y->traveller_drop_address1 . '';
 
 					// agent details
-					$agent_details = '<i class="fa-solid fa-user"></i> ' . $y->agent_name . ' <br />
-											<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . ' <br />
-											<i class="fa-solid fa-envelope"></i> ' . $y->agent_email . ' <br />
-											<i class="fa-solid fa-location"></i> ' . $y->agent_address . ', ' . $y->agent_locality . ', ' . $y->agent_postcode . '';
+					$agent_details = '<i class="las la-user"></i> ' . $y->agent_name . ' <br />
+											<i class="las la-phone"></i> ' . $y->agent_phone . ' <br />
+											<i class="las la-envelope"></i> ' . $y->agent_email . ' <br />
+											<i class="las la-map-marker-alt"></i> ' . $y->agent_address . ', ' . $y->agent_locality . ', ' . $y->agent_postcode . '';
 					// receiver details
-					$receiver_details = '<i class="fa-solid fa-user"></i> ' . $y->receiver_name . ' <br />
-											<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br />
-											<i class="fa-solid fa-envelope"></i> ' . $y->receiver_email . ' <br />
-											<i class="fa-solid fa-location"></i> ' . $y->receiver_address . ', ' . $y->receiver_locality . ', ' . $y->receiver_postcode . '';
+					$receiver_details = '<i class="las la-user"></i> ' . $y->receiver_name . ' <br />
+											<i class="las la-phone"></i> ' . $y->receiver_phone . ' <br />
+											<i class="las la-envelope"></i> ' . $y->receiver_email . ' <br />
+											<i class="las la-map-marker-alt"></i> ' . $y->receiver_address . ', ' . $y->receiver_locality . ', ' . $y->receiver_postcode . '';
 
 					// item details
 					$items = ''; // Initialize $items variable
@@ -261,7 +260,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 							$items .= '<td>' . $item->item_name . '</td>';
 							$items .= '<td>' . $item->category . '</td>';
 							$items .= '<td>' . $item->size . 'KG</td>';
-							$items .= '<td> &pound;' . number_format($item->price, 2) . '</td>';
+							$items .= '<td> ' . currency_symbol($y->currency) . number_format($item->price, 2) . '</td>';
 							$items .= '</tr>';
 						}
 					} else {
@@ -272,10 +271,10 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					$items .= '</table>';
 
 					// payment status
-					$payment_status = ($y->payment_status == 'completed') ? '<span class="badge badge-success">Paid</span>' : '<span class="badge badge-danger">Canceled</span>';
+					$payment_status = (payment_status_normalize($y->payment_status) == 'completed') ? '<span class="badge badge-success">Paid</span>' : '<span class="badge badge-danger">Canceled</span>';
 
 					// delivery status
-					$delivery_status = ($y->delivery_status == 'Delivered') ? '<span class="badge badge-success">Delivered</span>' : (($y->delivery_status == 'In Transit') ? '<span class="badge badge-primary">In Transit </span>' : (($y->delivery_status == 'Shipment Created') ? '<span class="badge badge-primary">Shipment Created </span>' : '<span  class="badge badge-danger">Pending </span>'));
+					$delivery_status = delivery_status_badge($y->delivery_status);
 
 					?>
 

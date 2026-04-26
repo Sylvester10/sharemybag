@@ -1,0 +1,16 @@
+# Deny all direct HTTP access to files in this directory.
+
+Options -Indexes
+
+# Apache 2.2
+<IfModule !mod_authz_core.c>
+    <FilesMatch ".*">
+        Order Allow,Deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# Apache 2.4+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>

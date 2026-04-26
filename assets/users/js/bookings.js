@@ -584,6 +584,8 @@ function calculateBooking() {
 	let insurance = 0;
 	let currency = $("#holdThisInfo").attr("currency");
 	let onePound = $("#holdThisInfo").attr("one_pound");
+	let oneDollar = $("#holdThisInfo").attr("one_dollar");
+	let paymentMethod = $('input[name="payment_method"]:checked').val() || "paystack";
 
 	$(".select_item").each(function (index, element) {
 		selectedSpace += parseFloat($(this).attr("size"));
@@ -591,11 +593,29 @@ function calculateBooking() {
 	});
 
 	firstSelectedPrice =
-		currency == "pounds" ? 50000 / parseFloat(onePound) : 50000;
+		currency == "GBP"
+			? 50000 / parseFloat(onePound)
+			: currency == "CAD"
+			? 50000 / parseFloat(oneDollar)
+			: 50000;
 	secondSelectedPrice =
-		currency == "pounds" ? 100000 / parseFloat(onePound) : 100000;
-	insuranceOne = currency == "pounds" ? 1500 / parseFloat(onePound) : 1500;
-	insuranceTwo = currency == "pounds" ? 3000 / parseFloat(onePound) : 3000;
+		currency == "GBP"
+			? 100000 / parseFloat(onePound)
+			: currency == "CAD"
+			? 100000 / parseFloat(oneDollar)
+			: 100000;
+	insuranceOne =
+		currency == "GBP"
+			? 1500 / parseFloat(onePound)
+			: currency == "CAD"
+			? 1500 / parseFloat(oneDollar)
+			: 1500;
+	insuranceTwo =
+		currency == "GBP"
+			? 3000 / parseFloat(onePound)
+			: currency == "CAD"
+			? 3000 / parseFloat(oneDollar)
+			: 3000;
 
 	// Get the selected insurance value from the select element
 	let selectedInsurance = parseFloat(
@@ -607,20 +627,48 @@ function calculateBooking() {
 
 	let currentAvailableSpace = initialAvailableSpace - selectedSpace;
 	let subTotal = serviceCharge + selectedPrice;
-	let vat = (7.5 / 100) * subTotal;
-	let totalAmount = subTotal + vat + insurance;
+	let specialCharge = 0;
+	let travellerCommission =
+		currency === "CAD"
+			? 10.0 * selectedSpace
+			: ($('input[name="traveller_destination"]').val() || "").trim() === "Nigeria"
+			? 4.5 * selectedSpace
+			: 5.0 * selectedSpace;
+	$(".select_item").each(function () {
+		let category = $(this).attr("category");
+		if (category === "Documents/Electronics" || category === "Fish/Medicine") {
+			travellerCommission += 10.0;
+		} else if (category === "Duty Free") {
+			travellerCommission += 6.5;
+		}
+		if (category === "Fish/Medicine") {
+			specialCharge = 10.0;
+		}
+	});
+	let baseTotal = subTotal + insurance + specialCharge;
+	let platformCommission = Math.max(
+		0,
+		baseTotal - travellerCommission - serviceCharge - insurance
+	);
+	let vatBase = platformCommission + serviceCharge;
+	let vat = paymentMethod === "paystack" ? (7.5 / 100) * vatBase : 0;
+	let totalAmount = baseTotal + vat;
 	let calculatedValues = {
 		initialAvailableSpace: initialAvailableSpace,
 		selectedSpace: parseFloat(selectedSpace.toFixed(2)),
 		selectedPrice: parseFloat(selectedPrice.toFixed(2)),
 		totalAmount: parseFloat(totalAmount.toFixed(2)),
+		baseTotal: parseFloat(baseTotal.toFixed(2)),
 		subTotal: parseFloat(subTotal.toFixed(2)),
 		vat: parseFloat(vat.toFixed(2)),
+		vatBase: parseFloat(vatBase.toFixed(2)),
+		travellerCommission: parseFloat(travellerCommission.toFixed(2)),
 		currentAvailableSpace: currentAvailableSpace,
 		serviceCharge: parseFloat(serviceCharge.toFixed(2)),
 		insurance: parseFloat(insurance.toFixed(2)),
 		currency: currency,
 		onePound: onePound,
+		oneDollar: oneDollar,
 	};
 	$("#price_calculations").val(JSON.stringify(calculatedValues));
 	return calculatedValues;
@@ -638,12 +686,17 @@ function updateBooking() {
 		`${calculateBooking().insurance.toLocaleString()}`
 	);
 	totalAmountNaira =
-		calculateBooking().currency == "naira"
+		calculateBooking().currency == "NGN"
 			? calculateBooking().totalAmount
+			: calculateBooking().currency == "CAD"
+			? calculateBooking().totalAmount * calculateBooking().oneDollar
 			: calculateBooking().totalAmount * calculateBooking().onePound;
 	totalAmountPounds =
-		calculateBooking().currency == "pounds"
+		calculateBooking().currency == "GBP"
 			? calculateBooking().totalAmount
+			: calculateBooking().currency == "CAD"
+			? (calculateBooking().totalAmount * calculateBooking().oneDollar) /
+			  calculateBooking().onePound
 			: calculateBooking().totalAmount / calculateBooking().onePound;
 
 	$("#totalAmountNaira").html(

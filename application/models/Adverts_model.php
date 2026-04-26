@@ -23,7 +23,7 @@ class Adverts_model extends CI_Model
 
 	public function get_advert_details($id)
 	{ //get adverts details
-		return $this->db->get_where('adverts', array('id' => $id))->row();
+		return $this->db->where(array('id' => $id))->get('adverts')->row();
 	}
 
 
@@ -46,7 +46,7 @@ class Adverts_model extends CI_Model
 	{ //get published adverts
 		$this->db->limit($limit, $offset); //limit to be used as per_page, offset to be used as pagination segment
 		$this->db->order_by("date_added", "DESC"); //order by date_unix DESC so that the dates appear chronologically
-		$query = $this->db->get_where('adverts', array('published' => 'true'));
+		$query = $this->db->where(array('published' => 'true'))->get('adverts');
 		if ($query->num_rows() > 0) {
 			foreach ($query->result() as $row) {
 				$data[] = $row;
@@ -61,25 +61,25 @@ class Adverts_model extends CI_Model
 	{ //get recent published adverts
 		$this->db->order_by('date_added', 'DESC');
 		$this->db->limit($limit);
-		return $this->db->get_where('adverts', array('published' => 'true'))->result();
+		return $this->db->where(array('published' => 'true'))->get('adverts')->result();
 	}
 
 
 	public function count_adverts()
 	{
-		return $this->db->get_where('adverts')->num_rows();
+		return $this->db->where(array('published' => 'true'))->get('adverts')->num_rows();
 	}
 
 
 	public function count_published_adverts()
 	{
-		return $this->db->get_where('adverts', array('published' => 'true'))->num_rows();
+		return $this->db->get_where('adverts')->num_rows();
 	}
 
 
 	public function count_unpublished_adverts()
 	{
-		return $this->db->get_where('adverts', array('published' => 'false'))->num_rows();
+		return $this->db->where(array('published' => 'false'))->get('adverts')->num_rows();
 	}
 
 
@@ -144,12 +144,20 @@ class Adverts_model extends CI_Model
 			}
 
 			// Set the flash message using count of the selected rows
-			$action_message = match ($bulk_action_type) {
-				'publish' => 'advert(s) published successfully.',
-				'unpublish' => 'advert(s) unpublished successfully.',
-				'delete' => 'advert(s) deleted successfully.',
-				default => 'action completed successfully.'
-			};
+			switch ($bulk_action_type) {
+				case 'publish':
+					$action_message = 'advert(s) published successfully.';
+					break;
+				case 'unpublish':
+					$action_message = 'advert(s) unpublished successfully.';
+					break;
+				case 'delete':
+					$action_message = 'advert(s) deleted successfully.';
+					break;
+				default:
+					$action_message = 'action completed successfully.';
+					break;
+			}
 
 			$this->session->set_flashdata('status_msg', count($selected_rows) . " " . $action_message);
 		} else {

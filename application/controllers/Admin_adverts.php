@@ -2,11 +2,11 @@
 defined('BASEPATH') or die('Direct access not allowed');
 
 
-/* ===== Documentation ===== 
-Name: Home
+/* ===== Documentation =====
+Name: Admin_adverts
 Role: Controller
 Description: Controls access to Adverts pages and functions in admin panel
-Models: Advert_model
+Models: Adverts_model
 Author: Sylvester Esso Nmakwe
 Date Created: 10th May, 2023
 */
@@ -20,7 +20,7 @@ class Admin_adverts extends MY_Controller
 		parent::__construct();
 		$this->admin_restricted(); //allow only logged in users to access this class
 		$this->load->model('adverts_model');
-		$this->admin_detail = $this->common_model->get_admin_details($this->session->admin_email);
+		$this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
 	}
 
 
@@ -152,10 +152,4 @@ class Admin_adverts extends MY_Controller
 		}
 		redirect($this->agent->referrer());
 	}
-
-
-
-
-
-
 }

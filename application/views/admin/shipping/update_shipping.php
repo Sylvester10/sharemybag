@@ -1,8 +1,7 @@
 
-
-<div class="new-item">
+<div class="new-item admin-page-actions">
     <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_bookings'); ?>"><i
-            class="fa fa-book"></i> All Bookings</a>
+            class="las la-book"></i> All Bookings</a>
 </div>
 
 
@@ -11,7 +10,7 @@
 echo form_open_multipart('admin_bookings/update_shipping_ajax/' . $y->id); ?>
 
 <div class="row">
-    <div class="col-md-6 col-sm-12 col-xs-12">
+    <div class="col-md-6 col-sm-12 col-xs-12 admin-form-card">
 
         <div class="form-group">
             <label class="form-control-label">Tracking ID</label>
@@ -24,9 +23,8 @@ echo form_open_multipart('admin_bookings/update_shipping_ajax/' . $y->id); ?>
             <br />
             <select class="form-control" name="heading">
                 <option value=""> Select </option>
-                <option value="Shipment Created"> Shipment Created </option>
                 <option value="In Transit"> In Transit </option>
-                <option value="Delivered"> Delivered </option>
+                <option value="Completed"> Completed </option>
             </select>
         </div>
 

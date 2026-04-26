@@ -1,145 +1,33 @@
-<!DOCTYPE html>
-<html>
+<?php $email_title = 'Verification Unsuccessful';
+include 'email_header.php'; ?>
 
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-        }
+<p class="greeting">Hi <?= $firstname ?>,</p>
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
+<div class="fail-banner">
+    <span class="banner-icon">❌</span>
+    <p class="banner-title-red">Identity Verification Unsuccessful</p>
+</div>
 
-        .header-logo {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            border-radius: 5px;
-            box-sizing: border-box;
-            text-align: center;
-            background-color: #f5f5f5;
-        }
+<p>We were unable to verify your identity this time. Here are the most common reasons this happens:</p>
 
-        .heading {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
+<p class="reasons-label">Common reasons</p>
+<ul class="reasons-list">
+    <li><span class="reason-dot">!</span> Your selfie or ID photos were not taken in clear, well-lit conditions.</li>
+    <li><span class="reason-dot">!</span> Part of your face was obstructed in the selfie, or details were cut off on the ID.</li>
+    <li><span class="reason-dot">!</span> The document submitted was not a valid or approved identification type.</li>
+    <li><span class="reason-dot">!</span> The ID submitted has expired.</li>
+</ul>
 
-        .fs-4 {
-            font-size: 14px;
-            font-weight: bold;
-        }
+<p>Please log in to your account to try again, keeping the above guidelines in mind.</p>
 
-        .mt-2 {
-            margin-top: 25px;
-        }
+<div class="btn-wrap">
+    <a href="<?php echo base_url('login'); ?>" class="btn">Log In &amp; Try Again</a>
+</div>
+<p style="text-align:center; font-size:13px; color:#6b7280; margin-top:12px;">
+    Still having trouble? <a href="https://wa.me/message/AWBY2J7LXISDM1" class="text-link">Chat with our support team →</a>
+</p>
 
-        .mb-0 {
-            margin-bottom: -15px;
-        }
+<hr class="divider">
+<p class="sign-off">Best regards,<br><strong>The <?= business ?> Team</strong></p>
 
-        .mb-2 {
-            margin-bottom: 20px;
-        }
-
-        .mb-3 {
-            margin-bottom: 30px;
-        }
-
-        .order-details {
-            margin-bottom: 20px;
-        }
-
-        .order-details b {
-            font-weight: bold;
-        }
-
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            text-align: center;
-            color: #777;
-        }
-
-        .logo {
-            display: inline-block;
-            width: 100px;
-            height: auto;
-            margin-bottom: 10px;
-        }
-
-        .item-table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        .item-table th,
-        .item-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .item-table th {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="header-logo">
-        <!--Logo-->
-        <div id="icon" style="position: center;">
-            <img src="<?php echo production_url('assets/general/logo/colored_logo.png'); ?>" style="width:100px;">
-        </div>
-    </div>
-
-    <div class="container">
-
-
-        <div class="order-details" style="position: center;">
-            <p>Hi <?= $firstname ?>, </p>
-
-            <p>Unfortunately, your identity verification was unsuccessful.</p>
-
-            <p>Here are a few reasons why this may have occurred:</p>
-
-            <ul>
-                <li>Ensure that your selfie and ID photos are taken in clear, well-lit conditions.</li>
-                <li>Make sure nothing obstructs your face in the selfie or any part of your ID.</li>
-                <li>Confirm that you are submitting a valid and approved identification type.</li>
-                <li>Verify that your ID is not expired.</li>
-            </ul>
-
-            <p>Log in to you account and try again. Please ensure you adhere to the above.</p>
-
-            <p>If you need further assistance, <a href="https://wa.me/message/AWBY2J7LXISDM1">click here</a> to speak to a member of our team.</p>
-
-
-        </div>
-
-        <p class="mb-0 mt-2 ">Best regards,</p>
-        <p><strong><?= business ?> Team</strong></p>
-
-        <div class="footer">
-            &copy; <?php echo date('Y'); ?> <?= business ?>. All rights reserved.
-        </div>
-    </div>
-</body>
-
-</html>
+<?php include 'email_footer.php'; ?>

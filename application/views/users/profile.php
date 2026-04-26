@@ -1,7 +1,6 @@
 <div class="container-fluid">
-
-    <div class="card">
-        <div class="card-header text-bg-primary">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header text-bg-primary py-3">
             <h4 class="mb-0 text-white">Profile</h4>
         </div>
 
@@ -21,13 +20,18 @@
         </ul>
 
         <!-- referral link -->
-        <div class="page-titles mb-0">
-            <!-- <p class="me-2">Referral Link</p> -->
-            <div class="referal-link-btn">
-                <button type="button" id="referal-link-to-us" class="copy-referral" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-original-title="Click To Copy Referral Link">
-                    <span class="r-link"><?= $referral_link ?></span>
-                    <span class="r-icon"><i class="ti ti-link"></i></span>
-                </button>
+        <div class="card-body border-bottom pb-3">
+            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                <div>
+                    <h5 class="mb-1">Account Access</h5>
+                    <p class="text-muted mb-0">Use this page to confirm your contact details and update your password.</p>
+                </div>
+                <div class="referal-link-btn">
+                    <button type="button" id="referal-link-to-us" class="copy-referral" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-original-title="Click To Copy Referral Link">
+                        <span class="r-link"><?= $referral_link ?></span>
+                        <span class="r-icon"><i class="ti ti-link"></i></span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -36,9 +40,10 @@
                 <div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
                     <div class="row">
                         <div class="col-12">
-                            <div class="card w-100 border position-relative overflow-hidden mb-0">
+                            <div class="card w-100 border position-relative overflow-hidden mb-0 shadow-sm">
                                 <div class="card-body p-4">
                                     <h4 class="card-title mb-4">User Account</h4>
+                                    <p class="text-muted mb-4">Complete any missing contact fields below. Locked fields already match the current account record.</p>
 
                                     <form action="<?= base_url('profile/profile_ajax/' . $user_details->id) ?>" class="form-ajax" method="POST" enctype="multipart/form-data"
                                         target="_blank" redirect="<?= base_url('kyc') ?>">
@@ -106,9 +111,9 @@
 
                                             <?php   } else { ?>
 
-                                                <div class="card !tw-bg-[#020713]">
-                                                    <div class="card-body p-4">
-                                                        <p class="text-white text-center mb-0">Contact Admin to update your profile details </p>
+                                                <div class="col-12">
+                                                    <div class="alert alert-dark mb-0 mt-4 text-center">
+                                                        Contact Admin to update your profile details.
                                                     </div>
                                                 </div>
 
@@ -126,9 +131,10 @@
                 <div class="tab-pane fade" id="pills-security" role="tabpanel" aria-labelledby="pills-security-tab" tabindex="0">
                     <div class="row">
                         <div class="col-lg-6 d-flex align-items-stretch">
-                            <div class="card w-100 border position-relative overflow-hidden">
+                            <div class="card w-100 border position-relative overflow-hidden shadow-sm">
                                 <div class="card-body p-4">
                                     <h4 class="card-title mb-4">Change Password</h4>
+                                    <p class="text-muted mb-4">Set a new password for this account. The old password is replaced immediately after a successful update.</p>
 
                                     <form action="<?= base_url('profile/change_password/' . $user_details->id) ?>" class="form-ajax" method="POST" enctype="multipart/form-data" target="_blank" redirect="<?= base_url('profile') ?>">
 

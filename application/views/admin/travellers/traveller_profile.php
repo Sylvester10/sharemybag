@@ -1,32 +1,43 @@
-<div class="new-item">
+<div class="new-item admin-page-actions">
 	<a class="btn btn-default btn-sm button-adjust"
-		href="<?php echo base_url('admin_travellers/update_traveller/' . $y->id); ?>"><i class="fa fa-pencil"></i> Edit
+		href="<?php echo base_url('admin_travellers/update_traveller/' . $y->id); ?>"><i class="las la-pen"></i> Edit
 		Traveller</a>
+	<a class="btn btn-default btn-sm button-adjust" href="#" data-toggle="modal" data-target="#addTravellerBagSpaceModal"><i class="las la-plus"></i> Add Bag Space</a>
+	<a class="btn btn-default btn-sm button-adjust" href="#" data-toggle="modal" data-target="#removeTravellerBagSpaceModal"><i class="las la-minus"></i> Remove Bag Space</a>
 	<a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_travellers'); ?>"><i
-			class="fa fa-users"></i> Available Travellers</a>
+			class="las la-users"></i> Available Travellers</a>
 </div>
 
+<input type="hidden" id="csrf_hash" value="<?php echo html_escape($this->security->get_csrf_hash()); ?>" />
 
-<p><b>Status:</b>
+
+<p class="admin-status-line"><b>Status:</b>
 	<?php
 
 	if ($y->available_space > 0) {
-		echo '<span class="text-success"><b> Available </b></span>';
+		echo smb_badge('Available', 'badge-success');
 	} else {
-		echo '<span class="text-danger"><b> Unavailable </b></span>';
+		echo smb_badge('Unavailable', 'badge-danger');
 	}
 
 	?>
 </p>
 
+<div class="admin-summary-chip">
+	<i class="las la-briefcase"></i>
+	<span><strong>Original:</strong> <?php echo (float) $y->original_bag_space; ?> KG</span>
+	<span><strong>Used:</strong> <?php echo (float) $y->used_space; ?> KG</span>
+	<span><strong>Available:</strong> <?php echo (float) $y->available_space; ?> KG</span>
+</div>
+
 <div class="row">
 
-	<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 profile_details">
+	<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 profile_details admin-detail-card">
 		<div class="well profile_view">
 
 			<div class="col-xs-12 bottom tw-flex tw-items-center tw-mt-[-10px]">
 				<div class="tw-ml-4">
-					<p class="tw-text-[20px] tw-font-bold"><i class="fa-solid fa-person-walking-luggage"></i> Traveller Information</p>
+					<p class="tw-text-[20px] tw-font-bold"><i class="las la-suitcase-rolling"></i> Traveller Information</p>
 				</div>
 			</div>
 
@@ -48,12 +59,12 @@
 		</div>
 	</div>
 
-	<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 profile_details">
+	<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 profile_details admin-detail-card">
 		<div class="well profile_view">
 
 			<div class="col-xs-12 bottom tw-flex tw-items-center tw-mt-[-10px]">
 				<div class="tw-ml-4">
-					<p class="tw-text-[20px] tw-font-bold"><i class="fa-solid fa-plane"></i> Travel Information</p>
+					<p class="tw-text-[20px] tw-font-bold"><i class="las la-plane"></i> Travel Information</p>
 				</div>
 			</div>
 
@@ -75,13 +86,14 @@
 
 </div>
 
-<h3 class="text-bold"><i class="fa fa-shopping-bag f-s-30"></i> Booking Information</h3>
+<h3 class="text-bold"><i class="las la-shopping-bag f-s-30"></i> Booking Information</h3>
 
 <?php
 
 ?>
 
 <?php
+$traveller = $y;
 //select options bulk actions
 $options_array = array(
 	//'value' => 'Caption'
@@ -89,9 +101,9 @@ $options_array = array(
 );
 echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
 
-<div class="table-scroll" style="margin-top: 20px!important;">
+<div class="table-scroll admin-inline-table">
 
-	<table id="" class="table table-bordered table-hover cell-text-middle" style="text-align: left">
+	<table id="table" class="table table-bordered table-hover cell-text-middle" style="text-align: left">
 
 		<thead>
 			<tr>
@@ -109,46 +121,54 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 		</thead>
 
 		<tbody>
-			<?php
-			foreach ($booking_details as $y) { ?>
+			<?php if (!empty($booking_details)) { ?>
+			<?php foreach ($booking_details as $booking) { ?>
 
 				<tr>
-					<td> <?php echo checkbox_bulk_action($y->id); ?></td>
+					<td> <?php echo checkbox_bulk_action($booking->id); ?></td>
 
-					<?php echo '<td> <div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $y->id . '" title="Options"> <i class="fa fa-navicon"></i> </a></div>';
+					<?php echo '<td> <div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $booking->id . '" title="Options"> <i class="las la-bars"></i> </a></div>';
 
-					echo '<div class="modal fade" id="options' . $y->id . '" role="dialog">
+					echo '<div class="modal fade" id="options' . $booking->id . '" role="dialog">
 							<div class="modal-dialog">
 								<div class="modal-content modal-width">
 									<div class="modal-header">
 										<div class="pull-right">
 											<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
 										</div>
-										<h4 class="modal-title">Actions:' . $y->tracking_id . '</h4>
+										<h4 class="modal-title">Actions:' . $booking->tracking_id . '</h4>
 									</div><!--/.modal-header-->
 									<div class="modal-body">
 
-										<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $y->id . '"> <i class="fa fa-trash" style="color: red"></i> &nbsp; Delete </a></p>
+										<p><a type="button" href="' . base_url('admin_bookings/view_booking/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-eye" style="color: green"></i> &nbsp; View Booking </a></p>
+
+										<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" onclick="openAddParcelModal(' . $booking->id . ')" data-dismiss="modal"> <i class="las la-plus" style="color: green"></i> &nbsp; Add Parcel </a></p>
+
+										<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" onclick="openRemoveParcelModal(' . $booking->id . ', \'' . htmlspecialchars(addslashes($booking->items), ENT_QUOTES, 'UTF-8') . '\')" data-dismiss="modal"> <i class="las la-minus" style="color: red"></i> &nbsp; Remove Parcel </a></p>
+
+										<hr>
+
+										<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $booking->id . '"> <i class="las la-trash" style="color: red"></i> &nbsp; Delete </a></p>
 
 									</div>
 								</div>
 							</div>
 						</div>
 
-						<div class="modal fade" id="delete' . $y->id . '" role="dialog">
+						<div class="modal fade" id="delete' . $booking->id . '" role="dialog">
 							<div class="modal-dialog">
 								<div class="modal-content">
 									<div class="modal-header">
 										<div class="pull-right">
 											<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
 										</div>
-										<h4 class="modal-title">' . $y->tracking_id . '</h4>
+										<h4 class="modal-title">' . $booking->tracking_id . '</h4>
 									</div><!--/.modal-header-->
 									<div class="modal-body">
 										Are you sure you want to permanently delete this transaction?
 									</div>
 									<div class="modal-footer">
-										<a class="btn btn-sm btn-danger" role="button" href="' . base_url('admin_bookings/delete_booking/' . $y->id) . '"> Yes, Delete </a>
+										<a class="btn btn-sm btn-danger" role="button" href="' . base_url('admin_bookings/delete_booking/' . $booking->id) . '"> Yes, Delete </a>
 										<button data-dismiss="modal" class="btn btn-sm"> No, Cancel </button>
 									</div>
 								</div>
@@ -160,22 +180,22 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 					<?php
 
-					$user_details = $y->payment_method == 'offline'
-						? '<i class="fa-solid fa-user"></i> ' . $y->user_fullname . '<br />
-							<i class="fa-solid fa-at"></i> ' . $y->user_email . ' <br /> <i class="fa-solid fa-exclamation-circle"></i> This is an offline booking'
-						: '<i class="fa-solid fa-user"></i> ' . $y->user_fullname . '<br />
-							<i class="fa-solid fa-at"></i> ' . $y->user_email;
+					$user_details = $booking->payment_method == 'offline'
+						? '<i class="las la-user"></i> ' . $booking->user_fullname . '<br />
+							<i class="las la-at"></i> ' . $booking->user_email . ' <br /> <i class="las la-exclamation-circle"></i> This is an offline booking'
+						: '<i class="las la-user"></i> ' . $booking->user_fullname . '<br />
+							<i class="las la-at"></i> ' . $booking->user_email;
 
-				$agent_details = '<i class="fa-solid fa-user"></i> ' . $y->agent_name . '<br />
-							<i class="fa-solid fa-phone"></i> ' . $y->agent_phone . '<br />
-							<i class="fa-solid fa-at"></i> ' . $y->agent_email . '<br />
-							<i class="fa-solid fa-location-dot"></i> ' . $y->agent_address;
+				$agent_details = '<i class="las la-user"></i> ' . $booking->agent_name . '<br />
+							<i class="las la-phone"></i> ' . $booking->agent_phone . '<br />
+							<i class="las la-at"></i> ' . $booking->agent_email . '<br />
+							<i class="las la-map-marker-alt"></i> ' . $booking->agent_address;
 
 				// receiver details
-				$receiver_details = '<i class="fa-solid fa-user"></i> ' . $y->receiver_name . ' <br />
-								<i class="fa-solid fa-phone"></i> ' . $y->receiver_phone . ' <br />
-								<i class="fa-solid fa-at"></i> ' . $y->receiver_email . ' <br />
-								<i class="fa-solid fa-location-dot"></i> ' . $y->receiver_address . ', ' . $y->receiver_locality . ', ' . $y->receiver_postcode . '';
+				$receiver_details = '<i class="las la-user"></i> ' . $booking->receiver_name . ' <br />
+								<i class="las la-phone"></i> ' . $booking->receiver_phone . ' <br />
+								<i class="las la-at"></i> ' . $booking->receiver_email . ' <br />
+								<i class="las la-map-marker-alt"></i> ' . $booking->receiver_address . ', ' . $booking->receiver_locality . ', ' . $booking->receiver_postcode . '';
 
 					// item details
 					$items = ''; // Initialize $items variable
@@ -184,7 +204,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					$items .= '<thead><tr><th>Item</th><th>Category</th><th>Size</th><th>Price</th></tr></thead>';
 					$items .= '<tbody>';
 
-					$decoded_items = json_decode($y->items);
+					$decoded_items = json_decode($booking->items);
 
 					if (is_array($decoded_items) || is_object($decoded_items)) {
 						foreach ($decoded_items as $item) {
@@ -192,7 +212,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 							$items .= '<td>' . $item->item_name . '</td>';
 							$items .= '<td>' . $item->category . '</td>';
 							$items .= '<td>' . $item->size . 'KG</td>';
-							$items .= '<td> &pound;' . number_format($item->price, 2) . '</td>';
+							$items .= '<td> ' . currency_symbol($booking->currency) . number_format($item->price, 2) . '</td>';
 							$items .= '</tr>';
 						}
 					} else {
@@ -202,17 +222,23 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					$items .= '</tbody>';
 					$items .= '</table>';
 
-					$payment_method = match ($y->payment_method) {
-						'stripe' => '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">',
-						'paystack' => '<img src="' . base_url('assets/general/paystack.svg') . '" alt="Paystack" width="80" height="20">',
-						default => 'Offline',
-					};
+					switch ($booking->payment_method) {
+						case 'stripe':
+							$payment_method = '<img src="' . base_url('assets/general/stripe.svg') . '" alt="Stripe" width="40" height="20">';
+							break;
+						case 'paystack':
+							$payment_method = '<img src="' . base_url('assets/general/paystack.svg') . '" alt="Paystack" width="80" height="20">';
+							break;
+						default:
+							$payment_method = 'Offline';
+							break;
+					}
 
 					// payment status
-					$payment_status = ($y->payment_status == 'completed') ? '<span class="badge badge-success"><b>Paid</span>' : '<span class="badge badge-danger"><b>Canceled</b></span>';
+					$payment_status = (payment_status_normalize($booking->payment_status) == 'completed') ? '<span class="badge badge-success"><b>Paid</span>' : '<span class="badge badge-danger"><b>Canceled</b></span>';
 
 					// delivery status
-					$delivery_status = ($y->delivery_status == 'Delivered') ? '<span class="badge badge-success">Delivered</span>' : (($y->delivery_status == 'In Transit') ? '<span class="badge badge-primary">In Transit </span>' : (($y->delivery_status == 'Shipment Created') ? '<span class="badge badge-primary">Shipment Created </span>' : '<span  class="badge badge-danger">Pending </span>'));
+					$delivery_status = delivery_status_badge($booking->delivery_status);
 
 					?>
 
@@ -220,12 +246,17 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					<td> <?= $agent_details ?> </td>
 					<td> <?= $receiver_details ?> </td>
 					<td> <?= $items ?> </td>
-					<td> &pound; <?= number_format($y->traveller_commission, 2) ?> </td>
+					<td> <?= currency_symbol($booking->currency) ?><?= number_format($booking->traveller_commission, 2) ?> </td>
 					<td> <?= $payment_method ?></td>
 					<td> <?= $payment_status ?></td>
-					<td> <?= x_date($y->date_added) ?> </td>
+					<td> <?= x_date($booking->date_added) ?> </td>
 				</tr>
 
+			<?php } ?>
+			<?php } else { ?>
+				<tr>
+					<td colspan="10" class="text-center text-muted">No completed bookings are currently attached to this traveller.</td>
+				</tr>
 			<?php } ?>
 
 		</tbody>
@@ -236,6 +267,69 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 <?php echo form_close(); ?>
 
+<?php
+$bag_options = '<option value="">Select</option>';
+foreach (kilogram() as $space) {
+	$bag_options .= '<option value="' . (int) $space . '">' . (int) $space . ' KG</option>';
+}
+?>
 
+<div class="modal fade" id="addTravellerBagSpaceModal" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="pull-right">
+					<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+				</div>
+				<h4 class="modal-title">Add Bag Space: <?php echo html_escape($traveller->fullname); ?></h4>
+			</div>
+			<?php echo form_open_multipart('admin_travellers/add_traveller_bag_space/' . $traveller->id); ?>
+			<div class="modal-body">
+				<div class="form-group">
+					<label class="form-control-label">Select Bag Space</label>
+					<br>
+					<select class="form-control" name="selected_space" required>
+						<?php echo $bag_options; ?>
+					</select>
+				</div>
+				<br>
+				<small>Selected space will be added to the traveller’s original and available bag space.</small>
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-md btn-primary">Update Bag Space</button>
+			</div>
+			<?php echo form_close(); ?>
+		</div>
+	</div>
+</div>
 
-<?php  ?>
+<div class="modal fade" id="removeTravellerBagSpaceModal" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="pull-right">
+					<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+				</div>
+				<h4 class="modal-title">Remove Bag Space: <?php echo html_escape($traveller->fullname); ?></h4>
+			</div>
+			<?php echo form_open_multipart('admin_travellers/remove_traveller_bag_space/' . $traveller->id); ?>
+			<div class="modal-body">
+				<div class="form-group">
+					<label class="form-control-label">Select Bag Space</label>
+					<br>
+					<select class="form-control" name="selected_space" required>
+						<?php echo $bag_options; ?>
+					</select>
+				</div>
+				<br>
+				<small>Selected space will be removed from the traveller’s original and available bag space.</small>
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-md btn-primary">Update Bag Space</button>
+			</div>
+			<?php echo form_close(); ?>
+		</div>
+	</div>
+</div>
+
+<?php $this->load->view('admin/bookings/modal/add_remove_parcel'); ?>

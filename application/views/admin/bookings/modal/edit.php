@@ -28,9 +28,8 @@
                     <br />
                     <select class="form-control" name="delivery_status">
                         <option value="<?php echo set_value('delivery_status', $y->delivery_status); ?>"> <?php echo $y->delivery_status; ?> </option>
-                        <option value="Shipment Created"> Shipment Created </option>
                         <option value="In Transit"> In Transit </option>
-                        <option value="Delivered"> Delivered </option>
+                        <option value="Completed"> Completed </option>
                     </select>
                 </div>
 

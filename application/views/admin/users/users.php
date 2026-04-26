@@ -15,31 +15,26 @@ $options_array = array(
 	'delete' => 'Delete'
 );
 echo modal_bulk_actions('admin_users/bulk_actions_user', $options_array); ?>
-
-<div class="table-scroll">
-	<table id="users_table" class="table table-bordered table-hover cell-text-middle" style="text-align: left">
-
-		<input type="hidden" id="csrf_hash" value="<?php echo $this->security->get_csrf_hash(); ?>" />
-
-		<thead>
-			<tr>
-				<th class="w-15-p"> <input type="checkbox" class="radio-box select_all" /> </th>
-				<th> Actions </th>
-				<th class=""> Photo </th>
-				<th class=""> Id Card </th>
-				<th class=""> Utility Bill </th>
-				<th class="min-w-200"> Name </th>
-				<th class="min-w-300"> Contact Details </th>
-				<th class="min-w-100"> Country </th>
-				<th class=""> Verification Status </th>
-				<th class=""> Account Status </th>
-				<th class="min-w-100"> Last Login </th>
-				<th class="min-w-100"> Date Registered </th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
-</div>
+<?php
+$columns = array(
+    array('label' => '<input type="checkbox" class="radio-box select_all" />', 'class' => 'w-15-p'),
+    array('label' => 'Actions'),
+    array('label' => 'Photo'),
+    array('label' => 'Id Card'),
+    array('label' => 'Utility Bill'),
+    array('label' => 'Name', 'class' => 'min-w-200'),
+    array('label' => 'Contact Details', 'class' => 'min-w-300'),
+    array('label' => 'Country', 'class' => 'min-w-100'),
+    array('label' => 'Verification Status'),
+    array('label' => 'Account Status'),
+    array('label' => 'Last Login', 'class' => 'min-w-100'),
+    array('label' => 'Date Registered', 'class' => 'min-w-100'),
+);
+$this->load->view('admin/partials/datatable_shell', array(
+    'table_id' => 'users_table',
+    'columns' => $columns,
+    'csrf_hash' => $this->security->get_csrf_hash(),
+));
+?>
 
 <?php echo form_close(); ?>

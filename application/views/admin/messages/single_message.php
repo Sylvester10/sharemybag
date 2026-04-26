@@ -25,7 +25,7 @@
 			      			<div class="mail_list">
 			        			<div class="left">
 			          				<?php echo checkbox_bulk_action($y->id); ?>
-			          				<a type="button" href="#!" data-toggle="modal" data-target="#delete<?php echo $y->id; ?>"><i class="fa fa-trash text-danger"></i></a>
+			          				<a type="button" href="#!" data-toggle="modal" data-target="#delete<?php echo $y->id; ?>"><i class="las la-trash text-danger"></i></a>
 			        			</div>
 			        			<div class="right">
 			        				<h3>
@@ -66,8 +66,8 @@
           		<div class="mail_heading row">
             		<div class="col-md-8">
               			<div class="btn-group">
-                			<!--<button class="btn btn-sm btn-primary" type="button" data-toggle="modal" data-target="#message<?php echo $message->id; ?>"><i class="fa fa-reply"></i> Reply</button>-->
-                			<button class="btn btn-sm btn-danger" type="button" data-toggle="modal" data-target="#delete<?php echo $message->id; ?>"><i class="fa fa-trash"></i> Delete</button>
+                			<!--<button class="btn btn-sm btn-primary" type="button" data-toggle="modal" data-target="#message<?php echo $message->id; ?>"><i class="las la-reply"></i> Reply</button>-->
+                			<button class="btn btn-sm btn-danger" type="button" data-toggle="modal" data-target="#delete<?php echo $message->id; ?>"><i class="las la-trash"></i> Delete</button>
               			</div>
             		</div>
             		<div class="col-md-4 text-right">
@@ -82,8 +82,8 @@
           		<div class="sender-info">
             		<div class="row">
               			<div class="col-md-12">
-                			<i class="fa fa-user"></i> <?php echo $message->name; ?> <br />
-                			<i class="fa fa-envelope"></i> <?php echo $message->email; ?>
+                			<i class="las la-user"></i> <?php echo $message->name; ?> <br />
+                			<i class="las la-envelope"></i> <?php echo $message->email; ?>
               			</div>
             		</div>
           		</div>

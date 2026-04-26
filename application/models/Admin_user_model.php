@@ -2,11 +2,13 @@
 defined('BASEPATH') or exit('Direct access to script not allowed');
 
 
-class Admin_user_model extends CI_Model
+class Admin_user_model extends \CI_Model
 {
+	public $admin_details;
 	public function __construct()
 	{
 		parent::__construct();
+		$this->load->model('user_read_model');
 		$this->admin_details = $this->common_model->get_admin_details($this->session->email);
 	}
 
@@ -25,6 +27,7 @@ class Admin_user_model extends CI_Model
 
 		$this->db->where('id', $id);
 		$this->db->update('users', $data);
+		$this->user_read_model->clearUserCountCaches();
 		return true;
 	}
 
@@ -34,6 +37,7 @@ class Admin_user_model extends CI_Model
 		$this->db->limit($limit, $offset); //limit to be used as per_page, offset to be used as pagination segment
 		$this->db->order_by("date_registered", "DESC"); //order by date_unix ASC so that the dates appear chronologically
 		$query = $this->db->where('active', TRUE);
+		ci_where_not_deleted($this->db, 'users');
 		$query = $this->db->get('users');
 		if ($query->num_rows() > 0) {
 			foreach ($query->result() as $row) {
@@ -49,6 +53,7 @@ class Admin_user_model extends CI_Model
 	{
 		$this->db->limit($limit, $offset); //limit to be used as per_page, offset to be used as pagination segment
 		$this->db->order_by("date_registered", "DESC"); //order by date_unix ASC so that the dates appear chronologically
+		ci_where_not_deleted($this->db, 'users');
 		$query = $this->db->get_where('users');
 		if ($query->num_rows() > 0) {
 			foreach ($query->result() as $row) {
@@ -63,12 +68,14 @@ class Admin_user_model extends CI_Model
 	public function count_active_user()
 	{ //get all active users
 		$query = $this->db->where('active', TRUE);
+		ci_where_not_deleted($this->db, 'users');
 		return $this->db->get_where('users')->num_rows();
 	}
 
 
 	public function count_user()
 	{ //get all users
+		ci_where_not_deleted($this->db, 'users');
 		return $this->db->get_where('users')->num_rows();
 	}
 
@@ -82,12 +89,12 @@ class Admin_user_model extends CI_Model
 			'subject' => 'subject',
 			'message' => 'message',
 		);
-		$y = $this->common_model->get_user_details_by_id($id);
+		$y = $this->user_read_model->get_user_details_by_id($id);
 
 		try {
 
 			require_once 'application/third_party/mail.php';
-			$y = $this->common_model->get_user_details_by_id($id);
+			$y = $this->user_read_model->get_user_details_by_id($id);
 			$mail->addAddress($y->email, $y->first_name);
 			//$mail->AddEmbeddedImage('application/third_party/image/logo.png','logo','logo.png');
 			$body = '<!DOCTYPE html>
@@ -169,12 +176,13 @@ class Admin_user_model extends CI_Model
 	public function verify_user($id)
 	{
 		$data = array(
-			'is_verified' => 2,
+			'is_verified' => VERIFY_APPROVED,
 		);
 		$this->db->where('id', $id);
 		$this->db->update('users', $data);
+		$this->user_read_model->clearUserCountCaches();
 
-		$y = $this->common_model->get_user_details_by_id($id);
+		$y = $this->user_read_model->get_user_details_by_id($id);
 		$email = $y->email;
 		$data['firstname'] = $y->firstname;
 
@@ -188,12 +196,13 @@ class Admin_user_model extends CI_Model
 	public function unverify_user($id)
 	{
 		$data = array(
-			'is_verified' => 0,
+			'is_verified' => VERIFY_PENDING,
 		);
 		$this->db->where('id', $id);
 		$this->db->update('users', $data);
+		$this->user_read_model->clearUserCountCaches();
 
-		$y = $this->common_model->get_user_details_by_id($id);
+		$y = $this->user_read_model->get_user_details_by_id($id);
 		$email = $y->email;
 		$data['firstname'] = $y->firstname;
 
@@ -230,7 +239,7 @@ class Admin_user_model extends CI_Model
 
 	public function delete_user_photo($id)
 	{
-		$y = $this->common_model->get_user_details_by_id($id);
+		$y = $this->user_read_model->get_user_details_by_id($id);
 		if ($y->photo != NULL && $y->photo_thumb != NULL) {
 			unlink(FCPATH .  './assets/selfie/' . $y->selfie); //delete the photo
 			unlink(FCPATH .  './assets/id_cards/' . $y->id_card); //delete the thumbnail
@@ -240,9 +249,19 @@ class Admin_user_model extends CI_Model
 
 	public function delete_user($id)
 	{
-		$y = $this->common_model->get_user_details_by_id($id);
+		$y = $this->user_read_model->get_user_details_by_id($id);
+		if (!$y) {
+			return false;
+		}
 		$this->delete_user_photo($id); //remove image files from server
-		return $this->db->delete('users', array('id' => $id));
+		$this->db->where('id', $id);
+		ci_where_not_deleted($this->db, 'users');
+		$this->db->set('deleted_at', 'NOW()', false);
+		$updated = $this->db->update('users');
+		if ($updated) {
+			$this->user_read_model->clearUserCountCaches();
+		}
+		return $updated;
 	}
 
 
@@ -272,14 +291,26 @@ class Admin_user_model extends CI_Model
 			}
 
 			// Set the flash message using count of the selected rows
-			$action_message = match ($bulk_action_type) {
-				'verify' => 'user(s) verified successfully.',
-				'unverify' => 'user(s) unverified successfully.',
-				'block' => 'user(s) blocked successfully.',
-				'unblock' => 'user(s) unblocked successfully.',
-				'delete' => 'user(s) deleted successfully.',
-				default => 'action completed successfully.'
-			};
+			switch ($bulk_action_type) {
+				case 'verify':
+					$action_message = 'user(s) verified successfully.';
+					break;
+				case 'unverify':
+					$action_message = 'user(s) unverified successfully.';
+					break;
+				case 'block':
+					$action_message = 'user(s) blocked successfully.';
+					break;
+				case 'unblock':
+					$action_message = 'user(s) unblocked successfully.';
+					break;
+				case 'delete':
+					$action_message = 'user(s) deleted successfully.';
+					break;
+				default:
+					$action_message = 'action completed successfully.';
+					break;
+			}
 
 			$this->session->set_flashdata('status_msg', count($selected_rows) . " " . $action_message);
 		} else {

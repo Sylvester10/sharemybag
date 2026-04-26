@@ -9,18 +9,19 @@ class Profile extends MY_Controller
         parent::__construct();
         $this->user_restricted(); //allow only logged in users to access this class
         $this->load->model('users_model');
-        $this->load->model('common_model');
+        $this->load->model('user_read_model');
+        $this->load->model('traveller_read_model');
         $this->load->model('user_bookings_model');
         $this->load->model('travellers_model');
-        $this->user_details = $this->common_model->get_user_details($this->session->email);
-        $this->traveller_details = $this->common_model->get_traveller_details_by_id($this->session->id);
+        $this->user_details = $this->user_read_model->get_user_details($this->session->email);
+        $this->traveller_details = $this->traveller_read_model->get_traveller_details_by_id($this->session->id);
     }
 
 
 
     public function index()
     {
-        $user_details = $this->common_model->get_user_details($this->session->email);
+        $user_details = $this->user_read_model->get_user_details($this->session->email);
         $this->dashboard_header('Profile');
         $data['user_details'] = $user_details;
         $data['referral_link'] = $this->user_details->referral_link;

@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') or exit('Direct access to script not allowed');
 
-/* ===== Documentation ===== 
-Name: Booking_model
+/* ===== Documentation =====
+Name: Exchange_model
 Role: Model
 Description: Controls the DB processes of Exchange_model from admin panel
-Controller: Exchange, Home
+Controller: Admin_exchange
 Author: Sylvester Nmakwe
 Date Created: 24th April, 2023
 */
@@ -14,11 +14,15 @@ Date Created: 24th April, 2023
 
 class Exchange_model extends CI_Model
 {
+	public $admin_details;
+	public $table;
+
 	public function __construct()
 	{
 		parent::__construct();
 		$this->table = 'exchange_rates'; // Correct table name for consistency
 		$this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
+		$this->load->model('finance_read_model');
 	}
 
 
@@ -26,7 +30,7 @@ class Exchange_model extends CI_Model
 	public function add_exchange_rate()
 	{
 
-		$currency = $this->input->post('currency', TRUE);
+		$currency = currency_code_normalize($this->input->post('currency', TRUE));
 		$rate = $this->input->post('rate', TRUE);
 
 		$data = array(
@@ -35,6 +39,7 @@ class Exchange_model extends CI_Model
 		);
 
 		$this->db->insert('exchange_rates', $data); // Using the correct table name
+		$this->finance_read_model->clearExchangeRateCaches();
 
 		return;
 	}

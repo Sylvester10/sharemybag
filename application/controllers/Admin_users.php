@@ -2,24 +2,41 @@
 defined('BASEPATH') or die('Direct access not allowed');
 
 
+/* ===== Documentation =====
+Name: Admin_Users
+Role: Controller
+UPDATED:
+  - customer_support: can view users (index, user_ajax, user_profile)
+                      can email users, can approve/block users
+                      CANNOT delete users (super_admin only)
+  - traveller_support: can only view travellers section — blocked from this controller
+  - super_admin: full access
+*/
+
+
 
 class Admin_Users extends MY_Controller
 {
     public function __construct()
     {
         parent::__construct();
-        $this->admin_restricted(); //allow only logged in users to access this class
+        $this->admin_restricted();
+
+        // traveller_support has no business in the users section
+        $this->admin_role_restricted(['super_admin', 'customer_support']);
+
         $this->load->model('admin_user_model');
-        $this->load->model('common_model');
+        $this->load->model('user_read_model');
+        $this->load->model('booking_read_model');
         $this->admin_details = $this->common_model->get_admin_details($this->session->email);
     }
 
 
 
-    /* ========== All user ========== */
+    /* ========== All users ========== */
     public function index()
     {
-        $inner_page_title = 'Users (' . count($this->common_model->users()) . ')';
+        $inner_page_title = 'Users (' . $this->user_read_model->count_users() . ')';
         $this->admin_header('Users', $inner_page_title);
         $this->load->view('admin/users/users');
         $this->admin_footer();
@@ -39,21 +56,19 @@ class Admin_Users extends MY_Controller
             $id_card = user_avatar_table($y->id_card, $id_src, id_card);
             $utility = user_avatar_table($y->utility, $utility_src, pdf_icon);
 
-            $is_verified = ($y->is_verified == 0) ? '<span class="badge badge-danger"><b>Unverified</b></span>' : (($y->is_verified == 1) ? '<span class="badge badge-warning">Pending</span>' : '<span class="badge badge-success"><b>Verified</b></span>');
+            $is_verified = user_verification_badge($y->is_verified);
+            $account_status = account_status_badge($y->account_status);
 
-            $account_status = ($y->account_status == 0) ? '<span class="badge badge-danger"><b>Blocked</b></span>' : '<span class="badge badge-success"><b>Active</b></span>';
+            $platform = ($y->platform == 'facebook') ? '<i class="lab la-facebook-f"></i>' : (($y->platform == 'instagram') ? '<i class="lab la-instagram"></i>' : '<i class="lab la-twitter"></i>');
 
-            $platform = ($y->platform == 'facebook') ? '<i class="fa-brands fa-facebook"></i>' : (($y->platform == 'instagram') ? '<i class="fa-brands fa-instagram"></i>' : '<i class="fa-brands fa-twitter"></i>');
-
-            // contact details
-            $contact_details = '<i class="fa fa-phone"></i> ' . $y->number . ' <br />
-                                <i class="fa fa-envelope"></i> '  . $y->email . ' <br />
+            $contact_details = '<i class="las la-phone"></i> ' . $y->number . ' <br />
+                                <i class="las la-envelope"></i> '  . $y->email . ' <br />
                                 ' . $platform . ' ' . ' ' . $y->socials . ' <br />
-                                <i class="fa fa-location"></i> ' . $y->address . ', ' . $y->state . ', ' . $y->post_code . '';
+                                <i class="las la-map-marker-alt"></i> ' . $y->address . ', ' . $y->state . ', ' . $y->post_code . '';
 
             $row = array();
             $row[] = checkbox_bulk_action($y->id);
-            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
+            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y);
             $row[] = $selfie;
             $row[] = $id_card;
             $row[] = $utility;
@@ -72,16 +87,14 @@ class Admin_Users extends MY_Controller
             "recordsFiltered" => $this->current_model->count_filtered_records(),
             "data" => $data,
         );
-        //output to json format
         echo json_encode($output);
     }
 
 
-    /* ========== Pending users ========== */
     public function pending_users()
     {
-        $inner_page_title = 'Pending Users (' . $this->common_model->count_pending_users() . ')';
-        $this->admin_header('Admin', $inner_page_title);
+        $inner_page_title = 'Pending Users (' . $this->user_read_model->count_pending_users() . ')';
+        $this->admin_header('Users', $inner_page_title);
         $this->load->view('admin/users/pending_users');
         $this->admin_footer();
     }
@@ -100,26 +113,17 @@ class Admin_Users extends MY_Controller
             $id_card = user_avatar_table($y->id_card, $id_src, id_card);
             $utility = user_avatar_table($y->utility, $utility_src, pdf_icon);
 
-            $is_verified = ($y->is_verified == 0) ? '<span class="badge badge-danger"><b>Unverified</b></span>' : (($y->is_verified == 1) ? '<span class="badge badge-warning">Pending</span>' : '<span class="badge badge-success"><b>Verified</b></span>');
-
-            $account_status = ($y->account_status == 0) ? '<span class="badge badge-danger"><b>Blocked</b></span>' : '<span class="badge badge-success"><b>Active</b></span>';
-
-            $platform = ($y->platform == 'facebook') ? '<i class="fa-brands fa-facebook"></i>' : (($y->platform == 'instagram') ? '<i class="fa-brands fa-instagram"></i>' : '<i class="fa-brands fa-twitter"></i>');
-
-            // contact details
-            $contact_details = '<i class="fa fa-phone"></i> ' . $y->number . ' <br />
-                                <i class="fa fa-envelope"></i> ' . $y->email . ' <br />
-                                ' . $platform . ' ' . ' ' . $y->socials . ' <br />
-                                <i class="fa fa-location"></i> ' . $y->address . ', ' . $y->state . ', ' . $y->post_code . '';
+            $is_verified = user_verification_badge($y->is_verified);
+            $account_status = account_status_badge($y->account_status);
 
             $row = array();
             $row[] = checkbox_bulk_action($y->id);
-            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
+            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y);
             $row[] = $selfie;
             $row[] = $id_card;
             $row[] = $utility;
             $row[] = $y->firstname . " " . $y->lastname;
-            $row[] = $contact_details;
+            $row[] = $y->email;
             $row[] = $y->country;
             $row[] = $is_verified;
             $row[] = $account_status;
@@ -133,16 +137,14 @@ class Admin_Users extends MY_Controller
             "recordsFiltered" => $this->current_model->count_filtered_records(),
             "data" => $data,
         );
-        //output to json format
         echo json_encode($output);
     }
 
 
-    /* ========== Approved users ========== */
     public function approved_users()
     {
-        $inner_page_title = 'Approved Users (' . $this->common_model->count_approved_users() . ')';
-        $this->admin_header('Admin', $inner_page_title);
+        $inner_page_title = 'Approved Users (' . $this->user_read_model->count_approved_users() . ')';
+        $this->admin_header('Users', $inner_page_title);
         $this->load->view('admin/users/approved_users');
         $this->admin_footer();
     }
@@ -161,26 +163,17 @@ class Admin_Users extends MY_Controller
             $id_card = user_avatar_table($y->id_card, $id_src, id_card);
             $utility = user_avatar_table($y->utility, $utility_src, pdf_icon);
 
-            $is_verified = ($y->is_verified == 0) ? '<span class="badge badge-danger"><b>Unverified</b></span>' : (($y->is_verified == 1) ? '<span class="badge badge-warning">Pending</span>' : '<span class="badge badge-success"><b>Verified</b></span>');
-
-            $account_status = ($y->account_status == 0) ? '<span class="badge badge-danger"><b>Blocked</b></span>' : '<span class="badge badge-success"><b>Active</b></span>';
-
-            $platform = ($y->platform == 'facebook') ? '<i class="fa-brands fa-facebook"></i>' : (($y->platform == 'instagram') ? '<i class="fa-brands fa-instagram"></i>' : '<i class="fa-brands fa-twitter"></i>');
-
-            // contact details
-            $contact_details = '<i class="fa fa-phone"></i> ' . $y->number . ' <br />
-                                <i class="fa fa-envelope"></i> ' . $y->email . ' <br />
-                                ' . $platform . ' ' . ' ' . $y->socials . ' <br />
-                                <i class="fa fa-location"></i> ' . $y->address . ', ' . $y->state . ', ' . $y->post_code . '';
+            $is_verified = user_verification_badge($y->is_verified);
+            $account_status = account_status_badge($y->account_status);
 
             $row = array();
             $row[] = checkbox_bulk_action($y->id);
-            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y->id);
+            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y);
             $row[] = $selfie;
             $row[] = $id_card;
             $row[] = $utility;
             $row[] = $y->firstname . " " . $y->lastname;
-            $row[] = $contact_details;
+            $row[] = $y->email;
             $row[] = $y->country;
             $row[] = $is_verified;
             $row[] = $account_status;
@@ -194,21 +187,19 @@ class Admin_Users extends MY_Controller
             "recordsFiltered" => $this->current_model->count_filtered_records(),
             "data" => $data,
         );
-        //output to json format
         echo json_encode($output);
     }
 
 
     public function user_profile($id)
     {
-        //check user exists
-        $this->check_data_exists($id, 'id', 'users', 'admin');
-        $user_details = $this->common_model->get_user_details_by_id($id);
-        $page_title = $user_details->firstname . " " . $user_details->lastname . "'s" . " " . 'Profile: ';
+        $this->check_data_exists($id, 'id', 'users', 'admin_users');
+        $user_details = $this->user_read_model->get_user_details_by_id($id);
+        $page_title = 'User Profile: ' . $user_details->firstname . ' ' . $user_details->lastname;
         $this->admin_header($page_title, $page_title);
         $data['y'] = $user_details;
-        $data['total_bookings'] = count($this->common_model->get_bookings_by_id($id));
-        $data['bookings'] = $this->common_model->get_bookings_by_id($id);
+        $data['bookings'] = $this->booking_read_model->get_bookings_by_user_id($id);
+        $data['total_bookings'] = count($data['bookings']);
         $this->load->view('admin/users/user_profile', $data);
         $this->admin_footer();
     }
@@ -222,7 +213,10 @@ class Admin_Users extends MY_Controller
         $this->form_validation->set_rules('firstname', 'First Name', 'trim|min_length[2]|max_length[500]|required');
         $this->form_validation->set_rules('lastname', 'Last Name', 'trim|min_length[2]|max_length[500]|required');
         $this->form_validation->set_rules('number', 'Mobile', 'trim|required');
-        $this->form_validation->set_rules('email','Email','trim|required|valid_email',
+        $this->form_validation->set_rules(
+            'email',
+            'Email',
+            'trim|required|valid_email',
             array('valid_email' => 'Enter a valid email.')
         );
         $this->form_validation->set_rules('country', 'Country', 'trim|required');
@@ -241,22 +235,6 @@ class Admin_Users extends MY_Controller
         }
         $this->session->set_flashdata('status_msg_error', 'User data could not be updated');
         redirect('admin_users/user_profile/' . $id);
-    }
-
-
-    public function message_admin($id)
-    {
-        //check admin exists
-        $this->check_data_exists($id, 'id', 'user', 'admin');
-        $this->form_validation->set_rules('message', 'Message', 'trim|required');
-        $y = $this->common_model->get_user_details_by_id($id);
-        if ($this->form_validation->run()) {
-            $this->admin_user_model->message_user($id);
-            $this->session->set_flashdata('status_msg', "Message successfully sent to {$y->name}.");
-        } else {
-            $this->session->set_flashdata('status_msg_error', 'Error sending message to user.');
-        }
-        redirect($this->agent->referrer());
     }
 
 
@@ -292,10 +270,26 @@ class Admin_Users extends MY_Controller
     }
 
 
-    public function delete_user($id)
+    public function message_admin($id)
     {
         //check admin exists
-        $this->check_data_exists($id, 'id', 'users', 'admin');
+        $this->check_data_exists($id, 'id', 'user', 'admin');
+        $this->form_validation->set_rules('message', 'Message', 'trim|required');
+        $y = $this->user_read_model->get_user_details_by_id($id);
+        if ($this->form_validation->run()) {
+            $this->admin_user_model->message_user($id);
+            $this->session->set_flashdata('status_msg', "Message successfully sent to {$y->name}.");
+        } else {
+            $this->session->set_flashdata('status_msg_error', 'Error sending message to user.');
+        }
+        redirect($this->agent->referrer());
+    }
+
+
+    public function delete_user($id)
+    {
+        $this->admin_role_restricted(['super_admin']);
+        $this->check_data_exists($id, 'id', 'users', 'admin_users');
         $this->admin_user_model->delete_user($id);
         $this->session->set_flashdata('status_msg', 'User deleted successfully.');
         redirect($this->agent->referrer());
@@ -305,7 +299,7 @@ class Admin_Users extends MY_Controller
     public function user_login_admin($id)
     {
 
-        $user_details = $this->common_model->get_user_details_by_id($id);
+        $user_details = $this->user_read_model->get_user_details_by_id($id);
         $email = $user_details->email;
         if ($email != NULL || $email != '') {
             $login_data = array(
@@ -344,4 +338,5 @@ class Admin_Users extends MY_Controller
         }
         redirect($this->agent->referrer());
     }
+
 }

@@ -4,9 +4,9 @@
 
 <div class="new-item">
 	<button class="btn btn-default btn-sm button-adjust" data-toggle="collapse" data-target="#upload_photo"
-		aria-expanded="false" aria-controls="collapseExample"><i class="fa fa-upload"></i> Upload Advert</button>
+		aria-expanded="false" aria-controls="collapseExample"><i class="las la-upload"></i> Upload Advert</button>
 	<a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('track'); ?>"
-		target="_blank"><i class="fa fa-eye"></i> View in Site</a>
+		target="_blank"><i class="las la-eye"></i> View in Site</a>
 </div>
 
 
@@ -38,10 +38,10 @@
 
 
 <div class="m-b-30">
-	<p><i class="fa fa-eye text-success"></i> Published: <?php echo number_format($total_published); ?></p>
-	<p><i class="fa fa-eye-slash text-primary"></i> Unpublished (Drafts):
+	<p><i class="las la-eye text-success"></i> Published: <?php echo number_format($total_published); ?></p>
+	<p><i class="las la-eye-slash text-primary"></i> Unpublished (Drafts):
 		<?php echo number_format($total_unpublished); ?></p>
-	<p><i class="fa fa-th-large"></i> All: <?php echo number_format($total_records); ?></p>
+	<p><i class="las la-th-large"></i> All: <?php echo number_format($total_records); ?></p>
 
 	<p>Note: Only published adverts will be shown on the website.</p>
 
@@ -77,9 +77,9 @@ if ($total_records > 0) { ?>
 							<p>Adverts</p>
 							<div class="tools tools-bottom">
 								<a type="button" href="<?php echo base_url('assets/adverts/' . $p->photo); ?>"
-									title="View full image" target="_blank"><i class="fa fa-search-plus"></i></a>
+									title="View full image" target="_blank"><i class="las la-search-plus"></i></a>
 								<a type="button" href="<?php echo base_url('admin_adverts/delete_advert/' . $p->id); ?>"
-									title="Delete advert"><i class="fa fa-trash"></i></a>
+									title="Delete advert"><i class="las la-trash"></i></a>
 							</div>
 						</div>
 					</div>

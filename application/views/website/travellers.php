@@ -127,6 +127,8 @@
                                 $form_attributes = array("id" => "traveller_form");
                                 echo form_open_multipart('home/add_traveller_ajax', $form_attributes); ?>
 
+                                <input type="hidden" id="homepage_csrf_hash" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
+
                                 <div class="row">
 
                                     <div class="col-12 col-md-6 display_flag_on_select">

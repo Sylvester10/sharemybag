@@ -63,7 +63,7 @@ function autoLoadPageHelpers() {
 			? parseInt(weightSelect.getAttribute("data-max-space")) || 15
 			: 15;
 	});
-	
+
 
 	// sender/agent
 	document.addEventListener("DOMContentLoaded", function () {
@@ -248,6 +248,6 @@ function autoLoadPageHelpers() {
 			});
 		}
 	});
-	
-	
+
+
 }

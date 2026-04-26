@@ -65,7 +65,7 @@ class Subscribers_model_ajax extends CI_Model {
 	
 	
 	public function options($id) {
-		return '<div class="text-center"><a type="button" href="#" class="btn btn-danger btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#delete'.$id.'" title="Delete Subscriber"> <i class="fa fa-trash"></i> </a></div>';
+		return '<div class="text-center"><a type="button" href="#" class="btn btn-danger btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#delete'.$id.'" title="Delete Subscriber"> <i class="las la-trash"></i> </a></div>';
 	}
 
 	
