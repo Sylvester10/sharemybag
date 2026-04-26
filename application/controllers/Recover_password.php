@@ -22,6 +22,7 @@ class Recover_password extends MY_Controller
 
     public function password_recovery_ajax()
     {
+        $csrf_hash = $this->security->get_csrf_hash();
         $this->form_validation->set_rules('email', ' Email', 'trim|required|valid_email');
         $email = $this->input->post('email', TRUE);
         $email_exists = $this->user_login_model->check_user_email_exists($email);
@@ -43,16 +44,34 @@ class Recover_password extends MY_Controller
                 // Send email to User
                 send_email_notification($this, $email, 'Reset Password', $data, 'password_recovery_email');
 
-                $res = ['status' => true, 'msg' => 'We have sent a reset code to<br> <b>' . $email . '</b> <br> with further instructions to reset your password.'];
+                $res = [
+                    'status' => true,
+                    'msg' => "We have sent password reset instructions to $email.",
+                    'title' => 'Check Your Email',
+                    'msg_timeout' => 7000,
+                    'csrf_hash' => $csrf_hash
+                ];
                 echo json_encode($res);
                 die;
             } else {
-                $res = ['status' => false, 'msg' => 'This email address <br> <b> ' . $email . ' </b> <br> does not exist in our database. <br>  Please enter the email address that is associated with your account.'];
+                $res = [
+                    'status' => false,
+                    'msg' => 'Enter the email address linked to your account.',
+                    'title' => 'Email Not Found',
+                    'msg_timeout' => 7000,
+                    'csrf_hash' => $csrf_hash
+                ];
                 echo json_encode($res);
                 die;
             }
         } else { //form validation is not successful
-            $res = ['status' => false, 'msg' => validation_errors()];
+            $res = [
+                'status' => false,
+                'msg' => first_validation_error('Enter a valid email address to continue.'),
+                'title' => 'Reset Error',
+                'msg_timeout' => 6000,
+                'csrf_hash' => $csrf_hash
+            ];
             echo json_encode($res);
         }
 
@@ -70,6 +89,7 @@ class Recover_password extends MY_Controller
 
     public function change_password_ajax()
     {
+        $csrf_hash = $this->security->get_csrf_hash();
         $this->form_validation->set_rules('email', 'Email', 'trim|valid_email');
         $this->form_validation->set_rules('pass_reset_code', 'Reset Code');
         $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]');
@@ -91,17 +111,17 @@ class Recover_password extends MY_Controller
             if ($email_exists && $y->pass_reset_code === $pass_reset_code) {
 
                 $this->user_login_model->change_pass($id);
-                $res = ['status' => true, 'msg' => 'Password reset successful.'];
+                $res = ['status' => true, 'msg' => 'Your password has been reset successfully.', 'title' => 'Password Updated', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
                 die;
             } else {
                 //user supplied wrong password
-                $res = ['status' => false, 'msg' => 'Incorrect reset code.'];
+                $res = ['status' => false, 'msg' => 'Enter the correct reset code and try again.', 'title' => 'Reset Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
                 die;
             }
         } else { //form validation is not successful
-            $res = ['status' => false, 'msg' => validation_errors()];
+            $res = ['status' => false, 'msg' => first_validation_error('Please complete the password reset form.'), 'title' => 'Reset Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res);
         }
     }

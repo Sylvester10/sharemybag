@@ -34,6 +34,7 @@ class Profile extends MY_Controller
     {
         //check user exists
         $this->check_data_exists($id, 'id', 'users', 'profile');
+        $csrf_hash = $this->security->get_csrf_hash();
 
         // validation rules
         $this->form_validation->set_rules('state', 'State', 'trim|required');
@@ -46,14 +47,14 @@ class Profile extends MY_Controller
             //
             if ($this->users_model->update_profile_to_db($id)) {
 
-                $res = ['status' => true, 'msg' => 'Your profile has been updated successfully.', 'title' => 'Profile Updated.', 'msg_timeout' =>  6000];
+                $res = ['status' => true, 'msg' => 'Your profile has been updated successfully.', 'title' => 'Profile Updated.', 'msg_timeout' =>  6000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
             } else {
-                $res = ['status' => false, 'msg' => 'Profile could not be updated, try again later.'];
+                $res = ['status' => false, 'msg' => 'We could not update your profile right now. Please try again.', 'title' => 'Update Failed', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
             }
         } else {
-            $res = ['status' => false, 'msg' => validation_errors()];
+            $res = ['status' => false, 'msg' => first_validation_error('Please complete all required profile fields.'), 'title' => 'Check Your Profile', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res); // Show validation errors
         }
     }
@@ -63,6 +64,7 @@ class Profile extends MY_Controller
     {
         //check user exists
         $this->check_data_exists($id, 'id', 'users', 'profile');
+        $csrf_hash = $this->security->get_csrf_hash();
 
         // validation rules
         $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]');
@@ -77,14 +79,14 @@ class Profile extends MY_Controller
 
             if ($this->users_model->change_password($id)) {
 
-                $res = ['status' => true, 'msg' => 'Your password has been updated successfully.', 'title' => 'Password Updated.', 'msg_timeout' =>  6000];
+                $res = ['status' => true, 'msg' => 'Your password has been updated successfully.', 'title' => 'Password Updated.', 'msg_timeout' =>  6000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
             } else {
-                $res = ['status' => false, 'msg' => 'Profile could not be updated, try again later.'];
+                $res = ['status' => false, 'msg' => 'We could not update your password right now. Please try again.', 'title' => 'Update Failed', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
             }
         } else {
-            $res = ['status' => false, 'msg' => validation_errors()];
+            $res = ['status' => false, 'msg' => first_validation_error('Please check your password details and try again.'), 'title' => 'Check Your Password', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res); // Show validation errors
         }
     }

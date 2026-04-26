@@ -29,6 +29,7 @@ class Kyc extends MY_Controller
 
     public function verify_ajax()
     {
+        $csrf_hash = $this->security->get_csrf_hash();
         // Validate file size
         $validate_image = $this->validate_file_upload('id_photo', 'Image Upload ERROR');
         $validate_selfie = $this->validate_file_upload('selfie', 'Selfie Image - ERROR');
@@ -37,7 +38,7 @@ class Kyc extends MY_Controller
         // Check for validation errors
         if ($validate_image || $validate_selfie || $validate_document) {
             $error_list = trim(($validate_image ? $validate_image : '') . ($validate_selfie ? $validate_selfie : '') . ($validate_document ? $validate_document : ''));
-            $res = ['status' => false, 'msg' => $error_list];
+            $res = ['status' => false, 'msg' => normalize_user_message($error_list, 'Please check your uploaded files and try again.'), 'title' => 'Upload Error', 'msg_timeout' => 7000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res); // Show validation errors
             return;
         }
@@ -70,7 +71,10 @@ class Kyc extends MY_Controller
                 if (!in_array($file_type, $allowed_types)) {
                     $res = [
                         'status' => false,
-                        'msg' => "Unsupported format ($file_type). Please ensure you are using a standard browser and try again."
+                        'msg' => 'Upload the selfie as a JPG or PNG image.',
+                        'title' => 'Unsupported File',
+                        'msg_timeout' => 7000,
+                        'csrf_hash' => $csrf_hash
                     ];
                     echo json_encode($res);
                     return;
@@ -94,7 +98,7 @@ class Kyc extends MY_Controller
 
             // Check for any upload errors
             if (!empty($upload_error)) {
-                $res = ['status' => false, 'msg' => $upload_error];
+                $res = ['status' => false, 'msg' => normalize_user_message($upload_error, 'We could not upload your documents. Please try again.'), 'title' => 'Upload Error', 'msg_timeout' => 7000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
                 return;
             }
@@ -115,14 +119,14 @@ class Kyc extends MY_Controller
                 // Send email to User
                 send_email_notification($this, $email, 'Documents Under Review', $data, 'user_document_verification_email');
 
-                $res = ['status' => true, 'msg' => 'You will be notified via email on your verification status.', 'title' => 'Documents submitted successfully.', 'msg_timeout' =>  10000];
+                $res = ['status' => true, 'msg' => 'You will be notified via email on your verification status.', 'title' => 'Documents submitted successfully.', 'msg_timeout' =>  10000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
             } else {
-                $res = ['status' => false, 'msg' => 'Booking could not be completed, try again later.'];
+                $res = ['status' => false, 'msg' => 'We could not submit your documents right now. Please try again.', 'title' => 'Submission Failed', 'msg_timeout' => 7000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
             }
         } else {
-            $res = ['status' => false, 'msg' => validation_errors()];
+            $res = ['status' => false, 'msg' => first_validation_error('Please complete the KYC form and try again.'), 'title' => 'Verification Error', 'msg_timeout' => 7000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res); // Show validation errors
         }
     }

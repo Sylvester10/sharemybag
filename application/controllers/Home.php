@@ -82,7 +82,7 @@ class Home extends MY_Controller
         } else {
             $data = array(
                 'status'    => false,
-                'msg'       => 'No Traveller Available',
+                'msg'       => 'No travellers are available for that route right now.',
                 'csrf_hash' => $csrf_hash
             );
             echo json_encode($data);
@@ -172,7 +172,9 @@ class Home extends MY_Controller
         if ($is_canada_uk_route) {
             echo json_encode([
                 'status' => false,
-                'msg' => 'Selected route is currently not available.',
+                'msg' => 'This route is not available right now.',
+                'title' => 'Route Unavailable',
+                'msg_timeout' => 6000,
                 'csrf_hash' => $this->security->get_csrf_hash()
             ]);
             return;
@@ -181,7 +183,9 @@ class Home extends MY_Controller
         if (strtolower($location) === strtolower($destination)) {
             echo json_encode([
                 'status' => false,
-                'msg' => 'Location and Destination cannot be the same route.',
+                'msg' => 'Choose different locations for origin and destination.',
+                'title' => 'Route Error',
+                'msg_timeout' => 6000,
                 'csrf_hash' => $this->security->get_csrf_hash()
             ]);
             return;
@@ -190,7 +194,9 @@ class Home extends MY_Controller
         if ($this->form_validation->run() == false) {
             echo json_encode([
                 'status' => false,
-                'msg' => validation_errors(),
+                'msg' => first_validation_error('Please complete the traveller form and try again.'),
+                'title' => 'Traveller Form Error',
+                'msg_timeout' => 6000,
                 'csrf_hash' => $this->security->get_csrf_hash()
             ]);
             return;
@@ -199,7 +205,9 @@ class Home extends MY_Controller
         if (empty($_FILES['itinerary_photo']['name'])) {
             echo json_encode([
                 'status' => false,
-                'msg' => 'Upload Itinerary',
+                'msg' => 'Upload your itinerary to continue.',
+                'title' => 'Itinerary Required',
+                'msg_timeout' => 6000,
                 'csrf_hash' => $this->security->get_csrf_hash()
             ]);
             return;
@@ -211,7 +219,9 @@ class Home extends MY_Controller
             if (!mkdir($upload_dir, 0775, true)) {
                 echo json_encode([
                     'status' => false,
-                    'msg' => 'Upload folder could not be created.',
+                    'msg' => 'We could not prepare the upload folder. Please try again later.',
+                    'title' => 'Upload Error',
+                    'msg_timeout' => 7000,
                     'csrf_hash' => $this->security->get_csrf_hash()
                 ]);
                 return;
@@ -221,7 +231,9 @@ class Home extends MY_Controller
         if (!is_writable($upload_dir)) {
             echo json_encode([
                 'status' => false,
-                'msg' => 'Upload folder is not writable.',
+                'msg' => 'We could not save your file right now. Please try again later.',
+                'title' => 'Upload Error',
+                'msg_timeout' => 7000,
                 'csrf_hash' => $this->security->get_csrf_hash()
             ]);
             return;
@@ -243,7 +255,9 @@ class Home extends MY_Controller
         if (!$this->upload->do_upload('itinerary_photo')) {
             echo json_encode([
                 'status' => false,
-                'msg' => strip_tags($this->upload->display_errors('', '')),
+                'msg' => normalize_user_message($this->upload->display_errors('', ''), 'We could not upload your itinerary. Please try again.'),
+                'title' => 'Upload Error',
+                'msg_timeout' => 7000,
                 'csrf_hash' => $this->security->get_csrf_hash()
             ]);
             return;
@@ -263,7 +277,9 @@ class Home extends MY_Controller
 
         echo json_encode([
             'status' => true,
-            'msg' => 'Thank you! <br> One of our agents will contact you shortly.',
+            'msg' => 'Thank you. One of our agents will contact you shortly.',
+            'title' => 'Traveller Request Sent',
+            'msg_timeout' => 7000,
             'csrf_hash' => $this->security->get_csrf_hash()
         ]);
     }

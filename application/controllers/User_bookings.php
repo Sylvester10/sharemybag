@@ -39,6 +39,7 @@ class User_bookings extends MY_Controller
         $destination = $this->input->post('destination');
         $travellers = $this->traveller_read_model->get_travellers_by_destination($destination);
         $is_verified = $this->user_details->is_verified;
+        $csrf_hash = $this->security->get_csrf_hash();
 
         if (count($travellers) > 0) {
             $data = array();
@@ -74,11 +75,12 @@ class User_bookings extends MY_Controller
                     'is_verified' => (int)$this->user_details->is_verified,
                     'profile_completed' => $profile_completed,
                     'destination' => $destination,
+                    'csrf_hash' => $csrf_hash,
                 );
             }
-            echo json_encode(array('status' => true, 'travellers' => $data));
+            echo json_encode(array('status' => true, 'travellers' => $data, 'csrf_hash' => $csrf_hash));
         } else {
-            echo json_encode(array('status' => false, 'msg' => 'No Traveller Available'));
+            echo json_encode(array('status' => false, 'msg' => 'No travellers are available for that route right now.', 'csrf_hash' => $csrf_hash));
         }
     }
 
@@ -128,6 +130,7 @@ class User_bookings extends MY_Controller
     /* ========== Add Booking ========== */
     public function add_booking_ajax()
     {
+        $csrf_hash = $this->security->get_csrf_hash();
         // Traveller details validation
         $this->form_validation->set_rules('traveller_id', 'Traveller ID', 'trim|is_natural_no_zero');
         $this->form_validation->set_rules('traveller_name', 'Traveller Name', 'trim');
@@ -185,9 +188,10 @@ class User_bookings extends MY_Controller
             if ($agent_name == $receiver_name) {
                 $res = [
                     'status' => false,
-                    'msg' => 'Agent cannot be same as Receiver.',
+                    'msg' => 'Enter different details for the agent and receiver.',
                     'title' => 'Booking Error',
                     'msg_timeout' => 6000,
+                    'csrf_hash' => $csrf_hash,
                 ];
                 echo json_encode($res);
                 return;
@@ -197,9 +201,10 @@ class User_bookings extends MY_Controller
                 if ($agent_name === $fullname || $agent_email === $email || $agent_phone === $number) {
                     $res = [
                         'status' => false,
-                        'msg' => 'You cannot be the Agent when sending to your current country.',
+                        'msg' => 'Use a different agent for deliveries to your current country.',
                         'title' => 'Booking Error',
                         'msg_timeout' => 6000,
+                        'csrf_hash' => $csrf_hash,
                     ];
                     echo json_encode($res);
                     return;
@@ -282,7 +287,8 @@ class User_bookings extends MY_Controller
                             'msg' => 'Redirecting to Stripe to complete your payment.',
                             'title' => 'Booking Initialized',
                             'msg_timeout' => 5000,
-                            'redirect' => $checkout_session->url
+                            'redirect' => $checkout_session->url,
+                            'csrf_hash' => $csrf_hash,
                         ];
 
                         echo json_encode($res);
@@ -291,10 +297,10 @@ class User_bookings extends MY_Controller
                         // Handle Stripe errors
                         $res = [
                             'status' => false,
-                            // 'msg' => 'Stripe error: ' . $e->getMessage(),
-                            'msg' => 'Unable to process payments. Try again later.',
+                            'msg' => 'We could not start your payment right now. Please try again.',
                             'title' => 'Payment Error.',
                             'msg_timeout' => 7000,
+                            'csrf_hash' => $csrf_hash,
                         ];
                         echo json_encode($res);
                         return;
@@ -344,7 +350,8 @@ class User_bookings extends MY_Controller
                                 'msg' => 'Redirecting to Paystack to complete your payment.',
                                 'title' => 'Booking Initialized',
                                 'msg_timeout' => 5000,
-                                'redirect' => $response->data->authorization_url
+                                'redirect' => $response->data->authorization_url,
+                                'csrf_hash' => $csrf_hash,
                             ];
                             echo json_encode($res);
                             return;
@@ -355,10 +362,10 @@ class User_bookings extends MY_Controller
                         // Handle Paystack errors
                         $res = [
                             'status' => false,
-                            // 'msg' => 'Paystack error: ' . $e->getMessage(),
-                            'msg' => 'Unable to process payments. Try again later.',
+                            'msg' => 'We could not start your payment right now. Please try again.',
                             'title' => 'Payment Error',
                             'msg_timeout' => 6000,
+                            'csrf_hash' => $csrf_hash,
                         ];
                         echo json_encode($res);
                         return;
@@ -366,9 +373,10 @@ class User_bookings extends MY_Controller
                 } else {
                     $res = [
                         'status' => false,
-                        'msg' => 'Invalid payment method selected.',
+                        'msg' => 'Select a valid payment method to continue.',
                         'title' => 'Payment Error.',
                         'msg_timeout' => 6000,
+                        'csrf_hash' => $csrf_hash,
                     ];
                     echo json_encode($res);
                     return;
@@ -379,9 +387,10 @@ class User_bookings extends MY_Controller
             // Show validation errors
             $res = [
                 'status' => false,
-                'msg' => validation_errors(),
+                'msg' => first_validation_error('Please complete the booking form and try again.'),
                 'title' => 'Booking Error.',
                 'msg_timeout' => 6000,
+                'csrf_hash' => $csrf_hash,
             ];
             echo json_encode($res);
             return;
@@ -403,7 +412,7 @@ class User_bookings extends MY_Controller
         $booking = $this->user_bookings_model->dataByHash($hash);
 
         if (!$reference || !$booking) {
-            $this->session->set_flashdata('status_error', 'This booking was invalid or missing reference.');
+            $this->session->set_flashdata('status_error', 'This payment link is no longer valid.');
             $this->session->set_flashdata('title', 'Booking Invalid.');
             $this->session->set_flashdata('msg_timeout', 7000);
             redirect('history');
@@ -434,7 +443,7 @@ class User_bookings extends MY_Controller
             } else {
                 $result = [
                     'status' => false,
-                    'msg' => 'Payment was cancelled or failed.',
+                    'msg' => 'Your payment was not completed.',
                     'title' => 'Booking Cancelled.',
                     'msg_timeout' => 7000,
                     'redirect' => 'history',
@@ -454,7 +463,7 @@ class User_bookings extends MY_Controller
 
         $result = [
             'status' => false,
-            'msg' => 'You canceled the payment.',
+            'msg' => 'You cancelled the payment.',
             'title' => 'Booking Canceled.',
             'msg_timeout' => 7000,
             'redirect' => 'history',
