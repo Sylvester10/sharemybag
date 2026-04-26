@@ -1755,9 +1755,18 @@ function user_avatar_table($user_photo, $image_src, $default_avatar)
 		return '<img class="avatar" src="' . $default_avatar . '" />';
 	}
 
+	$secure_href = $image_src;
+	if (strpos($relative_path, 'assets/selfie/') === 0) {
+		$secure_href = base_url('file/selfie/' . rawurlencode($user_photo));
+	} elseif (strpos($relative_path, 'assets/id_cards/') === 0) {
+		$secure_href = base_url('file/id_cards/' . rawurlencode($user_photo));
+	} elseif (strpos($relative_path, 'assets/utility/') === 0) {
+		$secure_href = base_url('file/utility/' . rawurlencode($user_photo));
+	}
+
 	$thumbnail_src = $is_pdf ? pdf_icon : $image_src;
 
-	return '<a target="_blank" href="' . $image_src . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
+	return '<a target="_blank" href="' . $secure_href . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
 }
 
 
