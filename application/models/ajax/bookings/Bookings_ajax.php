@@ -90,8 +90,8 @@ class Bookings_ajax extends CI_Model
 			$booking_action = '<p><a type="button" href="' . base_url('admin_bookings/confirm_booking/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-check" style="color: green"></i> &nbsp; Confirm Booking </a></p>';
 		} else {
 			$booking_action = '<p><a type="button" href="' . base_url('admin_bookings/cancel_booking/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Cancel Booking </a></p>
-			<p><a type="button" href="' . base_url('admin/invoice/' . $booking->id) . '" target="_blank" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-file-invoice" style="color: #0c6cf2"></i> &nbsp; View Invoice </a></p>
-			<p><a type="button" href="' . base_url('admin/invoice/download/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-download" style="color: #444"></i> &nbsp; Download Invoice </a></p>';
+			<p><a type="button" href="' . base_url('admin/invoice/' . $booking->id) . '" target="_blank" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-file-invoice" style="color: #0c6cf2"></i> &nbsp; View Invoice </a></p>';
+			// <p><a type="button" href="' . base_url('admin/invoice/download/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-download" style="color: #444"></i> &nbsp; Download Invoice </a></p>';
 		};
 
 		return $booking_action . '

@@ -113,8 +113,8 @@ class Completed_bookings_ajax extends CI_Model
 
         return $new_action . $booking_action . '
         <p><a type="button" href="' . base_url('admin/invoice/' . $booking->id) . '" target="_blank" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-file-invoice" style="color: #0c6cf2"></i> &nbsp; View Invoice </a></p>
-        <p><a type="button" href="' . base_url('admin/invoice/download/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-download" style="color: #444"></i> &nbsp; Download Invoice </a></p>
         <p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $booking->id . '"> <i class="las la-trash" style="color: red"></i> &nbsp; Delete </a></p>';
+        // <p><a type="button" href="' . base_url('admin/invoice/download/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-download" style="color: #444"></i> &nbsp; Download Invoice </a></p>
     }
 
 
