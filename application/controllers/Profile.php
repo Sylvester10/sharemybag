@@ -37,10 +37,10 @@ class Profile extends MY_Controller
         $csrf_hash = $this->security->get_csrf_hash();
 
         // validation rules
+        $this->form_validation->set_rules('number', 'Number', 'trim|required');
+        $this->form_validation->set_rules('address', 'Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('post_code', 'Post Code', 'trim|required');
-        $this->form_validation->set_rules('address', 'Address', 'trim|required');
-        $this->form_validation->set_rules('number', 'Number', 'trim|required');
 
         if ($this->form_validation->run()) {
 
