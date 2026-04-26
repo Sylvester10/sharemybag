@@ -1764,7 +1764,7 @@ function user_avatar_table($user_photo, $image_src, $default_avatar)
 		$secure_href = base_url('file/utility/' . rawurlencode($user_photo));
 	}
 
-	$thumbnail_src = $is_pdf ? pdf_icon : $image_src;
+	$thumbnail_src = $is_pdf ? pdf_icon : $secure_href;
 
 	return '<a target="_blank" href="' . $secure_href . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
 }
