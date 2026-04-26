@@ -927,7 +927,7 @@
                     },
                     {
                         value: 'Duty Free',
-                        label: 'Duty Free'
+                        label: 'Duty Free Shopping'
                     },
                     {
                         value: 'Fish/Meat',
