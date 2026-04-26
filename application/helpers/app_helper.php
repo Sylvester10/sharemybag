@@ -1766,7 +1766,11 @@ function user_avatar_table($user_photo, $image_src, $default_avatar)
 
 	$thumbnail_src = $is_pdf ? pdf_icon : $secure_href;
 
-	return '<a target="_blank" href="' . $secure_href . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
+	if ($is_pdf) {
+		return '<a target="_blank" href="' . $secure_href . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
+	}
+
+	return '<a href="' . $secure_href . '" class="smb-file-preview" data-preview-src="' . $secure_href . '" data-preview-title="Document Preview"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
 }
 
 

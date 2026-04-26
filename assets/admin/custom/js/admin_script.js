@@ -16,6 +16,25 @@ jQuery(document).ready(function ($) {
         $('#csrf_hash').val(newHash);
     }
 
+    $(document).on('click', 'a.smb-file-preview', function (e) {
+        e.preventDefault();
+
+        var previewSrc = $(this).data('preview-src');
+        var previewTitle = $(this).data('preview-title') || 'Document Preview';
+
+        if (!previewSrc) {
+            return;
+        }
+
+        $('#filePreviewModalLabel').text(previewTitle);
+        $('#filePreviewModalImage').attr('src', previewSrc);
+        $('#filePreviewModal').modal('show');
+    });
+
+    $('#filePreviewModal').on('hidden.bs.modal', function () {
+        $('#filePreviewModalImage').attr('src', '');
+    });
+
     // Dropzone Configuration
     if (Dropzone.instances.length > 0)
         Dropzone.instances.forEach((dz) => dz.destroy());

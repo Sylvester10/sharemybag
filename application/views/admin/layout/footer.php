@@ -15,6 +15,20 @@
 </div><!--/.main_container-->
 </div><!--/.container body-->
 
+<div class="modal fade" id="filePreviewModal" tabindex="-1" role="dialog" aria-labelledby="filePreviewModalLabel">
+	<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close">&times;</button>
+				<h4 class="modal-title" id="filePreviewModalLabel">Document Preview</h4>
+			</div>
+			<div class="modal-body text-center">
+				<img id="filePreviewModalImage" src="" alt="Document preview" style="max-width: 100%; max-height: 75vh; border-radius: 8px;" />
+			</div>
+		</div>
+	</div>
+</div>
+
 <?php
 //require footer scripts
 require "application/views/admin/layout/includes/footer_assets.php"; ?>
