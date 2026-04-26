@@ -16,11 +16,18 @@ class User_login extends MY_Controller
 
 	public function login_ajax()
 	{
+		$csrf_hash = $this->security->get_csrf_hash();
 		$this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
 		$this->form_validation->set_rules('password', 'Password', 'required');
 
 		if (!$this->form_validation->run()) {
-			echo json_encode(['status' => false, 'msg' => validation_errors()]);
+			echo json_encode([
+				'status' => false,
+				'msg' => first_validation_error('Enter your email address and password.'),
+				'title' => 'Sign In Error',
+				'msg_timeout' => 6000,
+				'csrf_hash' => $csrf_hash
+			]);
 			return;
 		}
 
@@ -39,9 +46,21 @@ class User_login extends MY_Controller
 			]);
 
 			$this->common_model->update_last_login($user->id);
-			echo json_encode(['status' => true]);
+			echo json_encode([
+				'status' => true,
+				'msg' => 'Sign-in successful.',
+				'title' => 'Welcome Back',
+				'msg_timeout' => 3000,
+				'csrf_hash' => $csrf_hash
+			]);
 		} else {
-			echo json_encode(['status' => false, 'msg' => 'Invalid email or password.']);
+			echo json_encode([
+				'status' => false,
+				'msg' => 'Enter a valid email and password.',
+				'title' => 'Sign In Error',
+				'msg_timeout' => 6000,
+				'csrf_hash' => $csrf_hash
+			]);
 		}
 	}
 

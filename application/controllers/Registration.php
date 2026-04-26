@@ -22,6 +22,7 @@ class Registration extends MY_Controller
 
     public function signup()
     {
+        $csrf_hash = $this->security->get_csrf_hash();
         $this->form_validation->set_rules('firstname', 'First Name', 'trim|required');
         $this->form_validation->set_rules('lastname', 'Last Name', 'trim|required');
         $this->form_validation->set_rules('email',  'Email',  'trim|required|valid_email|is_unique[users.email]',
@@ -43,10 +44,22 @@ class Registration extends MY_Controller
             $user_id = $this->users_model->add_new_user(); // insert the data into the database and get user ID
             $this->session->set_userdata('user_id', $user_id); // Store user ID in session
             $this->session->set_userdata('is_verification_pending', true); // Set verification session flag
-            $res = ['status' => true, 'msg' => "A verification code was sent to your email <br> <b>$email</b> "];
+            $res = [
+                'status' => true,
+                'msg' => "A verification code has been sent to $email.",
+                'title' => 'Check Your Email',
+                'msg_timeout' => 7000,
+                'csrf_hash' => $csrf_hash
+            ];
             echo json_encode($res);
         } else {
-            $res = ['status' => false, 'msg' => validation_errors()];
+            $res = [
+                'status' => false,
+                'msg' => first_validation_error('Please complete the sign-up form and try again.'),
+                'title' => 'Sign Up Error',
+                'msg_timeout' => 6000,
+                'csrf_hash' => $csrf_hash
+            ];
             echo json_encode($res);
         }
     }
@@ -63,6 +76,7 @@ class Registration extends MY_Controller
 
     public function verify_email_ajax()
     {
+        $csrf_hash = $this->security->get_csrf_hash();
         $this->form_validation->set_rules('verification_code', 'Verification Code', 'trim|required');
         $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[8]');
         $this->form_validation->set_rules('confirm_password', 'Confirm Password', 'trim|required|matches[password]',
@@ -86,28 +100,29 @@ class Registration extends MY_Controller
                 // Remove session flag to prevent re-access to the verification page
                 $this->session->unset_userdata('is_verification_pending');
 
-                $res = ['status' => true, 'msg' => 'Your email has been successfully verified.'];
+                $res = ['status' => true, 'msg' => 'Your email has been verified successfully.', 'title' => 'Verification Complete', 'msg_timeout' => 5000, 'csrf_hash' => $csrf_hash];
             } else {
-                $res = ['status' => false, 'msg' => 'Invalid verification code.'];
+                $res = ['status' => false, 'msg' => 'Enter the correct verification code and try again.', 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             }
             echo json_encode($res);
         } else {
-            $res = ['status' => false, 'msg' => validation_errors()];
+            $res = ['status' => false, 'msg' => first_validation_error('Please complete the verification form.'), 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res);
         }
     }
 
     public function resend_verification_email_ajax()
     {
+        $csrf_hash = $this->security->get_csrf_hash();
         // Assume user_id is stored in session after signup
         $user_id = $this->session->userdata('user_id');
 
         if ($user_id) {
             $this->users_model->resend_verification_code($user_id);
-            $res = ['status' => true, 'msg' => 'A new verification code has been sent to your email.'];
+            $res = ['status' => true, 'msg' => 'A new verification code has been sent to your email.', 'title' => 'Code Sent', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res);
         } else {
-            $res = ['status' => false, 'msg' => 'Unable to send code. Please wait 30 seconds and try again'];
+            $res = ['status' => false, 'msg' => 'We could not send a new code right now. Please try again shortly.', 'title' => 'Code Not Sent', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res);
         }
     }

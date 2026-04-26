@@ -32,6 +32,75 @@ function isImageFile(file) {
 	return file.type.startsWith("image/");
 }
 
+function getGlobalCsrfName() {
+	return window.appCsrf && window.appCsrf.name ? window.appCsrf.name : null;
+}
+
+function getGlobalCsrfHash() {
+	return window.appCsrf && window.appCsrf.hash ? window.appCsrf.hash : null;
+}
+
+function updateGlobalCsrfHash(newHash) {
+	if (!newHash) {
+		return;
+	}
+
+	if (!window.appCsrf) {
+		window.appCsrf = {};
+	}
+
+	window.appCsrf.hash = newHash;
+}
+
+function appendGlobalCsrfToFormData(formData) {
+	let csrfName = getGlobalCsrfName();
+	let csrfHash = getGlobalCsrfHash();
+
+	if (!csrfName || !csrfHash || !(formData instanceof FormData) || formData.has(csrfName)) {
+		return formData;
+	}
+
+	formData.append(csrfName, csrfHash);
+	return formData;
+}
+
+function getAjaxErrorMessage(xhr, fallbackMessage) {
+	let fallback = fallbackMessage || "Something went wrong. Please try again.";
+	let title = "Error";
+	let message = fallback;
+
+	try {
+		let responseJson = xhr.responseJSON
+			? xhr.responseJSON
+			: xhr.responseText
+			? JSON.parse(xhr.responseText)
+			: null;
+
+		if (responseJson && responseJson.msg) {
+			message = responseJson.msg;
+		}
+
+		if (responseJson && responseJson.title) {
+			title = responseJson.title;
+		}
+
+		if (responseJson && responseJson.csrf_hash) {
+			updateGlobalCsrfHash(responseJson.csrf_hash);
+		}
+	} catch (e) {}
+
+	if (
+		xhr &&
+		typeof xhr.responseText === "string" &&
+		xhr.responseText.indexOf("The action you have requested is not allowed.") !== -1
+	) {
+		title = "Session Expired";
+		message = "This form expired. Refresh the page and try again.";
+	}
+
+	return { title, message };
+}
+
 //universal form ajax
 function submitFormAjax(form) {
 	let action = form.hasAttribute("action")
@@ -45,6 +114,7 @@ function submitFormAjax(form) {
 	if (action) {
 		// If action
 		let form_data = new FormData(form);
+		form_data = appendGlobalCsrfToFormData(form_data);
 		// Get raw image input
 		$(".input-image-blob").each(function () {
 			let blob = dataURItoBlob($(this).val()); // Updated ID here
@@ -63,6 +133,10 @@ function submitFormAjax(form) {
 			processData: false, // Required for form_data to work without URL-encoding data
 			contentType: false, // Prevent jQuery from setting content-type header
 			success: function (res) {
+				if (res && res.csrf_hash) {
+					updateGlobalCsrfHash(res.csrf_hash);
+				}
+
 				if (res.status) {
 
 					// Display success message
@@ -110,10 +184,12 @@ function submitFormAjax(form) {
 				setTimeout(() => {
 					hideFormLoader();
 				}, 700);
+				let ajaxError = getAjaxErrorMessage(xhr);
+
 				// Handle error response
-				toastr.error(error, "Error", {
+				toastr.error(ajaxError.message, ajaxError.title, {
 					progressBar: true,
-					timeOut: 4000,
+					timeOut: 5000,
 				});
 				console.log("<p>An error occurred: " + error + "</p>");
 			},

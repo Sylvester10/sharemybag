@@ -1116,6 +1116,33 @@ function custom_validation_errors()
 }
 
 
+function normalize_user_message($message, $fallback = 'Something went wrong. Please try again.')
+{
+	$message = html_entity_decode((string) $message, ENT_QUOTES, 'UTF-8');
+	$message = strip_tags($message);
+	$message = preg_replace('/\s+/', ' ', $message);
+	$message = trim((string) $message);
+
+	return $message !== '' ? $message : $fallback;
+}
+
+
+function first_validation_error($fallback = 'Please check the form and try again.')
+{
+	$CI = &get_instance();
+
+	if (isset($CI->form_validation) && method_exists($CI->form_validation, 'error_array')) {
+		$errors = $CI->form_validation->error_array();
+		if (!empty($errors)) {
+			$first_error = reset($errors);
+			return normalize_user_message($first_error, $fallback);
+		}
+	}
+
+	return normalize_user_message(validation_errors(), $fallback);
+}
+
+
 function flash_message_success($message)
 {
 	$CI = &get_instance(); //get instance of code igniter super object

@@ -154,6 +154,10 @@
 <!-- pass base_url to js -->
 <script type="text/javascript">
     var base_url = "<?php echo base_url(); ?>";
+    window.appCsrf = {
+        name: "<?php echo $this->security->get_csrf_token_name(); ?>",
+        hash: "<?php echo $this->security->get_csrf_hash(); ?>"
+    };
 </script>
 
 </body>
