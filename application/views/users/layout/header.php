@@ -349,16 +349,11 @@
 											<div class="d-flex align-items-center">
 												<div class="user-profile-img">
 
-													<?php
-													if ($user_details->selfie != NULL) { ?>
+														<?php
+														$selfie_src = !empty($user_details->selfie) ? base_url('file/selfie/' . rawurlencode($user_details->selfie)) : user_avatar;
+														?>
 
-														<img src="<?php echo base_url('assets/selfie/' . $user_details->selfie); ?>" class="rounded-circle" width="35" height="35" alt="Profile" />
-
-													<?php } else { ?>
-
-														<img src="<?php echo user_avatar; ?>" class="rounded-circle" width="35" height="35" alt="Profile" />
-
-													<?php } ?>
+														<img src="<?php echo $selfie_src; ?>" class="rounded-circle" width="35" height="35" alt="Profile" />
 
 												</div>
 											</div>
@@ -367,16 +362,7 @@
 											aria-labelledby="drop1">
 											<div class="profile-dropdown position-relative" data-simplebar>
 												<div class="d-flex align-items-center py-9 mx-7 border-bottom">
-													<?php
-													if ($user_details->selfie != NULL) { ?>
-
-														<img src="<?php echo base_url('assets/selfie/' . $user_details->selfie); ?>" class="rounded-circle" width="80" height="80" alt="Profile" />
-
-													<?php } else { ?>
-
-														<img src="<?php echo user_avatar; ?>" class="rounded-circle" width="80" height="80" alt="Profile" />
-
-													<?php } ?>
+														<img src="<?php echo $selfie_src; ?>" class="rounded-circle" width="80" height="80" alt="Profile" />
 
 													<div class="ms-3">
 														<h5 class="mb-1 fs-4"><?php echo $user_details->firstname; ?> <?php echo $user_details->lastname; ?></h5>

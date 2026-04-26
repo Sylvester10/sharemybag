@@ -36,10 +36,10 @@ class Profile extends MY_Controller
         $this->check_data_exists($id, 'id', 'users', 'profile');
 
         // validation rules
+        $this->form_validation->set_rules('number', 'Number', 'trim|required');
+        $this->form_validation->set_rules('address', 'Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('post_code', 'Post Code', 'trim|required');
-        $this->form_validation->set_rules('address', 'Address', 'trim|required');
-        $this->form_validation->set_rules('number', 'Number', 'trim|required');
 
         if ($this->form_validation->run()) {
 
