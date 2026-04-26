@@ -99,7 +99,7 @@
                     <marquee width="100%" direction="left">
                         <p class="text-4 text-white">
                             <i class="las la-bullhorn tw-mr-2"></i>
-                            This is the Sandbox for testing
+                            For better user experience, please use chrome browser.
                         </p>
                     </marquee>
                 </div>
