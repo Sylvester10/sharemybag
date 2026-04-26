@@ -1734,12 +1734,30 @@ function pagination_links($links, $ul_class)
 
 function user_avatar_table($user_photo, $image_src, $default_avatar)
 {
-	if ($user_photo != NULL) {
-		$avatar = '<a target="_blank" href="' . $image_src . '"><img class="avatar" src="' . $image_src . '" /></a>';
-	} else {
-		$avatar = '<img class="avatar" src="' . $default_avatar . '" />';
+	if (empty($user_photo) || empty($image_src)) {
+		return '<img class="avatar" src="' . $default_avatar . '" />';
 	}
-	return $avatar;
+
+	$image_url_path = parse_url($image_src, PHP_URL_PATH);
+	$base_url_path = parse_url(base_url(), PHP_URL_PATH);
+	$relative_path = $image_url_path ?: '';
+
+	if ($base_url_path && strpos($relative_path, $base_url_path) === 0) {
+		$relative_path = substr($relative_path, strlen($base_url_path));
+	}
+
+	$absolute_path = FCPATH . ltrim($relative_path, '/');
+	$file_extension = strtolower(pathinfo((string) $user_photo, PATHINFO_EXTENSION));
+	$is_pdf = ($file_extension === 'pdf');
+	$file_exists = ($relative_path !== '') && is_file($absolute_path);
+
+	if (!$file_exists) {
+		return '<img class="avatar" src="' . $default_avatar . '" />';
+	}
+
+	$thumbnail_src = $is_pdf ? pdf_icon : $image_src;
+
+	return '<a target="_blank" href="' . $image_src . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
 }
 
 
