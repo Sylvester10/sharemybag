@@ -101,10 +101,11 @@ class Admin_travellers extends MY_Controller
             $data[] = $row;
         }
         $output = array(
-            "draw" => $_POST['draw'],
+            "draw" => (int) $this->input->post('draw'),
             "recordsTotal" => $this->current_model->count_all_records(),
             "recordsFiltered" => $this->current_model->count_filtered_records(),
             "data" => $data,
+            "csrf_hash" => $this->security->get_csrf_hash(),
         );
         echo json_encode($output);
     }
@@ -154,10 +155,11 @@ class Admin_travellers extends MY_Controller
             $data[] = $row;
         }
         $output = array(
-            "draw" => $_POST['draw'],
+            "draw" => (int) $this->input->post('draw'),
             "recordsTotal" => $this->current_model->count_all_records(),
             "recordsFiltered" => $this->current_model->count_filtered_records(),
             "data" => $data,
+            "csrf_hash" => $this->security->get_csrf_hash(),
         );
         echo json_encode($output);
     }
@@ -226,10 +228,11 @@ class Admin_travellers extends MY_Controller
             $data[] = $row;
         }
         $output = array(
-            "draw" => $_POST['draw'],
+            "draw" => (int) $this->input->post('draw'),
             "recordsTotal" => $this->current_model->count_all_records(),
             "recordsFiltered" => $this->current_model->count_filtered_records(),
             "data" => $data,
+            "csrf_hash" => $this->security->get_csrf_hash(),
         );
         echo json_encode($output);
     }
@@ -271,10 +274,11 @@ class Admin_travellers extends MY_Controller
             $data[] = $row;
         }
         $output = array(
-            "draw" => $_POST['draw'],
+            "draw" => (int) $this->input->post('draw'),
             "recordsTotal" => $this->current_model->count_all_records(),
             "recordsFiltered" => $this->current_model->count_filtered_records(),
             "data" => $data,
+            "csrf_hash" => $this->security->get_csrf_hash(),
         );
         echo json_encode($output);
     }
