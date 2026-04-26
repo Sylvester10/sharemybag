@@ -95,7 +95,7 @@
                             </div>
                             <div class="feature-title">
                                 <h5>NG - CA</h5>
-                                <h4><b>$18.50 Per Kilo</b></h4>
+                                <h4><b>$17.50 Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>
@@ -806,7 +806,8 @@
                             <select id="pc_category" class="form-control">
                                 <option value="">Select category</option>
                                 <option value="Normal">Normal</option>
-                                <option value="Fish/Medicine">Fish/Medicine/Snail/Oil (special)</option>
+                                <option value="Fish/Meat">Fish/Meat (special)</option>
+                                <option value="Medication">Medication (special)</option>
                                 <option value="Documents/Electronics">Documents/Electronics/Gold (premium)</option>
                             </select>
                             <small class="text-muted" id="pc_category_hint"></small>
@@ -919,22 +920,92 @@
                 }
             }
 
-            // Category hint text
+            var categoryConfig = {
+                to_nigeria: [{
+                        value: 'Normal',
+                        label: 'Normal'
+                    },
+                    {
+                        value: 'Duty Free',
+                        label: 'Duty Free'
+                    },
+                    {
+                        value: 'Fish/Meat',
+                        label: 'Fish/Meat (special)'
+                    },
+                    {
+                        value: 'Medication',
+                        label: 'Medication (special)'
+                    },
+                    {
+                        value: 'Documents/Electronics',
+                        label: 'Documents/Electronics/Gold (premium)'
+                    }
+                ],
+                default: [{
+                        value: 'Normal',
+                        label: 'Normal'
+                    },
+                    {
+                        value: 'Fish/Meat',
+                        label: 'Fish/Meat (special)'
+                    },
+                    {
+                        value: 'Medication',
+                        label: 'Medication (special)'
+                    },
+                    {
+                        value: 'Documents/Electronics',
+                        label: 'Documents/Electronics/Gold (premium)'
+                    }
+                ]
+            };
+
             var categoryHints = {
                 'Normal': '',
-                'Fish/Medicine': 'A special handling fee of £10 / $10 applies to this category.',
+                'Duty Free': '',
+                'Fish/Meat': 'A special handling fee of £10 / $10 applies to this category.',
+                'Medication': 'A special handling fee of £10 / $10 applies to this category.',
                 'Documents/Electronics': 'Premium pricing applies. Weight is counted in pieces (PC), not KG.'
             };
 
-            // Update weight label and hint on category change
-            document.getElementById('pc_category').addEventListener('change', function() {
-                var cat = this.value;
+            function updateCategoryHintAndUnit() {
+                var cat = document.getElementById('pc_category').value;
                 var weightLabel = document.getElementById('pc_weight_label');
                 var hint = document.getElementById('pc_category_hint');
 
                 weightLabel.textContent = (cat === 'Documents/Electronics') ? 'Quantity (PC) *' : 'Weight (KG) *';
                 hint.textContent = categoryHints[cat] || '';
-            });
+            }
+
+            function populateEstimateCategories() {
+                var destination = document.getElementById('pc_destination').value;
+                var categorySelect = document.getElementById('pc_category');
+                var currentValue = categorySelect.value;
+                var options = destination === 'Nigeria' ? categoryConfig.to_nigeria : categoryConfig.default;
+
+                categorySelect.innerHTML = '<option value="">Select category</option>';
+
+                options.forEach(function(option) {
+                    var optionEl = document.createElement('option');
+                    optionEl.value = option.value;
+                    optionEl.textContent = option.label;
+                    categorySelect.appendChild(optionEl);
+                });
+
+                if (options.some(function(option) {
+                        return option.value === currentValue;
+                    })) {
+                    categorySelect.value = currentValue;
+                }
+
+                updateCategoryHintAndUnit();
+            }
+
+            document.getElementById('pc_origin').addEventListener('change', populateEstimateCategories);
+            document.getElementById('pc_destination').addEventListener('change', populateEstimateCategories);
+            document.getElementById('pc_category').addEventListener('change', updateCategoryHintAndUnit);
+            populateEstimateCategories();
 
             // Calculate button
             document.getElementById('pc_submit_btn').addEventListener('click', function() {

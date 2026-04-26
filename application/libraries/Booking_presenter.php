@@ -172,6 +172,10 @@ class Booking_presenter
             return ['status' => false, 'msg' => 'We currently only support Nigeria ↔ UK and Nigeria ↔ Canada routes.'];
         }
 
+        if ($category === 'Duty Free' && $destination !== 'Nigeria') {
+            return ['status' => false, 'msg' => 'Duty Free is only available on routes to Nigeria.'];
+        }
+
         $currency = $is_ng_ca_route ? 'CAD' : 'GBP';
         $symbol = currency_symbol_text($currency);
 

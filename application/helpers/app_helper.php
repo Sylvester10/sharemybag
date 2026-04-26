@@ -2189,9 +2189,9 @@ function booking_route_pricing($origin, $destination)
 
 		case 'ng_ca':
 			return array_merge($defaults, array(
-				'normal_rate' => 18.50,
+				'normal_rate' => 17.50,
 				'special_rate' => 18.50,
-				'premium_rate' => 38.75,
+				'premium_rate' => 36.93,
 				'normal_payout_rate' => 10.00,
 				'special_payout_rate' => 10.00,
 				'premium_payout_rate' => 20.00,
