@@ -301,6 +301,13 @@ class Home extends MY_Controller
         $this->website_footer();
     }
 
+    public function waiver()
+    {
+        $this->website_header('Liability Waiver');
+        $this->load->view('website/waiver');
+        $this->website_footer();
+    }
+
 
     public function prohibited()
     {
