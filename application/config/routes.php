@@ -68,6 +68,7 @@ $route['traveller-agreement'] = 'home/traveller_agreement';
 $route['prohibited-items'] = 'home/prohibited';
 $route['terms-of-use'] = 'home/terms_of_use';
 $route['terms-and-conditions'] = 'home/terms_conditions';
+$route['waiver'] = 'home/waiver';
 $route['privacy-policy'] = 'home/policy';
 $route['cookies'] = 'home/cookies';
 $route['success'] = 'home/success';

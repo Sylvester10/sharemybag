@@ -14,10 +14,11 @@
                 </div>
                 <div class="col-lg-3 col-md-6 col-12 wow fadeInUp animated" data-wow-delay="200ms">
                     <h6>Company</h6>
-                    <ul>
+                    <ul style="padding-left: 0;">
                         <li>
                             <a href="<?php echo base_url('terms-of-use'); ?>">Terms of Use</a>
                             <a href="<?php echo base_url('terms-and-conditions'); ?>">Terms &amp; Conditions</a>
+                            <a href="<?php echo base_url('waiver'); ?>">Liability Waiver</a>
                             <a href="<?php echo base_url('prohibited-items'); ?>">Prohibited Items</a>
                             <a href="<?php echo base_url('privacy-policy'); ?>">Privacy Policy</a>
                             <a href="<?php echo base_url('cookies'); ?>">Cookie Policy</a>
@@ -26,7 +27,7 @@
                 </div>
                 <div class="col-lg-3 col-md-6 col-12 wow fadeInUp animated" data-wow-delay="300ms">
                     <h6>Contact</h6>
-                    <ul>
+                    <ul style="padding-left: 0;">
                         <li>
                             <p> <?= business_address ?></p>
                             <p><?= business_phone_number ?></p>
@@ -36,7 +37,7 @@
                 </div>
                 <div class="col-lg-3 col-md-6 col-12 wow fadeInUp animated" data-wow-delay="400ms">
                     <h6>Socials</h6>
-                    <ul>
+                    <ul style="padding-left: 0;">
                         <li>
                             <a href="<?= business_facebook ?>"><i class="lab la-facebook-f"></i> Facebook</a>
                             <a href="<?= business_instagram ?>"><i class="lab la-instagram"></i> Instagram</a>
