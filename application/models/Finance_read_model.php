@@ -35,7 +35,7 @@ class Finance_read_model extends \MY_Model
         return $this->rememberCache('finance.summary.' . self::SUMMARY_CACHE_VERSION . '.total_amount.all', self::SUMMARY_CACHE_TTL, function () {
             $this->db->select_sum('total_amount');
             $this->db->where('payment_status', 'completed');
-            $this->db->where_in('payment_method', array('paystack', 'stripe'));
+            $this->applyCompletedPaymentMethodFilter();
             $this->applyNotDeleted();
             $row = $this->db->get($this->table)->row();
             return $row ? (float) $row->total_amount : 0;
@@ -141,10 +141,12 @@ class Finance_read_model extends \MY_Model
         }
         $this->db->group_end();
         $this->applyNotDeleted();
-        $this->db->group_start();
-        $this->db->where_in('payment_method', array('paystack', 'stripe', 'offline'));
-        $this->db->or_where('payment_method IS NULL', null, false);
-        $this->db->group_end();
+        $this->applyCompletedPaymentMethodFilter();
+    }
+
+    private function applyCompletedPaymentMethodFilter()
+    {
+        $this->db->where("(LOWER(COALESCE(payment_method, '')) IN ('paystack','stripe','offline','bank') OR payment_method IS NULL)", null, false);
     }
 
     private function getCurrencySummaryCacheKey($currency)

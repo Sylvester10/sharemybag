@@ -13,9 +13,9 @@ class Upcoming_travellers_ajax extends CI_Model
     }
 
     var $table = 'travellers';
-    var $column_order = array(null, null, 'travel_date', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'arrival_airport', 'destination', 'address', 'airline', 'arrival_date', 'original_bag_space', 'used_space',  'available_space', 'referred_by', 'status', 'date_added'); //set column field database for datatable orderable
-    var $column_search = array('travel_date', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'arrival_airport', 'destination', 'address', 'airline', 'arrival_date', 'original_bag_space', 'used_space',  'available_space', 'referred_by', 'status', 'date_added'); //set column field database for datatable searchable
-    var $order = array('travel_date' => 'desc');
+    var $column_order = array(null, null, 'travellers.travel_date', 'travellers.fullname', 'travellers.phone', 'travellers.alt_phone', 'travellers.email', 'travellers.location', 'travellers.arrival_airport', 'travellers.destination', 'travellers.address', 'travellers.airline', 'travellers.arrival_date', 'travellers.original_bag_space', 'travellers.used_space',  'travellers.available_space', 'travellers.referred_by', 'travellers.status', 'travellers.date_added');
+    var $column_search = array('travellers.travel_date', 'travellers.fullname', 'travellers.phone', 'travellers.alt_phone', 'travellers.email', 'travellers.location', 'travellers.arrival_airport', 'travellers.destination', 'travellers.address', 'travellers.airline', 'travellers.arrival_date', 'travellers.original_bag_space', 'travellers.used_space',  'travellers.available_space', 'travellers.referred_by', 'travellers.status', 'travellers.date_added');
+    var $order = array('travellers.travel_date' => 'desc');
 
     private function the_query()
     {
@@ -52,11 +52,11 @@ class Upcoming_travellers_ajax extends CI_Model
         // This line runs the query builder that includes sorting and searching
         $this->the_query();
 
-        $this->db->where('status', 'Approved');
-        $this->db->where('travel_date >=', date('Y-m-d'));
+        $this->db->where('travellers.status', 'Approved');
+        $this->db->where('travellers.travel_date >=', date('Y-m-d'));
 
         if (!empty($destination)) {
-            $this->db->where('destination', $destination);
+            $this->db->where('travellers.destination', $destination);
         }
 
         if ($_POST['length'] != -1)
@@ -71,11 +71,11 @@ class Upcoming_travellers_ajax extends CI_Model
     {
         $this->db->from('travellers');
         ci_where_not_deleted($this->db, 'travellers');
-        $this->db->where('status', 'Approved');
-        $this->db->where('travel_date >=', date('Y-m-d'));
+        $this->db->where('travellers.status', 'Approved');
+        $this->db->where('travellers.travel_date >=', date('Y-m-d'));
 
         if (!empty($destination)) {
-            $this->db->where('destination', $destination);
+            $this->db->where('travellers.destination', $destination);
         }
         return $this->db->count_all_results();
     }
@@ -85,17 +85,17 @@ class Upcoming_travellers_ajax extends CI_Model
         $search_value = datatable_search_value();
         $this->db->from('travellers');
         ci_where_not_deleted($this->db, 'travellers');
-        $this->db->where('status', 'Approved');
-        $this->db->where('travel_date >=', date('Y-m-d'));
+        $this->db->where('travellers.status', 'Approved');
+        $this->db->where('travellers.travel_date >=', date('Y-m-d'));
 
         if (!empty($destination)) {
-            $this->db->where('destination', $destination);
+            $this->db->where('travellers.destination', $destination);
         }
 
         if ($search_value !== '') {
             $this->db->group_start();
-            $this->db->like('fullname', $search_value);
-            $this->db->or_like('email', $search_value);
+            $this->db->like('travellers.fullname', $search_value);
+            $this->db->or_like('travellers.email', $search_value);
             $this->db->group_end();
         }
 
