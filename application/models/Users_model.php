@@ -573,16 +573,43 @@ class Users_model extends MY_Model
 
     public function backfill_offline_booking_financials()
     {
-        $bookings = $this->db
-            ->select('id, traveller_id, traveller_current_state, traveller_destination, traveller_arrival_state, selected_space, payment_method, payment_status, currency, selected_price, service_charge, sub_total, traveller_commission, vat, total_amount, items, tracking_id')
-            ->from('bookings')
-            ->group_start()
-                ->where('LOWER(COALESCE(payment_method, "")) IN ("offline", "bank")', null, false)
-                ->or_where('payment_method IS NULL', null, false)
-            ->group_end()
-            ->where('LOWER(COALESCE(payment_status, "")) IN ("completed","complete","success","paid")', null, false)
-            ->get()
-            ->result();
+        $fields = array(
+            'id',
+            'traveller_id',
+            'traveller_current_state',
+            'traveller_arrival_state',
+            'selected_space',
+            'payment_method',
+            'payment_status',
+            'currency',
+            'selected_price',
+            'service_charge',
+            'sub_total',
+            'traveller_commission',
+            'vat',
+            'total_amount',
+            'items',
+            'tracking_id',
+        );
+
+        if ($this->db->field_exists('traveller_destination', 'bookings')) {
+            $fields[] = 'traveller_destination';
+        }
+
+        $this->db->select(implode(', ', $fields));
+        $this->db->from('bookings');
+        $this->db->group_start();
+        $this->db->where("(payment_method IS NULL OR LOWER(payment_method) IN ('offline','bank'))", null, false);
+        $this->db->group_end();
+        $this->db->where("LOWER(COALESCE(payment_status, '')) IN ('completed','complete','success','paid')", null, false);
+        $query = $this->db->get();
+
+        if ($query === false) {
+            log_message('error', 'Offline booking backfill query failed: ' . $this->db->last_query());
+            return 0;
+        }
+
+        $bookings = $query->result();
 
         $updated = 0;
 
@@ -596,9 +623,10 @@ class Users_model extends MY_Model
             $origin = $traveller && !empty($traveller->location)
                 ? trim((string) $traveller->location)
                 : trim((string) $booking->traveller_current_state);
+            $bookingDestination = property_exists($booking, 'traveller_destination') ? $booking->traveller_destination : '';
             $destination = $traveller && !empty($traveller->destination)
                 ? trim((string) $traveller->destination)
-                : trim((string) ($booking->traveller_destination ?: $booking->traveller_arrival_state));
+                : trim((string) ($bookingDestination ?: $booking->traveller_arrival_state));
 
             $routePricing = booking_route_pricing($origin, $destination);
             $currency = in_array(booking_route_key($origin, $destination), array('ng_ca', 'ca_ng'), true) ? 'CAD' : 'GBP';
@@ -621,7 +649,7 @@ class Users_model extends MY_Model
             if (empty($booking->tracking_id)) {
                 $data['tracking_id'] = generate_unique_tracking_id('bookings', 'tracking_id', 7);
             }
-            if (empty($booking->traveller_destination) && $destination !== '') {
+            if ($this->db->field_exists('traveller_destination', 'bookings') && empty($bookingDestination) && $destination !== '') {
                 $data['traveller_destination'] = $destination;
             }
             if (empty($booking->currency)) {
