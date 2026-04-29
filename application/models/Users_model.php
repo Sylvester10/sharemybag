@@ -571,6 +571,101 @@ class Users_model extends MY_Model
         return $inserted;
     }
 
+    public function backfill_offline_booking_financials()
+    {
+        $bookings = $this->db
+            ->select('id, traveller_id, traveller_current_state, traveller_destination, traveller_arrival_state, selected_space, payment_method, payment_status, currency, selected_price, service_charge, sub_total, traveller_commission, vat, total_amount, items, tracking_id')
+            ->from('bookings')
+            ->group_start()
+                ->where('LOWER(COALESCE(payment_method, "")) IN ("offline", "bank")', null, false)
+                ->or_where('payment_method IS NULL', null, false)
+            ->group_end()
+            ->where('LOWER(COALESCE(payment_status, "")) IN ("completed","complete","success","paid")', null, false)
+            ->get()
+            ->result();
+
+        $updated = 0;
+
+        foreach ($bookings as $booking) {
+            $selectedSpace = (float) $booking->selected_space;
+            if ($selectedSpace <= 0) {
+                continue;
+            }
+
+            $traveller = $this->traveller_read_model->get_traveller_details_by_id((int) $booking->traveller_id);
+            $origin = $traveller && !empty($traveller->location)
+                ? trim((string) $traveller->location)
+                : trim((string) $booking->traveller_current_state);
+            $destination = $traveller && !empty($traveller->destination)
+                ? trim((string) $traveller->destination)
+                : trim((string) ($booking->traveller_destination ?: $booking->traveller_arrival_state));
+
+            $routePricing = booking_route_pricing($origin, $destination);
+            $currency = in_array(booking_route_key($origin, $destination), array('ng_ca', 'ca_ng'), true) ? 'CAD' : 'GBP';
+            $selectedPrice = round($routePricing['normal_rate'] * $selectedSpace, 2);
+            $serviceCharge = round((float) $routePricing['service_charge'], 2);
+            $travellerCommission = round($routePricing['normal_payout_rate'] * $selectedSpace, 2);
+            $subTotal = round($selectedPrice + $serviceCharge, 2);
+            $pricing = booking_price_breakdown($subTotal, $travellerCommission, $serviceCharge, 0, 'offline');
+            $items = json_encode(array(
+                (object) array(
+                    'item_name' => 'Offline Bag Space',
+                    'category' => 'Normal',
+                    'size' => $selectedSpace,
+                    'price' => $selectedPrice,
+                )
+            ));
+
+            $data = array();
+
+            if (empty($booking->tracking_id)) {
+                $data['tracking_id'] = generate_unique_tracking_id('bookings', 'tracking_id', 7);
+            }
+            if (empty($booking->traveller_destination) && $destination !== '') {
+                $data['traveller_destination'] = $destination;
+            }
+            if (empty($booking->currency)) {
+                $data['currency'] = $currency;
+            }
+            if ((float) $booking->selected_price <= 0) {
+                $data['selected_price'] = $selectedPrice;
+            }
+            if ((float) $booking->service_charge <= 0) {
+                $data['service_charge'] = $serviceCharge;
+            }
+            if ((float) $booking->sub_total <= 0) {
+                $data['sub_total'] = $subTotal;
+            }
+            if ((float) $booking->traveller_commission <= 0) {
+                $data['traveller_commission'] = $travellerCommission;
+            }
+            if ($booking->vat === null || $booking->vat === '') {
+                $data['vat'] = $pricing['vat'];
+            }
+            if ((float) $booking->total_amount <= 0) {
+                $data['total_amount'] = $pricing['total_amount'];
+            }
+            if (empty($booking->items)) {
+                $data['items'] = $items;
+            }
+            if (empty($booking->payment_method)) {
+                $data['payment_method'] = 'offline';
+            }
+
+            if (!empty($data)) {
+                $this->db->where('id', (int) $booking->id)->update('bookings', $data);
+                $updated++;
+            }
+        }
+
+        if ($updated > 0) {
+            $this->finance_read_model->clearFinanceSummaryCaches();
+            $this->booking_read_model->clearBookingCountCaches();
+        }
+
+        return $updated;
+    }
+
 
     public function is_profile_complete($id)
     {

@@ -15,6 +15,8 @@ Date Created: 10th May, 2023
 
 class Admin extends MY_Controller
 {
+	private const OFFLINE_BACKFILL_BROWSER_KEY = 'smb-backfill-20260429';
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -43,6 +45,22 @@ class Admin extends MY_Controller
 		$data['total_users'] = $this->user_read_model->count_users();
 		$this->load->view('admin/dashboard/dashboard', $data);
 		$this->admin_footer();
+	}
+
+	public function backfill_offline_bookings()
+	{
+		$this->admin_role_restricted(['super_admin']);
+
+		$key = (string) $this->input->get('key', true);
+		if ($key !== self::OFFLINE_BACKFILL_BROWSER_KEY) {
+			show_404();
+		}
+
+		$updated = $this->users_model->backfill_offline_booking_financials();
+
+		$this->output
+			->set_content_type('text/plain')
+			->set_output("Offline booking backfill completed. Updated {$updated} booking(s).");
 	}
 
 
