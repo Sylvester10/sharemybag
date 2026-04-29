@@ -25,6 +25,7 @@ class Admin extends MY_Controller
 		$this->load->model('travellers_model');
 		$this->load->model('finance_read_model');
 		$this->load->model('user_read_model');
+		$this->load->model('users_model');
 		$this->load->model('booking_read_model');
 		$this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
 	}
