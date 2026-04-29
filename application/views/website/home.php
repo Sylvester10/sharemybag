@@ -139,7 +139,7 @@
                         <div class="process-icon">
                             <img src="<?php echo base_url(); ?>assets/website/icons/apply.png" alt="">
                         </div>
-                        <h4>Sign Up Your Account</h4>
+                        <h4>Sign Up</h4>
                         <p>Create an account and complete your identity verification.</p>
                         <span class="count-big">01</span>
                     </div>
