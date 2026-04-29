@@ -13,7 +13,7 @@ class Finance_read_model extends \MY_Model
         $this->table = 'bookings';
         $this->primary_cols = array('id');
     }
-
+ 
     public function get_most_recent_cad_exchange_rate()
     {
         return $this->getMostRecentExchangeRateByCurrency('CAD');

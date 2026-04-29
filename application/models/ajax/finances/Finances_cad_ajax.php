@@ -19,7 +19,7 @@ class Finances_cad_ajax extends CI_Model
 		$allowed_values = currency_db_values($currency);
 		$this->db->where_in('bookings.currency', $allowed_values);
 	}
-
+ 
 	private function applyPaymentMethodFilter()
 	{
 		$this->db->where("(LOWER(COALESCE(bookings.payment_method, '')) IN ('paystack','stripe','offline','bank') OR bookings.payment_method IS NULL)", null, false);

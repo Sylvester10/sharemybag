@@ -14,7 +14,7 @@ jQuery(document).ready(function ($) {
 
         csrfHash = newHash;
         $('#csrf_hash').val(newHash);
-    }
+    } 
 
     $(document).on('click', 'a.smb-file-preview', function (e) {
         e.preventDefault();
@@ -1265,5 +1265,5 @@ jQuery(document).ready(function ($) {
 
 
 
-  
+
 });

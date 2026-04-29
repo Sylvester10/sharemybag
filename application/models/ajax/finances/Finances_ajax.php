@@ -13,7 +13,7 @@ class Finances_ajax extends CI_Model
 	{
 		return isset($_POST['start']) ? (int) $_POST['start'] : 0;
 	}
-
+ 
 	private function applyCurrencyFilter($currency)
 	{
 		$allowed_values = currency_db_values($currency);
