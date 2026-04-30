@@ -2203,6 +2203,14 @@ function booking_route_pricing($origin, $destination)
 }
 
 
+function booking_route_currency($origin, $destination)
+{
+	return in_array(booking_route_key($origin, $destination), array('ng_ca', 'ca_ng'), true)
+		? 'CAD'
+		: 'GBP';
+}
+
+
 function booking_status_normalize($status)
 {
 	$status = strtolower(trim((string) $status));
@@ -2366,6 +2374,7 @@ function currency_code_normalize($currency)
 
 	$map = array(
 		'' => 'GBP',
+		'POU' => 'GBP',
 		'POUND' => 'GBP',
 		'POUNDS' => 'GBP',
 		'GBP' => 'GBP',
@@ -2389,7 +2398,7 @@ function currency_db_values($currency)
 			return array('NGN', 'NAIRA');
 		case 'GBP':
 		default:
-			return array('GBP', 'POUND', 'POUNDS', '');
+			return array('GBP', 'POU', 'POUND', 'POUNDS', '');
 	}
 }
 

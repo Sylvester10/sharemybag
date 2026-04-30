@@ -193,6 +193,15 @@ class Users_model extends MY_Model
         // Generate server-side identifiers
         $tracking_id = generate_unique_tracking_id('bookings', 'tracking_id', 7);
         $hash = $this->generate_hash(200);
+        $traveller_id = (int) $this->input->post('traveller_id', TRUE);
+        $traveller = $this->traveller_read_model->get_traveller_details_by_id($traveller_id);
+        $route_origin = $traveller && !empty($traveller->location)
+            ? $traveller->location
+            : $this->input->post('traveller_current_state', TRUE);
+        $route_destination = $traveller && !empty($traveller->destination)
+            ? $traveller->destination
+            : $this->input->post('traveller_destination', TRUE);
+        $route_currency = booking_route_currency($route_origin, $route_destination);
 
         // ── SERVER-SIDE PRICE RECALCULATION (SEC-008) ──
         // We still read client-submitted calculations for comparison, but
@@ -235,10 +244,10 @@ class Users_model extends MY_Model
             'selected_space'        => $selected_space,
             'selected_price'        => round($selected_price, 2),
             'traveller_commission'  => round($traveller_commission, 2),
-            'currency'              => $this->input->post('currency', TRUE),
+            'currency'              => $route_currency,
 
             // ── Traveller details (safe user input) ──
-            'traveller_id'              => (int) $this->input->post('traveller_id', TRUE),
+            'traveller_id'              => $traveller_id,
             'traveller_name'            => $this->input->post('traveller_name', TRUE),
             'traveller_email'           => $this->input->post('traveller_email', TRUE),
             'traveller_contact'         => $this->input->post('traveller_contact', TRUE),
@@ -476,7 +485,7 @@ class Users_model extends MY_Model
         $user = $this->user_read_model->get_user_details_by_id($this->input->post('user_id'));
         $selected_space = (float) $this->input->post('selected_space');
         $route_pricing = booking_route_pricing($y->location, $y->destination);
-        $currency = in_array(booking_route_key($y->location, $y->destination), array('ng_ca', 'ca_ng'), true) ? 'CAD' : 'GBP';
+        $currency = booking_route_currency($y->location, $y->destination);
         $selected_price = round($route_pricing['normal_rate'] * $selected_space, 2);
         $service_charge = round((float) $route_pricing['service_charge'], 2);
         $traveller_commission = $this->calculate_traveller_commission($y, $selected_space, null);
@@ -629,7 +638,7 @@ class Users_model extends MY_Model
                 : trim((string) ($bookingDestination ?: $booking->traveller_arrival_state));
 
             $routePricing = booking_route_pricing($origin, $destination);
-            $currency = in_array(booking_route_key($origin, $destination), array('ng_ca', 'ca_ng'), true) ? 'CAD' : 'GBP';
+            $currency = booking_route_currency($origin, $destination);
             $selectedPrice = round($routePricing['normal_rate'] * $selectedSpace, 2);
             $serviceCharge = round((float) $routePricing['service_charge'], 2);
             $travellerCommission = round($routePricing['normal_payout_rate'] * $selectedSpace, 2);
