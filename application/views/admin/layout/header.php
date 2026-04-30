@@ -12,11 +12,41 @@
 
 	<link rel="icon" href="<?php echo business_favicon; ?>" type="image/png" />
 
-	<title><?php echo $title; ?> | <?php echo $inner_page_title; ?> </title>
+	<title>Sandbox | <?php echo $title; ?> | <?php echo $inner_page_title; ?> </title>
 
 	<?php require "application/views/admin/layout/includes/header_assets.php"; ?>
 
 	<style>
+		.sandbox-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 12px;
+			border-radius: 999px;
+			background: rgba(243, 107, 36, 0.14);
+			border: 1px solid rgba(243, 107, 36, 0.4);
+			color: #f36b24;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			line-height: 1;
+		}
+
+		.sandbox-badge i {
+			font-size: 13px;
+		}
+
+		.sandbox-badge--sidebar {
+			margin-left: 12px;
+			vertical-align: middle;
+		}
+
+		.sandbox-badge--topnav {
+			margin-left: 12px;
+			margin-top: 8px;
+		}
+
 		button.disabled {
 			cursor: not-allowed;
 			opacity: .4;
@@ -34,6 +64,9 @@
 						<a href="<?php echo base_url(); ?>" class="site_title" target="_blank">
 							<i class="las la-suitcase-rolling"></i> <span><?php echo business_initials; ?></span>
 						</a>
+						<span class="sandbox-badge sandbox-badge--sidebar">
+							<i class="las la-flask"></i> Sandbox
+						</span>
 					</div>
 
 					<div class="clearfix"></div>
@@ -202,6 +235,9 @@
 							<a id="menu_toggle" title="Toggle Sidebar Menu">
 								<i class="las la-bars"></i><span class="text-bold f-s-22"> MENU</span>
 							</a>
+							<span class="sandbox-badge sandbox-badge--topnav">
+								<i class="las la-flask"></i> Sandbox
+							</span>
 						</div>
 
 						<ul class="nav navbar-nav navbar-right">

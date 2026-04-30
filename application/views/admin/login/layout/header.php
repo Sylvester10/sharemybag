@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $title; ?> - <?php echo business_name; ?></title>
+    <title>Sandbox | <?php echo $title; ?> - <?php echo business_name; ?></title>
 
     <!-- Favicons-->
     <link rel="shortcut icon" href="<?php echo base_url('assets/general/logo/favicon.ico'); ?>" type="image/x-icon">
@@ -38,7 +38,29 @@
         .form-content h4 {
             font-family: "Be Vietnam Pro", sans-serif !important;
         }
+
+        .sandbox-login-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(243, 107, 36, 0.14);
+            border: 1px solid rgba(243, 107, 36, 0.4);
+            color: #f36b24;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            z-index: 10;
+        }
     </style>
 </head>
 
 <body>
+    <span class="sandbox-login-badge">
+        <i class="las la-flask"></i> Sandbox
+    </span>

@@ -10,7 +10,7 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="<?= current_url(); ?>">
 
-    <title><?php echo $title; ?> - <?php echo sub_tagline; ?></title>
+    <title>Sandbox | <?php echo $title; ?> - <?php echo sub_tagline; ?></title>
 
     <!-- Open Graph Tags -->
     <meta property="og:title" content="<?php echo $title; ?>" />
@@ -80,6 +80,38 @@
 </head>
 
 <body>
+    <style>
+        .sandbox-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(243, 107, 36, 0.16);
+            border: 1px solid rgba(243, 107, 36, 0.45);
+            color: #f36b24;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .sandbox-badge i {
+            font-size: 14px;
+        }
+
+        .sandbox-badge--public {
+            margin-left: 14px;
+        }
+
+        @media (max-width: 991px) {
+            .sandbox-badge--public {
+                display: none;
+            }
+        }
+    </style>
+
     <!-- Pre-Loader -->
     <!-- <div class="preloader"></div> -->
 
@@ -115,6 +147,9 @@
                     <div class="header-inner-box">
                         <div class="logo">
                             <a class="navbar-Solar" href="<?php echo base_url(); ?>"><img src="<?php echo business_logo_white; ?>" width="101" height="63" alt="Sharemybag"></a>
+                            <span class="sandbox-badge sandbox-badge--public">
+                                <i class="las la-flask"></i> Sandbox
+                            </span>
                         </div>
 
                         <div class="main-menu">
