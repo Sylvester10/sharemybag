@@ -10,9 +10,9 @@ class Unapproved_travellers_ajax extends CI_Model
 	}
 
 	var $table = 'travellers';
-	var $column_order = array(null, 'id', 'itinerary_photo', 'fullname', 'phone', 'email', 'airline', 'travel_date', 'bag_space'); //set column field database for datatable orderable
-	var $column_search = array('id', 'itinerary_photo', 'fullname', 'phone', 'email', 'airline', 'travel_date', 'bag_space'); //set column field database for datatable searchable 
-	var $order = array('travel_date' => 'ASC');
+	var $column_order = array(null, 'travellers.id', 'travellers.itinerary_photo', 'travellers.fullname', 'travellers.phone', 'travellers.email', 'travellers.airline', 'travellers.travel_date', 'travellers.bag_space');
+	var $column_search = array('travellers.id', 'travellers.itinerary_photo', 'travellers.fullname', 'travellers.phone', 'travellers.email', 'travellers.airline', 'travellers.travel_date', 'travellers.bag_space');
+	var $order = array('travellers.travel_date' => 'ASC');
 
 
 	private function the_query()

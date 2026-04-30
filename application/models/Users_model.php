@@ -193,6 +193,15 @@ class Users_model extends MY_Model
         // Generate server-side identifiers
         $tracking_id = generate_unique_tracking_id('bookings', 'tracking_id', 7);
         $hash = $this->generate_hash(200);
+        $traveller_id = (int) $this->input->post('traveller_id', TRUE);
+        $traveller = $this->traveller_read_model->get_traveller_details_by_id($traveller_id);
+        $route_origin = $traveller && !empty($traveller->location)
+            ? $traveller->location
+            : $this->input->post('traveller_current_state', TRUE);
+        $route_destination = $traveller && !empty($traveller->destination)
+            ? $traveller->destination
+            : $this->input->post('traveller_destination', TRUE);
+        $route_currency = booking_route_currency($route_origin, $route_destination);
 
         // ── SERVER-SIDE PRICE RECALCULATION (SEC-008) ──
         // We still read client-submitted calculations for comparison, but
@@ -235,10 +244,10 @@ class Users_model extends MY_Model
             'selected_space'        => $selected_space,
             'selected_price'        => round($selected_price, 2),
             'traveller_commission'  => round($traveller_commission, 2),
-            'currency'              => $this->input->post('currency', TRUE),
+            'currency'              => $route_currency,
 
             // ── Traveller details (safe user input) ──
-            'traveller_id'              => (int) $this->input->post('traveller_id', TRUE),
+            'traveller_id'              => $traveller_id,
             'traveller_name'            => $this->input->post('traveller_name', TRUE),
             'traveller_email'           => $this->input->post('traveller_email', TRUE),
             'traveller_contact'         => $this->input->post('traveller_contact', TRUE),
@@ -306,17 +315,7 @@ class Users_model extends MY_Model
                         continue;
                     }
 
-                    if ($item->category === 'Documents/Electronics' || $item->category === 'Gold') {
-                        $traveller_commission += $route_pricing['premium_payout_rate'] * $item_size;
-                    } elseif (
-                        $item->category === 'Fish/Medicine' ||
-                        $item->category === 'Fish/Meat' ||
-                        $item->category === 'Medication'
-                    ) {
-                        $traveller_commission += $route_pricing['special_payout_rate'] * $item_size;
-                    } else {
-                        $traveller_commission += $route_pricing['normal_payout_rate'] * $item_size;
-                    }
+                    $traveller_commission += booking_category_payout_rate($route_pricing, $item->category) * $item_size;
                 }
             }
 
@@ -343,15 +342,13 @@ class Users_model extends MY_Model
                         continue;
                     }
 
-                    if (
-                        $item->category === 'Documents/Electronics' ||
-                        $item->category === 'Gold' ||
-                        $item->category === 'Fish/Medicine' ||
-                        $item->category === 'Fish/Meat' ||
-                        $item->category === 'Medication'
+                    if (booking_category_price_type($item->category) === 'premium_laptop') {
+                        $traveller_commission += 15.00;
+                    } elseif (
+                        in_array(booking_category_price_type($item->category), array('premium_small', 'special'), true)
                     ) {
                         $traveller_commission += 10.00;
-                    } elseif ($item->category === 'Duty Free') {
+                    } elseif (booking_category_price_type($item->category) === 'duty_free') {
                         $traveller_commission += 6.50;
                     }
                 }
@@ -474,18 +471,38 @@ class Users_model extends MY_Model
     {
         $y = $this->traveller_read_model->get_traveller_details_by_id($id);
         $user = $this->user_read_model->get_user_details_by_id($this->input->post('user_id'));
+        $selected_space = (float) $this->input->post('selected_space');
+        $route_pricing = booking_route_pricing($y->location, $y->destination);
+        $currency = booking_route_currency($y->location, $y->destination);
+        $selected_price = round($route_pricing['normal_rate'] * $selected_space, 2);
+        $service_charge = round((float) $route_pricing['service_charge'], 2);
+        $traveller_commission = $this->calculate_traveller_commission($y, $selected_space, null);
+        $sub_total = round($selected_price + $service_charge, 2);
+        $pricing = booking_price_breakdown($sub_total, $traveller_commission, $service_charge, 0, 'offline');
+        $tracking_id = generate_unique_tracking_id('bookings', 'tracking_id', 7);
+        $items = json_encode(array(
+            (object) array(
+                'item_name' => 'Offline Bag Space',
+                'category' => 'Normal',
+                'size' => $selected_space,
+                'price' => $selected_price,
+            )
+        ));
 
         $data = [
             // Traveller Info
             'traveller_id' => $y->id,
             'traveller_name' => $y->fullname,
             'traveller_contact' => $y->phone,
+            'traveller_email' => $y->email,
+            'traveller_travel_date' => $y->travel_date,
             'traveller_departure_date' => $y->travel_date,
             'traveller_arrival_date' => $y->arrival_date,
             'traveller_departure_state' => $y->departure_state,
             'traveller_current_state' => $y->current_state,
             'traveller_arrival_state' => $y->arrival_state,
             'traveller_arrival_airport' => $y->arrival_airport,
+            'traveller_destination' => $y->destination,
             'traveller_drop_address1' => $y->drop_address1,
             'traveller_drop_date1' => $y->drop_date1,
             'traveller_drop_address2' => $y->drop_address2,
@@ -513,18 +530,165 @@ class Users_model extends MY_Model
             'receiver_postcode' => $this->input->post('receiver_postcode'),
 
             // Booking Info
-            'selected_space' => $this->input->post('selected_space'),
+            'tracking_id' => $tracking_id,
+            'selected_space' => $selected_space,
+            'selected_price' => $selected_price,
+            'sub_total' => $sub_total,
+            'service_charge' => $service_charge,
+            'traveller_commission' => round((float) $traveller_commission, 2),
+            'vat' => $pricing['vat'],
+            'insurance' => 0.00,
+            'total_amount' => $pricing['total_amount'],
+            'currency' => $currency,
+            'items' => $items,
+            'status' => booking_status_normalize('Approved'),
+            'delivery_status' => delivery_status_normalize('Pending'),
+            'new' => 0,
             'payment_method' => 'offline',
             'payment_status' => payment_status_normalize('completed'),
             'hash' => $this->generate_hash(200),
         ];
 
+        $this->db->trans_start();
         $inserted = $this->db->insert('bookings', $data);
+        if ($inserted) {
+            $this->travellers_model->update_traveller_space($data['traveller_id']);
+        }
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE) {
+            log_message('error', 'Transaction failed in ' . __METHOD__);
+            return false;
+        }
+
         if ($inserted) {
             $this->finance_read_model->clearFinanceSummaryCaches();
             $this->booking_read_model->clearBookingCountCaches();
         }
         return $inserted;
+    }
+
+    public function backfill_offline_booking_financials()
+    {
+        $fields = array(
+            'id',
+            'traveller_id',
+            'traveller_current_state',
+            'traveller_arrival_state',
+            'selected_space',
+            'payment_method',
+            'payment_status',
+            'currency',
+            'selected_price',
+            'service_charge',
+            'sub_total',
+            'traveller_commission',
+            'vat',
+            'total_amount',
+            'items',
+            'tracking_id',
+        );
+
+        if ($this->db->field_exists('traveller_destination', 'bookings')) {
+            $fields[] = 'traveller_destination';
+        }
+
+        $this->db->select(implode(', ', $fields));
+        $this->db->from('bookings');
+        $this->db->group_start();
+        $this->db->where("(payment_method IS NULL OR LOWER(payment_method) IN ('offline','bank'))", null, false);
+        $this->db->group_end();
+        $this->db->where("LOWER(COALESCE(payment_status, '')) IN ('completed','complete','success','paid')", null, false);
+        $query = $this->db->get();
+
+        if ($query === false) {
+            log_message('error', 'Offline booking backfill query failed: ' . $this->db->last_query());
+            return 0;
+        }
+
+        $bookings = $query->result();
+
+        $updated = 0;
+
+        foreach ($bookings as $booking) {
+            $selectedSpace = (float) $booking->selected_space;
+            if ($selectedSpace <= 0) {
+                continue;
+            }
+
+            $traveller = $this->traveller_read_model->get_traveller_details_by_id((int) $booking->traveller_id);
+            $origin = $traveller && !empty($traveller->location)
+                ? trim((string) $traveller->location)
+                : trim((string) $booking->traveller_current_state);
+            $bookingDestination = property_exists($booking, 'traveller_destination') ? $booking->traveller_destination : '';
+            $destination = $traveller && !empty($traveller->destination)
+                ? trim((string) $traveller->destination)
+                : trim((string) ($bookingDestination ?: $booking->traveller_arrival_state));
+
+            $routePricing = booking_route_pricing($origin, $destination);
+            $currency = booking_route_currency($origin, $destination);
+            $selectedPrice = round($routePricing['normal_rate'] * $selectedSpace, 2);
+            $serviceCharge = round((float) $routePricing['service_charge'], 2);
+            $travellerCommission = round($routePricing['normal_payout_rate'] * $selectedSpace, 2);
+            $subTotal = round($selectedPrice + $serviceCharge, 2);
+            $pricing = booking_price_breakdown($subTotal, $travellerCommission, $serviceCharge, 0, 'offline');
+            $items = json_encode(array(
+                (object) array(
+                    'item_name' => 'Offline Bag Space',
+                    'category' => 'Normal',
+                    'size' => $selectedSpace,
+                    'price' => $selectedPrice,
+                )
+            ));
+
+            $data = array();
+
+            if (empty($booking->tracking_id)) {
+                $data['tracking_id'] = generate_unique_tracking_id('bookings', 'tracking_id', 7);
+            }
+            if ($this->db->field_exists('traveller_destination', 'bookings') && empty($bookingDestination) && $destination !== '') {
+                $data['traveller_destination'] = $destination;
+            }
+            if (empty($booking->currency)) {
+                $data['currency'] = $currency;
+            }
+            if ((float) $booking->selected_price <= 0) {
+                $data['selected_price'] = $selectedPrice;
+            }
+            if ((float) $booking->service_charge <= 0) {
+                $data['service_charge'] = $serviceCharge;
+            }
+            if ((float) $booking->sub_total <= 0) {
+                $data['sub_total'] = $subTotal;
+            }
+            if ((float) $booking->traveller_commission <= 0) {
+                $data['traveller_commission'] = $travellerCommission;
+            }
+            if ($booking->vat === null || $booking->vat === '') {
+                $data['vat'] = $pricing['vat'];
+            }
+            if ((float) $booking->total_amount <= 0) {
+                $data['total_amount'] = $pricing['total_amount'];
+            }
+            if (empty($booking->items)) {
+                $data['items'] = $items;
+            }
+            if (empty($booking->payment_method)) {
+                $data['payment_method'] = 'offline';
+            }
+
+            if (!empty($data)) {
+                $this->db->where('id', (int) $booking->id)->update('bookings', $data);
+                $updated++;
+            }
+        }
+
+        if ($updated > 0) {
+            $this->finance_read_model->clearFinanceSummaryCaches();
+            $this->booking_read_model->clearBookingCountCaches();
+        }
+
+        return $updated;
     }
 
 

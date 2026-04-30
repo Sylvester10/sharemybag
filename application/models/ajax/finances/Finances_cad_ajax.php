@@ -19,6 +19,11 @@ class Finances_cad_ajax extends CI_Model
 		$allowed_values = currency_db_values($currency);
 		$this->db->where_in('bookings.currency', $allowed_values);
 	}
+ 
+	private function applyPaymentMethodFilter()
+	{
+		$this->db->where("(LOWER(COALESCE(bookings.payment_method, '')) IN ('paystack','stripe','offline','bank') OR bookings.payment_method IS NULL)", null, false);
+	}
 
 	public function __construct()
 	{
@@ -97,10 +102,7 @@ class Finances_cad_ajax extends CI_Model
 		$this->db->where('bookings.payment_status', 'completed');
 		$this->applyCurrencyFilter('CAD');
 
-		$this->db->group_start();
-		$this->db->where_in('bookings.payment_method', ['paystack', 'stripe', 'offline']);
-		$this->db->or_where('bookings.payment_method IS NULL', null, false);
-		$this->db->group_end();
+		$this->applyPaymentMethodFilter();
 
 		$query = $this->db->get();
 		return $query->result();
@@ -129,10 +131,7 @@ class Finances_cad_ajax extends CI_Model
 		$this->db->where('bookings.payment_status', 'completed');
 		$this->applyCurrencyFilter('CAD');
 
-		$this->db->group_start();
-		$this->db->where_in('bookings.payment_method', ['paystack', 'stripe', 'offline']);
-		$this->db->or_where('bookings.payment_method IS NULL', null, false);
-		$this->db->group_end();
+		$this->applyPaymentMethodFilter();
 
 		$query = $this->db->get();
 		return $query->num_rows();
@@ -159,10 +158,7 @@ class Finances_cad_ajax extends CI_Model
 		$this->db->where('bookings.payment_status', 'completed');
 		$this->applyCurrencyFilter('CAD');
 
-		$this->db->group_start();
-		$this->db->where_in('bookings.payment_method', ['paystack', 'stripe', 'offline']);
-		$this->db->or_where('bookings.payment_method IS NULL', null, false);
-		$this->db->group_end();
+		$this->applyPaymentMethodFilter();
 
 		$this->db->from($this->table);
 		$this->db->join('travellers', 'bookings.traveller_id = travellers.id', 'left');

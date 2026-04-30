@@ -198,5 +198,5 @@ class Admin_finances extends MY_Controller
         $data['y'] = $bookings_details;
         $this->load->view('admin/bookings/view_booking', $data);
         $this->admin_footer();
-    }
+    } 
 }

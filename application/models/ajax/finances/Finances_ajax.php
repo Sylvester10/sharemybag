@@ -13,7 +13,7 @@ class Finances_ajax extends CI_Model
 	{
 		return isset($_POST['start']) ? (int) $_POST['start'] : 0;
 	}
-
+ 
 	private function applyCurrencyFilter($currency)
 	{
 		$allowed_values = currency_db_values($currency);
@@ -25,6 +25,11 @@ class Finances_ajax extends CI_Model
 			$this->db->or_where('bookings.currency IS NULL', null, false);
 		}
 		$this->db->group_end();
+	}
+
+	private function applyPaymentMethodFilter()
+	{
+		$this->db->where("(LOWER(COALESCE(bookings.payment_method, '')) IN ('paystack','stripe','offline','bank') OR bookings.payment_method IS NULL)", null, false);
 	}
 
 	public function __construct()
@@ -104,10 +109,7 @@ class Finances_ajax extends CI_Model
 		$this->db->where('bookings.payment_status', 'completed');
 		$this->applyCurrencyFilter('GBP');
 
-		$this->db->group_start();
-		$this->db->where_in('bookings.payment_method', ['paystack', 'stripe', 'offline']);
-		$this->db->or_where('bookings.payment_method IS NULL', null, false);
-		$this->db->group_end();
+		$this->applyPaymentMethodFilter();
 
 		$query = $this->db->get();
 		return $query->result();
@@ -136,10 +138,7 @@ class Finances_ajax extends CI_Model
 		$this->db->where('bookings.payment_status', 'completed');
 		$this->applyCurrencyFilter('GBP');
 
-		$this->db->group_start();
-		$this->db->where_in('bookings.payment_method', ['paystack', 'stripe', 'offline']);
-		$this->db->or_where('bookings.payment_method IS NULL', null, false);
-		$this->db->group_end();
+		$this->applyPaymentMethodFilter();
 
 		$query = $this->db->get();
 		return $query->num_rows();
@@ -166,10 +165,7 @@ class Finances_ajax extends CI_Model
 		$this->db->where('bookings.payment_status', 'completed');
 		$this->applyCurrencyFilter('GBP');
 
-		$this->db->group_start();
-		$this->db->where_in('bookings.payment_method', ['paystack', 'stripe', 'offline']);
-		$this->db->or_where('bookings.payment_method IS NULL', null, false);
-		$this->db->group_end();
+		$this->applyPaymentMethodFilter();
 
 		$this->db->from($this->table);
 		// Need to join here too for the WHERE clause to work

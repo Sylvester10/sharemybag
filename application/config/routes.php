@@ -107,6 +107,9 @@ $route['admin_adverts/(:num)'] = 'admin_adverts/index/$1';
 $route['admin_logout'] = 'admin_login/logout';
 $route['admin/invoice/(:num)'] = 'invoice/admin_booking/$1';
 $route['admin/invoice/download/(:num)'] = 'invoice/admin_download/$1';
+$route['admin/backfill-offline-bookings'] = 'admin/backfill_offline_bookings';
+$route['admin_pricing'] = 'admin_pricing/index';
+$route['admin_pricing/update/(:any)'] = 'admin_pricing/update/$1';
 
 // Secure file access (SEC-004) — serves PII files through authenticated proxy
 $route['file/(:any)/(:any)'] = 'secure_file/serve/$1/$2';

@@ -427,7 +427,7 @@ class Bookings_model extends \MY_Model
 			'category'  => $category,
 			'size'      => $item_size,
 			'price'     => $item_price,
-			'unit'      => ($category === 'Documents/Electronics' || $category === 'Gold') ? 'PC' : 'KG',
+			'unit'      => booking_category_unit($category),
 		];
 
 		$current_items = json_decode($booking->items, true) ?: [];
@@ -436,7 +436,7 @@ class Bookings_model extends \MY_Model
 
 		$old_total = (float) $booking->total_amount;
 		$old_commission = (float) $booking->traveller_commission;
-		$special_charge = in_array($category, ['Fish/Medicine', 'Fish/Meat', 'Medication'], true) ? 10.00 : 0.00;
+		$special_charge = booking_category_price_type($category) === 'special' ? 10.00 : 0.00;
 		$new_total = round($old_total + $item_price + $special_charge, 2);
 		$new_commission = round($old_commission + $this->get_category_commission_delta($category, $item_size, $traveller), 2);
 
@@ -499,7 +499,7 @@ class Bookings_model extends \MY_Model
 
 		$old_total = (float) $booking->total_amount;
 		$old_commission = (float) $booking->traveller_commission;
-		$special_charge = in_array($removed_category, ['Fish/Medicine', 'Fish/Meat', 'Medication'], true) ? 10.00 : 0.00;
+		$special_charge = booking_category_price_type($removed_category) === 'special' ? 10.00 : 0.00;
 		$new_total = max(0, round($old_total - $removed_price - $special_charge, 2));
 		$new_commission = max(0, round($old_commission - $this->get_category_commission_delta($removed_category, $removed_size, $traveller), 2));
 
@@ -544,30 +544,7 @@ class Bookings_model extends \MY_Model
 	private function calculate_item_price($category, $size, $currency, $traveller)
 	{
 		$route_pricing = booking_route_pricing($traveller->location, $traveller->destination);
-		$normal_price  = $route_pricing['normal_rate'];
-		$special_price = $route_pricing['special_rate'];
-		$shopper_price = $route_pricing['duty_free_rate'];
-		$premium_price = $route_pricing['premium_rate'];
-
-		switch ($category) {
-			case 'Duty Free':
-				$price_per_unit = $shopper_price > 0 ? $shopper_price : $normal_price;
-				break;
-			case 'Fish/Medicine':
-			case 'Fish/Meat':
-			case 'Medication':
-				$price_per_unit = $special_price;
-				break;
-			case 'Documents/Electronics':
-			case 'Gold':
-				$price_per_unit = $premium_price;
-				break;
-			default:
-				$price_per_unit = $normal_price;
-				break;
-		}
-
-		return round($price_per_unit * $size, 2);
+		return round(booking_category_rate($route_pricing, $category) * $size, 2);
 	}
 
 
@@ -578,30 +555,17 @@ class Bookings_model extends \MY_Model
 			if (in_array($route_key, ['ng_uk', 'ca_ng'], true)) {
 				$route_pricing = booking_route_pricing($traveller->location, $traveller->destination);
 
-				if ($category === 'Documents/Electronics' || $category === 'Gold') {
-					return round($route_pricing['premium_payout_rate'] * (float) $size, 2);
-				}
-
-				if (
-					$category === 'Fish/Medicine' ||
-					$category === 'Fish/Meat' ||
-					$category === 'Medication'
-				) {
-					return round($route_pricing['special_payout_rate'] * (float) $size, 2);
-				}
-
-				return round($route_pricing['normal_payout_rate'] * (float) $size, 2);
+				return round(booking_category_payout_rate($route_pricing, $category) * (float) $size, 2);
 			}
 		}
 
-		switch ($category) {
-			case 'Documents/Electronics':
-			case 'Gold':
-			case 'Fish/Medicine':
-			case 'Fish/Meat':
-			case 'Medication':
+		switch (booking_category_price_type($category)) {
+			case 'premium_laptop':
+				return 15.00;
+			case 'premium_small':
+			case 'special':
 				return 10.00;
-			case 'Duty Free':
+			case 'duty_free':
 				return 6.50;
 			default:
 				return 0.00;

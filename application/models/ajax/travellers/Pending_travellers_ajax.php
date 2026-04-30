@@ -10,9 +10,9 @@ class Pending_travellers_ajax extends CI_Model
 	}
 
 	var $table = 'travellers';
-	var $column_order = array(null, 'id', 'itinerary_photo', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'destination', 'travel_date', 'status', 'date_added'); //set column field database for datatable orderable
-	var $column_search = array('id', 'itinerary_photo', 'fullname', 'phone', 'alt_phone', 'email', 'location', 'destination', 'travel_date', 'status', 'date_added'); //set column field database for datatable searchable 
-	var $order = array('travel_date' => 'ASC');
+	var $column_order = array(null, 'travellers.id', 'travellers.itinerary_photo', 'travellers.fullname', 'travellers.phone', 'travellers.alt_phone', 'travellers.email', 'travellers.location', 'travellers.destination', 'travellers.travel_date', 'travellers.status', 'travellers.date_added');
+	var $column_search = array('travellers.id', 'travellers.itinerary_photo', 'travellers.fullname', 'travellers.phone', 'travellers.alt_phone', 'travellers.email', 'travellers.location', 'travellers.destination', 'travellers.travel_date', 'travellers.status', 'travellers.date_added');
+	var $order = array('travellers.travel_date' => 'ASC');
 
 
 	private function the_query()

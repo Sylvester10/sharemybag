@@ -21,7 +21,7 @@ $year_options = array('' => 'Year');
 $currentYear = date('Y');
 for ($y = $currentYear; $y >= $currentYear - 10; $y--) {
     $year_options[$y] = $y;
-}
+} 
 $route_options = array(
     '' => 'Route',
     'Canada-Nigeria' => 'Canada - Nigeria',

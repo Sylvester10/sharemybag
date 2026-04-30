@@ -14,7 +14,7 @@ jQuery(document).ready(function ($) {
 
         csrfHash = newHash;
         $('#csrf_hash').val(newHash);
-    }
+    } 
 
     $(document).on('click', 'a.smb-file-preview', function (e) {
         e.preventDefault();
@@ -577,7 +577,7 @@ jQuery(document).ready(function ($) {
     // Update size label when category changes
     $(document).on('change', '#add_category', function () {
         var label =
-            $(this).val() === 'Documents/Electronics' || $(this).val() === 'Gold'
+            $(this).val() === 'Documents/Small Electronics' || $(this).val() === 'Laptop' || $(this).val() === 'Documents/Electronics' || $(this).val() === 'Gold'
                 ? 'Quantity (PC) *'
                 : 'Size (KG) *';
         $('#add_size_label').text(label);
@@ -1265,5 +1265,5 @@ jQuery(document).ready(function ($) {
 
 
 
-  
+
 });

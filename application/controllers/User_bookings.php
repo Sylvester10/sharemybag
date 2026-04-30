@@ -92,16 +92,9 @@ class User_bookings extends MY_Controller
         $data['user_details'] = $this->user_details;
         $data['user_id'] = $this->user_details->id;
         $data['traveller_details'] = $traveller;
-
-        // Canada users use CAD ($)
-        if ($this->user_details->country == 'Canada') {
-            $data['currency'] = 'CAD';
-            $data['symbol'] = currency_symbol('CAD');
-        } else {
-            // Nigeria and United Kingdom users use GBP (£)
-            $data['currency'] = 'GBP';
-            $data['symbol'] = currency_symbol('GBP');
-        }
+        $route_currency = booking_route_currency($traveller->location, $traveller->destination);
+        $data['currency'] = $route_currency;
+        $data['symbol'] = currency_symbol($route_currency);
 
         // Safely retrieve exchange rates
         $cad_rate_obj = $this->finance_read_model->get_most_recent_cad_exchange_rate();
@@ -232,22 +225,11 @@ class User_bookings extends MY_Controller
             // Get traveller details (only needed for route title)
             $traveller = $this->traveller_read_model->get_traveller_details_by_id($booking->traveller_id);
 
-            // UPDATED CURRENCY LOGIC BASED ON USER'S COUNTRY (ORIGIN) ---
-            $is_canada_user = ($this->user_details->country == 'Canada');
-
             if ($booking) {
-                // Set currency and amount variables based on USER's country
-                if ($is_canada_user) {
-                    $currency = 'CAD';
-                    $exchange_rate = $cad_rate; // CAD to NGN rate
-                    $charge_amount = (float)$booking->total_amount; // Amount is in CAD
-                    $title_route = $traveller->location . ' - ' . $traveller->destination;
-                } else {
-                    $currency = 'GBP';
-                    $exchange_rate = $pound_rate; // GBP to NGN rate
-                    $charge_amount = (float)$booking->total_amount; // Amount is in GBP
-                    $title_route = $traveller->location . ' - ' . $traveller->destination;
-                }
+                $currency = currency_code_normalize($booking->currency);
+                $exchange_rate = ($currency === 'CAD') ? $cad_rate : $pound_rate;
+                $charge_amount = (float) $booking->total_amount;
+                $title_route = $traveller->location . ' - ' . $traveller->destination;
 
                 $ngn_amount = $charge_amount * $exchange_rate;
                 $title = 'Purchasing ' . $booking->selected_space . 'KG Bag Space ' . $title_route;

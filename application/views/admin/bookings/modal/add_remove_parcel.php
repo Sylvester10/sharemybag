@@ -27,7 +27,8 @@
                             <option value="Normal">Normal</option>
                             <option value="Fish/Meat">Fish/Meat (Special)</option>
                             <option value="Medication">Medication (Special)</option>
-                            <option value="Documents/Electronics">Documents/Electronics/Gold (Premium)</option>
+                            <option value="Documents/Small Electronics">Documents/Small Electronics (Premium)</option>
+                            <option value="Laptop">Laptop (Premium)</option>
                             <option value="Duty Free">Duty Free</option>
                         </select>
                     </div>
