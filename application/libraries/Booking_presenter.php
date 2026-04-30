@@ -25,14 +25,17 @@ class Booking_presenter
             $category = isset($item->category) ? $item->category : '';
             $size = isset($item->size) ? (float) $item->size : 0.0;
 
-            if ($category === 'Documents/Electronics' || $category === 'Gold') {
+            if (booking_category_price_type($category) === 'premium_small') {
                 $metrics['extra_commission'] += 10.00;
                 $metrics['is_premium'] = true;
-            } elseif ($category === 'Fish/Medicine' || $category === 'Fish/Meat' || $category === 'Medication') {
+            } elseif (booking_category_price_type($category) === 'premium_laptop') {
+                $metrics['extra_commission'] += 15.00;
+                $metrics['is_premium'] = true;
+            } elseif (booking_category_price_type($category) === 'special') {
                 $metrics['extra_commission'] += 10.00;
                 $metrics['special_fee'] += 10.00;
                 $metrics['is_special'] = true;
-            } elseif ($category === 'Duty Free') {
+            } elseif (booking_category_price_type($category) === 'duty_free') {
                 $metrics['extra_commission'] += 6.50;
             }
 
@@ -145,7 +148,7 @@ class Booking_presenter
     public function build_price_estimate($origin, $destination, $category, $weight)
     {
         $valid_destinations = ['Nigeria', 'United Kingdom', 'Canada'];
-        $valid_categories = ['Normal', 'Duty Free', 'Fish/Medicine', 'Fish/Meat', 'Medication', 'Documents/Electronics', 'Gold'];
+        $valid_categories = ['Normal', 'Duty Free', 'Fish/Medicine', 'Fish/Meat', 'Medication', 'Documents/Electronics', 'Gold', 'Documents/Small Electronics', 'Laptop'];
 
         if (!in_array($destination, $valid_destinations) || !in_array($origin, $valid_destinations)) {
             return ['status' => false, 'msg' => 'Please select a valid origin and destination.'];
@@ -180,37 +183,12 @@ class Booking_presenter
         $symbol = currency_symbol_text($currency);
 
         $route_pricing = booking_route_pricing($origin, $destination);
-        $normal_price = $route_pricing['normal_rate'];
-        $special_price = $route_pricing['special_rate'];
-        $premium_price = $route_pricing['premium_rate'];
-        $duty_free_price = $route_pricing['duty_free_rate'];
-
-        switch ($category) {
-            case 'Duty Free':
-                $price_per_unit = $duty_free_price > 0 ? $duty_free_price : $normal_price;
-                $category_label = 'Duty Free';
-                break;
-            case 'Fish/Medicine':
-            case 'Fish/Meat':
-            case 'Medication':
-                $price_per_unit = $special_price;
-                $category_label = ($category === 'Medication') ? 'Special (Medication)' : 'Special (Fish / Meat)';
-                break;
-            case 'Documents/Electronics':
-            case 'Gold':
-                $price_per_unit = $premium_price;
-                $category_label = ($category === 'Gold') ? 'Premium (Gold)' : 'Premium (Documents / Electronics)';
-                break;
-            default:
-                $price_per_unit = $normal_price;
-                $category_label = 'Normal';
-                break;
-        }
-
-        $weight_unit = ($category === 'Documents/Electronics' || $category === 'Gold') ? 'PC' : 'KG';
+        $price_per_unit = booking_category_rate($route_pricing, $category);
+        $category_label = booking_category_label($category);
+        $weight_unit = booking_category_unit($category);
         $item_price = round($price_per_unit * $weight, 2);
         $service_charge = $route_pricing['service_charge'];
-        $special_fee = in_array($category, ['Fish/Medicine', 'Fish/Meat', 'Medication'], true) ? 10.00 : 0.00;
+        $special_fee = booking_category_price_type($category) === 'special' ? 10.00 : 0.00;
         $sub_total = round($item_price + $service_charge, 2);
         $total = round($sub_total + $special_fee, 2);
 

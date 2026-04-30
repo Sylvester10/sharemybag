@@ -18,7 +18,7 @@ include 'email_header.php'; ?>
     </thead>
     <tbody>
         <?php foreach ($item_details as $item):
-            $unit_display = ($item->category == 'Documents/Electronics') ? 'PC' : 'KG';
+            $unit_display = booking_category_unit($item->category);
         ?>
             <tr>
                 <td><?= $item->category ?></td>

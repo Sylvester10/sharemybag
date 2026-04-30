@@ -119,7 +119,8 @@
                                 $normal_price  = $route_pricing['normal_rate'];
                                 $shopper_price = $route_pricing['duty_free_rate'];
                                 $special_price = $route_pricing['special_rate'];
-                                $premium_price = $route_pricing['premium_rate'];
+                                $premium_small_price = $route_pricing['premium_small_rate'];
+                                $premium_laptop_price = $route_pricing['premium_laptop_rate'];
 
                                 // Output select based on traveller destination (for category options)
                                 if ($traveller_details->destination === 'Nigeria') { ?>
@@ -131,7 +132,8 @@
                                             <option value="Duty Free" data-price="<?= round($shopper_price, 2) ?>">Duty Free Shopping </option>
                                             <option value="Fish/Meat" data-price="<?= round($special_price, 2) ?>">Fish/Meat (special)</option>
                                             <option value="Medication" data-price="<?= round($special_price, 2) ?>">Medication (special)</option>
-                                            <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>">Documents/Electronics/Gold (premium)</option>
+                                            <option value="Documents/Small Electronics" data-price="<?= round($premium_small_price, 2) ?>">Documents/Small Electronics (premium)</option>
+                                            <option value="Laptop" data-price="<?= round($premium_laptop_price, 2) ?>">Laptop (premium)</option>
                                         </select>
                                         <small id="category-advisory" class="text-muted d-block mt-2"></small>
                                     </div>
@@ -143,7 +145,8 @@
                                             <option value="Normal" data-price="<?= round($normal_price, 2) ?>">Normal</option>
                                             <option value="Fish/Meat" data-price="<?= round($special_price, 2) ?>">Fish/Meat (special)</option>
                                             <option value="Medication" data-price="<?= round($special_price, 2) ?>">Medication (special)</option>
-                                            <option value="Documents/Electronics" data-price="<?= round($premium_price, 2) ?>">Documents/Electronics/Gold (premium)</option>
+                                            <option value="Documents/Small Electronics" data-price="<?= round($premium_small_price, 2) ?>">Documents/Small Electronics (premium)</option>
+                                            <option value="Laptop" data-price="<?= round($premium_laptop_price, 2) ?>">Laptop (premium)</option>
                                         </select>
                                         <small id="category-advisory" class="text-muted d-block mt-2"></small>
                                     </div>
@@ -491,7 +494,8 @@
             route_key="<?= html_escape($route_pricing['route_key']) ?>"
             normal_payout="<?= html_escape($route_pricing['normal_payout_rate']) ?>"
             special_payout="<?= html_escape($route_pricing['special_payout_rate']) ?>"
-            premium_payout="<?= html_escape($route_pricing['premium_payout_rate']) ?>">
+            premium_small_payout="<?= html_escape($route_pricing['premium_small_payout_rate']) ?>"
+            premium_laptop_payout="<?= html_escape($route_pricing['premium_laptop_payout_rate']) ?>">
         </span>
 
         <div class="btn_reserve_fixed text-center d-lg-none">

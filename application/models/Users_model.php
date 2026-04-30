@@ -315,17 +315,7 @@ class Users_model extends MY_Model
                         continue;
                     }
 
-                    if ($item->category === 'Documents/Electronics' || $item->category === 'Gold') {
-                        $traveller_commission += $route_pricing['premium_payout_rate'] * $item_size;
-                    } elseif (
-                        $item->category === 'Fish/Medicine' ||
-                        $item->category === 'Fish/Meat' ||
-                        $item->category === 'Medication'
-                    ) {
-                        $traveller_commission += $route_pricing['special_payout_rate'] * $item_size;
-                    } else {
-                        $traveller_commission += $route_pricing['normal_payout_rate'] * $item_size;
-                    }
+                    $traveller_commission += booking_category_payout_rate($route_pricing, $item->category) * $item_size;
                 }
             }
 
@@ -352,15 +342,13 @@ class Users_model extends MY_Model
                         continue;
                     }
 
-                    if (
-                        $item->category === 'Documents/Electronics' ||
-                        $item->category === 'Gold' ||
-                        $item->category === 'Fish/Medicine' ||
-                        $item->category === 'Fish/Meat' ||
-                        $item->category === 'Medication'
+                    if (booking_category_price_type($item->category) === 'premium_laptop') {
+                        $traveller_commission += 15.00;
+                    } elseif (
+                        in_array(booking_category_price_type($item->category), array('premium_small', 'special'), true)
                     ) {
                         $traveller_commission += 10.00;
-                    } elseif ($item->category === 'Duty Free') {
+                    } elseif (booking_category_price_type($item->category) === 'duty_free') {
                         $traveller_commission += 6.50;
                     }
                 }

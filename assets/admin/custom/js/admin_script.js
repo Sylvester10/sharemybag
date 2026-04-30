@@ -577,7 +577,7 @@ jQuery(document).ready(function ($) {
     // Update size label when category changes
     $(document).on('change', '#add_category', function () {
         var label =
-            $(this).val() === 'Documents/Electronics' || $(this).val() === 'Gold'
+            $(this).val() === 'Documents/Small Electronics' || $(this).val() === 'Laptop' || $(this).val() === 'Documents/Electronics' || $(this).val() === 'Gold'
                 ? 'Quantity (PC) *'
                 : 'Size (KG) *';
         $('#add_size_label').text(label);

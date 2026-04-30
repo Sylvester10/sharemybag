@@ -2136,65 +2136,89 @@ function booking_route_key($origin, $destination)
 }
 
 
-function booking_route_pricing($origin, $destination)
+function booking_route_definition($route_key)
 {
-	$route_key = booking_route_key($origin, $destination);
-
 	$defaults = array(
 		'route_key' => $route_key,
+		'origin' => 'Nigeria',
+		'destination' => 'United Kingdom',
+		'currency' => 'GBP',
 		'service_charge' => 3.99,
 		'normal_rate' => 8.50,
 		'special_rate' => 8.50,
 		'duty_free_rate' => 0.00,
-		'premium_rate' => 15.00,
+		'premium_small_rate' => 15.00,
+		'premium_laptop_rate' => 20.00,
 		'normal_payout_rate' => 5.00,
 		'special_payout_rate' => 5.00,
-		'premium_payout_rate' => 10.00,
+		'premium_small_payout_rate' => 10.00,
+		'premium_laptop_payout_rate' => 15.00,
 	);
 
 	switch ($route_key) {
 		case 'ng_uk':
 			return array_merge($defaults, array(
+				'origin' => 'Nigeria',
+				'destination' => 'United Kingdom',
+				'currency' => 'GBP',
 				'service_charge' => 3.49,
 				'normal_rate' => 9.50,
 				'special_rate' => 10.00,
-				'premium_rate' => 15.00,
+				'premium_small_rate' => 15.00,
+				'premium_laptop_rate' => 20.00,
 				'normal_payout_rate' => 5.00,
 				'special_payout_rate' => 5.00,
-				'premium_payout_rate' => 10.00,
+				'premium_small_payout_rate' => 10.00,
+				'premium_laptop_payout_rate' => 15.00,
 			));
 
 		case 'uk_ng':
 			return array_merge($defaults, array(
+				'origin' => 'United Kingdom',
+				'destination' => 'Nigeria',
+				'currency' => 'GBP',
 				'normal_rate' => 6.50,
 				'special_rate' => 6.50,
 				'duty_free_rate' => 9.50,
-				'premium_rate' => 15.00,
+				'premium_small_rate' => 15.00,
+				'premium_laptop_rate' => 20.00,
 				'normal_payout_rate' => 4.50,
 				'special_payout_rate' => 4.50,
-				'premium_payout_rate' => 10.00,
+				'premium_small_payout_rate' => 10.00,
+				'premium_laptop_payout_rate' => 15.00,
 			));
 
 		case 'ca_ng':
 			return array_merge($defaults, array(
+				'origin' => 'Canada',
+				'destination' => 'Nigeria',
+				'currency' => 'CAD',
 				'service_charge' => 6.44,
 				'normal_rate' => 17.50,
 				'special_rate' => 17.50,
 				'duty_free_rate' => 18.50,
-				'premium_rate' => 36.93,
+				'premium_small_rate' => 36.93,
+				'premium_laptop_rate' => 46.16,
 				'normal_payout_rate' => 10.00,
 				'special_payout_rate' => 10.00,
-				'premium_payout_rate' => 18.47,
+				'premium_small_payout_rate' => 18.47,
+				'premium_laptop_payout_rate' => 27.70,
 			));
 
 		case 'ng_ca':
 			return array_merge($defaults, array(
+				'origin' => 'Nigeria',
+				'destination' => 'Canada',
+				'currency' => 'CAD',
+				'service_charge' => 6.44,
 				'normal_rate' => 17.50,
 				'special_rate' => 18.50,
-				'premium_rate' => 36.93,
+				'premium_small_rate' => 36.93,
+				'premium_laptop_rate' => 46.16,
 				'normal_payout_rate' => 10.00,
 				'special_payout_rate' => 10.00,
-				'premium_payout_rate' => 20.00,
+				'premium_small_payout_rate' => 18.47,
+				'premium_laptop_payout_rate' => 27.70,
 			));
 
 		default:
@@ -2203,11 +2227,254 @@ function booking_route_pricing($origin, $destination)
 }
 
 
+function booking_special_categories()
+{
+	return array('Fish/Medicine', 'Fish/Meat', 'Medication');
+}
+
+
+function booking_premium_small_categories()
+{
+	return array('Documents/Electronics', 'Gold', 'Documents/Small Electronics');
+}
+
+
+function booking_premium_laptop_categories()
+{
+	return array('Laptop');
+}
+
+
+function booking_premium_categories()
+{
+	return array_merge(booking_premium_small_categories(), booking_premium_laptop_categories());
+}
+
+
+function booking_piece_categories()
+{
+	return booking_premium_categories();
+}
+
+
+function booking_category_price_type($category)
+{
+	$category = trim((string) $category);
+
+	if ($category === 'Duty Free') {
+		return 'duty_free';
+	}
+
+	if (in_array($category, booking_special_categories(), true)) {
+		return 'special';
+	}
+
+	if (in_array($category, booking_premium_small_categories(), true)) {
+		return 'premium_small';
+	}
+
+	if (in_array($category, booking_premium_laptop_categories(), true)) {
+		return 'premium_laptop';
+	}
+
+	return 'normal';
+}
+
+
+function booking_category_label($category)
+{
+	switch (booking_category_price_type($category)) {
+		case 'duty_free':
+			return 'Duty Free Shopping';
+		case 'special':
+			return $category === 'Medication'
+				? 'Medication (special)'
+				: 'Fish/Meat (special)';
+		case 'premium_small':
+			return 'Documents/Small Electronics (premium)';
+		case 'premium_laptop':
+			return 'Laptop (premium)';
+		default:
+			return 'Normal';
+	}
+}
+
+
+function booking_category_unit($category)
+{
+	return in_array(trim((string) $category), booking_piece_categories(), true) ? 'PC' : 'KG';
+}
+
+
+function booking_category_rate(array $route_pricing, $category)
+{
+	switch (booking_category_price_type($category)) {
+		case 'duty_free':
+			return (float) ($route_pricing['duty_free_rate'] > 0 ? $route_pricing['duty_free_rate'] : $route_pricing['normal_rate']);
+		case 'special':
+			return (float) $route_pricing['special_rate'];
+		case 'premium_small':
+			return (float) $route_pricing['premium_small_rate'];
+		case 'premium_laptop':
+			return (float) $route_pricing['premium_laptop_rate'];
+		default:
+			return (float) $route_pricing['normal_rate'];
+	}
+}
+
+
+function booking_category_payout_rate(array $route_pricing, $category)
+{
+	switch (booking_category_price_type($category)) {
+		case 'special':
+			return (float) $route_pricing['special_payout_rate'];
+		case 'premium_small':
+			return (float) $route_pricing['premium_small_payout_rate'];
+		case 'premium_laptop':
+			return (float) $route_pricing['premium_laptop_payout_rate'];
+		default:
+			return (float) $route_pricing['normal_payout_rate'];
+	}
+}
+
+
+function booking_supported_routes()
+{
+	return array(
+		booking_route_definition('ng_uk'),
+		booking_route_definition('uk_ng'),
+		booking_route_definition('ng_ca'),
+		booking_route_definition('ca_ng'),
+	);
+}
+
+
+function booking_route_label($route_key)
+{
+	$route = booking_route_definition($route_key);
+	return $route['origin'] . ' - ' . $route['destination'];
+}
+
+
+function booking_route_definition_map()
+{
+	static $definitions = null;
+
+	if ($definitions === null) {
+		$definitions = array();
+		foreach (booking_supported_routes() as $route) {
+			$definitions[$route['route_key']] = $route;
+		}
+	}
+
+	return $definitions;
+}
+
+
+function booking_db_pricing_map()
+{
+	static $loaded = false;
+	static $pricing_map = array();
+	static $table_exists = null;
+
+	if ($loaded) {
+		return $pricing_map;
+	}
+
+	$loaded = true;
+
+	if (!function_exists('get_instance')) {
+		return $pricing_map;
+	}
+
+	$ci = get_instance();
+	if (!$ci || !isset($ci->db) || !is_object($ci->db)) {
+		return $pricing_map;
+	}
+
+	if ($table_exists === null) {
+		try {
+			$table_exists = $ci->db->table_exists('pricing_settings');
+		} catch (Throwable $e) {
+			$table_exists = false;
+		} catch (Exception $e) {
+			$table_exists = false;
+		}
+	}
+
+	if (!$table_exists) {
+		return $pricing_map;
+	}
+
+	if (
+		!$ci->db->field_exists('premium_small_rate', 'pricing_settings') ||
+		!$ci->db->field_exists('premium_laptop_rate', 'pricing_settings') ||
+		!$ci->db->field_exists('premium_small_payout_rate', 'pricing_settings') ||
+		!$ci->db->field_exists('premium_laptop_payout_rate', 'pricing_settings')
+	) {
+		return $pricing_map;
+	}
+
+	$ci->db->select('route_key, origin, destination, currency, service_charge, normal_rate, special_rate, duty_free_rate, premium_small_rate, premium_laptop_rate, normal_payout_rate, special_payout_rate, premium_small_payout_rate, premium_laptop_payout_rate');
+	$ci->db->from('pricing_settings');
+	$ci->db->where('is_active', 1);
+	$query = $ci->db->get();
+
+	if (!$query) {
+		return $pricing_map;
+	}
+
+	foreach ($query->result_array() as $row) {
+		$route_key = isset($row['route_key']) ? trim((string) $row['route_key']) : '';
+		if ($route_key === '') {
+			continue;
+		}
+
+		$pricing_map[$route_key] = array(
+			'route_key' => $route_key,
+			'origin' => (string) $row['origin'],
+			'destination' => (string) $row['destination'],
+			'currency' => currency_code_normalize($row['currency']),
+			'service_charge' => round((float) $row['service_charge'], 2),
+			'normal_rate' => round((float) $row['normal_rate'], 2),
+			'special_rate' => round((float) $row['special_rate'], 2),
+			'duty_free_rate' => round((float) $row['duty_free_rate'], 2),
+			'premium_small_rate' => round((float) $row['premium_small_rate'], 2),
+			'premium_laptop_rate' => round((float) $row['premium_laptop_rate'], 2),
+			'normal_payout_rate' => round((float) $row['normal_payout_rate'], 2),
+			'special_payout_rate' => round((float) $row['special_payout_rate'], 2),
+			'premium_small_payout_rate' => round((float) $row['premium_small_payout_rate'], 2),
+			'premium_laptop_payout_rate' => round((float) $row['premium_laptop_payout_rate'], 2),
+		);
+	}
+
+	return $pricing_map;
+}
+
+
+function booking_route_pricing($origin, $destination)
+{
+	$route_key = booking_route_key($origin, $destination);
+	$defaults = booking_route_definition($route_key);
+	$db_pricing = booking_db_pricing_map();
+
+	if (isset($db_pricing[$route_key])) {
+		$pricing = array_merge($defaults, $db_pricing[$route_key]);
+		$pricing['premium_rate'] = $pricing['premium_small_rate'];
+		$pricing['premium_payout_rate'] = $pricing['premium_small_payout_rate'];
+		return $pricing;
+	}
+
+	$defaults['premium_rate'] = $defaults['premium_small_rate'];
+	$defaults['premium_payout_rate'] = $defaults['premium_small_payout_rate'];
+	return $defaults;
+}
+
+
 function booking_route_currency($origin, $destination)
 {
-	return in_array(booking_route_key($origin, $destination), array('ng_ca', 'ca_ng'), true)
-		? 'CAD'
-		: 'GBP';
+	$pricing = booking_route_pricing($origin, $destination);
+	return currency_code_normalize($pricing['currency']);
 }
 
 

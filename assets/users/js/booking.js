@@ -35,6 +35,30 @@ jQuery(document).ready(function ($) {
     $('#payment_method').val(getSelectedPaymentMethod());
   }
 
+  function isPremiumSmallCategory(category) {
+    return (
+      category === 'Documents/Small Electronics' ||
+      category === 'Documents/Electronics' ||
+      category === 'Gold'
+    );
+  }
+
+  function isPremiumLaptopCategory(category) {
+    return category === 'Laptop';
+  }
+
+  function isSpecialCategory(category) {
+    return (
+      category === 'Fish/Medicine' ||
+      category === 'Fish/Meat' ||
+      category === 'Medication'
+    );
+  }
+
+  function isPieceCategory(category) {
+    return isPremiumSmallCategory(category) || isPremiumLaptopCategory(category);
+  }
+
   function calculateTravellerCommissionForSummary(selectedSpace) {
     let currency = $('#holdThisInfo').attr('currency');
     let destination = (
@@ -43,7 +67,11 @@ jQuery(document).ready(function ($) {
     let routeKey = ($('#holdThisInfo').attr('route_key') || '').trim();
     let normalPayout = parseFloat($('#holdThisInfo').attr('normal_payout')) || 0;
     let specialPayout = parseFloat($('#holdThisInfo').attr('special_payout')) || normalPayout;
-    let premiumPayout = parseFloat($('#holdThisInfo').attr('premium_payout')) || normalPayout;
+    let premiumSmallPayout =
+      parseFloat($('#holdThisInfo').attr('premium_small_payout')) || normalPayout;
+    let premiumLaptopPayout =
+      parseFloat($('#holdThisInfo').attr('premium_laptop_payout')) ||
+      premiumSmallPayout;
     let travellerCommission = 0;
 
     if (routeKey === 'ng_uk' || routeKey === 'ca_ng') {
@@ -51,16 +79,11 @@ jQuery(document).ready(function ($) {
         let category = $(this).attr('category');
         let size = parseFloat($(this).attr('size')) || 0;
 
-        if (
-          category === 'Documents/Electronics' ||
-          category === 'Gold'
-        ) {
-          travellerCommission += premiumPayout * size;
-        } else if (
-          category === 'Fish/Medicine' ||
-          category === 'Fish/Meat' ||
-          category === 'Medication'
-        ) {
+        if (isPremiumLaptopCategory(category)) {
+          travellerCommission += premiumLaptopPayout * size;
+        } else if (isPremiumSmallCategory(category)) {
+          travellerCommission += premiumSmallPayout * size;
+        } else if (isSpecialCategory(category)) {
           travellerCommission += specialPayout * size;
         } else {
           travellerCommission += normalPayout * size;
@@ -78,13 +101,9 @@ jQuery(document).ready(function ($) {
 
     $('.select_item').each(function () {
       let category = $(this).attr('category');
-      if (
-        category === 'Documents/Electronics' ||
-        category === 'Gold' ||
-        category === 'Fish/Medicine' ||
-        category === 'Fish/Meat' ||
-        category === 'Medication'
-      ) {
+      if (isPremiumLaptopCategory(category)) {
+        travellerCommission += 15.0;
+      } else if (isPremiumSmallCategory(category) || isSpecialCategory(category)) {
         travellerCommission += 10.0;
       } else if (category === 'Duty Free') {
         travellerCommission += 6.5;
@@ -120,7 +139,7 @@ jQuery(document).ready(function ($) {
   // --- NEW: Event listener for category change ---
   $('#select1').change(function () {
     let selectedCategory = $(this).val();
-    if (selectedCategory === 'Documents/Electronics' || selectedCategory === 'Gold') {
+    if (isPieceCategory(selectedCategory)) {
       updateWeightUnit('PC');
     } else {
       updateWeightUnit('KG');
@@ -256,17 +275,7 @@ jQuery(document).ready(function ($) {
         let kg = parseFloat(size);
 
         // Define special charges for the two categories
-        const specialCharges = {
-          'Fish/Medicine': 10,
-          'Fish/Meat': 10,
-          Medication: 10,
-        };
-
-        // Determine the special charge based on the category
-        let specialCharge = 0;
-        if (specialCharges[category]) {
-          specialCharge = specialCharges[category]; // Get the special charge value
-        }
+        let specialCharge = isSpecialCategory(category) ? 10 : 0;
 
         // Create a new item element with the selected category, item name, size, price, special charge, and delete icon
         const newItem = document.createElement('div');
@@ -735,13 +744,37 @@ function syncPaymentMethod() {
   $('#payment_method').val(getSelectedPaymentMethod());
 }
 
+function isPremiumSmallCategory(category) {
+  return (
+    category === 'Documents/Small Electronics' ||
+    category === 'Documents/Electronics' ||
+    category === 'Gold'
+  );
+}
+
+function isPremiumLaptopCategory(category) {
+  return category === 'Laptop';
+}
+
+function isSpecialCategory(category) {
+  return (
+    category === 'Fish/Medicine' ||
+    category === 'Fish/Meat' ||
+    category === 'Medication'
+  );
+}
+
 function calculateTravellerCommissionForSummary(selectedSpace) {
   let currency = $('#holdThisInfo').attr('currency');
   let destination = ($('input[name="traveller_destination"]').val() || '').trim();
   let routeKey = ($('#holdThisInfo').attr('route_key') || '').trim();
   let normalPayout = parseFloat($('#holdThisInfo').attr('normal_payout')) || 0;
   let specialPayout = parseFloat($('#holdThisInfo').attr('special_payout')) || normalPayout;
-  let premiumPayout = parseFloat($('#holdThisInfo').attr('premium_payout')) || normalPayout;
+  let premiumSmallPayout =
+    parseFloat($('#holdThisInfo').attr('premium_small_payout')) || normalPayout;
+  let premiumLaptopPayout =
+    parseFloat($('#holdThisInfo').attr('premium_laptop_payout')) ||
+    premiumSmallPayout;
   let travellerCommission = 0;
 
   if (routeKey === 'ng_uk' || routeKey === 'ca_ng') {
@@ -749,16 +782,11 @@ function calculateTravellerCommissionForSummary(selectedSpace) {
       let category = $(this).attr('category');
       let size = parseFloat($(this).attr('size')) || 0;
 
-      if (
-        category === 'Documents/Electronics' ||
-        category === 'Gold'
-      ) {
-        travellerCommission += premiumPayout * size;
-      } else if (
-        category === 'Fish/Medicine' ||
-        category === 'Fish/Meat' ||
-        category === 'Medication'
-      ) {
+      if (isPremiumLaptopCategory(category)) {
+        travellerCommission += premiumLaptopPayout * size;
+      } else if (isPremiumSmallCategory(category)) {
+        travellerCommission += premiumSmallPayout * size;
+      } else if (isSpecialCategory(category)) {
         travellerCommission += specialPayout * size;
       } else {
         travellerCommission += normalPayout * size;
@@ -776,13 +804,9 @@ function calculateTravellerCommissionForSummary(selectedSpace) {
 
   $('.select_item').each(function () {
     let category = $(this).attr('category');
-    if (
-      category === 'Documents/Electronics' ||
-      category === 'Gold' ||
-      category === 'Fish/Medicine' ||
-      category === 'Fish/Meat' ||
-      category === 'Medication'
-    ) {
+    if (isPremiumLaptopCategory(category)) {
+      travellerCommission += 15.0;
+    } else if (isPremiumSmallCategory(category) || isSpecialCategory(category)) {
       travellerCommission += 10.0;
     } else if (category === 'Duty Free') {
       travellerCommission += 6.5;
@@ -979,19 +1003,12 @@ function updateBooking() {
 function getSpecialCharge() {
   let specialCharge = 0;
   // Note: This reflects the customer-facing special charge displayed in the summary
-  let specialCharges = {
-    'Fish/Medicine': 10,
-    'Fish/Meat': 10,
-    Medication: 10,
-  };
   let items = $('#items_input').val();
   if (items) {
     items = JSON.parse(items);
     let categories = items.map((item) => item.category);
     if (
-      categories.includes('Fish/Medicine') ||
-      categories.includes('Fish/Meat') ||
-      categories.includes('Medication')
+      categories.some((category) => isSpecialCategory(category))
     ) {
       specialCharge += 10; // Extra £10 displayed to user
     }

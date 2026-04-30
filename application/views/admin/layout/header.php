@@ -156,6 +156,12 @@
 										</ul>
 									</li>
 
+									<li>
+										<a href="<?php echo base_url('admin_pricing'); ?>">
+											<i class="las la-tags"></i> Pricing
+										</a>
+									</li>
+
 									<!-- Admin Accounts — super_admin only -->
 									<li>
 										<a><i class="las la-user-shield"></i> Admins <span class="las la-angle-down"></span></a>

@@ -1,3 +1,10 @@
+    <?php
+    $pricing_ng_uk = booking_route_pricing('Nigeria', 'United Kingdom');
+    $pricing_uk_ng = booking_route_pricing('United Kingdom', 'Nigeria');
+    $pricing_ng_ca = booking_route_pricing('Nigeria', 'Canada');
+    $pricing_ca_ng = booking_route_pricing('Canada', 'Nigeria');
+    ?>
+
     <!-- Hero Area -->
     <div class="homepage-slides owl-carousel">
         <div class="single-slide-item hero-area-bg-3">
@@ -69,7 +76,7 @@
                             </div>
                             <div class="feature-title">
                                 <h5>NG - UK</h5>
-                                <h4><b>£9.50 Per Kilo</b></h4>
+                                <h4><b><?php echo currency_symbol($pricing_ng_uk['currency']) . number_format($pricing_ng_uk['normal_rate'], 2); ?> Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>
@@ -82,7 +89,7 @@
                             </div>
                             <div class="feature-title">
                                 <h5>UK - NG</h5>
-                                <h4><b>£6.50 Per Kilo</b></h4>
+                                <h4><b><?php echo currency_symbol($pricing_uk_ng['currency']) . number_format($pricing_uk_ng['normal_rate'], 2); ?> Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>
@@ -95,7 +102,7 @@
                             </div>
                             <div class="feature-title">
                                 <h5>NG - CA</h5>
-                                <h4><b>$17.50 Per Kilo</b></h4>
+                                <h4><b><?php echo currency_symbol($pricing_ng_ca['currency']) . number_format($pricing_ng_ca['normal_rate'], 2); ?> Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>
@@ -108,7 +115,7 @@
                             </div>
                             <div class="feature-title">
                                 <h5>CA - NG</h5>
-                                <h4><b>$17.50 Per Kilo</b></h4>
+                                <h4><b><?php echo currency_symbol($pricing_ca_ng['currency']) . number_format($pricing_ca_ng['normal_rate'], 2); ?> Per Kilo</b></h4>
                             </div>
                         </div>
                     </div>
@@ -230,7 +237,7 @@
                             <div id="collapse3" class="collapse" aria-labelledby="heading3" data-parent="#accordionFaq">
                                 <div class="card-body">
                                     <div class="content">
-                                        <p>Rates depend on route. Nigeria to the UK starts at £9.50 per kg, while Canada to Nigeria starts at $17.50 per kg. Premium and special items attract additional charges.</p>
+                                        <p>Rates depend on route. Nigeria to the UK starts at <?php echo currency_symbol($pricing_ng_uk['currency']) . number_format($pricing_ng_uk['normal_rate'], 2); ?> per kg, while Canada to Nigeria starts at <?php echo currency_symbol($pricing_ca_ng['currency']) . number_format($pricing_ca_ng['normal_rate'], 2); ?> per kg. Premium and special items attract additional charges.</p>
                                     </div>
                                 </div>
                             </div>
@@ -248,7 +255,7 @@
                                 <div class="card-body">
                                     <div class="content">
                                         <p>
-                                            Premium and special-item pricing depends on route. For example, Nigeria to the UK premium items start from £15 per piece, while Canada to Nigeria premium items start from $36.93 per piece.
+                                            Premium and special-item pricing depends on route. For example, Nigeria to the UK small premium items start from <?php echo currency_symbol($pricing_ng_uk['currency']) . number_format($pricing_ng_uk['premium_small_rate'], 2); ?> per piece, while laptop pricing starts from <?php echo currency_symbol($pricing_ng_uk['currency']) . number_format($pricing_ng_uk['premium_laptop_rate'], 2); ?> per piece. Canada routes follow the same two premium bands, starting from <?php echo currency_symbol($pricing_ca_ng['currency']) . number_format($pricing_ca_ng['premium_small_rate'], 2); ?> and <?php echo currency_symbol($pricing_ca_ng['currency']) . number_format($pricing_ca_ng['premium_laptop_rate'], 2); ?> per piece.
                                         </p>
                                     </div>
                                 </div>
@@ -362,7 +369,7 @@
                                 <div class="card-body">
                                     <div class="content">
                                         <p>
-                                            You can send as little as you want. Current pricing starts from £9.50 per kilo from Nigeria to the UK, £6.50 per kilo from the UK to Nigeria, $18.50 per kilo from Nigeria to Canada, and $17.50 per kilo from Canada to Nigeria.
+                                            You can send as little as you want. Current pricing starts from <?php echo currency_symbol($pricing_ng_uk['currency']) . number_format($pricing_ng_uk['normal_rate'], 2); ?> per kilo from Nigeria to the UK, <?php echo currency_symbol($pricing_uk_ng['currency']) . number_format($pricing_uk_ng['normal_rate'], 2); ?> per kilo from the UK to Nigeria, <?php echo currency_symbol($pricing_ng_ca['currency']) . number_format($pricing_ng_ca['normal_rate'], 2); ?> per kilo from Nigeria to Canada, and <?php echo currency_symbol($pricing_ca_ng['currency']) . number_format($pricing_ca_ng['normal_rate'], 2); ?> per kilo from Canada to Nigeria.
                                         </p>
                                     </div>
                                 </div>
@@ -808,7 +815,8 @@
                                 <option value="Normal">Normal</option>
                                 <option value="Fish/Meat">Fish/Meat (special)</option>
                                 <option value="Medication">Medication (special)</option>
-                                <option value="Documents/Electronics">Documents/Electronics/Gold (premium)</option>
+                                <option value="Documents/Small Electronics">Documents/Small Electronics (premium)</option>
+                                <option value="Laptop">Laptop (premium)</option>
                             </select>
                             <small class="text-muted" id="pc_category_hint"></small>
                         </div>
@@ -938,8 +946,12 @@
                         label: 'Medication (special)'
                     },
                     {
-                        value: 'Documents/Electronics',
-                        label: 'Documents/Electronics/Gold (premium)'
+                        value: 'Documents/Small Electronics',
+                        label: 'Documents/Small Electronics (premium)'
+                    },
+                    {
+                        value: 'Laptop',
+                        label: 'Laptop (premium)'
                     }
                 ],
                 default: [{
@@ -955,8 +967,12 @@
                         label: 'Medication (special)'
                     },
                     {
-                        value: 'Documents/Electronics',
-                        label: 'Documents/Electronics/Gold (premium)'
+                        value: 'Documents/Small Electronics',
+                        label: 'Documents/Small Electronics (premium)'
+                    },
+                    {
+                        value: 'Laptop',
+                        label: 'Laptop (premium)'
                     }
                 ]
             };
@@ -966,7 +982,8 @@
                 'Duty Free': '',
                 'Fish/Meat': 'A special handling fee of £10 / $10 applies to this category.',
                 'Medication': 'A special handling fee of £10 / $10 applies to this category.',
-                'Documents/Electronics': 'Premium pricing applies. Weight is counted in pieces (PC), not KG.'
+                'Documents/Small Electronics': 'Premium pricing applies. Quantity is counted in pieces (PC), not KG.',
+                'Laptop': 'Laptop pricing applies. Quantity is counted in pieces (PC), not KG.'
             };
 
             function updateCategoryHintAndUnit() {
@@ -974,7 +991,7 @@
                 var weightLabel = document.getElementById('pc_weight_label');
                 var hint = document.getElementById('pc_category_hint');
 
-                weightLabel.textContent = (cat === 'Documents/Electronics') ? 'Quantity (PC) *' : 'Weight (KG) *';
+                weightLabel.textContent = (cat === 'Documents/Small Electronics' || cat === 'Laptop') ? 'Quantity (PC) *' : 'Weight (KG) *';
                 hint.textContent = categoryHints[cat] || '';
             }
 
