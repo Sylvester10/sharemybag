@@ -138,13 +138,11 @@ function ensureWizardStepErrorStyles() {
 		.wizard > .steps .wizard-step-error a,
 		.wizard > .steps .wizard-step-error a:hover,
 		.wizard > .steps .wizard-step-error a:active {
-			background: #ffe3e0 !important;
-			border-color: #f36b24 !important;
-			color: #b42318 !important;
+			background: #d20913 !important;
+			color: #fff !important;
 		}
 
 		.wizard > .steps .wizard-step-error .number {
-			background: #f36b24 !important;
 			color: #ffffff !important;
 		}
 	`;
@@ -412,7 +410,7 @@ $(".form-wizard-ajax").each(function () {
 				if (newIndex === 3 && Number($("#age-2").val()) < 18) {
 					return false;
 				}
-				
+
 				// Needed in some cases if the user went back (clean up)
 				if (currentIndex < newIndex) {
 					// To remove error styles
@@ -488,7 +486,7 @@ $(".form-ajax").each(function () {
 		submitFormAjax(e.target);
 	});
 });
-    
+
 // password toggle
 const toggleButtons = document.querySelectorAll('.toggle-password');
 
