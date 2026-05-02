@@ -50,6 +50,13 @@ function updateGlobalCsrfHash(newHash) {
 	}
 
 	window.appCsrf.hash = newHash;
+
+	let csrfName = getGlobalCsrfName();
+	if (!csrfName) {
+		return;
+	}
+
+	$('input[type="hidden"][name="' + csrfName + '"]').val(newHash);
 }
 
 function appendGlobalCsrfToFormData(formData) {
@@ -62,6 +69,25 @@ function appendGlobalCsrfToFormData(formData) {
 
 	formData.append(csrfName, csrfHash);
 	return formData;
+}
+
+function ensureFormHasCsrfInput(form) {
+	let csrfName = getGlobalCsrfName();
+	let csrfHash = getGlobalCsrfHash();
+
+	if (!csrfName || !csrfHash || !form) {
+		return;
+	}
+
+	let existingInput = form.querySelector('input[type="hidden"][name="' + csrfName + '"]');
+	if (!existingInput) {
+		existingInput = document.createElement("input");
+		existingInput.type = "hidden";
+		existingInput.name = csrfName;
+		form.appendChild(existingInput);
+	}
+
+	existingInput.value = csrfHash;
 }
 
 function getAjaxErrorMessage(xhr, fallbackMessage) {
@@ -101,6 +127,60 @@ function getAjaxErrorMessage(xhr, fallbackMessage) {
 	return { title, message };
 }
 
+function ensureWizardStepErrorStyles() {
+	if (document.getElementById("wizard-step-error-styles")) {
+		return;
+	}
+
+	let style = document.createElement("style");
+	style.id = "wizard-step-error-styles";
+	style.textContent = `
+		.wizard > .steps .wizard-step-error a,
+		.wizard > .steps .wizard-step-error a:hover,
+		.wizard > .steps .wizard-step-error a:active {
+			background: #ffe3e0 !important;
+			border-color: #f36b24 !important;
+			color: #b42318 !important;
+		}
+
+		.wizard > .steps .wizard-step-error .number {
+			background: #f36b24 !important;
+			color: #ffffff !important;
+		}
+	`;
+	document.head.appendChild(style);
+}
+
+function getWizardStepItems(form) {
+	let wizardRoot = $(form).closest(".wizard");
+	if (!wizardRoot.length) {
+		wizardRoot = $(form);
+	}
+
+	return wizardRoot.find("> .steps ul li");
+}
+
+function clearWizardStepErrors(form) {
+	getWizardStepItems(form).removeClass("wizard-step-error");
+}
+
+function applyWizardStepErrors(form, steps) {
+	if (!Array.isArray(steps) || !steps.length) {
+		return;
+	}
+
+	ensureWizardStepErrorStyles();
+	clearWizardStepErrors(form);
+
+	let items = getWizardStepItems(form);
+	steps.forEach(function (stepIndex) {
+		let index = parseInt(stepIndex, 10);
+		if (!Number.isNaN(index) && index >= 0) {
+			items.eq(index).addClass("wizard-step-error");
+		}
+	});
+}
+
 //universal form ajax
 function submitFormAjax(form) {
 	let action = form.hasAttribute("action")
@@ -138,6 +218,7 @@ function submitFormAjax(form) {
 				}
 
 				if (res.status) {
+					clearWizardStepErrors(form);
 
 					// Display success message
 					toastr.success(res.msg, res?.title ?? "Success", {
@@ -170,6 +251,9 @@ function submitFormAjax(form) {
 						hideFormLoader();
 					}, 700);
 				} else {
+					if (res && res.error_steps) {
+						applyWizardStepErrors(form, res.error_steps);
+					}
 					setTimeout(() => {
 						hideFormLoader();
 					}, 700);
@@ -185,6 +269,10 @@ function submitFormAjax(form) {
 					hideFormLoader();
 				}, 700);
 				let ajaxError = getAjaxErrorMessage(xhr);
+				let responseJson = xhr && xhr.responseJSON ? xhr.responseJSON : null;
+				if (responseJson && responseJson.error_steps) {
+					applyWizardStepErrors(form, responseJson.error_steps);
+				}
 
 				// Handle error response
 				toastr.error(ajaxError.message, ajaxError.title, {
@@ -283,6 +371,11 @@ function hideFormLoader() {
 
 $(".form-wizard-ajax").each(function () {
 	let advanced_form = $(this).show();
+	ensureFormHasCsrfInput(this);
+
+	advanced_form.on("change input", "input, select, textarea", function () {
+		clearWizardStepErrors(advanced_form);
+	});
 
 	advanced_form
 		.steps({
@@ -389,6 +482,7 @@ $(".form-wizard-ajax").each(function () {
 
 // form validation
 $(".form-ajax").each(function () {
+	ensureFormHasCsrfInput(this);
 	$(this).submit(function (e) {
 		e.preventDefault();
 		submitFormAjax(e.target);

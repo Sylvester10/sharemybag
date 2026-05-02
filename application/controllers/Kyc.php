@@ -4,6 +4,8 @@ defined('BASEPATH') or die('Direct access not allowed');
 
 class Kyc extends MY_Controller
 {
+    const KYC_MAX_FILE_SIZE = 5242880;
+
     public function __construct()
     {
         parent::__construct();
@@ -30,16 +32,9 @@ class Kyc extends MY_Controller
     public function verify_ajax()
     {
         $csrf_hash = $this->security->get_csrf_hash();
-        // Validate file size
-        $validate_image = $this->validate_file_upload('id_photo', 'Image Upload ERROR');
-        $validate_selfie = $this->validate_file_upload('selfie', 'Selfie Image - ERROR');
-        $validate_document = $this->validate_file_upload('utility', 'Utility Bill - ERROR');
-
-        // Check for validation errors
-        if ($validate_image || $validate_selfie || $validate_document) {
-            $error_list = trim(($validate_image ? $validate_image : '') . ($validate_selfie ? $validate_selfie : '') . ($validate_document ? $validate_document : ''));
-            $res = ['status' => false, 'msg' => normalize_user_message($error_list, 'Please check your uploaded files and try again.'), 'title' => 'Upload Error', 'msg_timeout' => 7000, 'csrf_hash' => $csrf_hash];
-            echo json_encode($res); // Show validation errors
+        $upload_validation_error = $this->validate_kyc_uploads();
+        if ($upload_validation_error) {
+            echo json_encode(array_merge($upload_validation_error, ['csrf_hash' => $csrf_hash]));
             return;
         }
 
@@ -49,58 +44,43 @@ class Kyc extends MY_Controller
 
         if ($this->form_validation->run()) {
             $this->load->library('upload');
-            $upload_error = "";
             $id_photo = '';
             $selfie = NULL;
             $utility = '';
 
             // Upload ID photo
             if (!empty($_FILES['id_photo']['name'])) {
-                $upload_error .= $this->upload_file('id_photo', './assets/id_cards', 'jpg|jpeg|png');
-                if ($upload_error === '') {
-                    $upload_data = $this->upload->data();
-                    $id_photo = $upload_data['file_name'];
-                }
-            }
-
-            if (!empty($_FILES['selfie']['name'])) {
-                $allowed_types = ['image/jpeg', 'image/jpg', 'image/png'];
-                $file_type = $_FILES['selfie']['type'];
-
-                // Check if the MIME type is actually recognized
-                if (!in_array($file_type, $allowed_types)) {
-                    $res = [
-                        'status' => false,
-                        'msg' => 'Upload the selfie as a JPG or PNG image.',
-                        'title' => 'Unsupported File',
-                        'msg_timeout' => 7000,
-                        'csrf_hash' => $csrf_hash
-                    ];
-                    echo json_encode($res);
+                $upload_error = $this->upload_file('id_photo', './assets/id_cards', 'jpg|jpeg|png');
+                if ($upload_error !== '') {
+                    echo json_encode(array_merge($this->build_kyc_upload_error('id_photo', 'We could not upload your ID card. Upload it as a JPG or PNG image and try again.'), ['csrf_hash' => $csrf_hash]));
                     return;
                 }
 
-                $upload_error .= $this->upload_file('selfie', './assets/selfie', 'jpg|jpeg|png');
-                if ($upload_error === '') {
-                    $upload_data = $this->upload->data();
-                    $selfie = $upload_data['file_name'];
+                $upload_data = $this->upload->data();
+                $id_photo = $upload_data['file_name'];
+            }
+
+            if (!empty($_FILES['selfie']['name'])) {
+                $upload_error = $this->upload_file('selfie', './assets/selfie', 'jpg|jpeg|png');
+                if ($upload_error !== '') {
+                    echo json_encode(array_merge($this->build_kyc_upload_error('selfie', 'We could not upload your selfie. Upload it as a JPG or PNG image and try again.'), ['csrf_hash' => $csrf_hash]));
+                    return;
                 }
+
+                $upload_data = $this->upload->data();
+                $selfie = $upload_data['file_name'];
             }
 
             // Upload utility
             if (!empty($_FILES['utility']['name'])) {
-                $upload_error .= $this->upload_file('utility', './assets/utility', 'jpg|jpeg|png|pdf');
-                if ($upload_error === '') {
-                    $upload_data = $this->upload->data();
-                    $utility = $upload_data['file_name'];
+                $upload_error = $this->upload_file('utility', './assets/utility', 'jpg|jpeg|png|pdf');
+                if ($upload_error !== '') {
+                    echo json_encode(array_merge($this->build_kyc_upload_error('utility', 'We could not upload your proof of address. Upload it as a JPG, PNG, or PDF file and try again.'), ['csrf_hash' => $csrf_hash]));
+                    return;
                 }
-            }
 
-            // Check for any upload errors
-            if (!empty($upload_error)) {
-                $res = ['status' => false, 'msg' => normalize_user_message($upload_error, 'We could not upload your documents. Please try again.'), 'title' => 'Upload Error', 'msg_timeout' => 7000, 'csrf_hash' => $csrf_hash];
-                echo json_encode($res);
-                return;
+                $upload_data = $this->upload->data();
+                $utility = $upload_data['file_name'];
             }
 
             // Get user details
@@ -126,8 +106,110 @@ class Kyc extends MY_Controller
                 echo json_encode($res);
             }
         } else {
-            $res = ['status' => false, 'msg' => first_validation_error('Please complete the KYC form and try again.'), 'title' => 'Verification Error', 'msg_timeout' => 7000, 'csrf_hash' => $csrf_hash];
+            $res = array_merge(
+                [
+                    'status' => false,
+                    'msg' => first_validation_error('Please complete the KYC form and try again.'),
+                    'title' => 'Verification Error',
+                    'msg_timeout' => 7000,
+                    'csrf_hash' => $csrf_hash
+                ],
+                $this->get_kyc_validation_step_error()
+            );
             echo json_encode($res); // Show validation errors
         }
+    }
+
+    private function validate_kyc_uploads()
+    {
+        foreach ($this->get_kyc_upload_rules() as $field => $rule) {
+            if (empty($_FILES[$field]['name'])) {
+                continue;
+            }
+
+            $file_size = isset($_FILES[$field]['size']) ? (int) $_FILES[$field]['size'] : 0;
+            if ($file_size > self::KYC_MAX_FILE_SIZE) {
+                return $this->build_kyc_upload_error($field, $rule['size_message']);
+            }
+
+            $extension = strtolower((string) pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION));
+            if ($extension === '' || !in_array($extension, $rule['extensions'], true)) {
+                return $this->build_kyc_upload_error($field, $rule['type_message']);
+            }
+
+            $mime_type = strtolower((string) ($_FILES[$field]['type'] ?? ''));
+            if ($mime_type !== '' && !in_array($mime_type, $rule['mime_types'], true)) {
+                return $this->build_kyc_upload_error($field, $rule['type_message']);
+            }
+        }
+
+        return null;
+    }
+
+    private function get_kyc_upload_rules()
+    {
+        $is_nigeria = $this->is_nigeria_kyc();
+
+        return [
+            'id_photo' => [
+                'title' => 'ID Upload Error',
+                'step' => 0,
+                'extensions' => ['jpg', 'jpeg', 'png'],
+                'mime_types' => ['image/jpeg', 'image/jpg', 'image/png'],
+                'type_message' => 'Upload your ID card as a JPG or PNG image.',
+                'size_message' => 'Your ID card file must be 5MB or less.',
+            ],
+            'utility' => [
+                'title' => 'Proof of Address Error',
+                'step' => $is_nigeria ? 1 : 0,
+                'extensions' => ['jpg', 'jpeg', 'png', 'pdf'],
+                'mime_types' => ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
+                'type_message' => 'Upload your proof of address as a JPG, PNG, or PDF file.',
+                'size_message' => 'Your proof of address file must be 5MB or less.',
+            ],
+            'selfie' => [
+                'title' => 'Selfie Upload Error',
+                'step' => $is_nigeria ? 3 : 2,
+                'extensions' => ['jpg', 'jpeg', 'png'],
+                'mime_types' => ['image/jpeg', 'image/jpg', 'image/png'],
+                'type_message' => 'Upload your selfie as a JPG or PNG image.',
+                'size_message' => 'Your selfie file must be 5MB or less.',
+            ],
+        ];
+    }
+
+    private function build_kyc_upload_error($field, $message)
+    {
+        $rules = $this->get_kyc_upload_rules();
+        $rule = isset($rules[$field]) ? $rules[$field] : ['title' => 'Upload Error', 'step' => 0];
+
+        return [
+            'status' => false,
+            'title' => $rule['title'],
+            'msg' => $message,
+            'msg_timeout' => 7000,
+            'error_fields' => [$field],
+            'error_steps' => [$rule['step']],
+        ];
+    }
+
+    private function get_kyc_validation_step_error()
+    {
+        $is_nigeria = $this->is_nigeria_kyc();
+
+        if (form_error('id_type')) {
+            return ['error_fields' => ['id_type'], 'error_steps' => [0]];
+        }
+
+        if (form_error('platform')) {
+            return ['error_fields' => ['platform'], 'error_steps' => [$is_nigeria ? 2 : 1]];
+        }
+
+        return [];
+    }
+
+    private function is_nigeria_kyc()
+    {
+        return strtolower(trim((string) $this->user_details->country)) === 'nigeria';
     }
 }
