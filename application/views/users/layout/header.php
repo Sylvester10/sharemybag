@@ -52,7 +52,9 @@
 
 	<!-- Display flash message -->
 	<?php echo custom_flash_message_success('status_success'); ?>
+	<?php echo custom_flash_message_success('status_msg'); ?>
 	<?php echo custom_flash_message_danger('status_error'); ?>
+	<?php echo custom_flash_message_danger('status_msg_error'); ?>
 
 
 	<!-- preloader start -->

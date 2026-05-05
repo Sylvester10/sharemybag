@@ -1,24 +1,22 @@
 <?php $email_title = 'Verification Unsuccessful';
 include 'email_header.php'; ?>
 
-<p class="greeting">Hi <?= $firstname ?>,</p>
-
 <div class="fail-banner">
     <span class="banner-icon">❌</span>
     <p class="banner-title-red">Identity Verification Unsuccessful</p>
 </div>
 
-<p>We were unable to verify your identity this time. Here are the most common reasons this happens:</p>
+<p class="greeting">Hi <?= $firstname ?>,</p>
 
-<p class="reasons-label">Common reasons</p>
-<ul class="reasons-list">
-    <li><span class="reason-dot">!</span> Your selfie or ID photos were not taken in clear, well-lit conditions.</li>
-    <li><span class="reason-dot">!</span> Part of your face was obstructed in the selfie, or details were cut off on the ID.</li>
-    <li><span class="reason-dot">!</span> The document submitted was not a valid or approved identification type.</li>
-    <li><span class="reason-dot">!</span> The ID submitted has expired.</li>
-</ul>
+<p>We could not verify your account yet.</p>
 
-<p>Please log in to your account to try again, keeping the above guidelines in mind.</p>
+<p><strong>Reason:</strong> <?= html_escape($rejection_reason ?? 'Your documents need to be re-uploaded.') ?></p>
+
+<?php if (!empty($rejection_note)) { ?>
+    <p><strong>Additional note:</strong> <?= nl2br(html_escape($rejection_note)) ?></p>
+<?php } ?>
+
+<p>Please log in to your account, update the affected document, and submit your verification again.</p>
 
 <div class="btn-wrap">
     <a href="<?php echo base_url('login'); ?>" class="btn">Log In &amp; Try Again</a>

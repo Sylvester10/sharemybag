@@ -20,6 +20,7 @@ class Kyc extends MY_Controller
     /* ====== KYC ====== */
     public function index()
     { //user dashboard, routed as dashboard
+        $this->enforce_complete_profile();
         // $this->return_to_user_dashboard(); //return user to dashboard if still loggedin
         $this->dashboard_header('Identity Verification');
         $data['user_id'] = $this->user_details->id;
@@ -31,6 +32,18 @@ class Kyc extends MY_Controller
 
     public function verify_ajax()
     {
+        if ($this->users_model->is_profile_complete($this->user_details->id)) {
+            echo json_encode([
+                'status' => false,
+                'msg' => 'Complete your profile before verifying your identity.',
+                'title' => 'Complete Your Profile',
+                'msg_timeout' => 7000,
+                'redirect' => base_url('profile'),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
+            return;
+        }
+
         $csrf_hash = $this->security->get_csrf_hash();
         $upload_validation_error = $this->validate_kyc_uploads();
         if ($upload_validation_error) {
@@ -211,5 +224,13 @@ class Kyc extends MY_Controller
     private function is_nigeria_kyc()
     {
         return strtolower(trim((string) $this->user_details->country)) === 'nigeria';
+    }
+
+    private function enforce_complete_profile()
+    {
+        if ($this->users_model->is_profile_complete($this->user_details->id)) {
+            $this->session->set_flashdata('status_msg_error', 'Complete your profile before verifying your identity.');
+            redirect(base_url('profile'));
+        }
     }
 }

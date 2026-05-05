@@ -35,6 +35,11 @@ class Dashboard extends MY_Controller
 
     public function kyc()
     {
+        if ($this->users_model->is_profile_complete($this->user_details->id)) {
+            $this->session->set_flashdata('status_msg_error', 'Complete your profile before verifying your identity.');
+            redirect(base_url('profile'));
+        }
+
         $this->dashboard_header('KYC Verification');
         $data['firstname'] = $this->user_details->firstname;
         $data['account_status'] = $this->user_details->account_status;
