@@ -166,6 +166,19 @@ class Users_model extends MY_Model
             'is_verified' => VERIFY_PENDING,
         ];
 
+        if ($this->db->field_exists('verification_rejection_reason', 'users')) {
+            $data['verification_rejection_reason'] = null;
+        }
+        if ($this->db->field_exists('verification_rejection_note', 'users')) {
+            $data['verification_rejection_note'] = null;
+        }
+        if ($this->db->field_exists('verification_rejected_at', 'users')) {
+            $data['verification_rejected_at'] = null;
+        }
+        if ($this->db->field_exists('verification_rejected_by', 'users')) {
+            $data['verification_rejected_by'] = null;
+        }
+
         $this->db->where('id', $user_id);
         $this->db->update('users', $data);
         $this->user_read_model->clearUserCountCaches();
