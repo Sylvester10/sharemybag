@@ -93,11 +93,11 @@ class Admin_users_model_ajax extends CI_Model
 
 			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-check" style="color: green"></i> &nbsp; Verify Account </a></p>
 
-			<p><a type="button" href="' . base_url('admin_users/unverify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+			' . $this->unverify_action_button($id);
 
 		} elseif ($y->is_verified == VERIFY_APPROVED) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/unverify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+			$verify_action = $this->unverify_action_button($id);
 
 		}
 
@@ -177,11 +177,58 @@ class Admin_users_model_ajax extends CI_Model
 	}
 
 
+	private function unverify_action_button($id)
+	{
+		return '<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#unverify' . $id . '"> <i class="las la-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+	}
+
+
+	private function modal_unverify($user)
+	{
+		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
+		$id = $y->id;
+		$options = verification_rejection_reason_options();
+		$reason_options = '<option value="">Select a reason</option>';
+		foreach ($options as $value => $label) {
+			$reason_options .= '<option value="' . html_escape($value) . '">' . html_escape($label) . '</option>';
+		}
+
+		return '<div class="modal fade" id="unverify' . $id . '" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content modal-form">
+					<div class="modal-header">
+						<div class="pull-right">
+							<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
+						</div>
+						<h4 class="modal-title">Un-verify: ' . html_escape($y->firstname) . '</h4>
+					</div>
+					<div class="modal-body">'
+						. form_open('admin_users/unverify_user/' . $id) .
+						'<div class="form-group">
+							<label>Reason *</label>
+							<select name="rejection_reason" class="form-control" required>' . $reason_options . '</select>
+						</div>
+						<div class="form-group" style="margin-top: 15px;">
+							<label>Additional note</label>
+							<textarea name="rejection_note" class="form-control" rows="4" maxlength="500" placeholder="Optional extra guidance for the user."></textarea>
+						</div>
+						<div style="margin-top: 20px;">
+							<button type="submit" class="btn btn-danger">Send Feedback and Reopen Verification</button>
+						</div>'
+						. form_close() .
+					'</div>
+				</div>
+			</div>
+		</div>';
+	}
+
+
 	public function modals($user)
 	{
 		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
 		$modal_delete_confirm = modal_delete_confirm($y->id, $y->firstname, 'user', 'admin_users/delete_user');
 		return 	$this->modal_options($y) .
+			$this->modal_unverify($y) .
 			$modal_delete_confirm;
 	}
 }
