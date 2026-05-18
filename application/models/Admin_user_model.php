@@ -178,6 +178,18 @@ class Admin_user_model extends \CI_Model
 		$data = array(
 			'is_verified' => VERIFY_APPROVED,
 		);
+		if ($this->db->field_exists('verification_rejection_reason', 'users')) {
+			$data['verification_rejection_reason'] = null;
+		}
+		if ($this->db->field_exists('verification_rejection_note', 'users')) {
+			$data['verification_rejection_note'] = null;
+		}
+		if ($this->db->field_exists('verification_rejected_at', 'users')) {
+			$data['verification_rejected_at'] = null;
+		}
+		if ($this->db->field_exists('verification_rejected_by', 'users')) {
+			$data['verification_rejected_by'] = null;
+		}
 		$this->db->where('id', $id);
 		$this->db->update('users', $data);
 		$this->user_read_model->clearUserCountCaches();
@@ -193,11 +205,29 @@ class Admin_user_model extends \CI_Model
 	}
 
 
-	public function unverify_user($id)
+	public function unverify_user($id, $reason = null, $note = null)
 	{
+		$reason = trim((string) $reason);
+		$note = trim((string) $note);
+		if ($reason === '' || !array_key_exists($reason, verification_rejection_reason_options())) {
+			$reason = 'other';
+		}
+
 		$data = array(
 			'is_verified' => VERIFY_PENDING,
 		);
+		if ($this->db->field_exists('verification_rejection_reason', 'users')) {
+			$data['verification_rejection_reason'] = $reason;
+		}
+		if ($this->db->field_exists('verification_rejection_note', 'users')) {
+			$data['verification_rejection_note'] = ($note !== '') ? $note : null;
+		}
+		if ($this->db->field_exists('verification_rejected_at', 'users')) {
+			$data['verification_rejected_at'] = date('Y-m-d H:i:s');
+		}
+		if ($this->db->field_exists('verification_rejected_by', 'users')) {
+			$data['verification_rejected_by'] = $this->admin_details->id ?? null;
+		}
 		$this->db->where('id', $id);
 		$this->db->update('users', $data);
 		$this->user_read_model->clearUserCountCaches();
@@ -205,6 +235,8 @@ class Admin_user_model extends \CI_Model
 		$y = $this->user_read_model->get_user_details_by_id($id);
 		$email = $y->email;
 		$data['firstname'] = $y->firstname;
+		$data['rejection_reason'] = verification_rejection_reason_label($reason);
+		$data['rejection_note'] = $note;
 
 		//Send email to user
 		send_email_notification($this, $email, 'Identity Verification Unsuccessful', $data, 'user_document_verification_failed_email');

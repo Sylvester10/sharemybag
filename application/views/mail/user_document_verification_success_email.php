@@ -1,13 +1,13 @@
 <?php $email_title = 'Verification Successful';
 include 'email_header.php'; ?>
 
-<p class="greeting">Hi <?= $firstname ?>,</p>
-
 <div class="success-banner">
     <span class="banner-icon">🎉</span>
     <p class="banner-title-green">Identity Verification Successful!</p>
     <p class="banner-sub-green">Your account is fully verified and ready to use.</p>
 </div>
+
+<p class="greeting">Hi <?= $firstname ?>,</p>
 
 <p>You now have full access to everything <?= business ?> has to offer:</p>
 

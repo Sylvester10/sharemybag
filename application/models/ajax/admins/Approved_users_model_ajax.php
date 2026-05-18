@@ -23,7 +23,7 @@ class Approved_users_model_ajax extends CI_Model
 		$this->db->from($this->table);
 		ci_where_not_deleted($this->db, $this->table);
 		$i = 0;
-		foreach ($this->column_search as $item) // loop column 
+		foreach ($this->column_search as $item) // loop column
 		{
 			if ($search_value !== '') // if datatable send POST for search
 			{
@@ -97,7 +97,7 @@ class Approved_users_model_ajax extends CI_Model
 			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-check" style="color: green"></i> &nbsp; Verify Account </a></p>';
 		} elseif ($y->is_verified == VERIFY_APPROVED) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/unverify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+			$verify_action = $this->unverify_action_button($id);
 		}
 
 		return '<p><a type="button" href="' . base_url('admin_users/user_login_admin/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable" target="_blank"> <i class="las la-sign-in-alt text-success"></i> Login as Super User </a></p>
@@ -176,11 +176,62 @@ class Approved_users_model_ajax extends CI_Model
 	}
 
 
+	private function unverify_action_button($id)
+	{
+		return '<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#unverify' . $id . '"> <i class="las la-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+	}
+
+
+	private function modal_unverify($user)
+	{
+		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
+		$id = $y->id;
+		$options = verification_rejection_reason_options();
+		$reason_options = '<option value="">Select a reason</option>';
+		foreach ($options as $value => $label) {
+			$reason_options .= '<option value="' . html_escape($value) . '">' . html_escape($label) . '</option>';
+		}
+
+		return '
+			<div class="modal fade admin-parcel-modal" id="unverify' . $id . '" tabindex="-1" role="dialog">
+				<div class="modal-dialog modal-md" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<div class="pull-right">
+								<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
+							</div>
+							<h4 class="modal-title">Un-verify: ' . html_escape($y->firstname) . '</h4>
+						</div>
+						'. form_open('admin_users/unverify_user/' . $id) .'
+						<div class="modal-body admin-parcel-modal__body">
+							<div class="admin-parcel-modal__grid">
+								<div class="admin-parcel-field">
+									<label class="admin-parcel-field__label" for="rejection_reason">Reason *</label>
+									<select name="rejection_reason" class="form-control" required>' . $reason_options . '</select>
+								</div>
+								<div class="admin-parcel-field admin-parcel-field--full">
+									<label class="admin-parcel-field__label" for="rejection_note">Additional note</label>
+									<textarea name="rejection_note" class="form-control admin-parcel-field__input admin-parcel-field__textarea w-100" rows="3" placeholder="Optional notes for user to correct issues with their verification"></textarea>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer admin-parcel-modal__footer">
+							<button type="submit" class="btn btn-danger"> Send Feedback </button>
+						</div>
+						' . form_close() . '
+					</div>
+				</div>
+			</div>
+		';
+	}
+
+
 	public function modals($user)
 	{
 		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
 		$modal_delete_confirm = modal_delete_confirm($y->id, $y->firstname, 'user', 'admin_users/delete_user');
 		return 	$this->modal_options($y) .
+			$this->modal_unverify($y) .
 			$modal_delete_confirm;
 	}
 }

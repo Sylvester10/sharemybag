@@ -66,6 +66,20 @@ jQuery(document).ready(function ($) {
         submitButton.attr('disabled', false); // Enables the button
     }
 
+    function resetTravellerFormUi() {
+        var travellerForm = $('#traveller_form');
+        if (!travellerForm.length) {
+            return;
+        }
+
+        travellerForm[0].reset();
+        travellerForm.find('select').each(function () {
+            $(this).niceSelect('update');
+        });
+        travellerForm.find('.location-flag, .destination-flag').addClass('d-none');
+        $('#status_msg').html('').hide();
+    }
+
     // Close search results when clicking the close button (using event delegation)
     $(document).on('click', '.search-back-drop', function () {
         $('body').removeClass('search-active');
@@ -199,15 +213,8 @@ jQuery(document).ready(function ($) {
                 updateCsrf(res.csrf_hash);
 
                 if (res.status) {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-success text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast');
-
-                    $('#traveller_form')[0].reset();
+                    resetTravellerFormUi();
+                    $('#travellerSuccessModal').modal('show');
                 } else {
                     $('#status_msg')
                         .html(
@@ -237,6 +244,26 @@ jQuery(document).ready(function ($) {
                     .fadeOut('slow');
             },
         });
+    });
+
+    $(document).on('click', '.traveller-scroll-trigger', function (e) {
+        var targetId = $(this).attr('href');
+        if (!targetId || targetId.charAt(0) !== '#') {
+            return;
+        }
+
+        var target = $(targetId);
+        if (!target.length) {
+            return;
+        }
+
+        e.preventDefault();
+        $('html, body').animate(
+            {
+                scrollTop: target.offset().top - 80,
+            },
+            700
+        );
     });
 
     //Sign up

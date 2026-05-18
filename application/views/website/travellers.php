@@ -102,11 +102,95 @@
                     </div>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-lg-12 text-center wow fadeInUp animated" data-wow-delay="200ms">
+                    <div class="traveller-signup-cta">
+                        <a href="#traveller-form-section" class="main-btn primary traveller-scroll-trigger">Sign Up as a Traveller</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="traveller-safety-area section-padding pt-0">
+        <div class="container">
+            <div class="row">
+                <div class="offset-lg-2 col-lg-8 text-center">
+                    <div class="section-title">
+                        <p>Built to protect both travellers and customers.</p>
+                        <h2>How We Keep You Safe</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="offset-lg-2 col-lg-8 text-center">
+                    <p class="traveller-safety-copy">We take two approaches to security: deterrence and preventive checks.</p>
+                </div>
+            </div>
+
+            <div class="row process-wrap">
+                <div class="col-lg-4 col-md-6 col-sm-12 wow fadeInUp animated" data-wow-delay="100ms">
+                    <div class="single-process-area text-center">
+                        <div class="process-icon">
+                            <img src="<?php echo base_url(); ?>assets/website/icons/apply.png" alt="">
+                        </div>
+                        <h4>Verification</h4>
+                        <p>We verify customers on key routes. Customers sending from Nigeria must submit a proof of ID, a selfie, and a current proof of address.</p>
+                        <span class="count-big">01</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-12 wow fadeInUp animated" data-wow-delay="200ms">
+                    <div class="single-process-area text-center">
+                        <div class="process-icon">
+                            <img src="<?php echo base_url(); ?>assets/website/icons/conversation.png" alt="">
+                        </div>
+                        <h4>Content List</h4>
+                        <p>Customers must submit a list of items in their parcel. We send it to you before the parcel arrives and tell you how to check each item on the list.</p>
+                        <span class="count-big">02</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-12 wow fadeInUp animated" data-wow-delay="300ms">
+                    <div class="single-process-area text-center">
+                        <div class="process-icon">
+                            <img src="<?php echo base_url(); ?>assets/website/icons/search.png" alt="">
+                        </div>
+                        <h4>Check</h4>
+                        <p>Check that items on the content list match the content in the parcel. If they do not match, let us know immediately.</p>
+                        <span class="count-big">03</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-12 wow fadeInUp animated" data-wow-delay="400ms">
+                    <div class="single-process-area text-center">
+                        <div class="process-icon">
+                            <img src="<?php echo base_url(); ?>assets/website/icons/24-7.png" alt="">
+                        </div>
+                        <h4>Guidance</h4>
+                        <p>We provide industry-level guidance on how to check parcels. If we cannot provide guidance on checking an item, we will not let you travel with it.</p>
+                        <span class="count-big">04</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-12 wow fadeInUp animated" data-wow-delay="500ms">
+                    <div class="single-process-area text-center">
+                        <div class="process-icon">
+                            <img src="<?php echo base_url(); ?>assets/website/icons/package.png" alt="">
+                        </div>
+                        <h4>Restricted Goods</h4>
+                        <p>We only allow certain sensitive goods, such as medications, when they have been purchased from an online pharmacy and sent directly from the pharmacy to you.</p>
+                        <span class="count-big">05</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Travellers Form  -->
-    <div class="quotation-area section-padding">
+    <div class="quotation-area section-padding" id="traveller-form-section">
         <div class="container">
             <div class="row">
                 <div class="col-xl-12 col-lg-12 col-12">
@@ -127,6 +211,7 @@
                                 $form_attributes = array("id" => "traveller_form");
                                 echo form_open_multipart('home/add_traveller_ajax', $form_attributes); ?>
 
+                                <input type="hidden" id="homepage_csrf_name" value="<?php echo html_escape($this->security->get_csrf_token_name()); ?>">
                                 <input type="hidden" id="homepage_csrf_hash" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
 
                                 <div class="row">
@@ -283,6 +368,33 @@
                             </div>
 
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="travellerSuccessModal" tabindex="-1" role="dialog" aria-labelledby="travellerSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered traveller-success-modal" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="travellerSuccessModalLabel">Traveller Request Sent</h4>
+                    <button type="button" class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="traveller-success-modal__hero">
+                        <span class="traveller-success-modal__icon"><i class="las la-check-circle"></i></span>
+                        <h5>Thank you for submitting your details.</h5>
+                        <p>One of our agents will contact you shortly.</p>
+                    </div>
+
+                    <div class="traveller-success-modal__tips">
+                        <h6>Packing Tips</h6>
+                        <ul>
+                            <li>Respect customers parcel.</li>
+                            <li>Pack clothing separate from food items.</li>
+                            <li>For your security, do not accept parcels in bags. The content should be transferred into a nylon or baco bag.</li>
+                        </ul>
                     </div>
                 </div>
             </div>

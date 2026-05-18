@@ -116,6 +116,11 @@ class Admin_Users extends MY_Controller
 
             $is_verified = user_verification_badge($y->is_verified);
             $account_status = account_status_badge($y->account_status);
+            $platform = ($y->platform == 'facebook') ? '<i class="lab la-facebook-f"></i>' : (($y->platform == 'instagram') ? '<i class="lab la-instagram"></i>' : '<i class="lab la-twitter"></i>');
+            $contact_details = '<i class="las la-phone"></i> ' . $y->number . ' <br />
+                                <i class="las la-envelope"></i> '  . $y->email . ' <br />
+                                ' . $platform . ' ' . ' ' . $y->socials . ' <br />
+                                <i class="las la-map-marker-alt"></i> ' . $y->address . ', ' . $y->state . ', ' . $y->post_code . '';
 
             $row = array();
             $row[] = checkbox_bulk_action($y->id);
@@ -124,7 +129,7 @@ class Admin_Users extends MY_Controller
             $row[] = $id_card;
             $row[] = $utility;
             $row[] = $y->firstname . " " . $y->lastname;
-            $row[] = $y->email;
+            $row[] = $contact_details;
             $row[] = $y->country;
             $row[] = $is_verified;
             $row[] = $account_status;
@@ -167,6 +172,11 @@ class Admin_Users extends MY_Controller
 
             $is_verified = user_verification_badge($y->is_verified);
             $account_status = account_status_badge($y->account_status);
+            $platform = ($y->platform == 'facebook') ? '<i class="lab la-facebook-f"></i>' : (($y->platform == 'instagram') ? '<i class="lab la-instagram"></i>' : '<i class="lab la-twitter"></i>');
+            $contact_details = '<i class="las la-phone"></i> ' . $y->number . ' <br />
+                                <i class="las la-envelope"></i> '  . $y->email . ' <br />
+                                ' . $platform . ' ' . ' ' . $y->socials . ' <br />
+                                <i class="las la-map-marker-alt"></i> ' . $y->address . ', ' . $y->state . ', ' . $y->post_code . '';
 
             $row = array();
             $row[] = checkbox_bulk_action($y->id);
@@ -175,7 +185,7 @@ class Admin_Users extends MY_Controller
             $row[] = $id_card;
             $row[] = $utility;
             $row[] = $y->firstname . " " . $y->lastname;
-            $row[] = $y->email;
+            $row[] = $contact_details;
             $row[] = $y->country;
             $row[] = $is_verified;
             $row[] = $account_status;
@@ -251,7 +261,25 @@ class Admin_Users extends MY_Controller
 
     public function unverify_user($id)
     {
-        $this->admin_user_model->unverify_user($id);
+        $reason = $this->input->post('rejection_reason', TRUE);
+        $note = $this->input->post('rejection_note', TRUE);
+
+        if (!$this->input->post()) {
+            $this->session->set_flashdata('status_msg_error', 'Select a reason before un-verifying this account.');
+            redirect($this->agent->referrer());
+            return;
+        }
+
+        $this->form_validation->set_rules('rejection_reason', 'Reason', 'trim|required');
+        $this->form_validation->set_rules('rejection_note', 'Additional note', 'trim|max_length[500]');
+
+        if (!$this->form_validation->run()) {
+            $this->session->set_flashdata('status_msg_error', first_validation_error('Select a reason before un-verifying this account.'));
+            redirect($this->agent->referrer());
+            return;
+        }
+
+        $this->admin_user_model->unverify_user($id, $reason, $note);
         $this->session->set_flashdata('status_msg', 'User unverified successfully.');
         redirect($this->agent->referrer());
     }

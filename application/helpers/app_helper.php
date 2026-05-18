@@ -2619,6 +2619,31 @@ function account_status_badge($status)
 }
 
 
+function verification_rejection_reason_options()
+{
+	return array(
+		'id_blurry' => 'ID document is blurry or unclear',
+		'selfie_blurry' => 'Selfie is blurry or unclear',
+		'face_obstructed' => 'Face is obstructed in the selfie',
+		'id_cut_off' => 'ID details are cut off',
+		'unsupported_document' => 'Document type is not accepted',
+		'expired_id' => 'ID document has expired',
+		'proof_of_address_issue' => 'Proof of address is missing or unclear',
+		'details_mismatch' => 'Details do not match the profile',
+		'invalid_document' => 'Document appears altered or invalid',
+		'other' => 'Documents need to be re-uploaded',
+	);
+}
+
+
+function verification_rejection_reason_label($reason)
+{
+	$options = verification_rejection_reason_options();
+	$reason = trim((string) $reason);
+	return isset($options[$reason]) ? $options[$reason] : $options['other'];
+}
+
+
 function traveller_status_badge($status)
 {
 	$status = traveller_status_normalize($status);

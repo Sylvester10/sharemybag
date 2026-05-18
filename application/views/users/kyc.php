@@ -49,6 +49,7 @@
                         <!-- if Nigeria -->
                         <div class="">
                             <form action="<?= base_url('kyc/verify_ajax') ?>" class="form-wizard-ajax" method="POST" enctype="multipart/form-data" target="_blank" redirect="<?= base_url('dashboard') ?>">
+                                <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
 
                                 <h3> <i class="ti ti-id fs-5"></i> ID Card</h3>
                                 <fieldset>
@@ -127,6 +128,7 @@
                         <!-- if UK -->
                         <div class="">
                             <form action="<?= base_url('kyc/verify_ajax') ?>" class="form-wizard-ajax" method="POST" enctype="multipart/form-data" target="_blank" redirect="<?= base_url('dashboard') ?>">
+                                <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
 
                                 <h3> <i class="ti ti-id fs-5"></i> ID Card </h3>
                                 <fieldset>

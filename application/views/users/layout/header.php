@@ -40,19 +40,12 @@
 </head>
 
 <body>
-	<!-- <div class="toast toast-onload align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
-		<div class="toast-body hstack align-items-start gap-6">
-			<i class="ti ti-alert-circle fs-6"></i>
-			<div>
-				<h5 class="text-white fs-3 mb-1">Welcome back, <?php echo $user_details->firstname; ?>!</h5>
-			</div>
-			<button type="button" class="btn-close btn-close-white fs-2 m-0 ms-auto shadow-none" data-bs-dismiss="toast" aria-label="Close"></button>
-		</div>
-	</div> -->
 
 	<!-- Display flash message -->
 	<?php echo custom_flash_message_success('status_success'); ?>
+	<?php echo custom_flash_message_success('status_msg'); ?>
 	<?php echo custom_flash_message_danger('status_error'); ?>
+	<?php echo custom_flash_message_danger('status_msg_error'); ?>
 
 
 	<!-- preloader start -->
@@ -117,74 +110,6 @@
 							</a>
 						</li>
 
-						<!-- <li class="sidebar-item">
-							<a
-								class="sidebar-link has-arrow"
-								href="javascript:void(0)"
-								aria-expanded="false">
-								<span class="d-flex">
-									<i class="ti ti-basket"></i>
-								</span>
-								<span class="hide-menu">Market Place</span>
-							</a>
-							<ul aria-expanded="false" class="collapse first-level">
-								<li class="sidebar-item">
-									<a href="eco-shop.html" class="sidebar-link">
-										<div
-											class="round-16 d-flex align-items-center justify-content-center">
-											<i class="ti ti-circle"></i>
-										</div>
-										<span class="hide-menu">Shop</span>
-									</a>
-								</li>
-								<li class="sidebar-item">
-									<a href="eco-shop-detail.html" class="sidebar-link">
-										<div
-											class="round-16 d-flex align-items-center justify-content-center">
-											<i class="ti ti-circle"></i>
-										</div>
-										<span class="hide-menu">Details</span>
-									</a>
-								</li>
-								<li class="sidebar-item">
-									<a href="eco-product-list.html" class="sidebar-link">
-										<div
-											class="round-16 d-flex align-items-center justify-content-center">
-											<i class="ti ti-circle"></i>
-										</div>
-										<span class="hide-menu">List</span>
-									</a>
-								</li>
-								<li class="sidebar-item">
-									<a href="eco-checkout.html" class="sidebar-link">
-										<div
-											class="round-16 d-flex align-items-center justify-content-center">
-											<i class="ti ti-circle"></i>
-										</div>
-										<span class="hide-menu">Checkout</span>
-									</a>
-								</li>
-								<li class="sidebar-item">
-									<a href="eco-add-product.html" class="sidebar-link">
-										<div
-											class="round-16 d-flex align-items-center justify-content-center">
-											<i class="ti ti-circle"></i>
-										</div>
-										<span class="hide-menu">Add Product</span>
-									</a>
-								</li>
-								<li class="sidebar-item">
-									<a href="eco-edit-product.html" class="sidebar-link">
-										<div
-											class="round-16 d-flex align-items-center justify-content-center">
-											<i class="ti ti-circle"></i>
-										</div>
-										<span class="hide-menu">Edit Product</span>
-									</a>
-								</li>
-							</ul>
-						</li> -->
-
 						<li class="sidebar-item">
 							<a class="sidebar-link" href="<?php echo base_url('profile'); ?>" aria-expanded="false">
 								<span>
@@ -242,101 +167,6 @@
 							<div class="d-flex align-items-center justify-content-between">
 								<ul
 									class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
-									<!-- ------------------------------- -->
-									<!-- start dark mode -->
-									<!-- ------------------------------- -->
-
-									<!-- <li class="nav-item nav-icon-hover-bg rounded-circle">
-										<a class="nav-link moon dark-layout" href="javascript:void(0)">
-											<i class="ti ti-moon moon"></i>
-										</a>
-										<a class="nav-link sun light-layout" href="javascript:void(0)">
-											<i class="ti ti-sun sun"></i>
-										</a>
-									</li> -->
-
-									<!-- ------------------------------- -->
-									<!-- end dark mode -->
-									<!-- ------------------------------- -->
-
-									<!-- ------------------------------- -->
-									<!-- start notification Dropdown -->
-									<!-- ------------------------------- -->
-
-									<!-- <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
-										<a class="nav-link position-relative" href="javascript:void(0)" id="drop2" aria-expanded="false">
-											<i class="ti ti-bell-ringing"></i>
-											<div class="notification bg-primary rounded-circle"></div>
-										</a>
-										<div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up"
-											aria-labelledby="drop2">
-											<div
-												class="d-flex align-items-center justify-content-between py-3 px-7">
-												<h5 class="mb-0 fs-5 fw-semibold">Notifications</h5>
-												<span class="badge text-bg-primary rounded-2 px-3 py-1 lh-sm">5 new</span>
-											</div>
-											<div class="message-body" data-simplebar>
-												<a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
-													<span class="me-3">
-														<img src="<?php echo base_url(); ?>assets/users/images/profile/user-2.jpg" alt="user" class="rounded-circle" width="48"
-															height="48" />
-													</span>
-													<div class="w-100">
-														<h6 class="mb-0 fs-4 lh-base">Roman Joined the Team!</h6>
-														<span class="fs-3 d-block text-body-secondary">Congratulate him</span>
-													</div>
-												</a>
-												<a href="javascript:void(0)"
-													class="py-6 px-7 d-flex align-items-center dropdown-item">
-													<span class="me-3">
-														<img src="<?php echo base_url(); ?>assets/users/images/profile/user-3.jpg" alt="user" class="rounded-circle" width="48"
-															height="48" />
-													</span>
-													<div class="w-100">
-														<h6 class="mb-0 fs-4 lh-base">New message</h6>
-														<span class="fs-3 d-block text-body-secondary">Salma sent you new message</span>
-													</div>
-												</a>
-												<a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
-													<span class="me-3">
-														<img src="<?php echo base_url(); ?>assets/users/images/profile/user-4.jpg" alt="user" class="rounded-circle" width="48"
-															height="48" />
-													</span>
-													<div class="w-100">
-														<h6 class="mb-0 fs-4 lh-base">Bianca sent payment</h6>
-														<span class="fs-3 d-block text-body-secondary">Check your earnings</span>
-													</div>
-												</a>
-												<a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
-													<span class="me-3">
-														<img src="<?php echo base_url(); ?>assets/users/images/profile/user-5.jpg" alt="user" class="rounded-circle" width="48"
-															height="48" />
-													</span>
-													<div class="w-100">
-														<h6 class="mb-0 fs-4 lh-base">Jolly completed tasks</h6>
-														<span class="fs-3 d-block text-body-secondary">Assign her new tasks</span>
-													</div>
-												</a>
-												<a href="javascript:void(0)"
-													class="py-6 px-7 d-flex align-items-center dropdown-item">
-													<span class="me-3">
-														<img src="<?php echo base_url(); ?>assets/users/images/profile/user-7.jpg" alt="user" class="rounded-circle" width="48"
-															height="48" />
-													</span>
-													<div class="w-100">
-														<h6 class="mb-0 fs-4 lh-base">Roman Joined the Team!</h6>
-														<span class="fs-3 d-block text-body-secondary">Congratulate him</span>
-													</div>
-												</a>
-											</div>
-											<div class="py-6 px-7 mb-1">
-												<button class="btn btn-outline-primary w-100">
-													See All Notifications
-												</button>
-											</div>
-										</div>
-									</li> -->
-
 									<!-- ------------------------------- -->
 									<!-- end notification Dropdown -->
 									<!-- ------------------------------- -->
