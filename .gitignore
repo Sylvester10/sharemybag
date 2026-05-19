@@ -6,6 +6,10 @@
 # Environment secrets
 .env
 .index.php
+.agent
+.claude
+.codex
+.cursor
 application/config/config.php
 
 # Archives
