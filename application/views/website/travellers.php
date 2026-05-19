@@ -388,11 +388,9 @@
                     </div>
 
                     <div class="traveller-success-modal__tips">
-                        <h6>Packing Tips</h6>
+                        <h6>Security Tips</h6>
                         <ul>
-                            <li>Respect customers parcel.</li>
-                            <li>Pack clothing separate from food items.</li>
-                            <li>For your security, do not accept parcels in bags. The content should be transferred into a nylon or baco bag.</li>
+                            <li>For your security, do not accept parcels in bags. The content should be transferred in bags with compartments.</li>
                         </ul>
                     </div>
                 </div>
