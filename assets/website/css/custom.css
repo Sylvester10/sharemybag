@@ -506,6 +506,108 @@
     font-weight: 500;
 }
 
+.traveller-signup-cta {
+    margin-top: 40px;
+}
+
+.traveller-safety-area {
+    background: #fff;
+}
+
+.traveller-safety-copy {
+    color: #495057;
+    font-size: 18px;
+    line-height: 1.8;
+    margin-bottom: 35px;
+}
+
+.traveller-success-modal .modal-content {
+    border: 0;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 26px 80px rgba(18, 29, 36, 0.22);
+}
+
+.traveller-success-modal .modal-header {
+    background: #f36b24;
+    color: #fff;
+    border-bottom: 0;
+    padding: 22px 26px;
+}
+
+.traveller-success-modal .modal-title {
+    color: #fff;
+    margin-bottom: 0;
+}
+
+.traveller-success-modal .modal-body {
+    padding: 28px 26px 30px;
+}
+
+.traveller-success-modal__hero {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.traveller-success-modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #1987541c;
+    color: #198754;
+    font-size: 42px;
+    margin-bottom: 16px;
+}
+
+.traveller-success-modal__hero h5 {
+    font-size: 28px;
+    color: #121d24;
+    margin-bottom: 10px;
+}
+
+.traveller-success-modal__hero p {
+    color: #59636b;
+    margin-bottom: 0;
+}
+
+.traveller-success-modal__tips {
+    background: #fff7f2;
+    border-radius: 18px;
+    padding: 22px 22px 18px;
+}
+
+.traveller-success-modal__tips h6 {
+    color: #121d24;
+    font-size: 20px;
+    margin-bottom: 14px;
+}
+
+.traveller-success-modal__tips ul {
+    margin: 0;
+    padding-left: 0;
+}
+
+.traveller-success-modal__tips li {
+    margin-bottom: 10px;
+    color: #495057;
+    line-height: 1.7;
+}
+
+@media (max-width: 767px) {
+    .traveller-success-modal .modal-body,
+    .traveller-success-modal .modal-header {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .traveller-success-modal__hero h5 {
+        font-size: 24px;
+    }
+}
+
 /* .btn-primary:hover::before {
   -webkit-transform: scaleX(1);
   -ms-transform: scaleX(1);

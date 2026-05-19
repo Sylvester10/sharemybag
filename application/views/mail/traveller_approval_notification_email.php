@@ -43,6 +43,31 @@ include 'email_header.php'; ?>
     </li>
 </ul>
 
+<p style="font-size:13px; font-weight:700; color:#111827; margin:22px 0 12px;">Packing Tips</p>
+<ul class="tips-list">
+    <li>
+        <div class="tip-icon">📦</div>
+        <div class="tip-body">
+            <span class="tip-title">Respect Customer Parcels</span>
+            Handle every parcel carefully and keep it in the same condition you received it.
+        </div>
+    </li>
+    <li>
+        <div class="tip-icon">👕</div>
+        <div class="tip-body">
+            <span class="tip-title">Separate Clothing and Food</span>
+            Pack clothing separately from food items to reduce contamination and odour transfer.
+        </div>
+    </li>
+    <li>
+        <div class="tip-icon">🛡️</div>
+        <div class="tip-body">
+            <span class="tip-title">Do Not Accept Packed Bags</span>
+            For your security, do not accept parcels already packed in bags. The contents should be transferred into a nylon or baco bag that you can inspect.
+        </div>
+    </li>
+</ul>
+
 <p>Have questions? Visit our <a href="<?php echo base_url('travellers'); ?>" target="_blank" class="text-link">FAQ section</a> or reach us on <a href="https://wa.me/2348149265396" target="_blank" class="text-link">WhatsApp</a>.</p>
 
 <hr class="divider">
