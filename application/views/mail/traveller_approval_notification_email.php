@@ -63,7 +63,7 @@ include 'email_header.php'; ?>
         <div class="tip-icon">🛡️</div>
         <div class="tip-body">
             <span class="tip-title">Do Not Accept Packed Bags</span>
-            For your security, do not accept parcels already packed in bags. The contents should be transferred into a nylon or baco bag that you can inspect.
+            For your security, do not accept parcels already packed in bags. The contents should be transferred in bag with compartment.
         </div>
     </li>
 </ul>
