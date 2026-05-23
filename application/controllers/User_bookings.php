@@ -239,6 +239,9 @@ class User_bookings extends MY_Controller
                     try {
                         // Verify Stripe payment using secret key
                         $stripeSecretKey = get_stripe_secret_key();
+                        if ($stripeSecretKey === '') {
+                            throw new Exception('Stripe secret key is empty.');
+                        }
                         \Stripe\Stripe::setApiKey($stripeSecretKey);
 
                         $checkout_session = \Stripe\Checkout\Session::create([
@@ -276,6 +279,15 @@ class User_bookings extends MY_Controller
                         echo json_encode($res);
                         return;
                     } catch (Exception $e) {
+                        log_message('error', sprintf(
+                            'Stripe payment initialization failed. booking_id=%s user_id=%s currency=%s amount=%s env=%s error=%s',
+                            isset($booking->id) ? $booking->id : 'n/a',
+                            $user_id,
+                            isset($currency) ? $currency : 'n/a',
+                            isset($charge_amount) ? $charge_amount : 'n/a',
+                            ENVIRONMENT,
+                            $e->getMessage()
+                        ));
                         // Handle Stripe errors
                         $res = [
                             'status' => false,
@@ -292,6 +304,9 @@ class User_bookings extends MY_Controller
                     try {
                         // Verify Paystack payment using secret key
                         $paystackSecretKey = get_paystack_secret_key();
+                        if ($paystackSecretKey === '') {
+                            throw new Exception('Paystack secret key is empty.');
+                        }
 
                         $reference = 'SMB' . uniqid(); // Unique reference for transaction
                         $callback_url = base_url() . 'user_bookings/paystack/' . $booking->hash . '?reference=' . $reference;
@@ -321,7 +336,19 @@ class User_bookings extends MY_Controller
                         ));
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                         $result = curl_exec($ch);
+                        $curl_errno = curl_errno($ch);
+                        $curl_error = curl_error($ch);
+                        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        curl_close($ch);
+
+                        if ($curl_errno) {
+                            throw new Exception('cURL error (' . $curl_errno . '): ' . $curl_error);
+                        }
+
                         $response = json_decode($result);
+                        if (!$response) {
+                            throw new Exception('Invalid Paystack response. HTTP ' . $http_code . '. Raw response: ' . substr((string) $result, 0, 500));
+                        }
 
                         if ($response && $response->status) {
                             // Save reference and set initial payment status for your tracking
@@ -338,9 +365,20 @@ class User_bookings extends MY_Controller
                             echo json_encode($res);
                             return;
                         } else {
-                            throw new Exception($response->message ?? 'Failed to initialize Paystack payment.');
+                            throw new Exception('Paystack initialize failed. HTTP ' . $http_code . '. Message: ' . ($response->message ?? 'Failed to initialize Paystack payment.'));
                         }
                     } catch (Exception $e) {
+                        log_message('error', sprintf(
+                            'Paystack payment initialization failed. booking_id=%s user_id=%s currency=%s amount=%s ngn_amount=%s env=%s callback_url=%s error=%s',
+                            isset($booking->id) ? $booking->id : 'n/a',
+                            $user_id,
+                            isset($currency) ? $currency : 'n/a',
+                            isset($charge_amount) ? $charge_amount : 'n/a',
+                            isset($ngn_amount) ? $ngn_amount : 'n/a',
+                            ENVIRONMENT,
+                            isset($callback_url) ? $callback_url : 'n/a',
+                            $e->getMessage()
+                        ));
                         // Handle Paystack errors
                         $res = [
                             'status' => false,

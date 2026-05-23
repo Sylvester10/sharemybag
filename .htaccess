@@ -1,4 +1,24 @@
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L]
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # --------------------------------------------------
+    # Force HTTPS
+    # --------------------------------------------------
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # --------------------------------------------------
+    # Force non-www
+    # www.sharemybag.co.uk -> sharemybag.co.uk
+    # --------------------------------------------------
+    RewriteCond %{HTTP_HOST} ^www\.sharemybag\.co\.uk$ [NC]
+    RewriteRule ^ https://sharemybag.co.uk%{REQUEST_URI} [L,R=301]
+
+    # --------------------------------------------------
+    # CodeIgniter routing
+    # Route all non-existing files/folders to index.php
+    # --------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php/$1 [L]
+</IfModule>
