@@ -377,8 +377,7 @@
         }
 
         .banner-icon {
-            font-size: 36px;
-            display: block;
+            width: 36px;
             margin-bottom: 10px;
         }
 
