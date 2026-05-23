@@ -4,7 +4,7 @@ include 'email_header.php'; ?>
 <p class="greeting">Hi <?= $fullname ?>,</p>
 
 <div class="approved-banner">
-    <span class="banner-icon">✈️</span>
+    <span class="banner-icon"><img src="<?php echo production_url('assets/general/traveler.png'); ?>" alt="<?= business ?>"></span>
     <p class="banner-title-orange">You're a Verified Traveller!</p>
     <p class="banner-sub-orange">We'll be in touch as soon as we have a sender ready for your route.</p>
 </div>
