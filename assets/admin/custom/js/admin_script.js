@@ -14,6 +14,7 @@ jQuery(document).ready(function ($) {
 
         csrfHash = newHash;
         $('#csrf_hash').val(newHash);
+        $('input[type="hidden"][name="q2r_secure"]').val(newHash);
     } 
 
     $(document).on('click', 'a.smb-file-preview', function (e) {
