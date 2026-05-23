@@ -214,7 +214,7 @@ class Admin_user_model extends \CI_Model
 		}
 
 		$data = array(
-			'is_verified' => VERIFY_PENDING,
+			'is_verified' => VERIFY_NONE,
 		);
 		if ($this->db->field_exists('verification_rejection_reason', 'users')) {
 			$data['verification_rejection_reason'] = $reason;

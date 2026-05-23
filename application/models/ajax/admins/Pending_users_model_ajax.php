@@ -53,7 +53,7 @@ class Pending_users_model_ajax extends CI_Model
 		$this->the_query();
 		if ($_POST['length'] != -1)
 			$this->db->limit($_POST['length'], $_POST['start']);
-		$this->db->where('is_verified', VERIFY_PENDING);
+		$this->db->where_in('is_verified', array(VERIFY_PENDING, VERIFY_NONE));
 		$query = $this->db->get();
 		return $query->result();
 	}
@@ -63,7 +63,7 @@ class Pending_users_model_ajax extends CI_Model
 	function count_filtered_records()
 	{
 		$this->the_query();
-		$this->db->where('is_verified', VERIFY_PENDING);
+		$this->db->where_in('is_verified', array(VERIFY_PENDING, VERIFY_NONE));
 		$query = $this->db->get();
 		return $query->num_rows();
 	}
@@ -71,7 +71,7 @@ class Pending_users_model_ajax extends CI_Model
 
 	public function count_all_records()
 	{
-		$this->db->where('is_verified', VERIFY_PENDING);
+		$this->db->where_in('is_verified', array(VERIFY_PENDING, VERIFY_NONE));
 		$this->db->from($this->table);
 		ci_where_not_deleted($this->db, $this->table);
 		return $this->db->count_all_results();
