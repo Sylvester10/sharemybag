@@ -14,7 +14,7 @@ include 'email_header.php'; ?>
 <p style="font-size:13px; font-weight:700; color:#111827; margin-bottom:12px;">What to expect</p>
 <ul class="tips-list">
     <li>
-        <div class="tip-icon">🕐</div>
+        <div class="tip-icon"><i class="fa-regular fa-clock"></i></div>
         <div class="tip-body">
             <span class="tip-title">Last Minute Bookings</span>
             You'll likely start receiving customers a few days before your trip, and up to 24 hours before your flight.
