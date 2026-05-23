@@ -2690,7 +2690,7 @@ function currency_db_values($currency)
 			return array('NGN', 'NAIRA');
 		case 'GBP':
 		default:
-			return array('GBP', 'POU', 'POUND', 'POUNDS', '');
+			return array('GBP', 'POUND', 'POUNDS', '');
 	}
 }
 
