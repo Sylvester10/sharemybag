@@ -378,6 +378,7 @@
 
         .banner-icon {
             width: 36px;
+            height: 36px;
             margin-bottom: 10px;
         }
 
