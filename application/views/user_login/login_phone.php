@@ -212,6 +212,7 @@
             $('input[name="' + csrf_token_name + '"]').val(new_hash);
         }
     </script>
+    <?php $this->load->view('partials/csrf_bootstrap'); ?>
 </body>
 
 </html>

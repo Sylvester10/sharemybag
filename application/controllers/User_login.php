@@ -48,8 +48,6 @@ class User_login extends MY_Controller
 			$this->common_model->update_last_login($user->id);
 			echo json_encode([
 				'status' => true,
-				'msg' => 'Sign-in successful.',
-				'title' => 'Welcome Back',
 				'msg_timeout' => 3000,
 				'csrf_hash' => $csrf_hash
 			]);

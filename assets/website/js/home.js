@@ -269,151 +269,91 @@ jQuery(document).ready(function ($) {
     //Sign up
     $('#signup_form').submit(function (e) {
         e.preventDefault();
-        $('#search-spinner').removeClass('d-none');
-        var form_data = $(this).serialize();
-        var redirect_url = base_url + 'verify-email';
-        disableSubmitBtn();
-
-        $.ajax({
+        submitInlineAjax(this, {
             url: base_url + 'registration/signup',
-            type: 'POST',
-            data: form_data,
-            dataType: 'json',
-            success: function (res) {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-
-                if (res.status) {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-success text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast');
-                    $('#signup_form')[0].reset();
-                    setTimeout(function () {
-                        $(location).attr('href', redirect_url);
-                    }, 1500);
-                } else {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-danger text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast')
-                        .delay(4000)
-                        .fadeOut('slow');
-                }
-            },
-            error: function () {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-                $('#status_msg')
-                    .html(
-                        '<div class="alert alert-danger text-center">Server error. Please try again.</div>'
-                    )
-                    .fadeIn('fast')
-                    .delay(4000)
-                    .fadeOut('slow');
-            },
+            redirect: base_url + 'verify-email',
+            redirectDelay: 1500,
+            resetOnSuccess: true,
         });
     });
 
     //Verify email
     $('#verify_email_form').submit(function (e) {
         e.preventDefault();
-        $('#search-spinner').removeClass('d-none');
-        var form_data = $(this).serialize();
-        var redirect_url = base_url + 'signin';
-        disableSubmitBtn();
-
-        $.ajax({
+        submitInlineAjax(this, {
             url: base_url + 'registration/verify_email_ajax',
-            type: 'POST',
-            data: form_data,
-            dataType: 'json',
-            success: function (res) {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-
-                if (res.status) {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-success text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast');
-                    $('#verify_email_form')[0].reset();
-                    setTimeout(function () {
-                        $(location).attr('href', redirect_url);
-                    }, 1500);
-                } else {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-danger text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast')
-                        .delay(4000)
-                        .fadeOut('slow');
-                }
-            },
-            error: function () {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-                $('#status_msg')
-                    .html(
-                        '<div class="alert alert-danger text-center">Server error. Please try again.</div>'
-                    )
-                    .fadeIn('fast')
-                    .delay(4000)
-                    .fadeOut('slow');
-            },
+            redirect: base_url + 'signin',
+            redirectDelay: 1500,
+            resetOnSuccess: true,
         });
     });
 
     // Resend Verification email
     $('#resend_verification_email').click(function () {
-        $('#search-spinners').removeClass('d-none'); // Show spinner
+        let $spinner = $('#search-spinners');
+        let $status = $('#status_msg');
+
+        $spinner.removeClass('d-none');
+
+        let formData = new FormData();
+        formData = appendGlobalCsrfToFormData(formData);
 
         $.ajax({
             url: base_url + 'registration/resend_verification_email_ajax',
             type: 'POST',
+            data: formData,
             dataType: 'json',
+            processData: false,
+            contentType: false,
             success: function (res) {
-                $('#search-spinners').addClass('d-none');
-
-                if (res.status) {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-success text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast')
-                        .delay(3000)
-                        .fadeOut('slow');
-                } else {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-danger text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast')
-                        .delay(4000)
-                        .fadeOut('slow');
+                $spinner.addClass('d-none');
+                if (res && res.csrf_hash) {
+                    updateGlobalCsrfHash(res.csrf_hash);
                 }
-            },
-            error: function () {
-                $('#search-spinners').addClass('d-none');
-                $('#status_msg')
+
+                let isOk = !!(res && res.status);
+                let cls = isOk ? 'alert-success' : 'alert-danger';
+                let msg = (res && res.msg) || 'Request failed.';
+                $status
+                    .stop(true, true)
                     .html(
-                        '<div class="alert alert-danger text-center">Server error. Please try again.</div>'
+                        '<div class="alert ' + cls + ' text-center" style="color: #000">' +
+                            msg +
+                            '</div>'
+                    )
+                    .fadeIn('fast')
+                    .delay(isOk ? 3000 : 4000)
+                    .fadeOut('slow');
+            },
+            error: function (xhr) {
+                $spinner.addClass('d-none');
+
+                let responseJson = null;
+                try {
+                    responseJson = xhr && xhr.responseJSON
+                        ? xhr.responseJSON
+                        : xhr && xhr.responseText
+                        ? JSON.parse(xhr.responseText)
+                        : null;
+                } catch (e) {}
+                if (responseJson && responseJson.csrf_hash) {
+                    updateGlobalCsrfHash(responseJson.csrf_hash);
+                }
+
+                let fallback = 'Something went wrong. Please try again.';
+                if (xhr && xhr.status === 0) {
+                    fallback = "Couldn't reach the server. Check your connection and try again.";
+                } else if (xhr && xhr.status >= 500) {
+                    fallback = 'The server hit a problem processing this request.';
+                }
+
+                let ajaxError = getAjaxErrorMessage(xhr, fallback);
+                $status
+                    .stop(true, true)
+                    .html(
+                        '<div class="alert alert-danger text-center" style="color: #000">' +
+                            ajaxError.message +
+                            '</div>'
                     )
                     .fadeIn('fast')
                     .delay(4000)
@@ -425,156 +365,35 @@ jQuery(document).ready(function ($) {
     //Recover Password
     $('#recover_password_form').submit(function (e) {
         e.preventDefault();
-        $('#search-spinner').removeClass('d-none');
-        var form_data = $(this).serialize();
-        var redirect_url = base_url + 'signin';
-        disableSubmitBtn();
-
-        $.ajax({
+        submitInlineAjax(this, {
             url: base_url + 'recover_password/password_recovery_ajax',
-            type: 'POST',
-            data: form_data,
-            dataType: 'json',
-            success: function (res) {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-
-                if (res.status) {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-success text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast');
-                    $('#recover_password_form')[0].reset();
-                    setTimeout(function () {
-                        $(location).attr('href', redirect_url);
-                    }, 1500);
-                } else {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-danger text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast')
-                        .delay(4000)
-                        .fadeOut('slow');
-                }
-            },
-            error: function () {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-                $('#status_msg')
-                    .html(
-                        '<div class="alert alert-danger text-center">Server error. Please try again.</div>'
-                    )
-                    .fadeIn('fast')
-                    .delay(4000)
-                    .fadeOut('slow');
-            },
+            redirect: base_url + 'signin',
+            redirectDelay: 1500,
+            resetOnSuccess: true,
         });
     });
 
     //Change Password
     $('#change_pass_form').submit(function (e) {
         e.preventDefault();
-        $('#search-spinner').removeClass('d-none');
-        var form_data = $(this).serialize();
-        var redirect_url = base_url + 'signin';
-        disableSubmitBtn();
-
-        $.ajax({
+        submitInlineAjax(this, {
             url: base_url + 'recover_password/change_password_ajax',
-            type: 'POST',
-            data: form_data,
-            dataType: 'json',
-            success: function (res) {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-
-                if (res.status) {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-success text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast');
-                    $('#change_pass_form')[0].reset();
-                    setTimeout(function () {
-                        $(location).attr('href', redirect_url);
-                    }, 1500);
-                } else {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-danger text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast')
-                        .delay(4000)
-                        .fadeOut('slow');
-                }
-            },
-            error: function () {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-                $('#status_msg')
-                    .html(
-                        '<div class="alert alert-danger text-center">Server error. Please try again.</div>'
-                    )
-                    .fadeIn('fast')
-                    .delay(4000)
-                    .fadeOut('slow');
-            },
+            redirect: base_url + 'signin',
+            redirectDelay: 1500,
+            resetOnSuccess: true,
         });
     });
 
     //User login
     $('#user_login_form').submit(function (e) {
         e.preventDefault();
-        $('#search-spinner').removeClass('d-none');
-        var form_data = $(this).serialize();
-        var redirect_url = $('#requested_page').val();
-        disableSubmitBtn();
-
-        $.ajax({
+        submitInlineAjax(this, {
             url: base_url + 'user_login/login_ajax',
-            type: 'POST',
-            data: form_data,
-            dataType: 'json',
-            success: function (res) {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-
-                if (res.status) {
-                    $('#user_login_form')[0].reset();
-                    window.location.href = redirect_url; // Instant redirect
-                } else {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-danger text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast')
-                        .delay(4000)
-                        .fadeOut('slow');
-                }
+            redirect: function () {
+                return $('#requested_page').val() || base_url + 'dashboard';
             },
-            error: function () {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-                $('#status_msg')
-                    .html(
-                        '<div class="alert alert-danger text-center">Server error. Please try again.</div>'
-                    )
-                    .fadeIn('fast')
-                    .delay(4000)
-                    .fadeOut('slow');
-            },
+            redirectDelay: 0,
+            resetOnSuccess: true,
         });
     });
 

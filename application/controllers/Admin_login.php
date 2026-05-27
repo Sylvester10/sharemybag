@@ -25,6 +25,8 @@ class Admin_login extends MY_Controller
 
     public function login_ajax()
     {
+        $csrf_hash = $this->security->get_csrf_hash();
+
         $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email', array('required' => 'Please enter your email'));
         $this->form_validation->set_rules('password', 'Password', 'required', array('required' => 'Please enter your password'));
         $this->form_validation->set_rules('captcha_code', 'Captcha Code', 'trim');
@@ -44,7 +46,7 @@ class Admin_login extends MY_Controller
 
             if (!$y) {
                 // Email does not exist at all
-                $res = ['status' => false, 'msg' => 'Invalid login! Email or password incorrect.'];
+                $res = ['status' => false, 'msg' => 'Invalid login! Email or password incorrect.', 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
                 return;
             }
@@ -89,14 +91,14 @@ class Admin_login extends MY_Controller
                 ];
                 $this->session->set_userdata($login_data);
 
-                $res = ['status' => true, 'msg' => 'Login successful! <br> Redirecting to dashboard....'];
+                $res = ['status' => true, 'msg' => 'Login successful! <br> Redirecting to dashboard....', 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
             } else {
-                $res = ['status' => false, 'msg' => 'Invalid login! Email or password incorrect.'];
+                $res = ['status' => false, 'msg' => 'Invalid login! Email or password incorrect.', 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
             }
         } else {
-            $res = ['status' => false, 'msg' => validation_errors()];
+            $res = ['status' => false, 'msg' => validation_errors(), 'csrf_hash' => $csrf_hash];
             echo json_encode($res);
         }
     }
