@@ -388,9 +388,10 @@
                     </div>
 
                     <div class="traveller-success-modal__tips">
-                        <h6>Security Tips</h6>
+                        <h6>What happens next?</h6>
                         <ul>
-                            <li>For your security, do not accept parcels in bags. Contents should arrive in bags without compartments e.g nylon/baco bag or Ghana-must-go.</li>
+                            <li>If approved, We’ll advertise your space up until 24 hrs before your flight. You can request to change this at any time.</li>
+                            <li>After payment, customers will drop their parcels at your specified location no later than 24hrs before your flight.</li>
                         </ul>
                     </div>
                 </div>
