@@ -56,7 +56,7 @@ include 'email_header.php'; ?>
     <li>
         <div class="tip-body">
             <span class="tip-title">Do Not Accept Packed Bags</span>
-            For your security, do not accept parcels already packed in bags. The contents should be transferred in bag with compartment.
+            For your security, do not accept parcels already packed in bags. Contents should arrive in bags without compartments e.g nylon/baco bag or Ghana-must-go.
         </div>
     </li>
 </ul>

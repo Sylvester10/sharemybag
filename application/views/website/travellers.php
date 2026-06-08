@@ -390,7 +390,7 @@
                     <div class="traveller-success-modal__tips">
                         <h6>Security Tips</h6>
                         <ul>
-                            <li>For your security, do not accept parcels in bags. The content should be transferred in bags with compartments.</li>
+                            <li>For your security, do not accept parcels in bags. Contents should arrive in bags without compartments e.g nylon/baco bag or Ghana-must-go.</li>
                         </ul>
                     </div>
                 </div>
