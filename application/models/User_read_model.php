@@ -46,7 +46,7 @@ class User_read_model extends \MY_Model
 
     public function get_pending_users()
     {
-        $this->db->where_in('is_verified', array(VERIFY_PENDING, VERIFY_NONE));
+        $this->db->where('is_verified', VERIFY_PENDING);
         $this->applyNotDeleted();
         return $this->db->get($this->table)->result();
     }
@@ -77,7 +77,7 @@ class User_read_model extends \MY_Model
             $this->db->select("
                 COUNT(*) AS total_users,
                 SUM(CASE WHEN is_verified = " . (int) VERIFY_APPROVED . " THEN 1 ELSE 0 END) AS approved_users,
-                SUM(CASE WHEN is_verified IN (" . (int) VERIFY_PENDING . ", " . (int) VERIFY_NONE . ") THEN 1 ELSE 0 END) AS pending_users
+                SUM(CASE WHEN is_verified = " . (int) VERIFY_PENDING . " THEN 1 ELSE 0 END) AS pending_users
             ", false);
             $this->applyNotDeleted();
             $row = $this->db->get($this->table)->row();
