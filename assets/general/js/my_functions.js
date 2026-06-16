@@ -376,14 +376,14 @@ function submitInlineAjax(form, opts) {
 	}
 
 	function resolveRedirect(res) {
+		if (res && typeof res.redirect === "string" && res.redirect.length) {
+			return res.redirect;
+		}
 		if (typeof redirect === "function") {
 			return redirect(res);
 		}
 		if (typeof redirect === "string" && redirect.length) {
 			return redirect;
-		}
-		if (res && typeof res.redirect === "string" && res.redirect.length) {
-			return res.redirect;
 		}
 		return null;
 	}

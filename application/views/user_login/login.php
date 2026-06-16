@@ -253,8 +253,8 @@
     </script>
 
     <!-- custom scripts -->
-    <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
-    <script src="<?php echo base_url(); ?>assets/website/js/home.js"></script>
+    <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/my_functions.js'); ?>"></script>
+    <script src="<?php echo base_url(); ?>assets/website/js/home.js?v=<?php echo filemtime(FCPATH . 'assets/website/js/home.js'); ?>"></script>
 
     <!-- pass base_url to js -->
     <script type="text/javascript">

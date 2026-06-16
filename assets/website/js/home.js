@@ -66,6 +66,42 @@ jQuery(document).ready(function ($) {
         submitButton.attr('disabled', false); // Enables the button
     }
 
+    let resendCooldownTimer = null;
+
+    function startResendCooldown(seconds) {
+        let $wrapper = $('#resend_verification_email');
+        let $link = $wrapper.find('.resend-link');
+        let $countdown = $wrapper.find('.resend-countdown');
+        let remaining = parseInt(seconds, 10);
+
+        if (!$wrapper.length || !$link.length || !$countdown.length || Number.isNaN(remaining) || remaining <= 0) {
+            return;
+        }
+
+        if (resendCooldownTimer) {
+            clearInterval(resendCooldownTimer);
+        }
+
+        $wrapper.data('cooldown-active', '1');
+        $link.addClass('text-muted').css('pointer-events', 'none');
+        $countdown.removeClass('d-none').text('Resend in ' + remaining + 's');
+
+        resendCooldownTimer = setInterval(function () {
+            remaining -= 1;
+
+            if (remaining <= 0) {
+                clearInterval(resendCooldownTimer);
+                resendCooldownTimer = null;
+                $wrapper.data('cooldown-active', '0');
+                $link.removeClass('text-muted').css('pointer-events', '');
+                $countdown.addClass('d-none').text('');
+                return;
+            }
+
+            $countdown.text('Resend in ' + remaining + 's');
+        }, 1000);
+    }
+
     function resetTravellerFormUi() {
         var travellerForm = $('#traveller_form');
         if (!travellerForm.length) {
@@ -271,7 +307,6 @@ jQuery(document).ready(function ($) {
         e.preventDefault();
         submitInlineAjax(this, {
             url: base_url + 'registration/signup',
-            redirect: base_url + 'verify-email',
             redirectDelay: 1500,
             resetOnSuccess: true,
         });
@@ -290,12 +325,18 @@ jQuery(document).ready(function ($) {
 
     // Resend Verification email
     $('#resend_verification_email').click(function () {
+        if ($(this).data('cooldown-active') === '1') {
+            return;
+        }
+
         let $spinner = $('#search-spinners');
         let $status = $('#status_msg');
+        let resumeToken = $('#resume_token').val() || '';
 
         $spinner.removeClass('d-none');
 
         let formData = new FormData();
+        formData.append('resume_token', resumeToken);
         formData = appendGlobalCsrfToFormData(formData);
 
         $.ajax({
@@ -314,6 +355,9 @@ jQuery(document).ready(function ($) {
                 let isOk = !!(res && res.status);
                 let cls = isOk ? 'alert-success' : 'alert-danger';
                 let msg = (res && res.msg) || 'Request failed.';
+                if (isOk) {
+                    startResendCooldown((res && res.cooldown_seconds) || parseInt($('#resend_verification_email').data('cooldown'), 10) || 30);
+                }
                 $status
                     .stop(true, true)
                     .html(
@@ -398,17 +442,19 @@ jQuery(document).ready(function ($) {
     });
 
     //Date Picker
-    $('#travelDate').daterangepicker(
-        {
-            singleDatePicker: true,
-            minDate: moment(),
-            autoUpdateInput: false,
-            autoApply: true,
-        },
-        function (chosen_date) {
-            $('#travelDate').val(chosen_date.format('YYYY-MM-DD'));
-        }
-    );
+    if ($('#travelDate').length && typeof $.fn.daterangepicker === 'function' && typeof moment !== 'undefined') {
+        $('#travelDate').daterangepicker(
+            {
+                singleDatePicker: true,
+                minDate: moment(),
+                autoUpdateInput: false,
+                autoApply: true,
+            },
+            function (chosen_date) {
+                $('#travelDate').val(chosen_date.format('YYYY-MM-DD'));
+            }
+        );
+    }
 
     // Login - specific
     // $(document).ready(function () {

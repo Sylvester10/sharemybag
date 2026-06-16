@@ -76,7 +76,7 @@
                             <div class="price-feature-col pricing-action-info p-5 right-radius bg-light-subtle order-0 order-lg-1">
                                 <a href="<?php echo base_url(); ?>" class="mb-5 d-block d-xl-none d-lg-none"><img src="<?= business_logo ?>" alt="logo" width="150" class="img-fluid"></a>
                                 <!-- <h1 class="h3">Create an Account</h1> -->
-                                <p class="text-muted">We sent a verification code to your email</p>
+                                <p class="text-muted">We sent a verification code to your email<?php echo !empty($verification_email) ? ': <b>' . html_escape($verification_email) . '</b>' : ''; ?></p>
 
                                 <div class="mt-4 register-form">
 
@@ -85,6 +85,7 @@
                                     echo form_open('registration/verify_email_ajax', $form_attributes); ?>
 
                                     <div class="row">
+                                        <input type="hidden" name="resume_token" id="resume_token" value="<?php echo html_escape($resume_token); ?>">
                                         <!--<div class="col-sm-12">-->
                                         <!--    <label for="verificationCode" class="mb-1">Verification Code<span class="text-danger">*</span></label>-->
                                         <!--    <div class="input-group mb-3">-->
@@ -138,9 +139,10 @@
 
                                     <?php echo form_close(); ?>
 
-                                    <p class="text-center text-muted copyright mt-3" id="resend_verification_email">
+                                    <p class="text-center text-muted copyright mt-3" id="resend_verification_email" data-cooldown="<?php echo (int) $resend_cooldown_seconds; ?>">
                                         Didn't get the code?
-                                        <span class="btn-link" style="cursor: pointer;">Resend Email</span>
+                                        <span class="btn-link resend-link" style="cursor: pointer;">Resend Email</span>
+                                        <span class="d-none resend-countdown text-muted ms-2"></span>
                                         <span class="spinner-border spinner-border-sm ms-2 d-none tw-text-color-primary" id="search-spinners" role="status" aria-hidden="true"></span>
                                     </p>
 
@@ -172,9 +174,9 @@
     <!--endbuild-->
 
     <!-- custom scripts -->
-    <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
+    <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/my_functions.js'); ?>"></script>
     <script src="<?php echo base_url(); ?>assets/login/js/login.js"></script>
-    <script src="<?php echo base_url(); ?>assets/website/js/home.js"></script>
+    <script src="<?php echo base_url(); ?>assets/website/js/home.js?v=<?php echo filemtime(FCPATH . 'assets/website/js/home.js'); ?>"></script>
     
 
     <!-- pass base_url to js -->

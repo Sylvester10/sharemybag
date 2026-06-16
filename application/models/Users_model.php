@@ -95,6 +95,16 @@ class Users_model extends MY_Model
             'is_verified'       => VERIFY_NONE,
         );
 
+        if ($this->db->field_exists('verification_code_expires_at', 'users')) {
+            $data['verification_code_expires_at'] = date('Y-m-d H:i:s', time() + 900);
+        }
+        if ($this->db->field_exists('verification_attempts', 'users')) {
+            $data['verification_attempts'] = 0;
+        }
+        if ($this->db->field_exists('verification_locked_until', 'users')) {
+            $data['verification_locked_until'] = null;
+        }
+
         $this->db->insert('users', $data);
         $user_id = $this->db->insert_id();
         $this->user_read_model->clearUserCountCaches();
@@ -138,18 +148,105 @@ class Users_model extends MY_Model
 
     public function update_user_verification($user_id, $password)
     {
-        $this->db->where('id', $user_id);
-        $this->db->update('users', [
+        $data = [
             'password' => $password,
             'verification_code' => NULL // Clear old code after verification
-        ]);
+        ];
+        if ($this->db->field_exists('verification_code_expires_at', 'users')) {
+            $data['verification_code_expires_at'] = null;
+        }
+        if ($this->db->field_exists('verification_attempts', 'users')) {
+            $data['verification_attempts'] = 0;
+        }
+        if ($this->db->field_exists('verification_locked_until', 'users')) {
+            $data['verification_locked_until'] = null;
+        }
+        if ($this->db->field_exists('signup_resume_token', 'users')) {
+            $data['signup_resume_token'] = null;
+        }
+        if ($this->db->field_exists('signup_resume_expires_at', 'users')) {
+            $data['signup_resume_expires_at'] = null;
+        }
+        $this->db->where('id', $user_id);
+        $this->db->update('users', $data);
     }
 
 
     public function update_user_verification_code($user_id, $new_code)
     {
+        $data = ['verification_code' => $new_code];
+        if ($this->db->field_exists('verification_code_expires_at', 'users')) {
+            $data['verification_code_expires_at'] = date('Y-m-d H:i:s', time() + 900);
+        }
+        if ($this->db->field_exists('verification_attempts', 'users')) {
+            $data['verification_attempts'] = 0;
+        }
+        if ($this->db->field_exists('verification_locked_until', 'users')) {
+            $data['verification_locked_until'] = null;
+        }
         $this->db->where('id', $user_id);
-        $this->db->update('users', ['verification_code' => $new_code]);
+        $this->db->update('users', $data);
+    }
+
+
+    public function clear_verification_security_state($user_id)
+    {
+        $data = [];
+        if ($this->db->field_exists('verification_code_expires_at', 'users')) {
+            $data['verification_code_expires_at'] = null;
+        }
+        if ($this->db->field_exists('verification_attempts', 'users')) {
+            $data['verification_attempts'] = 0;
+        }
+        if ($this->db->field_exists('verification_locked_until', 'users')) {
+            $data['verification_locked_until'] = null;
+        }
+
+        if (!empty($data)) {
+            $this->db->where('id', $user_id);
+            $this->db->update('users', $data);
+        }
+    }
+
+    public function issue_signup_resume_token($user_id, $ttl_seconds = 3600)
+    {
+        if (!$this->db->field_exists('signup_resume_token', 'users') || !$this->db->field_exists('signup_resume_expires_at', 'users')) {
+            return null;
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $this->db->where('id', $user_id);
+        $this->db->update('users', [
+            'signup_resume_token' => $token,
+            'signup_resume_expires_at' => date('Y-m-d H:i:s', time() + $ttl_seconds),
+        ]);
+
+        return $token;
+    }
+
+
+    public function record_verification_failure($user_id, $max_attempts = 5, $lock_minutes = 15)
+    {
+        $user = $this->user_read_model->get_user_details_by_id($user_id);
+        if (!$user) {
+            return;
+        }
+
+        $attempts = (int) ($user->verification_attempts ?? 0) + 1;
+        $data = [];
+
+        if ($this->db->field_exists('verification_attempts', 'users')) {
+            $data['verification_attempts'] = $attempts;
+        }
+
+        if ($attempts >= $max_attempts && $this->db->field_exists('verification_locked_until', 'users')) {
+            $data['verification_locked_until'] = date('Y-m-d H:i:s', time() + ($lock_minutes * 60));
+        }
+
+        if (!empty($data)) {
+            $this->db->where('id', $user_id);
+            $this->db->update('users', $data);
+        }
     }
 
 
