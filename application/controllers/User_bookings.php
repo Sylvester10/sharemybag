@@ -167,15 +167,10 @@ class User_bookings extends MY_Controller
             $user_id = $this->user_details->id;
             $fullname = $this->user_details->firstname . ' ' . $this->user_details->lastname;
             $email = $this->user_details->email;
-            $number = $this->user_details->number;
-            $user_country = $this->user_details->country;
             // get agent and receiver details
             $agent_name = $this->input->post('agent_name');
-            $agent_phone = $this->input->post('agent_phone');
-            $agent_email = $this->input->post('agent_email');
             $receiver_name = $this->input->post('receiver_name');
             $traveller_id = $this->input->post('traveller_id');
-            $traveller_destination = $this->input->post('traveller_destination');
 
             // Agent cannot be the same as receiver
             if ($agent_name == $receiver_name) {
@@ -188,20 +183,6 @@ class User_bookings extends MY_Controller
                 ];
                 echo json_encode($res);
                 return;
-            };
-
-            if ($user_country === $traveller_destination) {
-                if ($agent_name === $fullname || $agent_email === $email || $agent_phone === $number) {
-                    $res = [
-                        'status' => false,
-                        'msg' => 'Use a different agent for deliveries to your current country.',
-                        'title' => 'Booking Error',
-                        'msg_timeout' => 6000,
-                        'csrf_hash' => $csrf_hash,
-                    ];
-                    echo json_encode($res);
-                    return;
-                }
             };
 
             $traveller_details = $this->traveller_read_model->get_traveller_details_by_id($traveller_id);

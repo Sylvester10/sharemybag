@@ -270,29 +270,9 @@
                                         <label class="form-label"> Available Bag Space </label>
                                         <select class="nice-select form-control" name="available_space">
                                             <option value="">Select</option>
-                                            <option value="1">1 KG</option>
-                                            <option value="2">2 KG</option>
-                                            <option value="3">3 KG</option>
-                                            <option value="4">4 KG</option>
-                                            <option value="5">5 KG</option>
-                                            <option value="6">6 KG</option>
-                                            <option value="7">7 KG</option>
-                                            <option value="8">8 KG</option>
-                                            <option value="9">9 KG</option>
-                                            <option value="10">10 KG</option>
-                                            <option value="11">11 KG</option>
-                                            <option value="12">12 KG</option>
-                                            <option value="13">13 KG</option>
-                                            <option value="14">14 KG</option>
-                                            <option value="15">15 KG</option>
-                                            <option value="16">16 KG</option>
-                                            <option value="17">17 KG</option>
-                                            <option value="18">18 KG</option>
-                                            <option value="19">19 KG</option>
-                                            <option value="20">20 KG</option>
-                                            <option value="21">21 KG</option>
-                                            <option value="22">22 KG</option>
-                                            <option value="23">23 KG</option>
+                                            <?php for ($i = 1; $i <= 50; $i++) : ?>
+                                                <option value="<?= $i; ?>"><?= $i; ?> KG</option>
+                                            <?php endfor; ?>
                                         </select>
                                     </div>
 
@@ -379,7 +359,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="travellerSuccessModalLabel">Traveller Request Sent</h4>
-                    <button type="button" class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="traveller-success-modal__hero">
@@ -389,11 +368,10 @@
                     </div>
 
                     <div class="traveller-success-modal__tips">
-                        <h6>Packing Tips</h6>
+                        <h6>What happens next?</h6>
                         <ul>
-                            <li>Respect customers parcel.</li>
-                            <li>Pack clothing separate from food items.</li>
-                            <li>For your security, do not accept parcels in bags. The content should be transferred into a nylon or baco bag.</li>
+                            <li>If approved, We’ll advertise your space up until 24 hrs before your flight. You can request to change this at any time.</li>
+                            <li>After payment, customers will drop their parcels at your specified location no later than 24hrs before your flight.</li>
                         </ul>
                     </div>
                 </div>

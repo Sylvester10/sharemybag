@@ -4,7 +4,7 @@ include 'email_header.php'; ?>
 <p class="greeting">Hi <?= $fullname ?>,</p>
 
 <div class="approved-banner">
-    <span class="banner-icon">✈️</span>
+    <span class="banner-icon"><img src="<?php echo production_url('assets/general/traveler.png'); ?>" width="50" height="50" alt="<?= business ?>"></span>
     <p class="banner-title-orange">You're a Verified Traveller!</p>
     <p class="banner-sub-orange">We'll be in touch as soon as we have a sender ready for your route.</p>
 </div>
@@ -14,28 +14,24 @@ include 'email_header.php'; ?>
 <p style="font-size:13px; font-weight:700; color:#111827; margin-bottom:12px;">What to expect</p>
 <ul class="tips-list">
     <li>
-        <div class="tip-icon">🕐</div>
         <div class="tip-body">
             <span class="tip-title">Last Minute Bookings</span>
             You'll likely start receiving customers a few days before your trip, and up to 24 hours before your flight.
         </div>
     </li>
     <li>
-        <div class="tip-icon">📋</div>
         <div class="tip-body">
             <span class="tip-title">Check the Content List</span>
             We'll send you a detailed list for every customer. Let us know immediately if the physical parcel doesn't match.
         </div>
     </li>
     <li>
-        <div class="tip-icon">📌</div>
         <div class="tip-body">
             <span class="tip-title">Follow Our Guidelines</span>
             Your content list includes specific checking guidelines curated from NDLEA research and experienced travellers.
         </div>
     </li>
     <li>
-        <div class="tip-icon">💳</div>
         <div class="tip-body">
             <span class="tip-title">Payouts</span>
             Your payment will be released 24 hours after your successful arrival.
@@ -46,24 +42,21 @@ include 'email_header.php'; ?>
 <p style="font-size:13px; font-weight:700; color:#111827; margin:22px 0 12px;">Packing Tips</p>
 <ul class="tips-list">
     <li>
-        <div class="tip-icon">📦</div>
         <div class="tip-body">
             <span class="tip-title">Respect Customer Parcels</span>
             Handle every parcel carefully and keep it in the same condition you received it.
         </div>
     </li>
     <li>
-        <div class="tip-icon">👕</div>
         <div class="tip-body">
             <span class="tip-title">Separate Clothing and Food</span>
             Pack clothing separately from food items to reduce contamination and odour transfer.
         </div>
     </li>
     <li>
-        <div class="tip-icon">🛡️</div>
         <div class="tip-body">
             <span class="tip-title">Do Not Accept Packed Bags</span>
-            For your security, do not accept parcels already packed in bags. The contents should be transferred into a nylon or baco bag that you can inspect.
+            For your security, do not accept parcels already packed in bags. Contents should arrive in bags without compartments e.g nylon/baco bag or Ghana-must-go.
         </div>
     </li>
 </ul>

@@ -1693,11 +1693,105 @@ function generate_verification_code()
 	$code = '';  // Initialize $code
 
 	for ($i = 0; $i < 6; $i++) {
-		$rand = mt_rand(0, $max); // Generate a random index
+		$rand = random_int(0, $max); // Generate a cryptographically secure random index
 		$code .= $characters[$rand];  // Append the random character
 	}
 
 	return $code;  // Return strictly 6 characters
+}
+
+
+function auth_throttle_check($key, $max_attempts, $window_seconds)
+{
+	$CI = &get_instance();
+	$CI->load->driver('cache', array(
+		'adapter' => 'file',
+		'backup'  => 'dummy',
+	));
+
+	$cache_key = 'auth_throttle:' . sha1($key);
+	$entry = $CI->cache->get($cache_key);
+	$now = time();
+
+	if (!is_array($entry)) {
+		$entry = array(
+			'count' => 0,
+			'window_started_at' => $now,
+			'blocked_until' => 0,
+		);
+	}
+
+	if (!empty($entry['blocked_until']) && (int) $entry['blocked_until'] > $now) {
+		return array(
+			'allowed' => false,
+			'retry_after' => (int) $entry['blocked_until'] - $now,
+		);
+	}
+
+	if ((int) $entry['window_started_at'] + $window_seconds <= $now) {
+		$entry = array(
+			'count' => 0,
+			'window_started_at' => $now,
+			'blocked_until' => 0,
+		);
+	}
+
+	return array(
+		'allowed' => true,
+		'retry_after' => 0,
+		'entry' => $entry,
+		'cache_key' => $cache_key,
+	);
+}
+
+
+function auth_throttle_hit($key, $max_attempts, $window_seconds)
+{
+	$CI = &get_instance();
+	$CI->load->driver('cache', array(
+		'adapter' => 'file',
+		'backup'  => 'dummy',
+	));
+
+	$state = auth_throttle_check($key, $max_attempts, $window_seconds);
+	if (!$state['allowed']) {
+		return $state;
+	}
+
+	$entry = $state['entry'];
+	$entry['count'] = (int) $entry['count'] + 1;
+	$now = time();
+
+	if ((int) $entry['count'] >= $max_attempts) {
+		$entry['blocked_until'] = $now + $window_seconds;
+	}
+
+	$CI->cache->save($state['cache_key'], $entry, $window_seconds);
+
+	return array(
+		'allowed' => empty($entry['blocked_until']),
+		'retry_after' => !empty($entry['blocked_until']) ? ((int) $entry['blocked_until'] - $now) : 0,
+	);
+}
+
+
+function auth_throttle_clear($key)
+{
+	$CI = &get_instance();
+	$CI->load->driver('cache', array(
+		'adapter' => 'file',
+		'backup'  => 'dummy',
+	));
+
+	return $CI->cache->delete('auth_throttle:' . sha1($key));
+}
+
+
+function auth_throttle_message($retry_after, $action = 'request')
+{
+	$retry_after = max(1, (int) $retry_after);
+	$minutes = (int) ceil($retry_after / 60);
+	return 'Too many ' . $action . ' attempts. Please wait about ' . $minutes . ' minute' . ($minutes === 1 ? '' : 's') . ' and try again.';
 }
 
 
@@ -2721,7 +2815,7 @@ function currency_db_values($currency)
 			return array('NGN', 'NAIRA');
 		case 'GBP':
 		default:
-			return array('GBP', 'POU', 'POUND', 'POUNDS', '');
+			return array('GBP', 'POUND', 'POUNDS', '');
 	}
 }
 

@@ -2,7 +2,7 @@
 include 'email_header.php'; ?>
 
 <div class="success-banner">
-    <span class="banner-icon">🎉</span>
+    <span class="banner-icon"><img src="<?php echo production_url('assets/general/approve.png'); ?>" width="50" height="50" alt="<?= business ?>"></span>
     <p class="banner-title-green">Identity Verification Successful!</p>
     <p class="banner-sub-green">Your account is fully verified and ready to use.</p>
 </div>

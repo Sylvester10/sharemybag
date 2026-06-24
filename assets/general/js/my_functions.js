@@ -285,6 +285,179 @@ function submitFormAjax(form) {
 	return;
 }
 
+// Inline-status form ajax: renders into #status_msg, toggles #search-spinner / #submit,
+// keeps CSRF token fresh on every response, and surfaces meaningful error messages
+// (including CI's "form expired" case) via getAjaxErrorMessage().
+//
+// opts:
+//   url             string  required if form has no action attribute
+//   statusEl        selector/jQuery  default: form's #status_msg, else page-level #status_msg
+//   spinnerEl       selector/jQuery  default: form's #search-spinner, else page-level
+//   submitEl        selector/jQuery  default: form's #submit, else page-level
+//   resetOnSuccess  bool             reset the form on res.status === true
+//   redirect        string|function(res)  destination on success; falls back to res.redirect
+//   redirectDelay   number ms        delay before redirect (default 1500)
+//   extraData       object           extra key/value pairs appended to FormData
+//   successTimeout  number ms        how long the success alert stays before fading (default 3000)
+//   errorTimeout    number ms        how long the error alert stays before fading (default 4000)
+function submitInlineAjax(form, opts) {
+	opts = opts || {};
+	if (!form) {
+		return;
+	}
+
+	let $form = $(form);
+	let url = opts.url || form.getAttribute("action");
+	if (!url) {
+		console.warn("submitInlineAjax: missing url and form has no action attribute");
+		return;
+	}
+
+	let statusEl = opts.statusEl ? $(opts.statusEl) : $form.find("#status_msg");
+	if (!statusEl.length) {
+		statusEl = $("#status_msg");
+	}
+
+	let spinnerEl = opts.spinnerEl ? $(opts.spinnerEl) : $form.find("#search-spinner");
+	if (!spinnerEl.length) {
+		spinnerEl = $("#search-spinner");
+	}
+
+	let submitEl = opts.submitEl ? $(opts.submitEl) : $form.find("#submit");
+	if (!submitEl.length) {
+		submitEl = $("#submit");
+	}
+
+	let resetOnSuccess = !!opts.resetOnSuccess;
+	let redirect = opts.redirect;
+	let redirectDelay = typeof opts.redirectDelay === "number" ? opts.redirectDelay : 1500;
+	let extraData = opts.extraData && typeof opts.extraData === "object" ? opts.extraData : null;
+	let successTimeout = typeof opts.successTimeout === "number" ? opts.successTimeout : 3000;
+	let errorTimeout = typeof opts.errorTimeout === "number" ? opts.errorTimeout : 4000;
+
+	let formData = new FormData(form);
+	formData = appendGlobalCsrfToFormData(formData);
+	if (extraData) {
+		Object.keys(extraData).forEach(function (key) {
+			formData.append(key, extraData[key]);
+		});
+	}
+
+	function renderAlert(type, msg) {
+		if (!statusEl.length) {
+			return;
+		}
+		let cls = type === "success" ? "alert-success" : "alert-danger";
+		statusEl
+			.stop(true, true)
+			.html(
+				'<div class="alert ' + cls + ' text-center" style="color: #000">' +
+					msg +
+					"</div>"
+			)
+			.fadeIn("fast");
+	}
+
+	function fadeOutAlert(delay) {
+		if (!statusEl.length) {
+			return;
+		}
+		statusEl.delay(delay).fadeOut("slow");
+	}
+
+	function showLoading() {
+		spinnerEl.removeClass("d-none");
+		submitEl.addClass("disabled").attr("disabled", true);
+	}
+
+	function hideLoading() {
+		spinnerEl.addClass("d-none");
+		submitEl.removeClass("disabled").attr("disabled", false);
+	}
+
+	function resolveRedirect(res) {
+		if (res && typeof res.redirect === "string" && res.redirect.length) {
+			return res.redirect;
+		}
+		if (typeof redirect === "function") {
+			return redirect(res);
+		}
+		if (typeof redirect === "string" && redirect.length) {
+			return redirect;
+		}
+		return null;
+	}
+
+	showLoading();
+
+	$.ajax({
+		url: url,
+		type: "POST",
+		data: formData,
+		dataType: "json",
+		processData: false,
+		contentType: false,
+		success: function (res) {
+			if (res && res.csrf_hash) {
+				updateGlobalCsrfHash(res.csrf_hash);
+			}
+
+			if (res && res.status) {
+				renderAlert("success", res.msg || "Success");
+
+				if (resetOnSuccess) {
+					try {
+						form.reset();
+					} catch (e) {}
+				}
+
+				let target = resolveRedirect(res);
+				if (target) {
+					// Keep button disabled during the redirect window
+					setTimeout(function () {
+						window.location.href = target;
+					}, redirectDelay);
+					return;
+				}
+
+				hideLoading();
+				fadeOutAlert(successTimeout);
+			} else {
+				hideLoading();
+				renderAlert("danger", (res && res.msg) || "Request failed.");
+				fadeOutAlert(errorTimeout);
+			}
+		},
+		error: function (xhr) {
+			// Refresh CSRF first so a follow-up retry isn't dead on arrival
+			let responseJson = null;
+			try {
+				responseJson = xhr && xhr.responseJSON
+					? xhr.responseJSON
+					: xhr && xhr.responseText
+					? JSON.parse(xhr.responseText)
+					: null;
+			} catch (e) {}
+			if (responseJson && responseJson.csrf_hash) {
+				updateGlobalCsrfHash(responseJson.csrf_hash);
+			}
+
+			hideLoading();
+
+			let fallback = "Something went wrong. Please try again.";
+			if (xhr && xhr.status === 0) {
+				fallback = "Couldn't reach the server. Check your connection and try again.";
+			} else if (xhr && xhr.status >= 500) {
+				fallback = "The server hit a problem processing this request.";
+			}
+
+			let ajaxError = getAjaxErrorMessage(xhr, fallback);
+			renderAlert("danger", ajaxError.message);
+			fadeOutAlert(errorTimeout);
+		},
+	});
+}
+
 // show form loader
 function showFormLoader() {
 	let loader = document.getElementById("transparent-loader");

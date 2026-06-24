@@ -2,7 +2,7 @@
 include 'email_header.php'; ?>
 
 <div class="fail-banner">
-    <span class="banner-icon">❌</span>
+    <span class="banner-icon"><img src="<?php echo production_url('assets/general/reject.png'); ?>" width="50" height="50" alt="<?= business ?>"></span>
     <p class="banner-title-red">Identity Verification Unsuccessful</p>
 </div>
 

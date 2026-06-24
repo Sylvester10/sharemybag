@@ -30,7 +30,10 @@
                         </div>
                     </div>
                     <div class="form-button">
-                        <button id="submit" type="submit" class="ibtn login-btn">LOGIN</button>
+                        <button id="submit" type="submit" class="ibtn login-btn">
+                            LOGIN
+                            <span class="spinner-border spinner-border-sm ms-2 d-none" id="search-spinner" role="status" aria-hidden="true"></span>
+                        </button>
                     </div>
 
                     <div class="form-messege mb-0 mt-20" id="status_msg"></div>

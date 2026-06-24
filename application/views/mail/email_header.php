@@ -276,9 +276,9 @@
         }
 
         .status-icon {
-            font-size: 22px;
-            line-height: 1;
-            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            margin-bottom: 10px;
             padding-top: 2px;
         }
 
@@ -377,8 +377,8 @@
         }
 
         .banner-icon {
-            font-size: 36px;
-            display: block;
+            width: 36px;
+            height: 36px;
             margin-bottom: 10px;
         }
 

@@ -3,6 +3,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class User_login extends MY_Controller
 {
+    private const LOGIN_RATE_LIMIT_MAX = 5;
+    private const LOGIN_RATE_LIMIT_WINDOW = 900;
+    private const SIGNUP_RESUME_TTL = 3600;
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -17,10 +21,13 @@ class User_login extends MY_Controller
 	public function login_ajax()
 	{
 		$csrf_hash = $this->security->get_csrf_hash();
+		$email = trim((string) $this->input->post('email', TRUE));
+		$login_throttle_key = 'login:' . get_user_ip() . ':' . strtolower($email !== '' ? $email : 'unknown');
 		$this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
 		$this->form_validation->set_rules('password', 'Password', 'required');
 
 		if (!$this->form_validation->run()) {
+			auth_throttle_hit($login_throttle_key, self::LOGIN_RATE_LIMIT_MAX, self::LOGIN_RATE_LIMIT_WINDOW);
 			echo json_encode([
 				'status' => false,
 				'msg' => first_validation_error('Enter your email address and password.'),
@@ -31,13 +38,51 @@ class User_login extends MY_Controller
 			return;
 		}
 
-		$email = $this->input->post('email', TRUE);
 		$password = $this->input->post('password', TRUE);
+		$login_throttle_state = auth_throttle_check($login_throttle_key, self::LOGIN_RATE_LIMIT_MAX, self::LOGIN_RATE_LIMIT_WINDOW);
+		if (!$login_throttle_state['allowed']) {
+			echo json_encode([
+				'status' => false,
+				'msg' => auth_throttle_message($login_throttle_state['retry_after'], 'sign in'),
+				'title' => 'Too Many Attempts',
+				'msg_timeout' => 7000,
+				'csrf_hash' => $csrf_hash
+			]);
+			return;
+		}
 		$user = $this->user_read_model->get_user_details($email);
 
+		if ($user && empty($user->password)) {
+			$new_verification_code = generate_verification_code();
+			$this->load->model('users_model');
+			$this->users_model->update_user_verification_code($user->id, $new_verification_code);
+			$this->users_model->resend_verification_code($user->id);
+			$resume_token = $this->users_model->issue_signup_resume_token($user->id, self::SIGNUP_RESUME_TTL);
+			auth_throttle_clear($login_throttle_key);
+			echo json_encode([
+				'status' => true,
+				'msg' => 'Your account setup is not complete yet. Verify your email to continue.',
+				'title' => 'Complete Setup',
+				'msg_timeout' => 7000,
+				'redirect' => base_url('verify-email/' . rawurlencode((string) $resume_token)),
+				'csrf_hash' => $csrf_hash
+			]);
+			return;
+		}
+
 		if ($user && password_verify($password, $user->password)) {
-			// Optional: Check account status here if needed
-			// if ($user->account_status == 0) { ... }
+			if ((int) $user->account_status === 0) {
+				echo json_encode([
+					'status' => false,
+					'msg' => 'Your account is currently blocked. Please contact support.',
+					'title' => 'Account Blocked',
+					'msg_timeout' => 7000,
+					'csrf_hash' => $csrf_hash
+				]);
+				return;
+			}
+
+			$this->session->sess_regenerate(TRUE);
 
 			$this->session->set_userdata([
 				'email'         => $user->email,
@@ -46,14 +91,14 @@ class User_login extends MY_Controller
 			]);
 
 			$this->common_model->update_last_login($user->id);
+			auth_throttle_clear($login_throttle_key);
 			echo json_encode([
 				'status' => true,
-				'msg' => 'Sign-in successful.',
-				'title' => 'Welcome Back',
 				'msg_timeout' => 3000,
 				'csrf_hash' => $csrf_hash
 			]);
 		} else {
+			auth_throttle_hit($login_throttle_key, self::LOGIN_RATE_LIMIT_MAX, self::LOGIN_RATE_LIMIT_WINDOW);
 			echo json_encode([
 				'status' => false,
 				'msg' => 'Enter a valid email and password.',

@@ -199,8 +199,9 @@
                                         <div class="col-6">
                                             <label class="mb-1">Captcha code</label>
                                             <div class="input-group mb-3">
-                                                <input type="tel" class="form-control" name="captcha_code" id="captcha_code" value="<?php echo $captcha_code; ?>">
+                                                <input type="text" class="form-control" id="captcha_code" value="<?php echo html_escape($captcha_code); ?>" readonly>
                                             </div>
+                                            <small class="text-muted d-block mt-n2 mb-2">Reload the page for a new code.</small>
                                         </div>
 
                                         <div class="col-6">
@@ -263,14 +264,15 @@
     <!--endbuild-->
 
     <!-- custom scripts -->
-    <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
+    <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/my_functions.js'); ?>"></script>
     <script src="<?php echo base_url(); ?>assets/website/js/custom.js"></script>
-    <script src="<?php echo base_url(); ?>assets/website/js/home.js"></script>
+    <script src="<?php echo base_url(); ?>assets/website/js/home.js?v=<?php echo filemtime(FCPATH . 'assets/website/js/home.js'); ?>"></script>
 
     <!-- pass base_url to js -->
     <script type="text/javascript">
         var base_url = "<?php echo base_url(); ?>";
     </script>
+    <?php $this->load->view('partials/csrf_bootstrap'); ?>
 </body>
 
 </html>

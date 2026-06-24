@@ -24,6 +24,17 @@ class User_read_model extends \MY_Model
         return $this->dataById($id);
     }
 
+    public function get_user_by_signup_resume_token($token)
+    {
+        if (!$this->db->field_exists('signup_resume_token', $this->table)) {
+            return null;
+        }
+
+        $this->db->where('signup_resume_token', $token);
+        $this->applyNotDeleted();
+        return $this->db->get($this->table)->row();
+    }
+
     public function users()
     {
         $this->applyNotDeleted();

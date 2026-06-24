@@ -3,6 +3,11 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Recover_password extends MY_Controller
 {
+    private const RECOVERY_RATE_LIMIT_MAX = 5;
+    private const RECOVERY_RATE_LIMIT_WINDOW = 900;
+    private const RESET_RATE_LIMIT_MAX = 5;
+    private const RESET_RATE_LIMIT_WINDOW = 900;
+
     public function __construct()
     {
         parent::__construct();
@@ -25,6 +30,18 @@ class Recover_password extends MY_Controller
         $csrf_hash = $this->security->get_csrf_hash();
         $this->form_validation->set_rules('email', ' Email', 'trim|required|valid_email');
         $email = $this->input->post('email', TRUE);
+        $recovery_throttle_key = 'password-recovery:' . get_user_ip() . ':' . strtolower(trim((string) $email));
+        $recovery_throttle_state = auth_throttle_check($recovery_throttle_key, self::RECOVERY_RATE_LIMIT_MAX, self::RECOVERY_RATE_LIMIT_WINDOW);
+        if (!$recovery_throttle_state['allowed']) {
+            echo json_encode([
+                'status' => false,
+                'msg' => auth_throttle_message($recovery_throttle_state['retry_after'], 'password recovery'),
+                'title' => 'Too Many Attempts',
+                'msg_timeout' => 7000,
+                'csrf_hash' => $csrf_hash
+            ]);
+            return;
+        }
         $email_exists = $this->user_login_model->check_user_email_exists($email);
 
 
@@ -43,6 +60,7 @@ class Recover_password extends MY_Controller
 
                 // Send email to User
                 send_email_notification($this, $email, 'Reset Password', $data, 'password_recovery_email');
+                auth_throttle_hit($recovery_throttle_key, self::RECOVERY_RATE_LIMIT_MAX, self::RECOVERY_RATE_LIMIT_WINDOW);
 
                 $res = [
                     'status' => true,
@@ -54,6 +72,7 @@ class Recover_password extends MY_Controller
                 echo json_encode($res);
                 die;
             } else {
+                auth_throttle_hit($recovery_throttle_key, self::RECOVERY_RATE_LIMIT_MAX, self::RECOVERY_RATE_LIMIT_WINDOW);
                 $res = [
                     'status' => false,
                     'msg' => 'Enter the email address linked to your account.',
@@ -65,6 +84,7 @@ class Recover_password extends MY_Controller
                 die;
             }
         } else { //form validation is not successful
+            auth_throttle_hit($recovery_throttle_key, self::RECOVERY_RATE_LIMIT_MAX, self::RECOVERY_RATE_LIMIT_WINDOW);
             $res = [
                 'status' => false,
                 'msg' => first_validation_error('Enter a valid email address to continue.'),
@@ -102,25 +122,40 @@ class Recover_password extends MY_Controller
 
         $email = $this->input->post('email', TRUE);
         $pass_reset_code = $this->input->post('pass_reset_code', TRUE);
+        $reset_throttle_key = 'password-reset:' . get_user_ip() . ':' . strtolower(trim((string) $email));
+        $reset_throttle_state = auth_throttle_check($reset_throttle_key, self::RESET_RATE_LIMIT_MAX, self::RESET_RATE_LIMIT_WINDOW);
+        if (!$reset_throttle_state['allowed']) {
+            echo json_encode([
+                'status' => false,
+                'msg' => auth_throttle_message($reset_throttle_state['retry_after'], 'password reset'),
+                'title' => 'Too Many Attempts',
+                'msg_timeout' => 7000,
+                'csrf_hash' => $csrf_hash
+            ]);
+            return;
+        }
         $email_exists = $this->user_login_model->check_user_email_exists($email);
 
         if ($this->form_validation->run()) {
 
             $y = $this->user_read_model->get_user_details($email);
-            $id = $y->id;
-            if ($email_exists && $y->pass_reset_code === $pass_reset_code) {
+            if ($email_exists && $y && $y->pass_reset_code === $pass_reset_code) {
+                $id = $y->id;
 
                 $this->user_login_model->change_pass($id);
+                auth_throttle_clear($reset_throttle_key);
                 $res = ['status' => true, 'msg' => 'Your password has been reset successfully.', 'title' => 'Password Updated', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
                 die;
             } else {
                 //user supplied wrong password
+                auth_throttle_hit($reset_throttle_key, self::RESET_RATE_LIMIT_MAX, self::RESET_RATE_LIMIT_WINDOW);
                 $res = ['status' => false, 'msg' => 'Enter the correct reset code and try again.', 'title' => 'Reset Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
                 die;
             }
         } else { //form validation is not successful
+            auth_throttle_hit($reset_throttle_key, self::RESET_RATE_LIMIT_MAX, self::RESET_RATE_LIMIT_WINDOW);
             $res = ['status' => false, 'msg' => first_validation_error('Please complete the password reset form.'), 'title' => 'Reset Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res);
         }

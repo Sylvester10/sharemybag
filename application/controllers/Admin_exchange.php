@@ -57,6 +57,7 @@ class Admin_exchange extends MY_Controller
 			"recordsTotal" => $this->current_model->count_all_records(),
 			"recordsFiltered" => $this->current_model->count_filtered_records(),
 			"data" => $data,
+			"csrf_hash" => $this->security->get_csrf_hash(),
 		);
 		//output to json format
 		echo json_encode($output);
