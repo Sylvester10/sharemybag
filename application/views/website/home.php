@@ -62,7 +62,7 @@
         </div>
     </div>
 
-    <!-- Feature Section  -->
+    <!-- Feature Section
     <div class="feature-area feat-2 lg-d-none">
         <div class="container">
             <div class="feature-wrap">
@@ -128,6 +128,7 @@
             </div>
         </div>
     </div>
+    -->
 
     <!-- Process Area -->
     <div class="process-area bg-cover section-padding">
