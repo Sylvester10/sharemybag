@@ -2338,6 +2338,37 @@ function booking_category_payout_rate(array $route_pricing, $category)
 }
 
 
+function booking_calculate_traveller_commission(array $route_pricing, $selected_space, $items_json = null)
+{
+	$selected_space = max(0, (float) $selected_space);
+
+	if (!$items_json) {
+		return round((float) $route_pricing['normal_payout_rate'] * $selected_space, 2);
+	}
+
+	$items = json_decode($items_json);
+	if (!is_array($items)) {
+		return 0.00;
+	}
+
+	$commission = 0.00;
+	foreach ($items as $item) {
+		if (!isset($item->category)) {
+			continue;
+		}
+
+		$item_size = isset($item->size) ? (float) $item->size : 0;
+		if ($item_size <= 0) {
+			continue;
+		}
+
+		$commission += booking_category_payout_rate($route_pricing, $item->category) * $item_size;
+	}
+
+	return round($commission, 2);
+}
+
+
 function booking_supported_routes()
 {
 	return array(

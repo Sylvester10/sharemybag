@@ -309,66 +309,8 @@ class Users_model extends MY_Model
 
     public function calculate_traveller_commission($traveller, $selected_space, $items_json = null)
     {
-        $selected_space = (float) $selected_space;
-        $route_key = booking_route_key($traveller->location, $traveller->destination);
         $route_pricing = booking_route_pricing($traveller->location, $traveller->destination);
-
-        if (in_array($route_key, ['ng_uk', 'ca_ng'], true) && $items_json) {
-            $decoded_items = json_decode($items_json);
-            $traveller_commission = 0.0;
-
-            if (is_array($decoded_items)) {
-                foreach ($decoded_items as $item) {
-                    if (!isset($item->category)) {
-                        continue;
-                    }
-
-                    $item_size = isset($item->size) ? (float) $item->size : 0;
-                    if ($item_size <= 0) {
-                        continue;
-                    }
-
-                    $traveller_commission += booking_category_payout_rate($route_pricing, $item->category) * $item_size;
-                }
-            }
-
-            return round($traveller_commission, 2);
-        }
-
-        $ng_uk_base_commission_rate = ($traveller->destination == 'Nigeria') ? 4.50 : 5.00;
-        $ng_uk_traveller_commission = $ng_uk_base_commission_rate * $selected_space;
-
-        $ng_ca_base_commission_rate = 10.00;
-        $ng_ca_traveller_commission = $ng_ca_base_commission_rate * $selected_space;
-
-        $is_ng_uk_route =
-            ($traveller->location === 'United Kingdom' && $traveller->destination === 'Nigeria') ||
-            ($traveller->location === 'Nigeria' && $traveller->destination === 'United Kingdom');
-
-        $traveller_commission = $is_ng_uk_route ? $ng_uk_traveller_commission : $ng_ca_traveller_commission;
-
-        if ($is_ng_uk_route && $items_json) {
-            $decoded_items = json_decode($items_json);
-            if (is_array($decoded_items)) {
-                foreach ($decoded_items as $item) {
-                    if (!isset($item->category)) {
-                        continue;
-                    }
-
-                    if (booking_category_price_type($item->category) === 'premium_laptop') {
-                        $traveller_commission += 15.00;
-                    } elseif (
-                        in_array(booking_category_price_type($item->category), array('premium_small', 'special'), true)
-                    ) {
-                        $traveller_commission += 10.00;
-                    } elseif (booking_category_price_type($item->category) === 'duty_free') {
-                        $traveller_commission += 6.50;
-                    }
-                }
-            }
-        }
-
-        return round($traveller_commission, 2);
+        return booking_calculate_traveller_commission($route_pricing, $selected_space, $items_json);
     }
 
 
