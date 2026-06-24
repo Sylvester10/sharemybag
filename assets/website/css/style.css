@@ -1701,7 +1701,7 @@ li.nav-item a.nav-link i {
 @media (max-width: 767px) {
   .hero-area-content {
     text-align: center;
-    margin-top: -100px;
+    margin-top: -250px;
     padding: 20px;
   }
 }
