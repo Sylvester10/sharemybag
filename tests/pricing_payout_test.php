@@ -2,7 +2,6 @@
 
 define('BASEPATH', dirname(__DIR__));
 require dirname(__DIR__) . '/application/helpers/app_helper.php';
-require dirname(__DIR__) . '/application/libraries/Booking_presenter.php';
 
 function assert_amount($expected, $actual, $message)
 {
@@ -60,18 +59,15 @@ foreach ($category_payouts as $category => $expected_payout) {
     );
 }
 
-$presenter = new Booking_presenter();
 $booking = (object) array(
     'selected_space' => 1,
     'traveller_commission' => 7.00,
 );
-$traveller = (object) array('destination' => 'Nigeria');
-$metrics = array('extra_commission' => 10.00);
 
 assert_amount(
     7.00,
-    $presenter->calculate_booking_commission($booking, $traveller, $metrics),
-    'Admin booking displays must use the stored traveller commission.'
+    booking_stored_traveller_commission($booking),
+    'Every admin display must use the stored traveller commission.'
 );
 
 fwrite(STDOUT, "PASS: traveller commission uses configured category payouts.\n");

@@ -2463,6 +2463,12 @@ function booking_calculate_traveller_commission(array $route_pricing, $selected_
 }
 
 
+function booking_stored_traveller_commission($booking)
+{
+	return round((float) $booking->traveller_commission, 2);
+}
+
+
 function booking_supported_routes()
 {
 	return array(

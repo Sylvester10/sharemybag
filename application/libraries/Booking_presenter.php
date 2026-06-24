@@ -118,11 +118,6 @@ class Booking_presenter
         return $size . ' KG';
     }
 
-    public function calculate_booking_commission($booking, $traveller, $metrics)
-    {
-        return round((float) $booking->traveller_commission, 2);
-    }
-
     public function format_commission($currency_code, $payment_status, $commission)
     {
         return payment_status_normalize($payment_status) === 'completed'

@@ -94,7 +94,7 @@ class Admin_bookings extends MY_Controller
             list($item_details, $metrics) = $this->booking_presenter->render_item_table($y->items, $y->currency);
 
             $item_sizes = $this->booking_presenter->format_item_size($metrics, $y->selected_space);
-            $traveller_commission = $this->booking_presenter->calculate_booking_commission($y, (object) ['destination' => $traveller_destination], $metrics);
+            $traveller_commission = booking_stored_traveller_commission($y);
             $commission = $this->booking_presenter->format_commission($y->currency, $y->payment_status, $traveller_commission);
             $payment_status = $this->booking_presenter->format_payment_status_badge($y->payment_status);
             $payment_method = $this->booking_presenter->format_payment_method($y->payment_method, 'Offline');
@@ -182,7 +182,7 @@ class Admin_bookings extends MY_Controller
             list($item_details, $metrics) = $this->booking_presenter->render_item_table($y->items, $y->currency, $parcel_actions_html);
 
             $item_sizes = $this->booking_presenter->format_item_size($metrics, $y->selected_space);
-            $traveller_commission = $this->booking_presenter->calculate_booking_commission($y, (object) ['destination' => $traveller_destination], $metrics);
+            $traveller_commission = booking_stored_traveller_commission($y);
             $commission = $this->booking_presenter->format_commission($y->currency, $y->payment_status, $traveller_commission);
             $payment_status = $this->booking_presenter->format_payment_status_badge($y->payment_status);
             $payment_method = $this->booking_presenter->format_payment_method($y->payment_method, 'Offline');
@@ -256,7 +256,7 @@ class Admin_bookings extends MY_Controller
 
             list($item_details, $metrics) = $this->booking_presenter->render_item_table($y->items, $y->currency);
             $item_sizes = $this->booking_presenter->format_item_size($metrics, $y->selected_space);
-            $traveller_commission = $this->booking_presenter->calculate_booking_commission($y, (object) ['destination' => $traveller_destination], $metrics);
+            $traveller_commission = booking_stored_traveller_commission($y);
             $commission = $this->booking_presenter->format_commission($y->currency, $y->payment_status, $traveller_commission);
             $payment_status = $this->booking_presenter->format_payment_status_badge($y->payment_status);
             $payment_method = $this->booking_presenter->format_payment_method($y->payment_method, 'Offline');
