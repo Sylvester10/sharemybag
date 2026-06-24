@@ -26,4 +26,24 @@ assert.strictEqual(
   'Each item must receive only its configured category payout.'
 );
 
+const categoryPayouts = {
+  Normal: 5,
+  'Duty Free': 5,
+  'Fish/Medicine': 7,
+  'Fish/Meat': 7,
+  Medication: 7,
+  'Documents/Electronics': 11,
+  'Documents/Small Electronics': 11,
+  Gold: 11,
+  Laptop: 17,
+};
+
+Object.entries(categoryPayouts).forEach(([category, expectedPayout]) => {
+  assert.strictEqual(
+    calculateConfiguredTravellerCommission([{ category, size: 1 }], rates),
+    expectedPayout,
+    `${category} must receive exactly one category payout.`
+  );
+});
+
 console.log('PASS: booking summary uses configured category payouts.');

@@ -39,6 +39,27 @@ assert_amount(
     'Bookings without item details must use the configured normal payout.'
 );
 
+$category_payouts = array(
+    'Normal' => 5.00,
+    'Duty Free' => 5.00,
+    'Fish/Medicine' => 7.00,
+    'Fish/Meat' => 7.00,
+    'Medication' => 7.00,
+    'Documents/Electronics' => 11.00,
+    'Documents/Small Electronics' => 11.00,
+    'Gold' => 11.00,
+    'Laptop' => 17.00,
+);
+
+foreach ($category_payouts as $category => $expected_payout) {
+    $single_item = json_encode(array(array('category' => $category, 'size' => 1)));
+    assert_amount(
+        $expected_payout,
+        booking_calculate_traveller_commission($pricing, 1, $single_item),
+        $category . ' must receive exactly one category payout.'
+    );
+}
+
 $presenter = new Booking_presenter();
 $booking = (object) array(
     'selected_space' => 1,
