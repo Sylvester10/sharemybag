@@ -555,7 +555,7 @@ class Bookings_model extends \MY_Model
 		}
 
 		$route_pricing = booking_route_pricing($traveller->location, $traveller->destination);
-		return round(booking_category_payout_rate($route_pricing, $category) * (float) $size, 2);
+		return booking_category_commission_delta($route_pricing, $category, $size);
 	}
 
 

@@ -57,6 +57,42 @@ foreach ($category_payouts as $category => $expected_payout) {
         booking_calculate_traveller_commission($pricing, 1, $single_item),
         $category . ' must receive exactly one category payout.'
     );
+
+    assert_amount(
+        $expected_payout * 2,
+        booking_category_commission_delta($pricing, $category, 2),
+        'Admin parcel changes for ' . $category . ' must use only its configured payout.'
+    );
+}
+
+$category_payout_fields = array(
+    'Normal' => 'normal_payout_rate',
+    'Duty Free' => 'normal_payout_rate',
+    'Fish/Medicine' => 'special_payout_rate',
+    'Fish/Meat' => 'special_payout_rate',
+    'Medication' => 'special_payout_rate',
+    'Documents/Electronics' => 'premium_small_payout_rate',
+    'Documents/Small Electronics' => 'premium_small_payout_rate',
+    'Gold' => 'premium_small_payout_rate',
+    'Laptop' => 'premium_laptop_payout_rate',
+);
+
+foreach (booking_route_definition_map() as $route_key => $route_pricing) {
+    foreach ($category_payout_fields as $category => $payout_field) {
+        $expected_delta = $route_pricing[$payout_field] * 2;
+        assert_amount(
+            $expected_delta,
+            booking_category_commission_delta($route_pricing, $category, 2),
+            $route_key . ' admin parcel changes for ' . $category . ' must use only the matching route payout.'
+        );
+
+        $single_item = json_encode(array(array('category' => $category, 'size' => 2)));
+        assert_amount(
+            $expected_delta,
+            booking_calculate_traveller_commission($route_pricing, 2, $single_item),
+            $route_key . ' bookings for ' . $category . ' must use only the matching route payout.'
+        );
+    }
 }
 
 $booking = (object) array(
@@ -69,5 +105,22 @@ assert_amount(
     booking_stored_traveller_commission($booking),
     'Every admin display must use the stored traveller commission.'
 );
+
+$pricing_view = file_get_contents(dirname(__DIR__) . '/application/views/admin/pricing/index.php');
+$required_pricing_labels = array(
+    'Service Charge (per booking)',
+    'Normal Items (per kg)',
+    'Fish/Meat &amp; Medication (per kg)',
+    'Duty-Free Shopping (per kg)',
+    'Documents &amp; Small Electronics (per item)',
+    'Laptop (per item)',
+);
+
+foreach ($required_pricing_labels as $label) {
+    if (strpos($pricing_view, $label) === false) {
+        fwrite(STDERR, 'FAIL: Missing pricing page label: ' . $label . PHP_EOL);
+        exit(1);
+    }
+}
 
 fwrite(STDOUT, "PASS: traveller commission uses configured category payouts.\n");

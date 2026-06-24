@@ -2432,6 +2432,13 @@ function booking_category_payout_rate(array $route_pricing, $category)
 }
 
 
+function booking_category_commission_delta(array $route_pricing, $category, $size)
+{
+	$size = max(0, (float) $size);
+	return round(booking_category_payout_rate($route_pricing, $category) * $size, 2);
+}
+
+
 function booking_calculate_traveller_commission(array $route_pricing, $selected_space, $items_json = null)
 {
 	$selected_space = max(0, (float) $selected_space);
@@ -2456,7 +2463,7 @@ function booking_calculate_traveller_commission(array $route_pricing, $selected_
 			continue;
 		}
 
-		$commission += booking_category_payout_rate($route_pricing, $item->category) * $item_size;
+		$commission += booking_category_commission_delta($route_pricing, $item->category, $item_size);
 	}
 
 	return round($commission, 2);

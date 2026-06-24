@@ -46,4 +46,33 @@ Object.entries(categoryPayouts).forEach(([category, expectedPayout]) => {
   );
 });
 
-console.log('PASS: booking summary uses configured category payouts.');
+const routeRates = {
+  ng_uk: { normal: 5, special: 5, premiumSmall: 10, premiumLaptop: 15 },
+  uk_ng: { normal: 4.5, special: 4.5, premiumSmall: 10, premiumLaptop: 15 },
+  ng_ca: { normal: 10, special: 10, premiumSmall: 18.47, premiumLaptop: 27.7 },
+  ca_ng: { normal: 10, special: 10, premiumSmall: 18.47, premiumLaptop: 27.7 },
+};
+
+const categoryRateKeys = {
+  Normal: 'normal',
+  'Duty Free': 'normal',
+  'Fish/Medicine': 'special',
+  'Fish/Meat': 'special',
+  Medication: 'special',
+  'Documents/Electronics': 'premiumSmall',
+  'Documents/Small Electronics': 'premiumSmall',
+  Gold: 'premiumSmall',
+  Laptop: 'premiumLaptop',
+};
+
+Object.entries(routeRates).forEach(([routeKey, routePayouts]) => {
+  Object.entries(categoryRateKeys).forEach(([category, rateKey]) => {
+    assert.strictEqual(
+      calculateConfiguredTravellerCommission([{ category, size: 2 }], routePayouts),
+      Number((routePayouts[rateKey] * 2).toFixed(2)),
+      `${routeKey} ${category} must use only the matching configured payout.`
+    );
+  });
+});
+
+console.log('PASS: all routes and categories use configured category payouts.');
