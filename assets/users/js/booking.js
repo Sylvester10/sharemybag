@@ -60,11 +60,6 @@ jQuery(document).ready(function ($) {
   }
 
   function calculateTravellerCommissionForSummary(selectedSpace) {
-    let currency = $('#holdThisInfo').attr('currency');
-    let destination = (
-      $('input[name="traveller_destination"]').val() || ''
-    ).trim();
-    let routeKey = ($('#holdThisInfo').attr('route_key') || '').trim();
     let normalPayout = parseFloat($('#holdThisInfo').attr('normal_payout')) || 0;
     let specialPayout = parseFloat($('#holdThisInfo').attr('special_payout')) || normalPayout;
     let premiumSmallPayout =
@@ -72,45 +67,21 @@ jQuery(document).ready(function ($) {
     let premiumLaptopPayout =
       parseFloat($('#holdThisInfo').attr('premium_laptop_payout')) ||
       premiumSmallPayout;
-    let travellerCommission = 0;
-
-    if (routeKey === 'ng_uk' || routeKey === 'ca_ng') {
-      $('.select_item').each(function () {
-        let category = $(this).attr('category');
-        let size = parseFloat($(this).attr('size')) || 0;
-
-        if (isPremiumLaptopCategory(category)) {
-          travellerCommission += premiumLaptopPayout * size;
-        } else if (isPremiumSmallCategory(category)) {
-          travellerCommission += premiumSmallPayout * size;
-        } else if (isSpecialCategory(category)) {
-          travellerCommission += specialPayout * size;
-        } else {
-          travellerCommission += normalPayout * size;
-        }
-      });
-
-      return parseFloat(travellerCommission.toFixed(2));
-    }
-
-    if (currency === 'CAD') {
-      travellerCommission = 10.0 * selectedSpace;
-    } else {
-      travellerCommission = (destination === 'Nigeria' ? 4.5 : 5.0) * selectedSpace;
-    }
+    let items = [];
 
     $('.select_item').each(function () {
-      let category = $(this).attr('category');
-      if (isPremiumLaptopCategory(category)) {
-        travellerCommission += 15.0;
-      } else if (isPremiumSmallCategory(category) || isSpecialCategory(category)) {
-        travellerCommission += 10.0;
-      } else if (category === 'Duty Free') {
-        travellerCommission += 6.5;
-      }
+      items.push({
+        category: $(this).attr('category'),
+        size: parseFloat($(this).attr('size')) || 0,
+      });
     });
 
-    return parseFloat(travellerCommission.toFixed(2));
+    return window.ShareMyBagPricing.calculateConfiguredTravellerCommission(items, {
+      normal: normalPayout,
+      special: specialPayout,
+      premiumSmall: premiumSmallPayout,
+      premiumLaptop: premiumLaptopPayout,
+    });
   }
 
   // --- NEW: Function to update weight unit in the dropdown ---
@@ -765,9 +736,6 @@ function isSpecialCategory(category) {
 }
 
 function calculateTravellerCommissionForSummary(selectedSpace) {
-  let currency = $('#holdThisInfo').attr('currency');
-  let destination = ($('input[name="traveller_destination"]').val() || '').trim();
-  let routeKey = ($('#holdThisInfo').attr('route_key') || '').trim();
   let normalPayout = parseFloat($('#holdThisInfo').attr('normal_payout')) || 0;
   let specialPayout = parseFloat($('#holdThisInfo').attr('special_payout')) || normalPayout;
   let premiumSmallPayout =
@@ -775,45 +743,21 @@ function calculateTravellerCommissionForSummary(selectedSpace) {
   let premiumLaptopPayout =
     parseFloat($('#holdThisInfo').attr('premium_laptop_payout')) ||
     premiumSmallPayout;
-  let travellerCommission = 0;
-
-  if (routeKey === 'ng_uk' || routeKey === 'ca_ng') {
-    $('.select_item').each(function () {
-      let category = $(this).attr('category');
-      let size = parseFloat($(this).attr('size')) || 0;
-
-      if (isPremiumLaptopCategory(category)) {
-        travellerCommission += premiumLaptopPayout * size;
-      } else if (isPremiumSmallCategory(category)) {
-        travellerCommission += premiumSmallPayout * size;
-      } else if (isSpecialCategory(category)) {
-        travellerCommission += specialPayout * size;
-      } else {
-        travellerCommission += normalPayout * size;
-      }
-    });
-
-    return parseFloat(travellerCommission.toFixed(2));
-  }
-
-  if (currency === 'CAD') {
-    travellerCommission = 10.0 * selectedSpace;
-  } else {
-    travellerCommission = (destination === 'Nigeria' ? 4.5 : 5.0) * selectedSpace;
-  }
+  let items = [];
 
   $('.select_item').each(function () {
-    let category = $(this).attr('category');
-    if (isPremiumLaptopCategory(category)) {
-      travellerCommission += 15.0;
-    } else if (isPremiumSmallCategory(category) || isSpecialCategory(category)) {
-      travellerCommission += 10.0;
-    } else if (category === 'Duty Free') {
-      travellerCommission += 6.5;
-    }
+    items.push({
+      category: $(this).attr('category'),
+      size: parseFloat($(this).attr('size')) || 0,
+    });
   });
 
-  return parseFloat(travellerCommission.toFixed(2));
+  return window.ShareMyBagPricing.calculateConfiguredTravellerCommission(items, {
+    normal: normalPayout,
+    special: specialPayout,
+    premiumSmall: premiumSmallPayout,
+    premiumLaptop: premiumLaptopPayout,
+  });
 }
 
 $('#items_input').change(function () {

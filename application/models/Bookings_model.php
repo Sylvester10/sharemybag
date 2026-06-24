@@ -550,26 +550,12 @@ class Bookings_model extends \MY_Model
 
 	private function get_category_commission_delta($category, $size, $traveller = null)
 	{
-		if ($traveller) {
-			$route_key = booking_route_key($traveller->location, $traveller->destination);
-			if (in_array($route_key, ['ng_uk', 'ca_ng'], true)) {
-				$route_pricing = booking_route_pricing($traveller->location, $traveller->destination);
-
-				return round(booking_category_payout_rate($route_pricing, $category) * (float) $size, 2);
-			}
+		if (!$traveller) {
+			return 0.00;
 		}
 
-		switch (booking_category_price_type($category)) {
-			case 'premium_laptop':
-				return 15.00;
-			case 'premium_small':
-			case 'special':
-				return 10.00;
-			case 'duty_free':
-				return 6.50;
-			default:
-				return 0.00;
-		}
+		$route_pricing = booking_route_pricing($traveller->location, $traveller->destination);
+		return round(booking_category_payout_rate($route_pricing, $category) * (float) $size, 2);
 	}
 
 
