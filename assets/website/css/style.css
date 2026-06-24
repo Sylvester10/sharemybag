@@ -1612,7 +1612,7 @@ li.nav-item a.nav-link i {
 
 .hero-area-bg-3 {
   background-image: url(../img/slider/map.jpeg);
-  height: 1000px !important;
+  height: 999px !important;
 }
 
 .hero-area-bg-4 {
