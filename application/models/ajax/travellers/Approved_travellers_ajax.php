@@ -57,8 +57,7 @@ class Approved_travellers_ajax extends CI_Model
 		// This line runs the query builder that includes sorting and searching
 		$this->the_query();
 
-		$this->db->where('travellers.status', 'Approved');
-		$this->db->where('travellers.travel_date <', date('Y-m-d'));
+		$this->db->where_in('travellers.status', array('Approved', 'Unapproved'));
 
 		if (!empty($destination)) {
 			$this->db->where('travellers.destination', $destination);
@@ -75,8 +74,7 @@ class Approved_travellers_ajax extends CI_Model
 	{
 		$this->db->from('travellers');
 		ci_where_not_deleted($this->db, 'travellers');
-		$this->db->where('travellers.status', 'Approved');
-		$this->db->where('travellers.travel_date <', date('Y-m-d'));
+		$this->db->where_in('travellers.status', array('Approved', 'Unapproved'));
 
 		if (!empty($destination)) {
 			$this->db->where('travellers.destination', $destination);
@@ -89,8 +87,7 @@ class Approved_travellers_ajax extends CI_Model
 		$search_value = datatable_search_value();
 		$this->db->from('travellers');
 		ci_where_not_deleted($this->db, 'travellers');
-		$this->db->where('travellers.status', 'Approved');
-		$this->db->where('travellers.travel_date <', date('Y-m-d'));
+		$this->db->where_in('travellers.status', array('Approved', 'Unapproved'));
 
 		if (!empty($destination)) {
 			$this->db->where('travellers.destination', $destination);

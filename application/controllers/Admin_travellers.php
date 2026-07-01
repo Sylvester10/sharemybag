@@ -58,7 +58,7 @@ class Admin_travellers extends MY_Controller
         foreach ($list as $y) {
 
             $itinerary_src = base_url('assets/itinerary/' . $y->itinerary_photo);
-            $itinerary = user_avatar_table($y->itinerary_photo, $itinerary_src, user_avatar);
+            $itinerary = traveller_itinerary_table_link($y->itinerary_photo, $itinerary_src, user_avatar);
 
             $referrer = $y->referrer_firstname ?: 'No Referral';
 
@@ -167,7 +167,7 @@ class Admin_travellers extends MY_Controller
 
     public function approved_travellers()
     {
-        $inner_page_title = 'Approved Travellers';
+        $inner_page_title = 'All Travellers';
         $this->admin_header('Admin', $inner_page_title);
         $this->load->view('admin/travellers/approved_travellers');
         $this->admin_footer();
@@ -185,7 +185,7 @@ class Admin_travellers extends MY_Controller
         foreach ($list as $y) {
 
             $itinerary_src = base_url('assets/itinerary/' . $y->itinerary_photo);
-            $itinerary = user_avatar_table($y->itinerary_photo, $itinerary_src, user_avatar);
+            $itinerary = traveller_itinerary_table_link($y->itinerary_photo, $itinerary_src, user_avatar);
 
             $referrer = $y->referrer_firstname ?: 'No Referral';
 
@@ -240,10 +240,7 @@ class Admin_travellers extends MY_Controller
 
     public function unapproved_travellers()
     {
-        $inner_page_title = 'Unapproved Travellers';
-        $this->admin_header('Admin', $inner_page_title);
-        $this->load->view('admin/travellers/unapproved_travellers');
-        $this->admin_footer();
+        redirect('admin_travellers/approved_travellers');
     }
 
 
