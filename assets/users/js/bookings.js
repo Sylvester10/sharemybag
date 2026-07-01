@@ -628,23 +628,32 @@ function calculateBooking() {
 	let currentAvailableSpace = initialAvailableSpace - selectedSpace;
 	let subTotal = serviceCharge + selectedPrice;
 	let specialCharge = 0;
-	let travellerCommission =
-		currency === "CAD"
-			? 10.0 * selectedSpace
-			: ($('input[name="traveller_destination"]').val() || "").trim() === "Nigeria"
-			? 4.5 * selectedSpace
-			: 5.0 * selectedSpace;
+	let normalPayout = parseFloat($("#holdThisInfo").attr("normal_payout")) || 0;
+	let specialPayout =
+		parseFloat($("#holdThisInfo").attr("special_payout")) || normalPayout;
+	let premiumSmallPayout =
+		parseFloat($("#holdThisInfo").attr("premium_small_payout")) || normalPayout;
+	let premiumLaptopPayout =
+		parseFloat($("#holdThisInfo").attr("premium_laptop_payout")) ||
+		premiumSmallPayout;
+	let commissionItems = [];
 	$(".select_item").each(function () {
 		let category = $(this).attr("category");
-		if (category === "Documents/Electronics" || category === "Fish/Medicine") {
-			travellerCommission += 10.0;
-		} else if (category === "Duty Free") {
-			travellerCommission += 6.5;
-		}
+		commissionItems.push({
+			category: category,
+			size: parseFloat($(this).attr("size")) || 0,
+		});
 		if (category === "Fish/Medicine") {
 			specialCharge = 10.0;
 		}
 	});
+	let travellerCommission =
+		window.ShareMyBagPricing.calculateConfiguredTravellerCommission(commissionItems, {
+			normal: normalPayout,
+			special: specialPayout,
+			premiumSmall: premiumSmallPayout,
+			premiumLaptop: premiumLaptopPayout,
+		});
 	let baseTotal = subTotal + insurance + specialCharge;
 	let platformCommission = Math.max(
 		0,

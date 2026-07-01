@@ -95,7 +95,7 @@ class Invoice extends MY_Controller
         $invoiceNumber = $booking->tracking_id ?: ('SMB-' . str_pad((int) $booking->id, 4, '0', STR_PAD_LEFT));
         $isAdmin = $viewer === 'admin';
         $selectedSpace = (float) $booking->selected_space;
-        $travellerPayout = (float) $booking->traveller_commission;
+        $travellerPayout = booking_stored_traveller_commission($booking);
         $serviceCharge = (float) $booking->service_charge;
         $insurance = (float) $booking->insurance;
         $paymentMethod = payment_method_normalize($booking->payment_method);

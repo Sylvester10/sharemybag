@@ -15,7 +15,6 @@ class Booking_presenter
         $metrics = [
             'items' => $items,
             'total_item_size' => 0.0,
-            'extra_commission' => 0.0,
             'special_fee' => 0.0,
             'is_special' => false,
             'is_premium' => false,
@@ -26,17 +25,12 @@ class Booking_presenter
             $size = isset($item->size) ? (float) $item->size : 0.0;
 
             if (booking_category_price_type($category) === 'premium_small') {
-                $metrics['extra_commission'] += 10.00;
                 $metrics['is_premium'] = true;
             } elseif (booking_category_price_type($category) === 'premium_laptop') {
-                $metrics['extra_commission'] += 15.00;
                 $metrics['is_premium'] = true;
             } elseif (booking_category_price_type($category) === 'special') {
-                $metrics['extra_commission'] += 10.00;
                 $metrics['special_fee'] += 10.00;
                 $metrics['is_special'] = true;
-            } elseif (booking_category_price_type($category) === 'duty_free') {
-                $metrics['extra_commission'] += 6.50;
             }
 
             $metrics['total_item_size'] += $size;
@@ -122,15 +116,6 @@ class Booking_presenter
     {
         $size = $metrics['total_item_size'] > 0 ? $metrics['total_item_size'] : (float) $fallback_selected_space;
         return $size . ' KG';
-    }
-
-    public function calculate_booking_commission($booking, $traveller, $metrics)
-    {
-        $base_commission = $traveller->destination == 'Nigeria'
-            ? 4.50 * (float) $booking->selected_space
-            : 5.00 * (float) $booking->selected_space;
-
-        return round($base_commission + $metrics['extra_commission'], 2);
     }
 
     public function format_commission($currency_code, $payment_status, $commission)

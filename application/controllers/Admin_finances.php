@@ -68,7 +68,7 @@ class Admin_finances extends MY_Controller
             $sign = '&pound;';
             $payment_status = $this->booking_presenter->format_payment_status_text($y->payment_status);
             $metrics = $this->booking_presenter->collect_item_metrics($y->items);
-            $traveller_commission = (float) $y->traveller_commission;
+            $traveller_commission = booking_stored_traveller_commission($y);
             $profit = (float) $y->total_amount - $traveller_commission - (float) $y->vat;
             $commission = payment_status_normalize($y->payment_status) == 'completed'
                 ? $this->booking_presenter->format_money_with_sign($sign, $traveller_commission)
@@ -144,7 +144,7 @@ class Admin_finances extends MY_Controller
             $sign = '$';
             $payment_status = $this->booking_presenter->format_payment_status_text($y->payment_status);
             $metrics = $this->booking_presenter->collect_item_metrics($y->items);
-            $traveller_commission = (float) $y->traveller_commission;
+            $traveller_commission = booking_stored_traveller_commission($y);
             $profit = (float) $y->total_amount - $traveller_commission - (float) $y->vat;
             $commission = payment_status_normalize($y->payment_status) == 'completed'
                 ? $this->booking_presenter->format_money_with_sign($sign, $traveller_commission)

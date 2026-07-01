@@ -160,6 +160,7 @@
 <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
 <script src="<?php echo base_url(); ?>assets/users/js/search.js"></script>
 <script src="<?php echo base_url(); ?>assets/users/js/track.js"></script>
+<script src="<?php echo base_url(); ?>assets/users/js/pricing_payout.js"></script>
 <script src="<?php echo base_url(); ?>assets/users/js/booking.js"></script>
 <script src="<?php echo base_url(); ?>assets/users/js/notify.js"></script>
 

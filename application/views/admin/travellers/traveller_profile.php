@@ -246,7 +246,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					<td> <?= $agent_details ?> </td>
 					<td> <?= $receiver_details ?> </td>
 					<td> <?= $items ?> </td>
-					<td> <?= currency_symbol($booking->currency) ?><?= number_format($booking->traveller_commission, 2) ?> </td>
+					<td> <?= currency_symbol($booking->currency) ?><?= number_format(booking_stored_traveller_commission($booking), 2) ?> </td>
 					<td> <?= $payment_method ?></td>
 					<td> <?= $payment_status ?></td>
 					<td> <?= x_date($booking->date_added) ?> </td>

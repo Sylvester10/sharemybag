@@ -1894,6 +1894,32 @@ function user_avatar_table($user_photo, $image_src, $default_avatar)
 	return '<a href="' . $secure_href . '" class="smb-file-preview" data-preview-src="' . $secure_href . '" data-preview-title="Document Preview"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
 }
 
+function traveller_itinerary_table_link($itinerary_file, $file_src, $default_avatar)
+{
+	if (empty($itinerary_file) || empty($file_src)) {
+		return '<img class="avatar" src="' . $default_avatar . '" />';
+	}
+
+	$file_url_path = parse_url($file_src, PHP_URL_PATH);
+	$base_url_path = parse_url(base_url(), PHP_URL_PATH);
+	$relative_path = $file_url_path ?: '';
+
+	if ($base_url_path && strpos($relative_path, $base_url_path) === 0) {
+		$relative_path = substr($relative_path, strlen($base_url_path));
+	}
+
+	$absolute_path = FCPATH . ltrim($relative_path, '/');
+
+	if ($relative_path === '' || !is_file($absolute_path)) {
+		return '<img class="avatar" src="' . $default_avatar . '" />';
+	}
+
+	$file_extension = strtolower(pathinfo((string) $itinerary_file, PATHINFO_EXTENSION));
+	$thumbnail_src = ($file_extension === 'pdf') ? pdf_icon : $file_src;
+
+	return '<a target="_blank" rel="noopener noreferrer" href="' . $file_src . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
+}
+
 
 function checkbox_bulk_action($id)
 {
@@ -2429,6 +2455,50 @@ function booking_category_payout_rate(array $route_pricing, $category)
 		default:
 			return (float) $route_pricing['normal_payout_rate'];
 	}
+}
+
+
+function booking_category_commission_delta(array $route_pricing, $category, $size)
+{
+	$size = max(0, (float) $size);
+	return round(booking_category_payout_rate($route_pricing, $category) * $size, 2);
+}
+
+
+function booking_calculate_traveller_commission(array $route_pricing, $selected_space, $items_json = null)
+{
+	$selected_space = max(0, (float) $selected_space);
+
+	if (!$items_json) {
+		return round((float) $route_pricing['normal_payout_rate'] * $selected_space, 2);
+	}
+
+	$items = json_decode($items_json);
+	if (!is_array($items)) {
+		return 0.00;
+	}
+
+	$commission = 0.00;
+	foreach ($items as $item) {
+		if (!isset($item->category)) {
+			continue;
+		}
+
+		$item_size = isset($item->size) ? (float) $item->size : 0;
+		if ($item_size <= 0) {
+			continue;
+		}
+
+		$commission += booking_category_commission_delta($route_pricing, $item->category, $item_size);
+	}
+
+	return round($commission, 2);
+}
+
+
+function booking_stored_traveller_commission($booking)
+{
+	return round((float) $booking->traveller_commission, 2);
 }
 
 

@@ -25,22 +25,26 @@ $status_error = $this->session->flashdata('status_msg_error');
                 These values control booking prices, traveller payouts, the homepage estimate, and all route-based pricing displays. Changes are route-specific and super-admin only.
             </p>
 
+            <div class="alert alert-info">
+                <strong>How payouts work:</strong> each item uses one matching traveller payout only. Normal and duty-free items use the normal payout; fish/meat and medication use the special payout; documents and small electronics use the premium-small payout; laptops use the premium-laptop payout.
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-striped table-bordered admin-panel-table">
                     <thead>
                         <tr>
                             <th>Route</th>
                             <th>Currency</th>
-                            <th>Service Charge</th>
-                            <th>Normal</th>
-                            <th>Special</th>
-                            <th>Duty Free</th>
-                            <th>Premium Small</th>
-                            <th>Premium Laptop</th>
-                            <th>Normal Payout</th>
-                            <th>Special Payout</th>
-                            <th>Premium Small Payout</th>
-                            <th>Premium Laptop Payout</th>
+                            <th>Service Charge (per booking)</th>
+                            <th>Normal Items (per kg)</th>
+                            <th>Fish/Meat &amp; Medication (per kg)</th>
+                            <th>Duty-Free Shopping (per kg)</th>
+                            <th>Documents &amp; Small Electronics (per item)</th>
+                            <th>Laptop (per item)</th>
+                            <th>Normal Items Payout (per kg)</th>
+                            <th>Fish/Meat &amp; Medication Payout (per kg)</th>
+                            <th>Documents &amp; Small Electronics Payout (per item)</th>
+                            <th>Laptop Payout (per item)</th>
                             <th>Last Updated</th>
                             <th>Updated By</th>
                             <th>Actions</th>
@@ -110,8 +114,8 @@ $status_error = $this->session->flashdata('status_msg_error');
                         <div class="col-md-12">
                             <div class="well well-sm">
                                 <strong>Quick summary</strong><br>
-                                Customer normal rate: <?php echo $symbol . number_format($route['normal_rate'], 2); ?> per unit<br>
-                                Traveller normal payout: <?php echo $symbol . number_format($route['normal_payout_rate'], 2); ?> per unit
+                                Customer normal rate: <?php echo $symbol . number_format($route['normal_rate'], 2); ?> per kg<br>
+                                Traveller normal payout: <?php echo $symbol . number_format($route['normal_payout_rate'], 2); ?> per kg
                             </div>
                         </div>
                     </div>
@@ -122,27 +126,27 @@ $status_error = $this->session->flashdata('status_msg_error');
                             <h4>Customer Charges</h4>
                         </div>
                         <div class="col-md-4 form-group">
-                            <label>Service Charge</label>
+                            <label>Service Charge (per booking)</label>
                             <input type="number" step="0.01" min="0" class="form-control" name="service_charge" value="<?php echo html_escape(number_format($route['service_charge'], 2, '.', '')); ?>" required>
                         </div>
                         <div class="col-md-4 form-group">
-                            <label>Normal Rate</label>
+                            <label>Normal Items Rate (per kg)</label>
                             <input type="number" step="0.01" min="0" class="form-control" name="normal_rate" value="<?php echo html_escape(number_format($route['normal_rate'], 2, '.', '')); ?>" required>
                         </div>
                         <div class="col-md-4 form-group">
-                            <label>Special Rate</label>
+                            <label>Fish/Meat &amp; Medication Rate (per kg)</label>
                             <input type="number" step="0.01" min="0" class="form-control" name="special_rate" value="<?php echo html_escape(number_format($route['special_rate'], 2, '.', '')); ?>" required>
                         </div>
                         <div class="col-md-4 form-group">
-                            <label>Duty Free Rate</label>
+                            <label>Duty-Free Shopping Rate (per kg)</label>
                             <input type="number" step="0.01" min="0" class="form-control" name="duty_free_rate" value="<?php echo html_escape(number_format($route['duty_free_rate'], 2, '.', '')); ?>" required>
                         </div>
                         <div class="col-md-4 form-group">
-                            <label>Premium Small Rate</label>
+                            <label>Documents &amp; Small Electronics Rate (per item)</label>
                             <input type="number" step="0.01" min="0" class="form-control" name="premium_small_rate" value="<?php echo html_escape(number_format($route['premium_small_rate'], 2, '.', '')); ?>" required>
                         </div>
                         <div class="col-md-4 form-group">
-                            <label>Premium Laptop Rate</label>
+                            <label>Laptop Rate (per item)</label>
                             <input type="number" step="0.01" min="0" class="form-control" name="premium_laptop_rate" value="<?php echo html_escape(number_format($route['premium_laptop_rate'], 2, '.', '')); ?>" required>
                         </div>
                     </div>
@@ -152,19 +156,19 @@ $status_error = $this->session->flashdata('status_msg_error');
                             <h4>Traveller Payouts</h4>
                         </div>
                         <div class="col-md-4 form-group">
-                            <label>Normal Payout Rate</label>
+                            <label>Normal Items Payout (per kg)</label>
                             <input type="number" step="0.01" min="0" class="form-control" name="normal_payout_rate" value="<?php echo html_escape(number_format($route['normal_payout_rate'], 2, '.', '')); ?>" required>
                         </div>
                         <div class="col-md-4 form-group">
-                            <label>Special Payout Rate</label>
+                            <label>Fish/Meat &amp; Medication Payout (per kg)</label>
                             <input type="number" step="0.01" min="0" class="form-control" name="special_payout_rate" value="<?php echo html_escape(number_format($route['special_payout_rate'], 2, '.', '')); ?>" required>
                         </div>
                         <div class="col-md-4 form-group">
-                            <label>Premium Small Payout Rate</label>
+                            <label>Documents &amp; Small Electronics Payout (per item)</label>
                             <input type="number" step="0.01" min="0" class="form-control" name="premium_small_payout_rate" value="<?php echo html_escape(number_format($route['premium_small_payout_rate'], 2, '.', '')); ?>" required>
                         </div>
                         <div class="col-md-4 form-group">
-                            <label>Premium Laptop Payout Rate</label>
+                            <label>Laptop Payout (per item)</label>
                             <input type="number" step="0.01" min="0" class="form-control" name="premium_laptop_payout_rate" value="<?php echo html_escape(number_format($route['premium_laptop_payout_rate'], 2, '.', '')); ?>" required>
                         </div>
                     </div>
