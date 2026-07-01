@@ -152,9 +152,8 @@
 										<a><i class="las la-plane"></i> Travellers <span class="las la-angle-down"></span></a>
 										<ul class="nav child_menu">
 											<li><a href="<?php echo base_url('admin_travellers'); ?>">Upcoming Travellers</a></li>
-											<li><a href="<?php echo base_url('admin_travellers/approved_travellers'); ?>">Approved Travellers</a></li>
+											<li><a href="<?php echo base_url('admin_travellers/approved_travellers'); ?>">All Travellers</a></li>
 											<li><a href="<?php echo base_url('admin_travellers/pending_travellers'); ?>">Pending Travellers</a></li>
-											<li><a href="<?php echo base_url('admin_travellers/unapproved_travellers'); ?>">Unapproved Travellers</a></li>
 										</ul>
 									</li>
 								<?php endif; ?>
