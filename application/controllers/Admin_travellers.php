@@ -128,7 +128,7 @@ class Admin_travellers extends MY_Controller
         foreach ($list as $y) {
 
             $itinerary_src = base_url('assets/itinerary/' . $y->itinerary_photo);
-            $itinerary = user_avatar_table($y->itinerary_photo, $itinerary_src, user_avatar);
+            $itinerary = traveller_itinerary_table_link($y->itinerary_photo, $itinerary_src, user_avatar);
 
             $status = traveller_status_badge($y->status);
 
