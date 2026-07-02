@@ -299,6 +299,14 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
             ?>
 
             <div class="form-group">
+                <label class="form-control-label">Final Destination Area <small>(optional)</small></label>
+                <input type="text" name="destination_area" value="<?php echo set_value('destination_area', isset($y->destination_area) ? $y->destination_area : ''); ?>" class="form-control" maxlength="150" placeholder="e.g. Lekki, Mississauga, Birmingham city centre" />
+                <div class="form-error">
+                    <?php echo form_error('destination_area'); ?>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label class="form-control-label">Airline *</label>
                 <select class="form-control" name="airline" required>
                     <option selected value="<?php echo $y->airline; ?>"><?php echo $y->airline; ?></option>

@@ -69,6 +69,7 @@ class User_bookings extends MY_Controller
                     'departure_state' => $traveller->departure_state,
                     'arrival_airport' => $traveller->arrival_airport,
                     'arrival_state' => $traveller->arrival_state,
+                    'destination_area' => isset($traveller->destination_area) ? $traveller->destination_area : '',
                     'available_space' => $traveller->available_space,
                     'hash' => $traveller->hash,
                     'bag_locked' => $traveller->bag_locked,

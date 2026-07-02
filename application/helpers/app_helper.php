@@ -1921,6 +1921,17 @@ function traveller_itinerary_table_link($itinerary_file, $file_src, $default_ava
 	return '<a target="_blank" rel="noopener noreferrer" href="' . $file_src . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
 }
 
+function traveller_destination_label($arrival_state, $destination, $destination_area = '')
+{
+	$parts = array_filter(array(
+		trim((string) $arrival_state),
+		trim((string) $destination_area),
+		trim((string) $destination),
+	));
+
+	return implode(', ', $parts);
+}
+
 
 function checkbox_bulk_action($id)
 {

@@ -154,6 +154,9 @@ jQuery(document).ready(function ($) {
                         parseFloat(response.available_space) > 0
                             ? `${response.available_space} kg`
                             : `<span class="text-danger fw-bold">Bag Full</span>`;
+                    let finalDestinationText = response.destination_area
+                        ? `${response.arrival_state}, ${response.destination_area}`
+                        : response.arrival_state;
 
                     let html_response = `
                       <section id="section-1" class="bg-white rounded shadow-md">
@@ -173,7 +176,7 @@ jQuery(document).ready(function ($) {
                             <div class="prohibited_icon wow fadeInUp animated" data-wow-delay=".6s">
                               <img src="${base_url}assets/website/icons/destination.png">
                               <h4>Final Destination</h4>
-                              <p>${response.arrival_state}</p>
+                              <p>${finalDestinationText}</p>
                             </div>
                             <div class="prohibited_icon wow fadeInUp animated" data-wow-delay=".8s">
                               <img src="${base_url}assets/website/icons/weight.png">

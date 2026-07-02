@@ -109,6 +109,7 @@ class Travellers_model extends \MY_Model
 		$data['departure_state'] = $this->input->post('departure_state', TRUE);
 		$data['arrival_airport'] = $this->input->post('arrival_airport', TRUE);
 		$data['arrival_state'] = $this->input->post('arrival_state', TRUE);
+		$data['destination_area'] = ucfirst($this->input->post('destination_area', TRUE));
 		$data['drop_address2'] = $this->input->post('drop_address2', TRUE);
 		$data['drop_date2'] = $this->input->post('drop_date2', TRUE);
 		$data['destination'] = $this->input->post('destination', TRUE);
@@ -195,6 +196,7 @@ class Travellers_model extends \MY_Model
 		$data['departure_state'] = $this->input->post('departure_state', TRUE);
 		$data['arrival_airport'] = $this->input->post('arrival_airport', TRUE);
 		$data['arrival_state'] = $this->input->post('arrival_state', TRUE);
+		$data['destination_area'] = ucfirst($this->input->post('destination_area', TRUE));
 		$data['drop_address2'] = $this->input->post('drop_address2', TRUE);
 		$data['drop_date2'] = $this->input->post('drop_date2', TRUE);
 		$data['destination'] = $this->input->post('destination', TRUE);

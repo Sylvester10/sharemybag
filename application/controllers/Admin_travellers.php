@@ -87,7 +87,7 @@ class Admin_travellers extends MY_Controller
             $row[] = $y->email;
             $row[] = $y->area . ', ' . $y->current_state;
             $row[] = $y->arrival_airport;
-            $row[] = $y->arrival_state . ', ' . $y->destination;
+            $row[] = traveller_destination_label($y->arrival_state, $y->destination, isset($y->destination_area) ? $y->destination_area : '');
             $row[] = $y->address;
             $row[] = $y->airline;
             $row[] = x_date($arrival_date);
@@ -214,7 +214,7 @@ class Admin_travellers extends MY_Controller
             $row[] = $y->email;
             $row[] = $y->area . ', ' . $y->current_state;
             $row[] = $y->arrival_airport;
-            $row[] = $y->arrival_state . ', ' . $y->destination;
+            $row[] = traveller_destination_label($y->arrival_state, $y->destination, isset($y->destination_area) ? $y->destination_area : '');
             $row[] = $y->address;
             $row[] = $y->airline;
             $row[] = x_date($arrival_date);
@@ -313,6 +313,7 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('destination', 'Destination', 'trim|required');
         $this->form_validation->set_rules('arrival_airport', 'Arrival Airport', 'trim|required');
         $this->form_validation->set_rules('arrival_state', 'Final Destination', 'trim|required');
+        $this->form_validation->set_rules('destination_area', 'Final Destination Area', 'trim|max_length[150]');
         $this->form_validation->set_rules('airline', 'Airline', 'required');
         $this->form_validation->set_rules('area', 'Area', 'trim|min_length[2]|max_length[100]');
         $this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
@@ -539,6 +540,7 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('destination', 'Destination', 'trim|required');
         $this->form_validation->set_rules('arrival_airport', 'Arrival Airport', 'trim|required');
         $this->form_validation->set_rules('arrival_state', 'Final Destination', 'trim|required');
+        $this->form_validation->set_rules('destination_area', 'Final Destination Area', 'trim|max_length[150]');
         $this->form_validation->set_rules('airline', 'Airline', 'required');
         $this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
         $this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
