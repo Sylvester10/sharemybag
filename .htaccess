@@ -1,23 +1,17 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # --------------------------------------------------
-    # Force HTTPS
-    # --------------------------------------------------
+    # Force HTTPS — skip on localhost so local dev isn't broken
+    RewriteCond %{HTTP_HOST} !^localhost [NC]
+    RewriteCond %{HTTP_HOST} !^127\.0\.0\.1 [NC]
     RewriteCond %{HTTPS} !=on
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # --------------------------------------------------
-    # Force non-www
-    # www.sharemybag.co.uk -> sharemybag.co.uk
-    # --------------------------------------------------
+    # Force non-www — only matches production domain, inert locally
     RewriteCond %{HTTP_HOST} ^www\.sharemybag\.co\.uk$ [NC]
     RewriteRule ^ https://sharemybag.co.uk%{REQUEST_URI} [L,R=301]
 
-    # --------------------------------------------------
-    # CodeIgniter routing
-    # Route all non-existing files/folders to index.php
-    # --------------------------------------------------
+    # CodeIgniter routing — identical to your working local rule
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php/$1 [L]
