@@ -118,7 +118,7 @@ jQuery(document).ready(function ($) {
                                 <td> ${traveller.area}, ${traveller.current_state} </td>
                                 <td> ${traveller.departure_state} </td>
                                 <td> ${traveller.arrival_airport} </td>
-                                <td> ${traveller.arrival_state} </td>
+                                <td> ${traveller.destination_area ? traveller.arrival_state + ', ' + traveller.destination_area : traveller.arrival_state} </td>
                                 <td> ${traveller.available_space} KG </td>
                                 <td>${buttonHtml}</td>
                               </tr>`;

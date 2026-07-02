@@ -202,7 +202,7 @@
                     <div class="prohibited_icon">
                         <img src="<?php echo base_url(); ?>assets/website/icons/destination.png" alt="">
                         <h4>Final Destination</h4>
-                        <p>${response.arrival_state}</p>
+                        <p>${response.destination_area ? response.arrival_state + ', ' + response.destination_area : response.arrival_state}</p>
                     </div>
                     <div class="prohibited_icon">
                         <img src="<?php echo base_url(); ?>assets/website/icons/weight.png" alt="">
