@@ -242,6 +242,7 @@ function airlines()
 		'EgyptAir',          // Nigeria-UK
 		'Emirates',          // Connects Nigeria-Canada
 		'Ethiopian Airlines', // Nigeria-Canada/UK
+		'Kenya Airways',     // Nigeria-Canada/UK
 		'KLM',               // Nigeria-Canada/UK
 		'Lufthansa',         // Nigeria-UK
 		'Qatar Airways',     // Nigeria-Canada/UK
