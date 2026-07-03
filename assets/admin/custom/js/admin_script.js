@@ -506,9 +506,12 @@ jQuery(document).ready(function ($) {
         $('#populateDropAddress').change(function () {
             if ($(this).is(':checked')) {
                 var currentAddress = $('input[name="address"]').val();
+                var currentArea = $('input[name="area"]').val();
                 $('input[name="drop_address1"]').val(currentAddress);
+                $('input[name="drop_area1"]').val(currentArea);
             } else {
                 $('input[name="drop_address1"]').val('');
+                $('input[name="drop_area1"]').val('');
             }
         });
     });
@@ -517,9 +520,12 @@ jQuery(document).ready(function ($) {
         $('#populateDropAddress2').change(function () {
             if ($(this).is(':checked')) {
                 var currentAddress = $('input[name="address"]').val();
+                var currentArea = $('input[name="area"]').val();
                 $('input[name="drop_address2"]').val(currentAddress);
+                $('input[name="drop_area2"]').val(currentArea);
             } else {
                 $('input[name="drop_address2"]').val('');
+                $('input[name="drop_area2"]').val('');
             }
         });
     });
