@@ -27,6 +27,11 @@
                     <b class="fs-2">Flammables</b>
                 </div>
 
+                <div class="icos">
+                    <i class="ti ti-ban fs-9"></i>
+                    <b class="fs-2">Bar Soaps</b>
+                </div>
+
             </div>
             <div class="text-center">
                 <p class="text-subtle">Please be aware of the above restrictions when sending a parcel with Share My Bag.</p>
@@ -106,6 +111,15 @@
                                 <div class="card-body">
                                     <p class="text-white text-center mb-0">
                                         If you don’t know the exact weight of your item, you should book an underestimated weight. You can pay the difference once the traveller confirms the weight.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="card border border-warning mt-3 mb-3">
+                                <div class="card-body py-3">
+                                    <p class="mb-0 text-center text-black">
+                                        <i class="ti ti-alert-circle me-1"></i>
+                                        <b>No Bar Soaps:</b> Bar soaps are not allowed. Please do not add bar soaps to your parcel.
                                     </p>
                                 </div>
                             </div>

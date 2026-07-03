@@ -283,13 +283,65 @@ class Admin_travellers extends MY_Controller
 
     public function update_traveller($id)
     {
+        $this->render_update_traveller_form($id);
+    }
+
+
+    private function render_update_traveller_form($id, $submitted_data = array())
+    {
         $this->check_data_exists($id, 'id', 'travellers', 'admin_travellers');
         $traveller_details = $this->traveller_read_model->get_traveller_details_by_id($id);
+        if (!empty($submitted_data)) {
+            $this->apply_traveller_submitted_values($traveller_details, $submitted_data);
+        }
         $page_title = 'Update Traveller: ' . $traveller_details->fullname;
         $this->admin_header($page_title, $page_title);
         $data['y'] = $traveller_details;
         $this->load->view('admin/travellers/update_traveller', $data);
         $this->admin_footer();
+    }
+
+
+    private function apply_traveller_submitted_values($traveller_details, $submitted_data)
+    {
+        $fields = array(
+            'fullname',
+            'phone',
+            'alt_phone',
+            'email',
+            'location',
+            'current_state',
+            'drop_address1',
+            'drop_area1',
+            'drop_date1',
+            'departure_state',
+            'arrival_airport',
+            'arrival_state',
+            'destination_area',
+            'drop_address2',
+            'drop_area2',
+            'drop_date2',
+            'destination',
+            'travel_date',
+            'arrival_date',
+            'airline',
+            'address',
+            'available_space',
+            'area',
+            'additional_info',
+        );
+
+        foreach ($fields as $field) {
+            if (array_key_exists($field, $submitted_data) && !is_array($submitted_data[$field])) {
+                $traveller_details->{$field} = $submitted_data[$field];
+            }
+        }
+
+        if (array_key_exists('unwanted_items', $submitted_data)) {
+            $traveller_details->unwanted_items = is_array($submitted_data['unwanted_items'])
+                ? implode(', ', $submitted_data['unwanted_items'])
+                : $submitted_data['unwanted_items'];
+        }
     }
 
 
@@ -323,7 +375,7 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim');
 
         if (!$this->form_validation->run()) {
-            $this->update_traveller($id);
+            $this->render_update_traveller_form($id, $this->input->post(NULL, TRUE));
             return;
         }
 
@@ -333,7 +385,7 @@ class Admin_travellers extends MY_Controller
             return;
         }
         $this->session->set_flashdata('status_msg_error', 'Traveller could not be updated');
-        redirect('admin_travellers/update_traveller/' . $id);
+        $this->render_update_traveller_form($id, $this->input->post(NULL, TRUE));
     }
 
 
