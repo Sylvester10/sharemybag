@@ -35,9 +35,11 @@ class Travellers_model extends \MY_Model
 		$location = $this->input->post('location', TRUE);
 		$current_state = $this->input->post('current_state', TRUE);
 		$drop_address1 = $this->input->post('drop_address1', TRUE);
+		$drop_area1 = ucfirst($this->input->post('drop_area1', TRUE));
 		$drop_date1 = $this->input->post('drop_date1', TRUE);
 		$departure_state = $this->input->post('departure_state', TRUE);
 		$drop_address2 = $this->input->post('drop_address2', TRUE);
+		$drop_area2 = ucfirst($this->input->post('drop_area2', TRUE));
 		$drop_date2 = $this->input->post('drop_date2', TRUE);
 		$destination = $this->input->post('destination', TRUE);
 		// $payment_type = $this->input->post('payment_type', TRUE);
@@ -66,9 +68,11 @@ class Travellers_model extends \MY_Model
 			'location' => $location,
 			'current_state' => $current_state,
 			'drop_address1' => $drop_address1,
+			'drop_area1' => $drop_area1,
 			'drop_date1' => $drop_date1,
 			'departure_state' => $departure_state,
 			'drop_address2' => $drop_address2,
+			'drop_area2' => $drop_area2,
 			'drop_date2' => $drop_date2,
 			'destination' => $destination,
 			// 			'payment_type' => $payment_type,
@@ -98,6 +102,9 @@ class Travellers_model extends \MY_Model
 
 	public function update_traveller($id)
 	{
+		$existing_traveller = $this->traveller_read_model->get_traveller_details_by_id($id);
+		$was_approved_traveller = $existing_traveller && traveller_status_normalize($existing_traveller->status) === traveller_status_normalize('Approved');
+
 		$data['fullname'] = ucwords($this->input->post('fullname', TRUE));
 		$data['phone'] = $this->input->post('phone', TRUE);
 		$data['alt_phone'] = $this->input->post('alt_phone', TRUE);
@@ -105,12 +112,14 @@ class Travellers_model extends \MY_Model
 		$data['location'] = $this->input->post('location', TRUE);
 		$data['current_state'] = $this->input->post('current_state', TRUE);
 		$data['drop_address1'] = $this->input->post('drop_address1', TRUE);
+		$data['drop_area1'] = ucfirst($this->input->post('drop_area1', TRUE));
 		$data['drop_date1'] = $this->input->post('drop_date1', TRUE);
 		$data['departure_state'] = $this->input->post('departure_state', TRUE);
 		$data['arrival_airport'] = $this->input->post('arrival_airport', TRUE);
 		$data['arrival_state'] = $this->input->post('arrival_state', TRUE);
 		$data['destination_area'] = ucfirst($this->input->post('destination_area', TRUE));
 		$data['drop_address2'] = $this->input->post('drop_address2', TRUE);
+		$data['drop_area2'] = ucfirst($this->input->post('drop_area2', TRUE));
 		$data['drop_date2'] = $this->input->post('drop_date2', TRUE);
 		$data['destination'] = $this->input->post('destination', TRUE);
 		$data['travel_date'] = $this->input->post('travel_date', TRUE);
@@ -133,7 +142,9 @@ class Travellers_model extends \MY_Model
 			// ONLY send email to traveller if the database update was successful
 			$email = $this->input->post('email', TRUE);
 			$this->traveller_read_model->clearTravellerCountCaches();
-			send_email_notification($this, $email, 'Update Received', $data, 'traveller_approval_notification_email');
+			if (!$was_approved_traveller) {
+				send_email_notification($this, $email, 'Update Received', $data, 'traveller_approval_notification_email');
+			}
 			return true;
 		}
 
@@ -192,12 +203,14 @@ class Travellers_model extends \MY_Model
 		$data['location'] = $this->input->post('location', TRUE);
 		$data['current_state'] = $this->input->post('current_state', TRUE);
 		$data['drop_address1'] = $this->input->post('drop_address1', TRUE);
+		$data['drop_area1'] = ucfirst($this->input->post('drop_area1', TRUE));
 		$data['drop_date1'] = $this->input->post('drop_date1', TRUE);
 		$data['departure_state'] = $this->input->post('departure_state', TRUE);
 		$data['arrival_airport'] = $this->input->post('arrival_airport', TRUE);
 		$data['arrival_state'] = $this->input->post('arrival_state', TRUE);
 		$data['destination_area'] = ucfirst($this->input->post('destination_area', TRUE));
 		$data['drop_address2'] = $this->input->post('drop_address2', TRUE);
+		$data['drop_area2'] = ucfirst($this->input->post('drop_area2', TRUE));
 		$data['drop_date2'] = $this->input->post('drop_date2', TRUE);
 		$data['destination'] = $this->input->post('destination', TRUE);
 		$data['travel_date'] = $this->input->post('travel_date', TRUE);

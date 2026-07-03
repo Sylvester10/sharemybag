@@ -317,6 +317,8 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('airline', 'Airline', 'required');
         $this->form_validation->set_rules('area', 'Area', 'trim|min_length[2]|max_length[100]');
         $this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
+        $this->form_validation->set_rules('drop_area1', 'First Drop Off Area', 'trim|max_length[150]');
+        $this->form_validation->set_rules('drop_area2', 'Last Drop Off Area', 'trim|max_length[150]');
         $this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
         $this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim');
 
@@ -543,6 +545,8 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('destination_area', 'Final Destination Area', 'trim|max_length[150]');
         $this->form_validation->set_rules('airline', 'Airline', 'required');
         $this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
+        $this->form_validation->set_rules('drop_area1', 'First Drop Off Area', 'trim|max_length[150]');
+        $this->form_validation->set_rules('drop_area2', 'Last Drop Off Area', 'trim|max_length[150]');
         $this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
         $this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim|required');
 
