@@ -34,10 +34,14 @@ include 'email_header.php'; ?>
 <table class="info-table">
     <tr>
         <td class="label">Traveller Name</td>
-        <td class="value"><?php
-                            $parts = explode(' ', $traveller_name);
-                            echo $parts[0] . ' ' . (isset($parts[count($parts) - 1][0]) ? strtoupper($parts[count($parts) - 1][0]) . '.' : '');
-                            ?></td>
+        <td class="value">
+            <?php
+            $parts = array_values(array_filter(explode(' ', trim($traveller_name)), 'strlen'));
+            $first = $parts[0] ?? '';
+            $lastInitial = (count($parts) > 1) ? strtoupper($parts[count($parts) - 1][0]) . '.' : '';
+            echo htmlspecialchars(trim($first . ' ' . $lastInitial));
+            ?>
+        </td>
     </tr>
     <tr>
         <td class="label">Contact Number</td>
