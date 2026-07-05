@@ -335,15 +335,6 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
             </div>
 
             <div class="form-group">
-                <label class="form-control-label">First Drop Off Area <small>(optional)</small></label>
-                <br />
-                <input type="text" name="drop_area1" value="<?php echo set_value('drop_area1', isset($y->drop_area1) ? $y->drop_area1 : ''); ?>" class="form-control" maxlength="150" placeholder="e.g. Lekki, Birmingham city centre" />
-                <div class="form-error">
-                    <?php echo form_error('drop_area1'); ?>
-                </div>
-            </div>
-
-            <div class="form-group">
                 <label class="form-control-label">First Drop Off Date (optional)</label>
                 <div class="input-group date calendar_date_datepicker" data-date-format="yyyy-mm-dd">
                     <input type="text" class="form-control" name="drop_date1" value="<?php echo set_value('drop_date1', $y->drop_date1); ?>" readonly />
@@ -362,15 +353,6 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
                 <input type="text" name="drop_address2" value="<?php echo set_value('drop_address2', $y->drop_address2); ?>" class="form-control" />
                 <div class="form-error">
                     <?php echo form_error('drop_address2'); ?>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-control-label">Last Drop Off Area <small>(optional)</small></label>
-                <br />
-                <input type="text" name="drop_area2" value="<?php echo set_value('drop_area2', isset($y->drop_area2) ? $y->drop_area2 : ''); ?>" class="form-control" maxlength="150" placeholder="e.g. Lekki, Birmingham city centre" />
-                <div class="form-error">
-                    <?php echo form_error('drop_area2'); ?>
                 </div>
             </div>
 

@@ -182,14 +182,6 @@ echo form_open_multipart('admin_travellers/add_traveller_ajax', 'id="submit_butt
 			<div class="form-error"><?php echo form_error('drop_address1'); ?></div>
 		</div>
 
-		<div class="form-group" id="droparea1" style="display: none;">
-			<label class="form-control-label">First Drop Off Area <small>(optional)</small></label>
-			<br />
-			<input type="text" name="drop_area1" value="<?php echo set_value('drop_area1'); ?>"
-				class="form-control" maxlength="150" placeholder="e.g. Lekki, Birmingham city centre" />
-			<div class="form-error"><?php echo form_error('drop_area1'); ?></div>
-		</div>
-
 		<div class="form-group" id="dropdate1" style="display: none;">
 			<label class="form-control-label">Drop Off Date*</label>
 			<div class="input-group date calendar_date_datepicker" data-date-format="yyyy-mm-dd">
@@ -224,14 +216,6 @@ echo form_open_multipart('admin_travellers/add_traveller_ajax', 'id="submit_butt
 			<div class="form-error"><?php echo form_error('drop_address2'); ?></div>
 		</div>
 
-		<div class="form-group" id="droparea2" style="display: none;">
-			<label class="form-control-label">Last Drop Off Area <small>(optional)</small></label>
-			<br />
-			<input type="text" name="drop_area2" value="<?php echo set_value('drop_area2'); ?>"
-				class="form-control" maxlength="150" placeholder="e.g. Lekki, Birmingham city centre" />
-			<div class="form-error"><?php echo form_error('drop_area2'); ?></div>
-		</div>
-
 		<div class="form-group" id="dropdate2" style="display: none;">
 			<label class="form-control-label">2nd Drop Off Date*</label>
 			<div class="input-group date calendar_date_datepicker" data-date-format="yyyy-mm-dd">
@@ -249,8 +233,8 @@ echo form_open_multipart('admin_travellers/add_traveller_ajax', 'id="submit_butt
 			<h3 class="admin-form-heading">Preferences</h3>
 
 		<div class="form-group">
-			<label class="form-control-label">Unwanted Items*</label>
-			<select multiple class="form-control selectpicker" name="unwanted_items[]" required>
+			<label class="form-control-label">Unwanted Items</label>
+			<select multiple class="form-control selectpicker" name="unwanted_items[]">
 				<option value="">Select Item(s)</option>
 				<option value="Medication">Medication</option>
 				<option value="Fish">Fish</option>
