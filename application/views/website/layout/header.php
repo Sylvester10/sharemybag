@@ -130,9 +130,9 @@
                                         <li class="nav-item">
                                             <a class="nav-link" href="<?php echo base_url('travellers'); ?>">I'm a Traveller</a>
                                         </li>
-                                        <li class="nav-item">
+                                        <!-- <li class="nav-item">
                                             <a class="nav-link" href="<?php echo base_url('investors'); ?>">Investors</a>
-                                        </li>
+                                        </li> -->
                                         <li class="nav-item">
                                             <a href="<?php echo base_url('signin'); ?>" class="login-btn primary">Login</a>
                                         </li>
