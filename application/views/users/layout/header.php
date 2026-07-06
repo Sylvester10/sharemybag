@@ -31,7 +31,7 @@
 
 	<!-- Core Css -->
 	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/users/css/styles.css" />
-	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/users/css/custom.css" />
+	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/users/css/custom.css?v=<?php echo filemtime(FCPATH . 'assets/users/css/custom.css'); ?>" />
 
 	<!-- Tailwind -->
 	<link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/general/css/tw-output.css" />

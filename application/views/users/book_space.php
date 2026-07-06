@@ -44,7 +44,6 @@
         <div class="col-lg-8">
             <div class="card">
 
-
                 <div class="card-body">
 
                     <?php
@@ -54,7 +53,7 @@
                     } else {
 
                         echo
-                        '<div class="card !tw-bg-[#020713]">
+                        '<div class="card !tw-bg-[#020713] mb-3">
                             <div class="card-body p-4">
                                 <h6 class="card-text text-white text-center fw-bolder ">
                                     <i class="ti ti-alert-circle"></i> Important!!
@@ -65,7 +64,7 @@
                     }
                     ?>
 
-                    <form action="<?= base_url('user_bookings/add_booking_ajax') ?>" class="form-wizard-ajax mt-5" id="booking_form" key="<?= $traveller_details->id ?>" method="POST" enctype="multipart/form-data" target="_blank">
+                    <form action="<?= base_url('user_bookings/add_booking_ajax') ?>" class="form-wizard-ajax booking-wizard-form mt-2" id="booking_form" key="<?= $traveller_details->id ?>" method="POST" enctype="multipart/form-data" target="_blank">
 
                         <div class="d-none">
                             <input name="traveller_id" value="<?php echo set_value('traveller_id', $traveller_details->id); ?>" type="text" class="form-control" />
@@ -103,13 +102,13 @@
                         <input type="hidden" id="paystack_reference" name="paystack_reference" />
                         <input type="hidden" id="payment_method" name="payment_method" />
 
-                        <h3> <i class="ti ti-package fs-5"></i> About Your Item </h3>
+                        <h3> <i class="ti ti-package fs-4"></i> About Your Item </h3>
                         <fieldset>
-                            <h4 class="card-title mb-2"> Provide details about the <b class="!tw-text-[#f36b24]">parcel.</b></h4>
+                            <h4 class="card-title mb-2 bookspace_title"> Provide details about the <b class="!tw-text-[#f36b24]">parcel.</b></h4>
 
                             <div class="card !tw-bg-[#020713]">
                                 <div class="card-body">
-                                    <p class="text-white text-center mb-0">
+                                    <p class="text-white text-center mb-0 fs-3">
                                         If you don’t know the exact weight of your item, you should book an underestimated weight. You can pay the difference once the traveller confirms the weight.
                                     </p>
                                 </div>
@@ -117,9 +116,9 @@
 
                             <div class="card border border-warning mt-3 mb-3">
                                 <div class="card-body py-3">
-                                    <p class="mb-0 text-center text-black">
+                                    <p class="mb-0 text-center text-black fs-3">
                                         <i class="ti ti-alert-circle me-1"></i>
-                                        <b>No Bar Soaps:</b> Bar soaps are not allowed. Please do not add bar soaps to your parcel.
+                                        <b>No Bar Soaps are not allowed</b> <br> Please do not add bar soaps to your parcel unless purchased by Sharemybag.
                                     </p>
                                 </div>
                             </div>
@@ -192,21 +191,24 @@
                             </div>
                         </fieldset>
 
-                        <h3> <i class="ti ti-user-circle fs-5"></i> Agent Details </h3>
+                        <h3> <i class="ti ti-user-circle fs-4"></i> Agent Details </h3>
                         <fieldset>
-                            <h4 class="card-title mb-4"> The Agent is whoever is <b class="!tw-text-[#f36b24]">currently in possession</b> of the parcel to be given to the traveller.</h4>
+                            <h4 class="card-title mb-4 bookspace_title"> The Agent is whoever is <b class="!tw-text-[#f36b24]">currently in possession</b> of the parcel to be given to the traveller.</h4>
 
-                            <div class="radio_buttons mb-3">
-                                <div class="form-check radio_check">
-                                    <input class="form-check-input" type="radio" name="parcel_status" id="parcelWithMe" value="with_me">
-                                    <label class="form-label" for="parcelWithMe">
-                                        Parcel is with me
+                            <label class="form-label">The Parcel is with?</label>
+                            <div class="booking-choice-options mb-4">
+                                <div class="booking-choice-option">
+                                    <input class="form-check-input booking-choice-input" type="radio" name="parcel_status" id="parcelWithMe" value="with_me">
+                                    <label class="booking-choice-card" for="parcelWithMe">
+                                        <i class="ti ti-user"></i>
+                                        <span>Me</span>
                                     </label>
                                 </div>
-                                <div class="form-check radio_check">
-                                    <input class="form-check-input" type="radio" name="parcel_status" id="parcelWithSomeone" value="with_someone" checked>
-                                    <label class="form-label" for="parcelWithSomeone">
-                                        Parcel is with someone else
+                                <div class="booking-choice-option">
+                                    <input class="form-check-input booking-choice-input" type="radio" name="parcel_status" id="parcelWithSomeone" value="with_someone" checked>
+                                    <label class="booking-choice-card" for="parcelWithSomeone">
+                                        <i class="ti ti-users"></i>
+                                        <span>Someone else</span>
                                     </label>
                                 </div>
                             </div>
@@ -237,27 +239,30 @@
                                 </div>
 
                                 <div class="col-lg-6 mb-3">
-                                    <label class="form-label">Post Code *</label>
-                                    <input name="agent_postcode" id="agentPostcode" type="text" class="required form-control border border-primary mb-3" />
+                                    <label class="form-label">Post Code (optional)</label>
+                                    <input name="agent_postcode" id="agentPostcode" type="text" class="form-control border border-primary mb-3" />
                                 </div>
                             </div>
                         </fieldset>
 
-                        <h3> <i class="ti ti-user-circle fs-5"></i> Receiver Details </h3>
+                        <h3> <i class="ti ti-user-circle fs-4"></i> Receiver Details </h3>
                         <fieldset>
-                            <h4 class="card-title mb-4"> The Receiver is the person <b class="!tw-text-[#f36b24]"> whose parcel is being sent</b>.</h4>
+                            <h4 class="card-title mb-4 bookspace_title"> The Receiver is the person <b class="!tw-text-[#f36b24]"> whose parcel is being sent</b>.</h4>
 
-                            <div class="radio_buttons mb-3">
-                                <div class="form-check radio_check">
-                                    <input class="form-check-input" type="radio" name="receiver_status" id="receiverIsMe" value="me">
-                                    <label class="form-label" for="receiverIsMe">
-                                        I am the receiver
+                            <label class="form-label">Who is receiving the parcel? *</label>
+                            <div class="booking-choice-options mb-4">
+                                <div class="booking-choice-option">
+                                    <input class="form-check-input booking-choice-input" type="radio" name="receiver_status" id="receiverIsMe" value="me">
+                                    <label class="booking-choice-card" for="receiverIsMe">
+                                        <i class="ti ti-user"></i>
+                                        <span>Me</span>
                                     </label>
                                 </div>
-                                <div class="form-check radio_check">
-                                    <input class="form-check-input" type="radio" name="receiver_status" id="receiverIsSomeoneElse" value="someone_else" checked>
-                                    <label class="form-label" for="receiverIsSomeoneElse">
-                                        Someone else
+                                <div class="booking-choice-option">
+                                    <input class="form-check-input booking-choice-input" type="radio" name="receiver_status" id="receiverIsSomeoneElse" value="someone_else" checked>
+                                    <label class="booking-choice-card" for="receiverIsSomeoneElse">
+                                        <i class="ti ti-users"></i>
+                                        <span>Someone else</span>
                                     </label>
                                 </div>
                             </div>
@@ -290,16 +295,16 @@
                                 </div>
 
                                 <div class="col-lg-6 mb-3">
-                                    <label class="form-label">Post Code *</label>
-                                    <input name="receiver_postcode" id="receiverPostcode" type="text" class="required form-control border border-primary mb-3" />
+                                    <label class="form-label">Post Code (optional)</label>
+                                    <input name="receiver_postcode" id="receiverPostcode" type="text" class="form-control border border-primary mb-3" />
                                 </div>
                             </div>
 
                         </fieldset>
 
-                        <h3> <i class="ti ti-shield-check fs-5"></i> Parcel Guarantee </h3>
+                        <h3> <i class="ti ti-shield-check fs-4"></i> Parcel Guarantee </h3>
                         <fieldset>
-                            <h4 class="card-title mb-4">Parcel protection <b class="!tw-text-[#f36b24]">(Optional)</b></h4>
+                            <h4 class="card-title mb-4 bookspace_title">Parcel protection <b class="!tw-text-[#f36b24]">(Optional)</b></h4>
 
                             <div class="col-lg-6 mb-3">
                                 <?php
@@ -332,7 +337,7 @@
 
                         <h3> <i class="ti ti-cash fs-5"></i> Summary </h3>
                         <fieldset>
-                            <h4 class="card-title mb-5"> Payment Summary</h4>
+                            <h4 class="card-title mb-4 bookspace_title"> Payment Summary</h4>
                             <div class="text-center">
 
                                 <!-- <div class="card !tw-bg-[#020713]">
@@ -363,27 +368,27 @@
                                         <h6 class="card-text text-white text-center fw-bolder ">
                                             <i class="ti ti-alert-circle"></i> Important!!
                                         </h6>
-                                        <p class="text-white text-center">Please drop your items off with the traveller by your regions last drop-off date. There will be no refund or transfer of service to another traveller.</p>
+                                        <p class="text-white text-center fs-3">Please drop your items off with the traveller by your regions last drop-off date. There will be no refund or transfer of service to another traveller.</p>
                                         <p class="text-white text-center">Payment must be made with a bank card bearing the same name as the one on your profile.</p>
                                     </div>
                                 </div>
 
                                 <p class="mt-2 mb-3">Select payment method and click "finish" to continue to payments </p>
 
-                                <div class="d-flex justify-content-center gap-3">
-                                    <div class="mb-4 radio_buttons">
+                                <div class="booking-payment-options">
+                                    <div class="mb-4 radio_buttons booking-payment-option">
                                         <div class="form-check radio_check">
-                                            <input class="form-check-input" type="radio" name="payment_method" id="paystack" value="paystack" checked>
-                                            <label class="form-check-label d-flex align-items-center gap-2" for="paystack">
+                                            <input class="form-check-input booking-payment-input" type="radio" name="payment_method" id="paystack" value="paystack" checked>
+                                            <label class="form-check-label booking-payment-card" for="paystack">
                                                 <img src="<?php echo base_url('assets/general/paystack.svg'); ?>" alt="Paystack" width="100" height="20">
                                             </label>
                                         </div>
                                     </div>
 
-                                    <div class="mb-4 radio_buttons">
+                                    <div class="mb-4 radio_buttons booking-payment-option">
                                         <div class="form-check radio_check">
-                                            <input class="form-check-input" type="radio" name="payment_method" id="stripe" value="stripe">
-                                            <label class="form-check-label d-flex align-items-center gap-2" for="stripe">
+                                            <input class="form-check-input booking-payment-input" type="radio" name="payment_method" id="stripe" value="stripe">
+                                            <label class="form-check-label booking-payment-card" for="stripe">
                                                 <img src="<?php echo base_url('assets/general/stripe.svg'); ?>" alt="Stripe" width="100" height="20">
                                             </label>
                                         </div>
@@ -435,7 +440,7 @@
 
                     <div class="mb-3">
                         <p class="fw-bolder fs-3 text-center">Available Space</p>
-                        <div class="fs-6 fw-bolder text-black text-center" id="availableSpace"><?= $traveller_details->available_space ?>KG</div>
+                        <div class="fs-6 fw-bolder text-black text-center available_space" id="availableSpace" space="<?= $traveller_details->available_space ?>"><?= $traveller_details->available_space ?>KG</div>
                     </div>
 
                     <hr>
@@ -515,7 +520,6 @@
         <div class="btn_reserve_fixed text-center d-lg-none">
             <a href="javascript:void(0)" id="sign-in" class="btn btn-primary full-width"> View Summary </a>
         </div>
-
 
     </div>
 </div>

@@ -28,7 +28,6 @@ function autoLoadPageHelpers() {
 		let img = $(this)[0].hasAttribute("target-img") ? $(this).attr("target-img") : false;
 
 		if (!input || !img) {
-			console.log("Can't find target image or target input");
 			return;
 		}
 		$(this).click(function () {

@@ -15,8 +15,7 @@ function monitorImageChange(inputId, imageId) {
 					image.classList.add("img-changed");
 					image.src = e.target.result;
 				} else {
-					// Not an image file, do something (e.g., display an error message)
-					console.log("Selected file is not an image.");
+					return;
 				}
 			};
 
@@ -277,7 +276,6 @@ function submitFormAjax(form) {
 					progressBar: true,
 					timeOut: 5000,
 				});
-				console.log("<p>An error occurred: " + error + "</p>");
 			},
 		});
 	}
@@ -476,70 +474,6 @@ function hideFormLoader() {
 	}
 }
 
-// form validation with wizard
-// $(".form-wizard-ajax").each(function () {
-// 	let advanced_form = $(this).show();
-
-// 	advanced_form
-// 		.steps({
-// 			headerTag: "h3",
-// 			bodyTag: "fieldset",
-// 			transitionEffect: "slideLeft",
-// 			onStepChanging: function (event, currentIndex, newIndex) {
-// 				// Allways allow previous action even if the current form is not valid!
-// 				if (currentIndex > newIndex) {
-// 					return true;
-// 				}
-// 				// Forbid next action on "Warning" step if the user is to young
-// 				if (newIndex === 3 && Number($("#age-2").val()) < 18) {
-// 					return false;
-// 				}
-// 				// Needed in some cases if the user went back (clean up)
-// 				if (currentIndex < newIndex) {
-// 					// To remove error styles
-// 					advanced_form.find(".body:eq(" + newIndex + ") label.error").remove();
-// 					advanced_form
-// 						.find(".body:eq(" + newIndex + ") .error")
-// 						.removeClass("error");
-// 				}
-// 				advanced_form.validate().settings.ignore = ":disabled,:hidden";
-// 				return advanced_form.valid();
-// 			},
-// 			onStepChanged: function (event, currentIndex, priorIndex) {
-// 				// Used to skip the "Warning" step if the user is old enough.
-// 				if (currentIndex === 2 && Number($("#age-2").val()) >= 18) {
-// 					advanced_form.steps("next");
-// 				}
-// 				// Used to skip the "Warning" step if the user is old enough and wants to the previous step.
-// 				if (currentIndex === 2 && priorIndex === 3) {
-// 					advanced_form.steps("previous");
-// 				}
-// 				autoLoadPageHelpers();
-// 			},
-// 			onFinishing: function (event, currentIndex) {
-// 				advanced_form.validate().settings.ignore = ":disabled";
-// 				return advanced_form.valid();
-// 			},
-// 			onFinished: function (event, currentIndex) {
-// 				// console.log("Submitted!", event.target, event);
-// 				submitFormAjax(event.target);
-// 			},
-// 			onInit: function (event, currentIndex) {
-// 				autoLoadPageHelpers();
-// 			},
-// 		})
-// 		.validate({
-// 			errorPlacement: function errorPlacement(error, element) {
-// 				element.before(error);
-// 			},
-// 			rules: {
-// 				confirm: {
-// 					equalTo: "#password-2",
-// 				},
-// 			},
-// 		});
-// });
-
 $(".form-wizard-ajax").each(function () {
 	let advanced_form = $(this).show();
 	ensureFormHasCsrfInput(this);
@@ -578,12 +512,6 @@ $(".form-wizard-ajax").each(function () {
 				}
 				// === END: CUSTOM VALIDATION FOR BOOKING FORM ===
 
-
-				// Forbid next action on "Warning" step if the user is to young
-				if (newIndex === 3 && Number($("#age-2").val()) < 18) {
-					return false;
-				}
-
 				// Needed in some cases if the user went back (clean up)
 				if (currentIndex < newIndex) {
 					// To remove error styles
@@ -596,14 +524,6 @@ $(".form-wizard-ajax").each(function () {
 				return advanced_form.valid();
 			},
 			onStepChanged: function (event, currentIndex, priorIndex) {
-				// Used to skip the "Warning" step if the user is old enough.
-				if (currentIndex === 2 && Number($("#age-2").val()) >= 18) {
-					advanced_form.steps("next");
-				}
-				// Used to skip the "Warning" step if the user is old enough and wants to the previous step.
-				if (currentIndex === 2 && priorIndex === 3) {
-					advanced_form.steps("previous");
-				}
 				autoLoadPageHelpers();
 			},
 // 			onFinishing: function (event, currentIndex) {
@@ -632,7 +552,6 @@ $(".form-wizard-ajax").each(function () {
 				return advanced_form.valid();
 			},
 			onFinished: function (event, currentIndex) {
-				// console.log("Submitted!", event.target, event);
 				submitFormAjax(event.target);
 			},
 			onInit: function (event, currentIndex) {
@@ -641,7 +560,22 @@ $(".form-wizard-ajax").each(function () {
 		})
 		.validate({
 			errorPlacement: function errorPlacement(error, element) {
+				if (advanced_form.hasClass("booking-wizard-form")) {
+					return;
+				}
 				element.before(error);
+			},
+			highlight: function (element, errorClass) {
+				$(element).addClass(errorClass);
+				if (advanced_form.hasClass("booking-wizard-form")) {
+					$(element).next(".nice-select").addClass(errorClass);
+				}
+			},
+			unhighlight: function (element, errorClass) {
+				$(element).removeClass(errorClass);
+				if (advanced_form.hasClass("booking-wizard-form")) {
+					$(element).next(".nice-select").removeClass(errorClass);
+				}
 			},
 			rules: {
 				confirm: {
