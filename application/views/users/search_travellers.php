@@ -15,36 +15,32 @@
 
     <?php else: ?>
 
-        <div class="card">
-            <div class="card-header text-bg-primary">
-                <h4 class="mb-0 text-white">Search for Travellers</h4>
-            </div>
-            <div class="card-body">
+        <div class="traveller-search-panel overflow-hidden">
+            <div class="card-body p-4">
+                <h4 class="mb-2 text-white">Search for Travellers</h4>
+                <p class="text-white mb-5 fs-3">
+                    Find available travellers for your route and choose who will carry your parcel.
+                </p>
 
                 <?php $form_attributes = array("id" => "search_form");
                 echo form_open('user_bookings/search', $form_attributes); ?>
 
-                <div class="row">
-                    <div class="col-lg-6 col-sm-12">
-                        <div class="input-group mt-2 mb-2">
-                            <select class="form-select required" name="destination" id="select_destination" required>
-                                <option value="">Where is your parcel going?</option>
-                                <?php foreach (countries() as $country): ?>
-                                    <option value="<?php echo $country; ?>" <?php echo set_select('destination', $country); ?>>
-                                        <?php echo $country; ?>
-                                    </option>
-                                <?php endforeach; ?>
+                <div class="traveller-search-box">
+                    <select class="form-select required traveller-search-select" name="destination" id="select_destination" required>
+                        <option value="">Where is your parcel going?</option>
+                        <?php foreach (countries() as $country): ?>
+                            <option value="<?php echo $country; ?>" <?php echo set_select('destination', $country); ?>>
+                                <?php echo $country; ?>
+                            </option>
+                        <?php endforeach; ?>
 
-                            </select>
-                            <button class="btn btn-rounded btn-primary justify-content-center" type="submit">
-                                Search
-                            </button>
-                        </div>
-                    </div>
+                    </select>
+                    <button class="btn btn-primary traveller-search-submit" type="submit">
+                        Search
+                    </button>
                 </div>
 
                 <?php echo form_close(); ?>
-
             </div>
         </div>
 
@@ -58,44 +54,15 @@
             </div>
 
             <p class="text-center">
-                Searching database....
+                Finding available travellers....
             </p>
         </div>
     </div>
 
-    <div class="card">
-
-        <div class="table-responsive" id="search-results">
-            <table class="table text-nowrap mb-0 d-none" id="section-1">
-                <thead>
-                    <tr>
-                        <th scope="col"> <i class="ti ti-calendar fs-5"></i> Date</th>
-                        <th scope="col"> <i class="ti ti-clock fs-5"></i> Time Left</th>
-                        <th scope="col"> <i class="ti ti-calendar fs-5"></i>Drop Off Date</th>
-                        <th scope="col"> <i class="ti ti-map fs-5"></i> Current Location</th>
-                        <th scope="col"> <i class="ti ti-plane-departure fs-5"></i> Departure Airport </th>
-                        <th scope="col"> <i class="ti ti-weight fs-5"></i> Available Space</th>
-                        <th scope="col"> </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td> ${response.travel_date} </td>
-                        <td> ${response.days_remaining} </td>
-                        <td> ${traveller.drop_off_date} </td>
-                        <td> ${response.current_state} </td>
-                        <td> ${response.departure_state} </td>
-                        <td> ${response.available_space} KG </td>
-                        <td>
-                            <a href="${base_url}buy-bag-space/${response.id}" class="btn btn-primary" type="submit">
-                                Buy Space <i class='ti ti-arrow-up-right-circle fs-5'></i>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="card search-results-card">
+        <div class="card-body">
+            <div id="search-results" aria-live="polite"></div>
         </div>
-
     </div>
 
     <!-- Verify ID modal -->

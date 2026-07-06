@@ -151,12 +151,12 @@ class User_bookings extends MY_Controller
         $this->form_validation->set_rules('agent_email', 'agent email', 'trim|valid_email|required', array('required' => 'Please enter agent number', 'valid_email' => 'Please enter a valid email'));
         $this->form_validation->set_rules('agent_address', 'agent Address', 'trim|required', array('required' => 'Please enter agent address'));
         $this->form_validation->set_rules('agent_locality', 'agent Local', 'trim|required', array('required' => 'Please enter agent locale'));
-        $this->form_validation->set_rules('agent_postcode', 'agent Postcode', 'trim', array('required' => 'Please enter agent postcode'));
+        $this->form_validation->set_rules('agent_postcode', 'agent Postcode', 'trim');
         $this->form_validation->set_rules('receiver_phone', 'receiver Mobile', 'trim|required', array('required' => 'Please enter receiver number'));
         $this->form_validation->set_rules('receiver_email', 'receiver email', 'trim|valid_email|required', array('required' => 'Please enter receiver number', 'valid_email' => 'Please enter a valid email'));
         $this->form_validation->set_rules('receiver_address', 'receiver Address', 'trim|required', array('required' => 'Please enter receiver address'));
         $this->form_validation->set_rules('receiver_locality', 'receiver Local', 'trim|required', array('required' => 'Please enter receiver locale'));
-        $this->form_validation->set_rules('receiver_postcode', 'receiver Postcode', 'trim', array('required' => 'Please enter receiver postcode'));
+        $this->form_validation->set_rules('receiver_postcode', 'receiver Postcode', 'trim');
         $this->form_validation->set_rules('payment_method', 'Payment Method', 'trim|required|in_list[stripe,paystack]', array('required' => 'Please select a payment method', 'in_list' => 'Invalid payment method selected.'));
 
         $payment_method = $this->input->post('payment_method');

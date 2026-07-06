@@ -6,6 +6,143 @@ jQuery(document).ready(function ($) {
   let totalKg = 0;
   let totalSpecialCharge = 0; // Initialize a variable to store the total special charge
 
+  function getBookingStepTitle(stepLink) {
+    let titleClone = stepLink.clone();
+    titleClone.find('.number, i, .current-info, .audible').remove();
+    return titleClone
+      .text()
+      .replace(/current step:\s*/i, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function updateBookingStepTitle(form) {
+    let currentStep = form.children('.steps').find('li.current a').first();
+    let titleTarget = form.children('.booking-current-step-title');
+
+    if (!currentStep.length || !titleTarget.length) {
+      return;
+    }
+
+    titleTarget.text(getBookingStepTitle(currentStep));
+  }
+
+  function syncBookingStepperState(form) {
+    let currentItem = form.children('.steps').find('li.current').first();
+    let currentIndex = currentItem.index();
+
+    if (currentIndex < 0) {
+      return;
+    }
+
+    form.children('.steps').find('li').each(function (index) {
+      $(this)
+        .toggleClass('booking-step-past', index < currentIndex)
+        .toggleClass('booking-step-future', index > currentIndex);
+    });
+  }
+
+  function markBookingStepTransition(form) {
+    clearTimeout(form.data('booking-step-transition-timeout'));
+    form.addClass('booking-step-transitioning');
+    form.data(
+      'booking-step-transition-timeout',
+      setTimeout(function () {
+        form.removeClass('booking-step-transitioning');
+      }, 420)
+    );
+  }
+
+  function initBookingStepper(attempt) {
+    let form = $('#booking_form.booking-wizard-form');
+    let steps = form.children('.steps');
+    let currentAttempt = attempt || 0;
+
+    if (!form.length) {
+      return;
+    }
+
+    if (!steps.length) {
+      if (currentAttempt < 10) {
+        setTimeout(function () {
+          initBookingStepper(currentAttempt + 1);
+        }, 50);
+      }
+      return;
+    }
+
+    syncBookingStepperState(form);
+
+    if (!form.children('.booking-current-step-title').length) {
+      steps.after('<div class="booking-current-step-title" aria-live="polite"></div>');
+    }
+
+    updateBookingStepTitle(form);
+
+    form
+      .off('click.bookingStepper')
+      .on('click.bookingStepper', '.steps a, .actions a', function () {
+        setTimeout(function () {
+          markBookingStepTransition(form);
+          syncBookingStepperState(form);
+          updateBookingStepTitle(form);
+        }, 80);
+      });
+
+    if (window.MutationObserver && !form.data('booking-stepper-observer')) {
+      let observer = new MutationObserver(function () {
+        markBookingStepTransition(form);
+        syncBookingStepperState(form);
+        updateBookingStepTitle(form);
+      });
+
+      steps.find('li').each(function () {
+        observer.observe(this, {
+          attributes: true,
+          attributeFilter: ['class'],
+        });
+      });
+
+      form.data('booking-stepper-observer', observer);
+    }
+  }
+
+  function showMobileItemAddedFeedback(itemName) {
+    if (!window.matchMedia('(max-width: 991px)').matches) {
+      return;
+    }
+
+    let feedback = $('#booking-mobile-added-feedback');
+    let summaryButton = $('#sign-in');
+
+    if (!feedback.length) {
+      feedback = $(
+        '<div id="booking-mobile-added-feedback" class="booking-mobile-added-feedback" aria-live="polite"></div>'
+      );
+      $('body').append(feedback);
+    }
+
+    feedback.html(
+      `<i class="ti ti-check"></i> ${itemName ? itemName : 'Item'} added. Tap View Summary to review.`
+    );
+    feedback.removeClass('is-visible');
+    summaryButton.removeClass('booking-summary-pulse');
+
+    window.requestAnimationFrame(function () {
+      feedback.addClass('is-visible');
+      summaryButton.addClass('booking-summary-pulse');
+    });
+
+    clearTimeout(feedback.data('hide-timeout'));
+    feedback.data(
+      'hide-timeout',
+      setTimeout(function () {
+        feedback.removeClass('is-visible');
+        summaryButton.removeClass('booking-summary-pulse');
+      }, 4600)
+    );
+  }
+
   function updateCategoryAdvisory() {
     const selectedCategory = $('#select1').val();
     const advisory = $('#category-advisory');
@@ -120,6 +257,7 @@ jQuery(document).ready(function ($) {
   // --- END NEW LOGIC ---
 
   // NOTE: Calling updateBooking() once immediately to fix initial currency display
+  initBookingStepper();
   syncPaymentMethod();
   updateBooking();
   updateitems();
@@ -175,10 +313,9 @@ jQuery(document).ready(function ($) {
         }
         // Error message function
         function showError(error, element) {
+          element.addClass('error');
           if (element.is('select:hidden')) {
-            element.next('.nice-select').after(error);
-          } else {
-            element.after(error);
+            element.next('.nice-select').addClass('error');
           }
         }
 
@@ -218,6 +355,7 @@ jQuery(document).ready(function ($) {
             );
           } else {
             $("span[for='select1']").remove();
+            $('#select1').removeClass('error').next('.nice-select').removeClass('error');
           }
 
           if (itemName.trim() == '') {
@@ -227,6 +365,7 @@ jQuery(document).ready(function ($) {
             );
           } else {
             $("span[for='#item-name']").remove();
+            $('#item-name').removeClass('error');
           }
 
           if (!parseInt(size)) {
@@ -236,10 +375,13 @@ jQuery(document).ready(function ($) {
             );
           } else {
             $("span[for='select2']").remove();
+            $('#select2').removeClass('error').next('.nice-select').removeClass('error');
           }
           return;
         } else {
           $('#item-options').find('span.text_danger').remove();
+          $('#select1, #item-name, #select2').removeClass('error');
+          $('#select1, #select2').next('.nice-select').removeClass('error');
         }
 
         // Calculate the kg based on the selected size
@@ -271,6 +413,7 @@ jQuery(document).ready(function ($) {
 
         // Add the new item element to the list
         document.getElementById('item-list').appendChild(newItem);
+        showMobileItemAddedFeedback(itemName);
 
         // Add an event listener to the delete icon of the new item element
         newItem.querySelector('.delete').addEventListener('click', function () {
@@ -302,7 +445,16 @@ jQuery(document).ready(function ($) {
         document.getElementById('special-charge-value').textContent =
           getSpecialCharge().toFixed(2); // Update special charge value
       })
-      .catch((error) => console.error('Error:', error));
+      .catch(() => {
+        toastr.error(
+          'We could not confirm the available bag space. Please try again.',
+          'Booking Error',
+          {
+            progressBar: true,
+            timeOut: 5000,
+          }
+        );
+      });
     return;
   });
 
@@ -319,7 +471,7 @@ jQuery(document).ready(function ($) {
   //For text to display while typing
   const receiverInput = document.getElementById('receiverName');
   const agentInput = document.getElementById('agentName');
-  const receiveraddressInput = document.getElementById('receiveraddress');
+  const receiverAddressInput = document.getElementById('receiverAddress');
   const agentaddressInput = document.getElementById('agentAddress');
 
   const receiverValue = document.getElementById('receiverNameValue');
@@ -330,7 +482,7 @@ jQuery(document).ready(function ($) {
   if (
     receiverInput &&
     agentInput &&
-    receiveraddressInput &&
+    receiverAddressInput &&
     agentaddressInput
   ) {
     receiverInput.addEventListener('input', (event) => {
@@ -339,10 +491,9 @@ jQuery(document).ready(function ($) {
 
     agentInput.addEventListener('input', (event) => {
       agentValue.textContent = event.target.value;
-      console.log('Agent Name:', event.target.value); // Debugging line
     });
 
-    receiveraddressInput.addEventListener('input', (event) => {
+    receiverAddressInput.addEventListener('input', (event) => {
       receiverAddressValue.textContent = event.target.value;
     });
 
@@ -453,10 +604,12 @@ jQuery(document).ready(function ($) {
 
   $('input.form-control').change(function () {
     $(this).siblings('span.error').css('display', 'none');
+    $(this).removeClass('error');
   });
 
   $('select').change(function () {
     $(this).siblings('span.error').css('display', 'none');
+    $(this).removeClass('error').next('.nice-select').removeClass('error');
   });
 
   function activateSelect() {
@@ -468,7 +621,6 @@ jQuery(document).ready(function ($) {
           .children('.option')
           .click(function () {
             selectedVal = $(this).attr('data-value').trim();
-            console.log(selectedVal);
             $(this)
               .parents('div.nice-select')
               .siblings('select')
@@ -517,7 +669,6 @@ function openCamera(input, img) {
   let img_count = $(`#${img}`).length;
 
   if (!input_count || !img_count) {
-    console.log('No input or image element');
     return;
   } else {
     captureModal.attr('target-img', img);
@@ -535,9 +686,7 @@ function openCamera(input, img) {
         imagePreview.style.display = 'none';
         captureModal.modal('show');
       })
-      .catch((error) => {
-        console.log('Error accessing webcam:', error);
-      });
+      .catch(() => {});
   }
 }
 
@@ -586,9 +735,7 @@ function toggleCamera() {
       .then((stream) => {
         videoPreview.srcObject = stream;
       })
-      .catch((error) => {
-        console.log('Error accessing webcam:', error);
-      });
+      .catch(() => {});
 
     selfieParagraph.textContent = 'Close camera';
     videoContainer.style.display = 'block';
@@ -672,7 +819,7 @@ function monitorImageChange(inputId, imageId) {
           image.src = e.target.result;
         } else {
           // Not an image file, do something (e.g., display an error message)
-          console.log('Selected file is not an image.');
+          return;
         }
       };
 
