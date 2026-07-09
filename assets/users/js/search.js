@@ -124,7 +124,7 @@ jQuery(document).ready(function ($) {
         var action = buildTravellerAction(traveller);
         var finalDestination = traveller.destination_area
             ? compactJoin(
-                  [traveller.arrival_state, traveller.destination_area],
+                  [traveller.destination_area, traveller.arrival_state],
                   ', '
               )
             : traveller.arrival_state;
