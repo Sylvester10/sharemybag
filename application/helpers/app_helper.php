@@ -968,6 +968,7 @@ function country_to_code($country_name)
 		'United States' => 'us',
 		'United Kingdom' => 'gb',
 		'Nigeria' => 'ng',
+		'Canada' => 'ca',
 		'France' => 'fr',
 		'Germany' => 'de',
 		// Add other country mappings...
