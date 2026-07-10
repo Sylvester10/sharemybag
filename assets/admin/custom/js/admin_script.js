@@ -17,6 +17,51 @@ jQuery(document).ready(function ($) {
         $('input[type="hidden"][name="q2r_secure"]').val(newHash);
     }
 
+    if ($.fn.dataTable && $.fn.dataTable.ext) {
+        $.fn.dataTable.ext.errMode = 'none';
+    }
+
+    function getDataTableAjaxErrorMessage(xhr) {
+        var responseText = xhr && xhr.responseText ? xhr.responseText : '';
+
+        if (
+            xhr &&
+            (xhr.status === 403 ||
+                responseText.indexOf('The action you have requested is not allowed.') !== -1)
+        ) {
+            return 'Your session token expired. Refresh this page and try again.';
+        }
+
+        if (xhr && xhr.status === 401) {
+            return 'Your admin session expired. Sign in again to continue.';
+        }
+
+        if (xhr && xhr.status >= 500) {
+            return 'The server could not load this table. Please try again.';
+        }
+
+        return 'This table could not load right now. Please try again.';
+    }
+
+    function showDataTableAjaxError(selector, message) {
+        var table = $(selector);
+        var shell = table.closest('.admin-table-shell');
+        var target = shell.length ? shell : table;
+        var alertId = table.attr('id') + '_ajax_error';
+        var alert = $('#' + alertId);
+
+        if (!alert.length) {
+            alert = $(
+                '<div id="' +
+                    alertId +
+                    '" class="alert alert-danger admin-table-ajax-error" role="alert"></div>'
+            );
+            target.before(alert);
+        }
+
+        alert.text(message).stop(true, true).fadeIn('fast');
+    }
+
     $(document).on('click', 'a.smb-file-preview', function (e) {
         e.preventDefault();
 
@@ -30,6 +75,39 @@ jQuery(document).ready(function ($) {
         $('#filePreviewModalLabel').text(previewTitle);
         $('#filePreviewModalImage').attr('src', previewSrc);
         $('#filePreviewModal').modal('show');
+    });
+
+    function setAdminVerificationLoading(element) {
+        var target = $(element);
+        var loadingText = target.data('loading-text') || 'Please wait...';
+
+        if (target.data('loading')) {
+            return false;
+        }
+
+        target.data('loading', true);
+        target.data('original-html', target.html());
+        target
+            .addClass('disabled')
+            .attr('aria-disabled', 'true')
+            .prop('disabled', true)
+            .html('<i class="las la-spinner la-spin"></i> &nbsp; ' + loadingText);
+
+        return true;
+    }
+
+    $(document).on('click', 'a.admin-verification-action', function (e) {
+        if (!setAdminVerificationLoading(this)) {
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('submit', 'form.admin-verification-form', function () {
+        var submitButton = $(this).find('.admin-verification-submit');
+
+        if (submitButton.length) {
+            setAdminVerificationLoading(submitButton);
+        }
     });
 
     $('#filePreviewModal').on('hidden.bs.modal', function () {
@@ -122,8 +200,9 @@ jQuery(document).ready(function ($) {
             autoWidth: false,
             ordering: true,
             stateSave: false, // CHANGED: Set to false to prevent filter caching issues
-            processing: false,
+            processing: true,
             serverSide: true,
+            searchDelay: 500,
             pagingType: 'simple_numbers',
             dom: "<'dt_len_change'l>f<'dt_buttons'B>trip",
             language: {
@@ -149,7 +228,14 @@ jQuery(document).ready(function ($) {
                         updateCsrfHash(json.csrf_hash);
                     }
 
+                    $(selector + '_ajax_error').fadeOut('fast');
                     return json && json.data ? json.data : [];
+                },
+                error: function (xhr) {
+                    showDataTableAjaxError(
+                        selector,
+                        getDataTableAjaxErrorMessage(xhr)
+                    );
                 },
             },
             columnDefs: [{ targets: [0, 1], orderable: false }],

@@ -32,7 +32,7 @@ class Kyc extends MY_Controller
 
     public function verify_ajax()
     {
-        if ($this->users_model->is_profile_complete($this->user_details->id)) {
+        if ($this->users_model->is_profile_incomplete($this->user_details->id)) {
             echo json_encode([
                 'status' => false,
                 'msg' => 'Complete your profile before verifying your identity.',
@@ -166,7 +166,7 @@ class Kyc extends MY_Controller
         return [
             'id_photo' => [
                 'title' => 'ID Upload Error',
-                'step' => 0,
+                'step' => 1,
                 'extensions' => ['jpg', 'jpeg', 'png'],
                 'mime_types' => ['image/jpeg', 'image/jpg', 'image/png'],
                 'type_message' => 'Upload your ID card as a JPG or PNG image.',
@@ -174,7 +174,7 @@ class Kyc extends MY_Controller
             ],
             'utility' => [
                 'title' => 'Proof of Address Error',
-                'step' => $is_nigeria ? 1 : 0,
+                'step' => $is_nigeria ? 2 : 1,
                 'extensions' => ['jpg', 'jpeg', 'png', 'pdf'],
                 'mime_types' => ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
                 'type_message' => 'Upload your proof of address as a JPG, PNG, or PDF file.',
@@ -182,7 +182,7 @@ class Kyc extends MY_Controller
             ],
             'selfie' => [
                 'title' => 'Selfie Upload Error',
-                'step' => $is_nigeria ? 3 : 2,
+                'step' => $is_nigeria ? 4 : 3,
                 'extensions' => ['jpg', 'jpeg', 'png'],
                 'mime_types' => ['image/jpeg', 'image/jpg', 'image/png'],
                 'type_message' => 'Upload your selfie as a JPG or PNG image.',
@@ -211,11 +211,11 @@ class Kyc extends MY_Controller
         $is_nigeria = $this->is_nigeria_kyc();
 
         if (form_error('id_type')) {
-            return ['error_fields' => ['id_type'], 'error_steps' => [0]];
+            return ['error_fields' => ['id_type'], 'error_steps' => [1]];
         }
 
         if (form_error('platform')) {
-            return ['error_fields' => ['platform'], 'error_steps' => [$is_nigeria ? 2 : 1]];
+            return ['error_fields' => ['platform'], 'error_steps' => [$is_nigeria ? 3 : 2]];
         }
 
         return [];
@@ -228,7 +228,7 @@ class Kyc extends MY_Controller
 
     private function enforce_complete_profile()
     {
-        if ($this->users_model->is_profile_complete($this->user_details->id)) {
+        if ($this->users_model->is_profile_incomplete($this->user_details->id)) {
             $this->session->set_flashdata('status_msg_error', 'Complete your profile before verifying your identity.');
             redirect(base_url('profile'));
         }

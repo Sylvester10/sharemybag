@@ -94,7 +94,7 @@ class Approved_users_model_ajax extends CI_Model
 			$verify_action = null;
 		} elseif ($y->is_verified == VERIFY_PENDING) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-check" style="color: green"></i> &nbsp; Verify Account </a></p>';
+			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable admin-verification-action" data-loading-text="Verifying..."> <i class="las la-check" style="color: green"></i> &nbsp; Verify Account </a></p>';
 		} elseif ($y->is_verified == VERIFY_APPROVED) {
 
 			$verify_action = $this->unverify_action_button($id);
@@ -202,7 +202,7 @@ class Approved_users_model_ajax extends CI_Model
 							</div>
 							<h4 class="modal-title">Un-verify: ' . html_escape($y->firstname) . '</h4>
 						</div>
-						'. form_open('admin_users/unverify_user/' . $id) .'
+							'. form_open('admin_users/unverify_user/' . $id, 'class="admin-verification-form"') .'
 						<div class="modal-body admin-parcel-modal__body">
 							<div class="admin-parcel-modal__grid">
 								<div class="admin-parcel-field">
@@ -216,7 +216,7 @@ class Approved_users_model_ajax extends CI_Model
 							</div>
 						</div>
 						<div class="modal-footer admin-parcel-modal__footer">
-							<button type="submit" class="btn btn-danger"> Send Feedback </button>
+								<button type="submit" class="btn btn-danger admin-verification-submit" data-loading-text="Sending feedback..."> Send Feedback </button>
 						</div>
 						' . form_close() . '
 					</div>

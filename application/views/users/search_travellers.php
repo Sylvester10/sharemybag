@@ -78,7 +78,7 @@
                     <?php
                     if ($is_verified == VERIFY_NONE) { ?>
 
-                        <?php if ($is_profile_complete) { ?>
+                        <?php if ($is_profile_incomplete) { ?>
                             <div class="!tw-flex !tw-justify-center mt-2">
                                 <i class="ti ti-user fs-13"></i>
                             </div>

@@ -744,19 +744,21 @@ class Users_model extends MY_Model
     }
 
 
-    public function is_profile_complete($id)
+    public function is_profile_incomplete($id)
     {
         $user_details = $this->user_read_model->get_user_details_by_id($id);
 
-        // Check if any of the fields are null or empty
-        $is_user_complete = (
-            $user_details->number == '' ||
-            $user_details->address == '' ||
-            $user_details->state == '' ||
-            $user_details->post_code == ''
+        return (
+            empty($user_details->number) ||
+            empty($user_details->address) ||
+            empty($user_details->state) ||
+            empty($user_details->post_code)
         );
+    }
 
-        return $is_user_complete;
+    public function is_profile_complete($id)
+    {
+        return !$this->is_profile_incomplete($id);
     }
 
 

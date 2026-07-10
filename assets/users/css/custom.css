@@ -131,6 +131,364 @@ img.img-changed ~ .inside_button {
     height: auto !important;
     border-radius: 1rem;
 }
+
+.kyc-verification-page {
+    padding-bottom: 30px;
+}
+
+.kyc-page-header {
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e9edf3;
+    border-radius: 12px;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding: 24px;
+}
+
+.kyc-eyebrow {
+    color: #f36b24;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.kyc-page-title {
+    color: #020713;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.kyc-page-copy {
+    color: #6c7483;
+    margin-bottom: 0;
+    max-width: 720px;
+}
+
+.kyc-page-meta {
+    align-items: center;
+    background: rgba(243, 107, 36, 0.1);
+    border: 1px solid rgba(243, 107, 36, 0.2);
+    border-radius: 999px;
+    color: #020713;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 13px;
+    font-weight: 700;
+    gap: 8px;
+    padding: 10px 14px;
+}
+
+.kyc-page-meta i {
+    color: #f36b24;
+    font-size: 20px;
+}
+
+
+.kyc-form-card {
+    border: 1px solid #e9edf3;
+    border-radius: 12px;
+    box-shadow: 0 14px 34px rgba(2, 7, 19, 0.05);
+}
+
+.kyc-guide-card {
+    position: sticky;
+    top: 90px;
+}
+
+.kyc-guide-panel {
+    box-shadow: none;
+    padding: 8px 0;
+    position: static;
+}
+
+.kyc-guide-icon,
+.kyc-step-icon {
+    align-items: center;
+    background: #020713;
+    border-radius: 12px;
+    color: #ffffff;
+    display: inline-flex;
+    flex: 0 0 46px;
+    font-size: 24px;
+    height: 46px;
+    justify-content: center;
+    width: 46px;
+}
+
+.kyc-guide-icon {
+    margin-bottom: 18px;
+}
+
+.kyc-guide-list {
+    display: grid;
+    gap: 12px;
+}
+
+.kyc-guide-item {
+    align-items: flex-start;
+    color: #020713;
+    display: flex;
+    font-size: 14px;
+    gap: 10px;
+    line-height: 1.45;
+}
+
+.kyc-guide-item i {
+    color: #f36b24;
+    flex: 0 0 auto;
+    font-size: 19px;
+    margin-top: 1px;
+}
+
+.kyc-note {
+    align-items: flex-start;
+    background: #f8fafc;
+    border: 1px solid #edf1f5;
+    border-radius: 10px;
+    color: #6c7483;
+    display: flex;
+    font-size: 13px;
+    gap: 10px;
+    line-height: 1.45;
+    margin-top: 22px;
+    padding: 14px;
+}
+
+.kyc-note i {
+    color: #f36b24;
+    font-size: 18px;
+    margin-top: 1px;
+}
+
+.kyc-form-intro {
+    align-items: flex-start;
+    display: flex;
+    gap: 18px;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.kyc-country-badge {
+    background: #020713;
+    border-radius: 999px;
+    color: #ffffff;
+    flex: 0 0 auto;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 13px;
+}
+
+.kyc-wizard-form.wizard {
+    overflow: visible;
+}
+
+.kyc-wizard-form.wizard > .steps {
+    margin-bottom: 26px;
+}
+
+.kyc-wizard-form.wizard > .steps > ul {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.kyc-wizard-form.wizard > .steps > ul > li {
+    flex: 1 1 0;
+    float: none;
+    width: auto;
+}
+
+.kyc-wizard-form.wizard > .steps a,
+.kyc-wizard-form.wizard > .steps a:hover,
+.kyc-wizard-form.wizard > .steps a:active {
+    background: #dce3ea !important;
+    border-radius: 999px;
+    color: transparent !important;
+    display: block;
+    font-size: 0;
+    height: 5px;
+    margin: 0 !important;
+    overflow: hidden;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+.kyc-wizard-form.wizard > .steps .current a,
+.kyc-wizard-form.wizard > .steps > ul > li.kyc-step-past a {
+    background: #f36b24 !important;
+}
+
+.kyc-wizard-form.wizard > .steps > ul > li.kyc-step-future a {
+    background: #dce3ea !important;
+}
+
+.kyc-wizard-form.wizard > .steps .wizard-step-error a {
+    background: #d20913 !important;
+}
+
+.kyc-wizard-form.wizard > .content {
+    background: #ffffff;
+    border: 1px solid #edf1f5;
+    border-radius: 12px;
+    margin: 0;
+    overflow: visible;
+}
+
+.kyc-wizard-form.wizard > .content > .body {
+    padding: 26px;
+}
+
+.kyc-step-heading {
+    align-items: flex-start;
+    display: flex;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.kyc-step-heading h5 {
+    color: #020713;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.kyc-step-heading p {
+    color: #6c7483;
+    margin-bottom: 0;
+}
+
+.kyc-upload-card {
+    background: #f8fafc;
+    border: 1px solid #edf1f5;
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.kyc-image-preview {
+    background: #ffffff;
+    border: 1px dashed #dce3ea;
+    border-radius: 10px;
+}
+
+.kyc-file-hint {
+    align-items: center;
+    color: #6c7483;
+    display: flex;
+    font-size: 13px;
+    gap: 8px;
+}
+
+.kyc-file-hint i {
+    color: #f36b24;
+    font-size: 18px;
+}
+
+.kyc-selfie-button {
+    align-items: center;
+    display: inline-flex !important;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 0 !important;
+}
+
+.kyc-wizard-form .form-control.error,
+.kyc-wizard-form .form-select.error {
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='9' stroke='%23D20913' stroke-width='2'/%3E%3Cpath d='M12 10.5V16' stroke='%23D20913' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M12 7.5H12.01' stroke='%23D20913' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+    background-position: right 14px center !important;
+    background-repeat: no-repeat !important;
+    background-size: 18px 18px !important;
+    background-color: #ffffff !important;
+    border-color: #d20913 !important;
+    box-shadow: 0 0 0 1px rgba(210, 9, 19, 0.18) !important;
+    color: #020713 !important;
+    padding-right: 42px !important;
+}
+
+.kyc-wizard-form label.error {
+    display: none !important;
+}
+
+.kyc-wizard-form.wizard > .actions {
+    margin-top: 22px;
+}
+
+.kyc-wizard-form.wizard > .actions a,
+.kyc-wizard-form.wizard > .actions a:hover,
+.kyc-wizard-form.wizard > .actions a:active {
+    background: #f36b24;
+    border-radius: 7px;
+    color: #ffffff;
+    font-weight: 500;
+    min-width: 120px;
+    padding: 11px 22px;
+    text-align: center;
+}
+
+.kyc-wizard-form.wizard > .actions a[href="#previous"],
+.kyc-wizard-form.wizard > .actions a[href="#previous"]:hover,
+.kyc-wizard-form.wizard > .actions a[href="#previous"]:active {
+    background: #020713;
+}
+
+.kyc-wizard-form.wizard > .actions .disabled a,
+.kyc-wizard-form.wizard > .actions .disabled a:hover {
+    background: #dce3ea;
+    color: #6c7483;
+}
+
+@media (max-width: 991px) {
+    .kyc-guide-card {
+        position: static;
+    }
+}
+
+@media (max-width: 576px) {
+    .kyc-page-header,
+    .kyc-form-intro {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .kyc-page-header {
+        padding: 20px;
+    }
+
+    .kyc-wizard-form.wizard > .content > .body {
+        padding: 20px;
+    }
+
+    .kyc-step-heading {
+        flex-direction: column;
+    }
+
+    .kyc-wizard-form.wizard > .actions,
+    .kyc-wizard-form.wizard > .actions > ul {
+        width: 100%;
+    }
+
+    .kyc-wizard-form.wizard > .actions > ul {
+        display: flex;
+        gap: 10px;
+    }
+
+    .kyc-wizard-form.wizard > .actions > ul > li {
+        flex: 1 1 0;
+        float: none;
+        margin: 0;
+    }
+
+    .kyc-wizard-form.wizard > .actions a,
+    .kyc-wizard-form.wizard > .actions a:hover,
+    .kyc-wizard-form.wizard > .actions a:active {
+        min-width: 0;
+        width: 100%;
+    }
+}
 /* verification end */
 
 /* restrictions start */

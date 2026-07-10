@@ -91,7 +91,7 @@ class Admin_users_model_ajax extends CI_Model
 
 		} elseif ($y->is_verified == VERIFY_PENDING) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-check" style="color: green"></i> &nbsp; Verify Account </a></p>
+			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable admin-verification-action" data-loading-text="Verifying..."> <i class="las la-check" style="color: green"></i> &nbsp; Verify Account </a></p>
 
 			' . $this->unverify_action_button($id);
 
@@ -203,7 +203,7 @@ class Admin_users_model_ajax extends CI_Model
 						<h4 class="modal-title">Un-verify: ' . html_escape($y->firstname) . '</h4>
 					</div>
 					<div class="modal-body">'
-						. form_open('admin_users/unverify_user/' . $id) .
+						. form_open('admin_users/unverify_user/' . $id, 'class="admin-verification-form"') .
 						'<div class="form-group">
 							<label>Reason *</label>
 							<select name="rejection_reason" class="form-control" required>' . $reason_options . '</select>
@@ -213,7 +213,7 @@ class Admin_users_model_ajax extends CI_Model
 							<textarea name="rejection_note" class="form-control" rows="4" maxlength="500" placeholder="Optional extra guidance for the user."></textarea>
 						</div>
 						<div style="margin-top: 20px;">
-							<button type="submit" class="btn btn-danger">Send Feedback and Reopen Verification</button>
+							<button type="submit" class="btn btn-danger admin-verification-submit" data-loading-text="Sending feedback...">Send Feedback and Reopen Verification</button>
 						</div>'
 						. form_close() .
 					'</div>

@@ -38,15 +38,15 @@
 		<?php if ($is_verified == VERIFY_NONE) { ?>
 
 			<?php
-			if ($user_details) { ?>
+			if ($is_profile_incomplete) { ?>
 
 				<div class="col-lg-12">
 					<div class="card !tw-bg-[#020713] overflow-hidden">
 						<div class="card-body">
 							<div class="row justify-content-between">
 								<div class="col-sm-9">
-									<h5 class="text-white">Complete Your Profile </h5>
-									<p class="card-subtitle">Please update your profile details to proceed with identity verification.</p>
+									<h5 class="text-white mb-1">Complete Your Profile </h5>
+									<p class="card-subtitle">Complete your profile details to proceed with identity verification.</p>
 									<div class="ms-auto">
 										<a class="btn btn-primary mb-4 mt-3" href="<?php echo base_url('profile'); ?>">
 											Complete Profile
@@ -73,8 +73,8 @@
 						<div class="card-body">
 							<div class="row justify-content-between">
 								<div class="col-sm-9">
-									<h5 class="text-white">Initiate ID Verification </h5>
-									<p class="card-subtitle">Your profile is complete. Click continue to begin the verification process.</p>
+									<h5 class="text-white mb-1">ID Verification Required</h5>
+									<p class="card-subtitle">Click continue to begin the verification process.</p>
 									<div class="ms-auto">
 										<a class="btn btn-primary mb-4 mt-3" href="<?php echo base_url('kyc'); ?>">
 											Begin Verification
@@ -103,7 +103,7 @@
 					<div class="card-body">
 						<div class="row justify-content-between">
 							<div class="col-sm-9">
-								<h5 class="text-white">Verification Under Review </h5>
+								<h5 class="text-white mb-1">Verification Under Review </h5>
 								<p class="card-subtitle">Your documents have been submitted and are currently being reviewed. <br> For faster processing, contact us via WhatsApp using the icon below.</p>
 							</div>
 							<div class="col-sm-3">
@@ -143,10 +143,10 @@
 			</div>
 		</div> -->
 
-		<div class="col-lg-12">
+		<div class="col-lg-12 mb-3">
 			<div class="row justify-content-between align-items-center">
 				<div class="col-sm-8">
-					<h5 class="fw-semibold fs-7">Hello, <?= $firstname ?> 👋 </h5>
+					<h5 class="fw-semibold fs-7 mb-1">Hello, <?= $firstname ?> 👋 </h5>
 					<p class="opacity-75"><?= $random_quotes; ?></p>
 				</div>
 			</div>
