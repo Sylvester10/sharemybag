@@ -107,6 +107,82 @@ jQuery(document).ready(function ($) {
     }
   }
 
+  function syncKycStepperState(form) {
+    let currentItem = form.children('.steps').find('li.current').first();
+    let currentIndex = currentItem.index();
+
+    if (currentIndex < 0) {
+      return;
+    }
+
+    form.children('.steps').find('li').each(function (index) {
+      $(this)
+        .toggleClass('kyc-step-past', index < currentIndex)
+        .toggleClass('kyc-step-future', index > currentIndex);
+    });
+  }
+
+  function syncKycActionLabels(form) {
+    let currentIndex = form.children('.steps').find('li.current').first().index();
+    let nextAction = form.children('.actions').find('a[href="#next"]');
+    let finishAction = form.children('.actions').find('a[href="#finish"]');
+
+    if (nextAction.length) {
+      nextAction.text(currentIndex === 0 ? 'Continue' : 'Next');
+    }
+
+    if (finishAction.length) {
+      finishAction.text('Submit');
+    }
+  }
+
+  function initKycStepper(attempt) {
+    let form = $('.kyc-wizard-form');
+    let steps = form.children('.steps');
+    let currentAttempt = attempt || 0;
+
+    if (!form.length) {
+      return;
+    }
+
+    if (!steps.length) {
+      if (currentAttempt < 10) {
+        setTimeout(function () {
+          initKycStepper(currentAttempt + 1);
+        }, 50);
+      }
+      return;
+    }
+
+    syncKycStepperState(form);
+    syncKycActionLabels(form);
+
+    form
+      .off('click.kycStepper')
+      .on('click.kycStepper', '.steps a, .actions a', function () {
+        setTimeout(function () {
+          syncKycStepperState(form);
+          syncKycActionLabels(form);
+        }, 80);
+      });
+
+    if (window.MutationObserver && !form.data('kyc-stepper-observer')) {
+      let observer = new MutationObserver(function () {
+        syncKycStepperState(form);
+        syncKycActionLabels(form);
+      });
+
+      steps.find('li').each(function () {
+        observer.observe(this, {
+          attributes: true,
+          attributeFilter: ['class'],
+        });
+      });
+
+      form.data('kyc-stepper-observer', observer);
+    }
+  }
+
   function showMobileItemAddedFeedback(itemName) {
     if (!window.matchMedia('(max-width: 991px)').matches) {
       return;
@@ -258,6 +334,7 @@ jQuery(document).ready(function ($) {
 
   // NOTE: Calling updateBooking() once immediately to fix initial currency display
   initBookingStepper();
+  initKycStepper();
   syncPaymentMethod();
   updateBooking();
   updateitems();
@@ -524,6 +601,7 @@ jQuery(document).ready(function ($) {
         let image = $(`#${$('#capture-video').attr('target-img')}`)[0];
 
         captureImage(input, image);
+        $('#capture-video').modal('hide');
       })
     : '';
 
@@ -649,11 +727,28 @@ jQuery(document).ready(function ($) {
     });
 
   $('.reset_img_input').click(function () {
-    inputRef = $(this).siblings('img').attr('id');
-    targetInput = $('input[holder = "' + inputRef + '"]');
-    targetInput.val('');
-    changeEvent = new Event('change');
-    targetInput[0].dispatchEvent(changeEvent);
+    const image = $(this).siblings('img');
+    const inputRef = image.attr('id');
+    const targetInput = $('input[holder="' + inputRef + '"]');
+
+    if (!targetInput.length) {
+      return;
+    }
+
+    targetInput.val('').removeClass('input-image-blob error');
+
+    const inputEl = targetInput[0];
+    if (inputEl.type === 'hidden') {
+      const originalSrc = image.data('original-src') || image.attr('src');
+      image.attr('src', originalSrc).removeClass('img-changed');
+      $('.take-selfie[target-input="' + inputEl.id + '"]')
+        .removeClass('kyc-selfie-retake')
+        .html('<i class="ti ti-camera"></i><span>Take Selfie</span>');
+      return;
+    }
+
+    const changeEvent = new Event('change');
+    inputEl.dispatchEvent(changeEvent);
   });
 
   autoLoadPageHelpers();
@@ -757,11 +852,13 @@ function toggleCamera() {
 // Function to capture the image from the webcam
 function captureImage(input = null, image = null) {
   const videoPreview = document.getElementById('video-preview');
+  const modalPreview = document.getElementById('image-preview');
   const imagePreview = image ?? document.getElementById('selfie_holder');
-  const imagePreview2 = document.getElementById('image-preview');
-  const imagePreview3 = image ?? document.getElementById('selfie_holder2');
   const inputEl = input ?? document.getElementById('image-input');
-  const inputEl2 = input ?? document.getElementById('image-input2');
+
+  if (!videoPreview || !imagePreview || !inputEl || !videoPreview.videoWidth) {
+    return;
+  }
 
   // Create a canvas element
   const canvas = document.createElement('canvas');
@@ -773,32 +870,55 @@ function captureImage(input = null, image = null) {
   // Convert the canvas image to a data URL
   const imageDataURL = canvas.toDataURL();
   inputEl.value = imageDataURL;
-  inputEl2.value = imageDataURL;
 
   inputEl.classList.add('input-image-blob');
-  inputEl2.classList.add('input-image-blob');
 
   // Display the captured image in the preview box
+  if (!$(imagePreview).data('original-src')) {
+    $(imagePreview).data('original-src', imagePreview.src);
+  }
   imagePreview.src = imageDataURL;
-  imagePreview2.src = imageDataURL;
-  imagePreview3.src = imageDataURL;
+  imagePreview.classList.add('img-changed');
+
+  if (modalPreview) {
+    modalPreview.src = imageDataURL;
+    modalPreview.style.display = 'block';
+  }
+
+  $('.take-selfie[target-input="' + inputEl.id + '"]')
+    .addClass('kyc-selfie-retake')
+    .html('<i class="ti ti-camera-rotate"></i><span>Retake Selfie</span>');
 
   // Hide the video preview
   videoPreview.style.display = 'none';
-  imagePreview2.style.display = 'block';
-  imagePreview3.style.display = 'block';
 }
 
 // Function to retake the picture
 function retakePicture() {
+  const captureModal = $('#capture-video');
   const videoPreview = document.getElementById('video-preview');
   const imagePreview = document.getElementById('image-preview');
 
-  // Show the video preview
-  videoPreview.style.display = 'block';
+  if (!videoPreview || !navigator.mediaDevices) {
+    return;
+  }
 
-  // Hide the image preview
-  imagePreview.style.display = 'none';
+  if (videoPreview.srcObject) {
+    videoPreview.srcObject.getTracks().forEach((track) => track.stop());
+    videoPreview.srcObject = null;
+  }
+
+  navigator.mediaDevices
+    .getUserMedia({ video: true })
+    .then((stream) => {
+      videoPreview.srcObject = stream;
+      videoPreview.style.display = 'block';
+      if (imagePreview) {
+        imagePreview.style.display = 'none';
+      }
+      captureModal.modal('show');
+    })
+    .catch(() => {});
 }
 
 // Monitor Image Changes on and input and image element

@@ -27,7 +27,7 @@ class User_bookings extends MY_Controller
         $data['is_verified'] = $this->user_details->is_verified;
         $data['account_status'] = $this->user_details->account_status;
         $data['user_details'] = $this->user_details;
-        $data['is_profile_complete'] = $this->users_model->is_profile_complete($id);
+        $data['is_profile_incomplete'] = $this->users_model->is_profile_incomplete($id);
         $this->load->view('users/search_travellers', $data);
         $this->dashboard_footer();
     }

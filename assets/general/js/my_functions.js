@@ -560,7 +560,10 @@ $(".form-wizard-ajax").each(function () {
 		})
 		.validate({
 			errorPlacement: function errorPlacement(error, element) {
-				if (advanced_form.hasClass("booking-wizard-form")) {
+				if (
+					advanced_form.hasClass("booking-wizard-form") ||
+					advanced_form.hasClass("kyc-wizard-form")
+				) {
 					return;
 				}
 				element.before(error);

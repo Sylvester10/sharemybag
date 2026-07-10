@@ -25,7 +25,7 @@ class Dashboard extends MY_Controller
         $data['firstname'] = $this->user_details->firstname;
         $data['account_status'] = $this->user_details->account_status;
         $data['is_verified'] = $this->user_details->is_verified;
-        $data['user_details'] = $this->users_model->is_profile_complete($id);
+        $data['is_profile_incomplete'] = $this->users_model->is_profile_incomplete($id);
         $data['approved_travellers'] = $this->traveller_read_model->count_active_approved_travellers();
         $data['total_bookings'] = $this->booking_read_model->count_bookings_by_user_id($id);
         $this->load->view('users/dashboard', $data);
@@ -35,7 +35,7 @@ class Dashboard extends MY_Controller
 
     public function kyc()
     {
-        if ($this->users_model->is_profile_complete($this->user_details->id)) {
+        if ($this->users_model->is_profile_incomplete($this->user_details->id)) {
             $this->session->set_flashdata('status_msg_error', 'Complete your profile before verifying your identity.');
             redirect(base_url('profile'));
         }
@@ -44,6 +44,7 @@ class Dashboard extends MY_Controller
         $data['firstname'] = $this->user_details->firstname;
         $data['account_status'] = $this->user_details->account_status;
         $data['has_uploaded'] = $this->user_details->has_uploaded;
+        $data['user_details'] = $this->user_details;
         $this->load->view('users/kyc', $data);
         $this->dashboard_footer();
     }

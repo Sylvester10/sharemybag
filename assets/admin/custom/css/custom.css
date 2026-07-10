@@ -189,9 +189,7 @@ body [class*=" la"] {
 }
 
 .modal .modal-title {
-  /* color: #111827; */
-  font-size: 21px;
-  font-weight: 700;
+  font-size: 17px;
 }
 
 .modal .close {
