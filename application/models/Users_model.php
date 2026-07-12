@@ -77,7 +77,10 @@ class Users_model extends MY_Model
         $username = strtolower($firstname) . $ref_num;
 
         $email = trim($this->input->post('email', TRUE));
-        $number = $this->input->post('country_code', TRUE) . $this->input->post('phone', TRUE);
+        $number = normalize_phone_number(
+            $this->input->post('country_code', TRUE),
+            $this->input->post('phone', TRUE)
+        );
         $referral_link = base_url('travellers/?refer=' . $username);
 
         // SECURITY: Explicitly define ONLY the fields you want users to submit.
@@ -290,7 +293,10 @@ class Users_model extends MY_Model
             'state'     => $this->input->post('state', TRUE),
             'post_code' => $this->input->post('post_code', TRUE),
             'address'   => $this->input->post('address', TRUE),
-            'number'    => $this->input->post('number', TRUE),
+            'number'    => normalize_phone_number(
+                $this->input->post('country_code', TRUE),
+                $this->input->post('number', TRUE)
+            ),
         );
 
         $this->db->where('id', $id);
@@ -376,7 +382,10 @@ class Users_model extends MY_Model
 
             // ── Agent details ──
             'agent_name'      => $this->input->post('agent_name', TRUE),
-            'agent_phone'     => $this->input->post('agent_phone', TRUE),
+            'agent_phone'     => normalize_phone_number(
+                $this->input->post('agent_country_code', TRUE),
+                $this->input->post('agent_phone', TRUE)
+            ),
             'agent_email'     => $this->input->post('agent_email', TRUE),
             'agent_address'   => $this->input->post('agent_address', TRUE),
             'agent_locality'  => $this->input->post('agent_locality', TRUE),
@@ -384,7 +393,10 @@ class Users_model extends MY_Model
 
             // ── Receiver details ──
             'receiver_name'      => $this->input->post('receiver_name', TRUE),
-            'receiver_phone'     => $this->input->post('receiver_phone', TRUE),
+            'receiver_phone'     => normalize_phone_number(
+                $this->input->post('receiver_country_code', TRUE),
+                $this->input->post('receiver_phone', TRUE)
+            ),
             'receiver_email'     => $this->input->post('receiver_email', TRUE),
             'receiver_address'   => $this->input->post('receiver_address', TRUE),
             'receiver_locality'  => $this->input->post('receiver_locality', TRUE),
@@ -568,7 +580,10 @@ class Users_model extends MY_Model
             // Agent Details
             'agent_name' => $this->input->post('agent_name'),
             'agent_email' => $this->input->post('agent_email'),
-            'agent_phone' => $this->input->post('agent_phone'),
+            'agent_phone' => normalize_phone_number(
+                $this->input->post('agent_country_code', TRUE),
+                $this->input->post('agent_phone', TRUE)
+            ),
             'agent_address' => $this->input->post('agent_address'),
             'agent_locality' => $this->input->post('agent_locality'),
             'agent_postcode' => $this->input->post('agent_postcode'),
@@ -576,7 +591,10 @@ class Users_model extends MY_Model
             // Receiver Details
             'receiver_name' => $this->input->post('receiver_name'),
             'receiver_email' => $this->input->post('receiver_email'),
-            'receiver_phone' => $this->input->post('receiver_phone'),
+            'receiver_phone' => normalize_phone_number(
+                $this->input->post('receiver_country_code', TRUE),
+                $this->input->post('receiver_phone', TRUE)
+            ),
             'receiver_address' => $this->input->post('receiver_address'),
             'receiver_locality' => $this->input->post('receiver_locality'),
             'receiver_postcode' => $this->input->post('receiver_postcode'),

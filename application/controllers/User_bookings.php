@@ -147,11 +147,13 @@ class User_bookings extends MY_Controller
         // Form validation for booking details
         $this->form_validation->set_rules('insurance', 'Insurance', 'trim');
         $this->form_validation->set_rules('need_help', 'Need Help', 'trim');
+        $this->form_validation->set_rules('agent_country_code', 'agent country code', 'trim|required', array('required' => 'Please select agent country code'));
         $this->form_validation->set_rules('agent_phone', 'agent mobile', 'trim|required', array('required' => 'Please enter agent number'));
         $this->form_validation->set_rules('agent_email', 'agent email', 'trim|valid_email|required', array('required' => 'Please enter agent number', 'valid_email' => 'Please enter a valid email'));
         $this->form_validation->set_rules('agent_address', 'agent Address', 'trim|required', array('required' => 'Please enter agent address'));
         $this->form_validation->set_rules('agent_locality', 'agent Local', 'trim|required', array('required' => 'Please enter agent locale'));
         $this->form_validation->set_rules('agent_postcode', 'agent Postcode', 'trim');
+        $this->form_validation->set_rules('receiver_country_code', 'receiver country code', 'trim|required', array('required' => 'Please select receiver country code'));
         $this->form_validation->set_rules('receiver_phone', 'receiver Mobile', 'trim|required', array('required' => 'Please enter receiver number'));
         $this->form_validation->set_rules('receiver_email', 'receiver email', 'trim|valid_email|required', array('required' => 'Please enter receiver number', 'valid_email' => 'Please enter a valid email'));
         $this->form_validation->set_rules('receiver_address', 'receiver Address', 'trim|required', array('required' => 'Please enter receiver address'));

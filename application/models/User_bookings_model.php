@@ -63,7 +63,10 @@ class User_bookings_model extends MY_Model
 
             // Agent details
             'agent_name'      => $this->input->post('agent_name', TRUE),
-            'agent_phone'     => $this->input->post('agent_country_code', TRUE) . $this->input->post('agent_phone', TRUE),
+	            'agent_phone'     => normalize_phone_number(
+	                $this->input->post('agent_country_code', TRUE),
+	                $this->input->post('agent_phone', TRUE)
+	            ),
             'agent_email'     => $this->input->post('agent_email', TRUE),
             'agent_address'   => $this->input->post('agent_address', TRUE),
             'agent_locality'  => $this->input->post('agent_locality', TRUE),
@@ -71,7 +74,10 @@ class User_bookings_model extends MY_Model
 
             // Receiver details
             'receiver_name'      => $this->input->post('receiver_name', TRUE),
-            'receiver_phone'     => $this->input->post('receiver_country_code', TRUE) . $this->input->post('receiver_phone', TRUE),
+	            'receiver_phone'     => normalize_phone_number(
+	                $this->input->post('receiver_country_code', TRUE),
+	                $this->input->post('receiver_phone', TRUE)
+	            ),
             'receiver_email'     => $this->input->post('receiver_email', TRUE),
             'receiver_address'   => $this->input->post('receiver_address', TRUE),
             'receiver_locality'  => $this->input->post('receiver_locality', TRUE),

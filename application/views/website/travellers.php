@@ -276,33 +276,30 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Contact Number </label>
-                                        <div class="input-group">
-                                            <div class=" p-0">
-                                                <select id="country_code" class="nice-select form-control bg-transparent" name="c_code1">
-                                                    <option value="+1" data-flag="cf-16 cf-ca ms-1">+1 </option>
-                                                    <option value="+234" data-flag="cf-16 cf-ng ms-1">+234 </option>
-                                                    <option value="+44" data-flag="cf-16 cf-gb ms-1">+44 </option>
-                                                </select>
-                                            </div>
-                                            <input class="form-control" type="tel" name="phone" placeholder="8011140017" required maxlength="10" pattern="\d{10}" title="Enter a valid 10-digit phone number">
-                                        </div>
-                                    </div>
+                                    <?php $this->load->view('partials/phone_input', array(
+                                        'wrapper_class' => 'col-12 col-md-6',
+                                        'field_name' => 'phone',
+                                        'country_code_name' => 'c_code1',
+                                        'country_code_id' => 'country_code',
+                                        'input_id' => 'traveller_phone',
+                                        'country_code' => set_value('c_code1', '+44'),
+                                        'local_number' => set_value('phone'),
+                                        'label' => 'Contact Number',
+                                        'placeholder' => '7911123456',
+                                        'required' => true,
+                                    )); ?>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Alternative Number (optional) </label>
-                                        <div class="input-group">
-                                            <div class=" p-0">
-                                                <select id="country_code2" class="nice-select form-control bg-transparent" name="c_code2">
-                                                    <option value="+1" data-flag="cf-16 cf-ca ms-1">+1 </option>
-                                                    <option value="+234" data-flag="cf-16 cf-ng ms-1">+234 </option>
-                                                    <option value="+44" data-flag="cf-16 cf-gb ms-1">+44 </option>
-                                                </select>
-                                            </div>
-                                            <input class="form-control" type="tel" name="alt_phone" placeholder="8011140017" maxlength="10" pattern="\d{10}" title="Enter a valid 10-digit phone number">
-                                        </div>
-                                    </div>
+                                    <?php $this->load->view('partials/phone_input', array(
+                                        'wrapper_class' => 'col-12 col-md-6',
+                                        'field_name' => 'alt_phone',
+                                        'country_code_name' => 'c_code2',
+                                        'country_code_id' => 'country_code2',
+                                        'input_id' => 'traveller_alt_phone',
+                                        'country_code' => set_value('c_code2', '+44'),
+                                        'local_number' => set_value('alt_phone'),
+                                        'label' => 'Alternative Number (optional)',
+                                        'placeholder' => '7911123456',
+                                    )); ?>
 
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Upload Itinerary <small>(The itinerary should show the traveller's full name)</small></label>

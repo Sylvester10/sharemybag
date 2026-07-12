@@ -22,12 +22,12 @@ class Travellers_model extends \MY_Model
 		$c_code1 = $this->input->post('c_code1', TRUE);
 		$number1 = $this->input->post('phone', TRUE);
 
-		$phone = $c_code1 . "" . $number1;
+		$phone = normalize_phone_number($c_code1, $number1);
 
 		$c_code2 = $this->input->post('c_code2', TRUE);
 		$number2 = $this->input->post('alt_phone', TRUE);
 
-		$alt_phone = $c_code2 . "" . $number2;
+		$alt_phone = normalize_phone_number($c_code2, $number2);
 
 		$email = $this->input->post('email', TRUE);
 		$travel_date = $this->input->post('travel_date', TRUE);
@@ -102,8 +102,8 @@ class Travellers_model extends \MY_Model
 		$was_approved_traveller = $existing_traveller && traveller_status_normalize($existing_traveller->status) === traveller_status_normalize('Approved');
 
 		$data['fullname'] = ucwords($this->input->post('fullname', TRUE));
-		$data['phone'] = $this->input->post('phone', TRUE);
-		$data['alt_phone'] = $this->input->post('alt_phone', TRUE);
+		$data['phone'] = normalize_phone_number($this->input->post('c_code1', TRUE), $this->input->post('phone', TRUE));
+		$data['alt_phone'] = normalize_phone_number($this->input->post('c_code2', TRUE), $this->input->post('alt_phone', TRUE));
 		$data['email'] = $this->input->post('email', TRUE);
 		$data['location'] = $this->input->post('location', TRUE);
 		$data['current_state'] = $this->input->post('current_state', TRUE);
@@ -191,8 +191,8 @@ class Travellers_model extends \MY_Model
 	public function recycle_traveller($id, $itinerary_photo, $thumbnail)
 	{
 		$data['fullname'] = ucwords($this->input->post('fullname', TRUE));
-		$data['phone'] = $this->input->post('phone', TRUE);
-		$data['alt_phone'] = $this->input->post('alt_phone', TRUE);
+		$data['phone'] = normalize_phone_number($this->input->post('c_code1', TRUE), $this->input->post('phone', TRUE));
+		$data['alt_phone'] = normalize_phone_number($this->input->post('c_code2', TRUE), $this->input->post('alt_phone', TRUE));
 		$data['email'] = $this->input->post('email', TRUE);
 		$data['location'] = $this->input->post('location', TRUE);
 		$data['current_state'] = $this->input->post('current_state', TRUE);

@@ -85,10 +85,13 @@
                             <input type="hidden" name="currency" value="<?= $currency ?>" class="form-control" />
                         </div>
 
+                        <?php $user_phone_parts = split_phone_number($user_details->number); ?>
                         <div id="user-details"
                             data-name="<?= htmlspecialchars($user_details->firstname . ' ' . $user_details->lastname) ?>"
                             data-email="<?= htmlspecialchars($user_details->email) ?>"
                             data-phone="<?= htmlspecialchars($user_details->number) ?>"
+                            data-phone-country-code="<?= htmlspecialchars($user_phone_parts['country_code']) ?>"
+                            data-phone-local-number="<?= htmlspecialchars($user_phone_parts['local_number']) ?>"
                             data-address="<?= htmlspecialchars($user_details->address) ?>"
                             data-city="<?= htmlspecialchars($user_details->state) ?>"
                             data-postcode="<?= htmlspecialchars($user_details->post_code) ?>">
@@ -218,10 +221,20 @@
                                     <input name="agent_email" id="agentEmail" type="email" class="required email form-control border border-primary mb-3" />
                                 </div>
 
-                                <div class="col-lg-6">
-                                    <label class="form-label">Phone number *</label>
-                                    <input name="agent_phone" id="agentPhone" type="tel" class="required form-control border border-primary mb-3" placeholder="+44936285197" />
-                                </div>
+                                <?php $this->load->view('partials/phone_input', array(
+                                    'wrapper_class' => 'col-lg-6 mb-3',
+                                    'field_name' => 'agent_phone',
+                                    'country_code_name' => 'agent_country_code',
+                                    'country_code_id' => 'agentCountryCode',
+                                    'input_id' => 'agentPhone',
+                                    'country_code' => set_value('agent_country_code', '+44'),
+                                    'local_number' => set_value('agent_phone'),
+                                    'label' => 'Phone number',
+                                    'placeholder' => '7911123456',
+                                    'required' => true,
+                                    'input_class' => 'required form-control border border-primary smb-phone-input__number',
+                                    'select_class' => 'form-control border border-primary smb-phone-input__country',
+                                )); ?>
                             </div>
 
                             <label class="form-label">Street address *</label>
@@ -271,10 +284,20 @@
                                     <input name="receiver_email" id="receiverEmail" type="email" class="required email form-control border border-primary mb-3" />
                                 </div>
 
-                                <div class="col-lg-6">
-                                    <label class="form-label">Phone number *</label>
-                                    <input name="receiver_phone" id="receiverPhone" type="tel" class="required form-control border border-primary mb-3" placeholder="+44936285197" />
-                                </div>
+                                <?php $this->load->view('partials/phone_input', array(
+                                    'wrapper_class' => 'col-lg-6 mb-3',
+                                    'field_name' => 'receiver_phone',
+                                    'country_code_name' => 'receiver_country_code',
+                                    'country_code_id' => 'receiverCountryCode',
+                                    'input_id' => 'receiverPhone',
+                                    'country_code' => set_value('receiver_country_code', '+44'),
+                                    'local_number' => set_value('receiver_phone'),
+                                    'label' => 'Phone number',
+                                    'placeholder' => '7911123456',
+                                    'required' => true,
+                                    'input_class' => 'required form-control border border-primary smb-phone-input__number',
+                                    'select_class' => 'form-control border border-primary smb-phone-input__country',
+                                )); ?>
                             </div>
 
                             <div class="mb-3">

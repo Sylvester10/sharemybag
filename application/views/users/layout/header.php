@@ -25,6 +25,7 @@
 	<!-- country flags -->
 	<link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/general/countryflags/dist/flat.css" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/country-flags-css@1.1.2/dist/flat.min.css">
+	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/general/css/phone-input.css?v=<?php echo filemtime(FCPATH . 'assets/general/css/phone-input.css'); ?>" />
 
 	<!-- Swiper -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />

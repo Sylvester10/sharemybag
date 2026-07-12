@@ -24,19 +24,32 @@ echo form_open_multipart('admin_travellers/add_traveller_ajax', 'id="submit_butt
 		</div>
 
 		<div class="form-group">
-			<label class="form-control-label">Mobile No*</label>
-			<br />
-			<input type="text" name="phone" value="<?php echo set_value('phone'); ?>" class="form-control numbers-only"
-				required />
-			<div class="form-error"><?php echo form_error('phone'); ?></div>
+			<?php $this->load->view('partials/phone_input', array(
+				'wrapper_class' => '',
+				'field_name' => 'phone',
+				'country_code_name' => 'c_code1',
+				'country_code_id' => 'travellerCountryCode',
+				'input_id' => 'travellerPhone',
+				'country_code' => set_value('c_code1', '+44'),
+				'local_number' => set_value('phone'),
+				'label' => 'Mobile No',
+				'required' => true,
+			)); ?>
+			<div class="form-error"><?php echo form_error('c_code1'); ?><?php echo form_error('phone'); ?></div>
 		</div>
 
 		<div class="form-group">
-			<label class="form-control-label">Alternate Mobile No*</label>
-			<br />
-			<input type="text" name="alt_phone" value="<?php echo set_value('alt_phone'); ?>"
-				class="form-control numbers-only" />
-			<div class="form-error"><?php echo form_error('alt_phone'); ?></div>
+			<?php $this->load->view('partials/phone_input', array(
+				'wrapper_class' => '',
+				'field_name' => 'alt_phone',
+				'country_code_name' => 'c_code2',
+				'country_code_id' => 'travellerAltCountryCode',
+				'input_id' => 'travellerAltPhone',
+				'country_code' => set_value('c_code2', '+44'),
+				'local_number' => set_value('alt_phone'),
+				'label' => 'Alternate Mobile No',
+			)); ?>
+			<div class="form-error"><?php echo form_error('c_code2'); ?><?php echo form_error('alt_phone'); ?></div>
 		</div>
 
 		<div class="form-group">

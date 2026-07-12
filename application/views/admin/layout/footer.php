@@ -37,6 +37,8 @@
 //require footer scripts
 require "application/views/admin/layout/includes/footer_assets.php"; ?>
 
+<script src="<?php echo base_url(); ?>assets/general/js/phone_input.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/phone_input.js'); ?>"></script>
+
 <script>
     //pass base_url to javascript
     var base_url = "<?php echo base_url(); ?>";

@@ -33,6 +33,8 @@ assets/id_cards/*
 assets/itinerary/*
 !assets/itinerary/.htaccess
 
+pet-runs
+
 # Optional local docs/helpers
 _ide_helper.php
 generate_ide_helper.php

@@ -60,6 +60,7 @@ class Dashboard extends MY_Controller
 
     public function profile_update()
     {
+        $this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
         $this->form_validation->set_rules('number', 'Phone Number', 'trim|required');
         $this->form_validation->set_rules('address', 'Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');

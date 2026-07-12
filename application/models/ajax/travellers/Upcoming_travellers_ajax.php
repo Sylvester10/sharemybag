@@ -329,11 +329,17 @@ class Upcoming_travellers_ajax extends CI_Model
                                     <br>
                                     <input type="email" name="agent_email" class="form-controls" required>
                                 </div>
-                                <div class="col-lg-6 mb-2">
-                                    <label>Phone *</label>
-                                    <br>
-                                    <input type="text" name="agent_phone" class="form-controls" required>
-                                </div>
+                                ' . render_phone_input(array(
+                                    'wrapper_class' => 'col-lg-6 mb-2',
+                                    'field_name' => 'agent_phone',
+                                    'country_code_name' => 'agent_country_code',
+                                    'country_code_id' => 'offline_agent_country_' . $traveller->id,
+                                    'input_id' => 'offline_agent_phone_' . $traveller->id,
+                                    'label' => 'Phone',
+                                    'required' => true,
+                                    'input_class' => 'form-controls smb-phone-input__number',
+                                    'select_class' => 'form-controls smb-phone-input__country',
+                                )) . '
                                 <div class="col-lg-12 mb-2">
                                     <label>Address *</label>
                                     <br>
@@ -371,10 +377,17 @@ class Upcoming_travellers_ajax extends CI_Model
                                     <label>Email *</label>
                                     <input type="email" name="receiver_email" class="form-controls" required>
                                 </div>
-                                <div class="col-md-6 mb-2">
-                                    <label>Phone *</label>
-                                    <input type="text" name="receiver_phone" class="form-controls" required>
-                                </div>
+                                ' . render_phone_input(array(
+                                    'wrapper_class' => 'col-md-6 mb-2',
+                                    'field_name' => 'receiver_phone',
+                                    'country_code_name' => 'receiver_country_code',
+                                    'country_code_id' => 'offline_receiver_country_' . $traveller->id,
+                                    'input_id' => 'offline_receiver_phone_' . $traveller->id,
+                                    'label' => 'Phone',
+                                    'required' => true,
+                                    'input_class' => 'form-controls smb-phone-input__number',
+                                    'select_class' => 'form-controls smb-phone-input__country',
+                                )) . '
                                 <div class="col-md-12 mb-2">
                                     <label>Address *</label>
                                     <br>

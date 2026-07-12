@@ -79,6 +79,7 @@ class Admin extends MY_Controller
 	public function edit_profile_ajax()
 	{
 		$this->form_validation->set_rules('name', 'Name', 'trim|required');
+		$this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
 		$this->form_validation->set_rules('phone', 'Phone', 'trim|required|is_natural');
 		if ($this->input->post('change_password')) { //if change password box is selected, require password fields
 			$this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]');
@@ -180,6 +181,7 @@ class Admin extends MY_Controller
 			'trim|required|valid_email|is_unique[admins.email]',
 			['is_unique' => 'An admin with this email already exists.']
 		);
+		$this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
 		$this->form_validation->set_rules('phone',    'Phone',    'trim|required');
 		$this->form_validation->set_rules('role',     'Role',     'trim|required|in_list[super_admin,customer_support,traveller_support]');
 		$this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]');
@@ -239,6 +241,7 @@ class Admin extends MY_Controller
 			['is_unique' => 'Another admin account is already using this email address.']
 		);
 
+		$this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
 		$this->form_validation->set_rules('phone', 'Phone', 'trim|required');
 		$this->form_validation->set_rules('role',  'Role',  'trim|required|in_list[super_admin,customer_support,traveller_support]');
 

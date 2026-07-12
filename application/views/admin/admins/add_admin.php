@@ -27,9 +27,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Phone Number <span class="text-danger">*</span></label>
-                    <input type="text" name="phone" class="form-control"
-                        placeholder="e.g. +447911123456" value="<?php echo set_value('phone'); ?>" required>
+                    <?php $this->load->view('partials/phone_input', array(
+                        'wrapper_class' => '',
+                        'field_name' => 'phone',
+                        'country_code_name' => 'country_code',
+                        'country_code_id' => 'adminCountryCode',
+                        'input_id' => 'adminPhone',
+                        'country_code' => set_value('country_code', '+44'),
+                        'local_number' => set_value('phone'),
+                        'label' => 'Phone Number',
+                        'required' => true,
+                    )); ?>
                 </div>
 
                 <div class="form-group">

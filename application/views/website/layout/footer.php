@@ -148,9 +148,10 @@
 
 <!-- general scripts -->
 <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
+<script src="<?php echo base_url(); ?>assets/general/js/phone_input.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/phone_input.js'); ?>"></script>
 <script src="<?php echo base_url(); ?>assets/website/js/home.js"></script>
 <script src="<?php echo base_url(); ?>assets/website/js/track.js"></script>
-<script src="<?php echo base_url(); ?>assets/website/js/custom.js"></script>
+<script src="<?php echo base_url(); ?>assets/website/js/custom.js?v=<?php echo filemtime(FCPATH . 'assets/website/js/custom.js'); ?>"></script>
 
 <!-- pass base_url to js -->
 <script type="text/javascript">

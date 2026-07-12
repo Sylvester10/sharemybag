@@ -225,6 +225,7 @@ class Admin_Users extends MY_Controller
         // validation rules
         $this->form_validation->set_rules('firstname', 'First Name', 'trim|min_length[2]|max_length[500]|required');
         $this->form_validation->set_rules('lastname', 'Last Name', 'trim|min_length[2]|max_length[500]|required');
+        $this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
         $this->form_validation->set_rules('number', 'Mobile', 'trim|required');
         $this->form_validation->set_rules(
             'email',

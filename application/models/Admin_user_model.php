@@ -18,7 +18,7 @@ class Admin_user_model extends \CI_Model
 	{
 		$data['firstname'] = ucfirst($this->input->post('firstname', TRUE));
 		$data['lastname'] = ucfirst($this->input->post('lastname', TRUE));
-		$data['number'] = $this->input->post('number', TRUE);
+		$data['number'] = normalize_phone_number($this->input->post('country_code', TRUE), $this->input->post('number', TRUE));
 		$data['email'] = $this->input->post('email', TRUE);
 		$data['country'] = $this->input->post('country', TRUE);
 		$data['address'] = $this->input->post('address', TRUE);
