@@ -27,9 +27,16 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Phone Number <span class="text-danger">*</span></label>
-                    <input type="text" name="phone" class="form-control"
-                        value="<?php echo htmlspecialchars(set_value('phone', $y->phone ?? '')); ?>" required>
+                    <?php $this->load->view('partials/phone_input', array(
+                        'wrapper_class' => '',
+                        'field_name' => 'phone',
+                        'country_code_name' => 'country_code',
+                        'country_code_id' => 'adminCountryCode',
+                        'input_id' => 'adminPhone',
+                        'value' => set_value('phone', $y->phone ?? ''),
+                        'label' => 'Phone Number',
+                        'required' => true,
+                    )); ?>
                 </div>
 
                 <div class="form-group">

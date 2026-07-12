@@ -1,0 +1,72 @@
+.smb-phone-input {
+	display: flex;
+	position: relative;
+	width: 100%;
+}
+
+.smb-phone-input__country {
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+	flex: 0 0 118px;
+	max-width: 126px;
+	min-width: 108px;
+	padding-left: 12px;
+	padding-right: 22px;
+	text-align: center;
+}
+
+.smb-phone-input__number {
+	border-bottom-left-radius: 0;
+	border-top-left-radius: 0;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.smb-phone-input select,
+.smb-phone-input input {
+	height: 50px;
+	min-height: 50px;
+}
+
+.smb-phone-input .nice-select.smb-phone-input__country {
+	align-items: center;
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+	display: inline-flex;
+	float: none;
+	height: 50px;
+	line-height: 48px;
+	margin: 0;
+	padding-left: 12px;
+	width: 118px;
+}
+
+.smb-phone-input .nice-select .current,
+.smb-phone-input .nice-select .option {
+	align-items: center;
+	display: flex;
+	gap: 6px;
+}
+
+.smb-phone-select-flag {
+	display: inline-flex;
+	flex: 0 0 auto;
+}
+
+.smb-phone-input select:focus,
+.smb-phone-input input:focus {
+	border-color: #f36b24;
+	box-shadow: 0 0 0 0.15rem rgba(243, 107, 36, 0.16);
+	outline: 0;
+}
+
+@media (max-width: 480px) {
+	.smb-phone-input {
+		flex-wrap: nowrap;
+	}
+
+	.smb-phone-input__country {
+		flex-basis: 108px;
+		max-width: 118px;
+	}
+}

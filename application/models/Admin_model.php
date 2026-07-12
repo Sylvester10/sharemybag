@@ -27,7 +27,7 @@ class Admin_model extends \CI_Model
 	public function update_profile()
 	{
 		$name = ucwords($this->input->post('name', TRUE));
-		$phone = $this->input->post('phone', TRUE);
+		$phone = normalize_phone_number($this->input->post('country_code', TRUE), $this->input->post('phone', TRUE));
 		$current_password = $this->admin_details->password;
 		if ($this->input->post('password', TRUE) == '') {
 			$password = $current_password; //user does not change password, set password as old password
@@ -96,7 +96,7 @@ class Admin_model extends \CI_Model
 		$data = [
 			'name'     => ucwords(trim($this->input->post('name',  TRUE))),
 			'email'    => strtolower(trim($this->input->post('email', TRUE))),
-			'phone'    => trim($this->input->post('phone', TRUE)),
+			'phone'    => normalize_phone_number($this->input->post('country_code', TRUE), $this->input->post('phone', TRUE)),
 			'role'     => $this->input->post('role',  TRUE),
 			'password' => $password,
 		];
@@ -111,7 +111,7 @@ class Admin_model extends \CI_Model
 		$data = [
 			'name'  => ucwords(trim($this->input->post('name',  TRUE))),
 			'email' => strtolower(trim($this->input->post('email', TRUE))),
-			'phone' => trim($this->input->post('phone', TRUE)),
+			'phone' => normalize_phone_number($this->input->post('country_code', TRUE), $this->input->post('phone', TRUE)),
 			'role'  => $this->input->post('role', TRUE),
 		];
 

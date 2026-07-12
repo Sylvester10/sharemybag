@@ -25,6 +25,7 @@
     <!-- country flags -->
     <link href="<?php echo base_url(); ?>assets/general/countryflags/dist/flat.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/country-flags-css@1.1.2/dist/flat.min.css" rel="stylesheet">
+    <link href="<?php echo base_url(); ?>assets/general/css/phone-input.css?v=<?php echo filemtime(FCPATH . 'assets/general/css/phone-input.css'); ?>" rel="stylesheet">
 
     <!--custom css start-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css">
@@ -168,19 +169,18 @@
                                                 <input type="email" class="form-control" placeholder="xyz@example.com" name="email" id="email" required aria-label="email">
                                             </div>
                                         </div>
-                                        <div class="col-sm-12 mb-3">
-                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                            <div class="input-group">
-                                                <div class="">
-                                                    <select id="country_code" class="country-code" name="country_code" required>
-                                                        <option value="+1" data-flag="cf-16 cf-ca ms-1">+1 </option>
-                                                        <option value="+234" data-flag="cf-16 cf-ng ms-1">+234 </option>
-                                                        <option value="+44" data-flag="cf-16 cf-gb ms-1">+44 </option>
-                                                    </select>
-                                                </div>
-                                                <input class="form-control" type="tel" name="phone" placeholder="8011140017" required maxlength="10" pattern="\d{10}" title="Enter a valid 10-digit phone number">
-                                            </div>
-                                        </div>
+                                        <?php $this->load->view('partials/phone_input', array(
+                                            'wrapper_class' => 'col-sm-12 mb-3',
+                                            'field_name' => 'phone',
+                                            'country_code_name' => 'country_code',
+                                            'country_code_id' => 'country_code',
+                                            'input_id' => 'phone_number',
+                                            'country_code' => set_value('country_code', '+44'),
+                                            'local_number' => set_value('phone'),
+                                            'label' => 'Phone Number',
+                                            'placeholder' => '7911123456',
+                                            'required' => true,
+                                        )); ?>
                                         <div class="col-sm-12">
                                             <label for="password" class="mb-1">Country of Residence <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
@@ -265,7 +265,8 @@
 
     <!-- custom scripts -->
     <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/my_functions.js'); ?>"></script>
-    <script src="<?php echo base_url(); ?>assets/website/js/custom.js"></script>
+    <script src="<?php echo base_url(); ?>assets/general/js/phone_input.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/phone_input.js'); ?>"></script>
+    <script src="<?php echo base_url(); ?>assets/website/js/custom.js?v=<?php echo filemtime(FCPATH . 'assets/website/js/custom.js'); ?>"></script>
     <script src="<?php echo base_url(); ?>assets/website/js/home.js?v=<?php echo filemtime(FCPATH . 'assets/website/js/home.js'); ?>"></script>
 
     <!-- pass base_url to js -->

@@ -71,12 +71,20 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Phone (including country code)</label>
-                                                    <input type="text" name="number" class="form-control required border border-primary" value="<?= $user_details->number ?>" <?= empty($user_details->number) ? '' : 'readonly' ?>>
-                                                </div>
-                                            </div>
+                                            <?php $this->load->view('partials/phone_input', array(
+                                                'wrapper_class' => 'col-lg-6',
+                                                'field_name' => 'number',
+                                                'country_code_name' => 'country_code',
+                                                'country_code_id' => 'profileCountryCode',
+                                                'input_id' => 'profilePhoneNumber',
+                                                'value' => $user_details->number,
+                                                'label' => 'Phone Number',
+                                                'placeholder' => '7911123456',
+                                                'required' => true,
+                                                'readonly' => !empty($user_details->number),
+                                                'input_class' => 'required form-control border border-primary smb-phone-input__number',
+                                                'select_class' => 'form-control border border-primary smb-phone-input__country',
+                                            )); ?>
                                         </div>
 
                                         <div class="row">

@@ -495,15 +495,36 @@ jQuery(document).ready(function ($) {
                 });
             }
         }
+
+        if (typeof window.initSmbPhoneInputs === 'function') {
+            window.initSmbPhoneInputs(this);
+        }
     });
+
+    function syncModalPhoneInputs(modal) {
+        if (typeof window.initSmbPhoneInputs === 'function') {
+            window.initSmbPhoneInputs(modal[0]);
+        }
+    }
+
+    function setAutofillPhone(modal, type, userData) {
+        var countryCode = userData.phone_country_code || '+44';
+        var localNumber = userData.phone_local_number || userData.phone || '';
+
+        modal.find('select[name="' + type + '_country_code"]').val(countryCode);
+        modal.find('input[name="' + type + '_phone"]').val(localNumber);
+        syncModalPhoneInputs(modal);
+    }
 
     function clearAutofillFields(modal, type) {
         modal.find('input[name="' + type + '_name"]').val('');
         modal.find('input[name="' + type + '_email"]').val('');
         modal.find('input[name="' + type + '_phone"]').val('');
+        modal.find('select[name="' + type + '_country_code"]').val('+44');
         modal.find('input[name="' + type + '_address"]').val('');
         modal.find('input[name="' + type + '_locality"]').val('');
         modal.find('input[name="' + type + '_postcode"]').val('');
+        syncModalPhoneInputs(modal);
     }
 
     $(document).on('change', '.select2-user', function () {
@@ -544,7 +565,7 @@ jQuery(document).ready(function ($) {
             if (userData) {
                 modal.find('input[name="agent_name"]').val(userData.fullname);
                 modal.find('input[name="agent_email"]').val(userData.email);
-                modal.find('input[name="agent_phone"]').val(userData.phone);
+                setAutofillPhone(modal, 'agent', userData);
                 modal.find('input[name="agent_address"]').val(userData.address);
                 modal.find('input[name="agent_locality"]').val(userData.city);
                 modal
@@ -569,7 +590,7 @@ jQuery(document).ready(function ($) {
                     .find('input[name="receiver_name"]')
                     .val(userData.fullname);
                 modal.find('input[name="receiver_email"]').val(userData.email);
-                modal.find('input[name="receiver_phone"]').val(userData.phone);
+                setAutofillPhone(modal, 'receiver', userData);
                 modal
                     .find('input[name="receiver_address"]')
                     .val(userData.address);

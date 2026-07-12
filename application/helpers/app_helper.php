@@ -961,6 +961,127 @@ function country_codes()
 	return $country_codes;
 }
 
+function phone_country_code_normalize($country_code)
+{
+	$digits = preg_replace('/\D+/', '', (string) $country_code);
+
+	return $digits === '' ? '' : '+' . $digits;
+}
+
+
+function phone_number_digits($phone)
+{
+	return preg_replace('/\D+/', '', (string) $phone);
+}
+
+
+function normalize_phone_number($country_code, $phone)
+{
+	$phone = trim((string) $phone);
+	$country_code = phone_country_code_normalize($country_code);
+
+	if ($phone === '') {
+		return '';
+	}
+
+	if (strpos($phone, '00') === 0) {
+		$phone = '+' . substr($phone, 2);
+	}
+
+	if (strpos($phone, '+') === 0) {
+		$digits = phone_number_digits($phone);
+		return $digits === '' ? '' : '+' . $digits;
+	}
+
+	$digits = phone_number_digits($phone);
+	if ($digits === '') {
+		return '';
+	}
+
+	$country_digits = phone_number_digits($country_code);
+	if ($country_digits !== '' && strpos($digits, $country_digits) === 0) {
+		return '+' . $digits;
+	}
+
+	if ($country_code !== '') {
+		$digits = ltrim($digits, '0');
+		return $digits === '' ? '' : $country_code . $digits;
+	}
+
+	return $digits;
+}
+
+
+function phone_country_options($preferred_countries = array('United Kingdom', 'Nigeria', 'Canada'))
+{
+	$countries = country_codes();
+	$options = array();
+
+	foreach ($preferred_countries as $country) {
+		if (isset($countries[$country])) {
+			$options[$country] = $countries[$country];
+			unset($countries[$country]);
+		}
+	}
+
+	return $options;
+}
+
+
+function split_phone_number($phone, $default_country_code = '+44')
+{
+	$phone = trim((string) $phone);
+	$default_country_code = phone_country_code_normalize($default_country_code);
+
+	$result = array(
+		'country_code' => $default_country_code,
+		'local_number' => '',
+		'full_number' => normalize_phone_number('', $phone),
+	);
+
+	if ($phone === '') {
+		return $result;
+	}
+
+	$normalized = normalize_phone_number('', $phone);
+	$digits = phone_number_digits($normalized);
+
+	if ($digits === '') {
+		return $result;
+	}
+
+	$codes = array();
+	foreach (country_codes() as $country) {
+		if (!empty($country['code'])) {
+			$code = phone_country_code_normalize($country['code']);
+			$codes[$code] = phone_number_digits($code);
+		}
+	}
+
+	uksort($codes, function ($a, $b) {
+		return strlen($b) - strlen($a);
+	});
+
+	foreach ($codes as $code => $code_digits) {
+		if ($code_digits !== '' && strpos($digits, $code_digits) === 0) {
+			$result['country_code'] = $code;
+			$result['local_number'] = substr($digits, strlen($code_digits));
+			$result['full_number'] = '+' . $digits;
+			return $result;
+		}
+	}
+
+	$result['local_number'] = $digits;
+	return $result;
+}
+
+
+function render_phone_input($data = array())
+{
+	$ci = get_instance();
+	return $ci->load->view('partials/phone_input', $data, TRUE);
+}
+
 function country_to_code($country_name)
 {
 	$countries = [

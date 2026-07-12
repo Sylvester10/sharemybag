@@ -57,11 +57,19 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
         </div>
 
         <div class="form-group">
-            <label class="form-control-label">Phone Number *</label>
-            <br />
-            <input type="text" name="phone" value="<?php echo set_value('phone', $y->phone); ?>" class="form-control numbers-only" required readonly />
+            <?php $this->load->view('partials/phone_input', array(
+                'wrapper_class' => '',
+                'field_name' => 'phone',
+                'country_code_name' => 'c_code1',
+                'country_code_id' => 'travellerCountryCode',
+                'input_id' => 'travellerPhone',
+                'value' => set_value('phone', $y->phone),
+                'label' => 'Phone Number',
+                'required' => true,
+                'readonly' => true,
+            )); ?>
             <div class="form-error">
-                <?php echo form_error('phone'); ?>
+                <?php echo form_error('c_code1'); ?><?php echo form_error('phone'); ?>
             </div>
         </div>
 
@@ -107,11 +115,18 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
         </div>
 
         <div class="form-group">
-            <label class="form-control-label">Alt Phone Number *</label>
-            <br />
-            <input type="text" name="alt_phone" value="<?php echo set_value('alt_phone', $y->alt_phone); ?>" class="form-control numbers-only" readonly />
+            <?php $this->load->view('partials/phone_input', array(
+                'wrapper_class' => '',
+                'field_name' => 'alt_phone',
+                'country_code_name' => 'c_code2',
+                'country_code_id' => 'travellerAltCountryCode',
+                'input_id' => 'travellerAltPhone',
+                'value' => set_value('alt_phone', $y->alt_phone),
+                'label' => 'Alt Phone Number',
+                'readonly' => true,
+            )); ?>
             <div class="form-error">
-                <?php echo form_error('alt_phone'); ?>
+                <?php echo form_error('c_code2'); ?><?php echo form_error('alt_phone'); ?>
             </div>
         </div>
 

@@ -40,6 +40,7 @@
     <!-- country flags -->
     <link href="<?php echo base_url(); ?>assets/general/countryflags/dist/flat.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/country-flags-css@1.1.2/dist/flat.min.css" rel="stylesheet">
+    <link href="<?php echo base_url(); ?>assets/general/css/phone-input.css?v=<?php echo filemtime(FCPATH . 'assets/general/css/phone-input.css'); ?>" rel="stylesheet">
 
     <!--build:css-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/main.css">
@@ -112,18 +113,18 @@
 
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                            <div class="input-group">
-                                                <div class=" p-0">
-                                                    <!-- Make sure 'name' attribute is set -->
-                                                    <select id="country_code" class="nice-select country-code" name="country_code">
-                                                        <option value="+1" data-flag="cf-16 cf-ca ms-1" selected>+1 </option>
-                                                        <option value="+234" data-flag="cf-16 cf-ng ms-1">+234 </option>
-                                                        <option value="+44" data-flag="cf-16 cf-gb ms-1">+44 </option>
-                                                    </select>
-                                                </div>
-                                                <input class="form-control" type="tel" name="phone" id="phone_number" placeholder="1234567890" required maxlength="11" pattern="\d{9,11}" title="Enter your phone number (e.g., 1234567890)">
-                                            </div>
+                                            <?php $this->load->view('partials/phone_input', array(
+                                                'wrapper_class' => '',
+                                                'field_name' => 'phone',
+                                                'country_code_name' => 'country_code',
+                                                'country_code_id' => 'country_code',
+                                                'input_id' => 'phone_number',
+                                                'country_code' => set_value('country_code', '+44'),
+                                                'local_number' => set_value('phone'),
+                                                'label' => 'Phone Number',
+                                                'placeholder' => '7911123456',
+                                                'required' => true,
+                                            )); ?>
 
                                             <p class="text-black copyright mt-2 mb-3" id="send_otp_wrapper">
                                                 <span class="btn-link" id="send_otp_btn" style="cursor: pointer;">Click to get verification code <i class="fa fa-mobile-screen"></i></span>
@@ -196,7 +197,8 @@
 
     <!-- custom scripts -->
     <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
-    <script src="<?php echo base_url(); ?>assets/website/js/custom.js"></script>
+    <script src="<?php echo base_url(); ?>assets/general/js/phone_input.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/phone_input.js'); ?>"></script>
+    <script src="<?php echo base_url(); ?>assets/website/js/custom.js?v=<?php echo filemtime(FCPATH . 'assets/website/js/custom.js'); ?>"></script>
     <script src="<?php echo base_url(); ?>assets/website/js/home.js"></script>
 
     <!-- pass base_url to js -->

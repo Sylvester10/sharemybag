@@ -74,6 +74,7 @@ function autoLoadPageHelpers() {
 		const nameField = document.getElementById("agentName");
 		const emailField = document.getElementById("agentEmail");
 		const phoneField = document.getElementById("agentPhone");
+		const phoneCountryField = document.getElementById("agentCountryCode");
 		const addressField = document.getElementById("agentAddress");
 		const cityField = document.getElementById("agentCity");
 		const postcodeField = document.getElementById("agentPostcode");
@@ -89,19 +90,31 @@ function autoLoadPageHelpers() {
 			name: userDiv?.dataset?.name || "",
 			email: userDiv?.dataset?.email || "",
 			phone: userDiv?.dataset?.phone || "",
+			phoneCountryCode: userDiv?.dataset?.phoneCountryCode || "",
+			phoneLocalNumber: userDiv?.dataset?.phoneLocalNumber || "",
 			address: userDiv?.dataset?.address || "",
 			city: userDiv?.dataset?.city || "",
 			postcode: userDiv?.dataset?.postcode || "",
 		};
 
+		function syncPhoneFlag() {
+			if (typeof window.initSmbPhoneInputs === "function") {
+				window.initSmbPhoneInputs(document);
+			}
+		}
+
 		// 👇 Function to fill form fields AND update visible display
 		function fillFieldsWithUserData() {
 			nameField.value = userDetails.name;
 			emailField.value = userDetails.email;
-			phoneField.value = userDetails.phone;
+			if (phoneCountryField && userDetails.phoneCountryCode) {
+				phoneCountryField.value = userDetails.phoneCountryCode;
+			}
+			phoneField.value = userDetails.phoneLocalNumber || userDetails.phone;
 			addressField.value = userDetails.address;
 			cityField.value = userDetails.city;
 			postcodeField.value = userDetails.postcode;
+			syncPhoneFlag();
 
 			// 👇 ALSO update display text manually
 			if (agentValue) agentValue.textContent = userDetails.name;
@@ -116,6 +129,7 @@ function autoLoadPageHelpers() {
 			addressField.value = "";
 			cityField.value = "";
 			postcodeField.value = "";
+			syncPhoneFlag();
 
 			// 👇 ALSO clear display text
 			if (agentValue) agentValue.textContent = "";
@@ -166,6 +180,7 @@ function autoLoadPageHelpers() {
 		const nameField = document.getElementById("receiverName");
 		const emailField = document.getElementById("receiverEmail");
 		const phoneField = document.getElementById("receiverPhone");
+		const phoneCountryField = document.getElementById("receiverCountryCode");
 		const addressField = document.getElementById("receiverAddress");
 		const cityField = document.getElementById("receiverCity");
 		const postcodeField = document.getElementById("receiverPostcode");
@@ -181,19 +196,31 @@ function autoLoadPageHelpers() {
 			name: userDiv.dataset.name || "",
 			email: userDiv.dataset.email || "",
 			phone: userDiv.dataset.phone || "",
+			phoneCountryCode: userDiv.dataset.phoneCountryCode || "",
+			phoneLocalNumber: userDiv.dataset.phoneLocalNumber || "",
 			address: userDiv.dataset.address || "",
 			city: userDiv.dataset.city || "",
 			postcode: userDiv.dataset.postcode || "",
 		};
 
+		function syncPhoneFlag() {
+			if (typeof window.initSmbPhoneInputs === "function") {
+				window.initSmbPhoneInputs(document);
+			}
+		}
+
 		// 👇 Function to fill form fields AND update visible display
 		function fillFieldsWithUserData() {
 			nameField.value = userDetails.name;
 			emailField.value = userDetails.email;
-			phoneField.value = userDetails.phone;
+			if (phoneCountryField && userDetails.phoneCountryCode) {
+				phoneCountryField.value = userDetails.phoneCountryCode;
+			}
+			phoneField.value = userDetails.phoneLocalNumber || userDetails.phone;
 			addressField.value = userDetails.address;
 			cityField.value = userDetails.city;
 			postcodeField.value = userDetails.postcode;
+			syncPhoneFlag();
 
 			// 👇 ALSO update display text manually
 			if (agentValue) agentValue.textContent = userDetails.name;
@@ -208,6 +235,7 @@ function autoLoadPageHelpers() {
 			addressField.value = "";
 			cityField.value = "";
 			postcodeField.value = "";
+			syncPhoneFlag();
 
 			// 👇 ALSO clear display text
 			if (agentValue) agentValue.textContent = "";

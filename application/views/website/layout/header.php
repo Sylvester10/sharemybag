@@ -64,6 +64,7 @@
     <!-- country flags -->
     <link href="<?php echo base_url(); ?>assets/general/countryflags/dist/flat.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/country-flags-css@1.1.2/dist/flat.min.css" rel="stylesheet">
+    <link href="<?php echo base_url(); ?>assets/general/css/phone-input.css?v=<?php echo filemtime(FCPATH . 'assets/general/css/phone-input.css'); ?>" rel="stylesheet">
 
     <!-- Custom css -->
     <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/website/css/custom.css" />

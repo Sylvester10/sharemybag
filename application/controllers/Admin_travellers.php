@@ -351,6 +351,7 @@ class Admin_travellers extends MY_Controller
         $this->check_data_exists($id, 'id', 'travellers', 'admin');
         // validation rules
         $this->form_validation->set_rules('fullname', 'Name', 'trim|min_length[2]|max_length[500]|required');
+        $this->form_validation->set_rules('c_code1', 'Country code', 'trim|required');
         $this->form_validation->set_rules('phone', 'Mobile', 'trim|required');
         $this->form_validation->set_rules(
             'email',
@@ -412,11 +413,15 @@ class Admin_travellers extends MY_Controller
         $user = $this->user_read_model->get_user_details_by_id($id);
 
         if ($user) {
+            $phone_parts = split_phone_number($user->number);
+
             // Prepare a clean data array for JSON response
             $data = array(
                 'fullname'    => $user->firstname . ' ' . $user->lastname,
                 'email'       => $user->email,
                 'phone'       => $user->number,    // Assuming 'number' is the phone field in 'users' table
+                'phone_country_code' => $phone_parts['country_code'],
+                'phone_local_number' => $phone_parts['local_number'],
                 'address'     => $user->address,
                 'city'        => $user->state,     // Mapping 'state' to 'city' for the form
                 'postal_code' => $user->post_code  // Mapping 'post_code' to 'postal_code'
@@ -509,12 +514,14 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('user_id', 'User', 'required');
         $this->form_validation->set_rules('agent_name', 'Agent Full Name', 'trim|required');
         $this->form_validation->set_rules('agent_email', 'Agent Email', 'trim|required|valid_email');
+        $this->form_validation->set_rules('agent_country_code', 'Agent Country Code', 'trim|required');
         $this->form_validation->set_rules('agent_phone', 'Agent Phone', 'trim|required');
         $this->form_validation->set_rules('agent_address', 'Agent Address', 'trim|required');
         $this->form_validation->set_rules('agent_locality', 'Agent City', 'trim|required');
         $this->form_validation->set_rules('agent_postcode', 'Agent Postal Code', 'trim|required');
         $this->form_validation->set_rules('receiver_name', 'Receiver Full Name', 'trim|required');
         $this->form_validation->set_rules('receiver_email', 'Receiver Email', 'trim|required|valid_email');
+        $this->form_validation->set_rules('receiver_country_code', 'Receiver Country Code', 'trim|required');
         $this->form_validation->set_rules('receiver_phone', 'Receiver Phone', 'trim|required');
         $this->form_validation->set_rules('receiver_address', 'Receiver Address', 'trim|required');
         $this->form_validation->set_rules('receiver_locality', 'Receiver City', 'trim|required');
@@ -585,6 +592,7 @@ class Admin_travellers extends MY_Controller
         $this->check_data_exists($id, 'id', 'travellers', 'admin');
 
         $this->form_validation->set_rules('fullname', 'Name', 'trim|min_length[2]|max_length[500]|required');
+        $this->form_validation->set_rules('c_code1', 'Country code', 'trim|required');
         $this->form_validation->set_rules('phone', 'Mobile', 'trim|required');
         $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email', array('valid_email' => 'Enter a valid email.'));
         $this->form_validation->set_rules('travel_date', 'Travel Date', 'trim|required');
