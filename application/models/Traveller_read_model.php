@@ -72,10 +72,15 @@ class Traveller_read_model extends \MY_Model
         $this->db->where('destination', $destination);
         $this->db->where('status', 'Approved');
         $this->db->where('available_space >=', 0);
-        $this->db->where('travel_date >', date('Y-m-d'));
+        $this->db->where('travel_date >=', traveller_minimum_bookable_date());
         $this->applyNotDeleted();
         $this->db->order_by('travel_date', 'ASC');
         return $this->db->get($this->table)->result();
+    }
+
+    public function is_bookable_by_cutoff($traveller, $now = null)
+    {
+        return $traveller && traveller_is_bookable_by_cutoff($traveller->travel_date, $now);
     }
 
     public function get_booking_details_by_traveller_id($travellerId)

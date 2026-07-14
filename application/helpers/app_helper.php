@@ -1411,6 +1411,41 @@ function get_date_difference($date1, $date2)
 }
 
 
+/**
+ * Return the first travel date still open for booking at the given UK time.
+ * Travellers close at 6:00 p.m. on the day before departure.
+ */
+function traveller_minimum_bookable_date($now = null)
+{
+	$timezone = new DateTimeZone('Europe/London');
+
+	if ($now instanceof DateTimeInterface) {
+		$local_now = new DateTimeImmutable($now->format('Y-m-d H:i:s'), $now->getTimezone());
+		$local_now = $local_now->setTimezone($timezone);
+	} else {
+		$local_now = new DateTimeImmutable('now', $timezone);
+	}
+
+	$days_ahead = $local_now->format('H:i:s') < '18:00:00' ? 1 : 2;
+
+	return $local_now
+		->setTime(0, 0, 0)
+		->modify('+' . $days_ahead . ' days')
+		->format('Y-m-d');
+}
+
+
+function traveller_is_bookable_by_cutoff($travel_date, $now = null)
+{
+	$travel_date = substr(trim((string) $travel_date), 0, 10);
+	if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $travel_date)) {
+		return false;
+	}
+
+	return $travel_date >= traveller_minimum_bookable_date($now);
+}
+
+
 function x_day_number($date)
 { //eg 23
 	return date("d", strtotime($date));
