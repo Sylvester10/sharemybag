@@ -172,7 +172,7 @@ class User_bookings extends MY_Controller
         $this->form_validation->set_rules('receiver_address', 'receiver Address', 'trim|required', array('required' => 'Please enter receiver address'));
         $this->form_validation->set_rules('receiver_locality', 'receiver Local', 'trim|required', array('required' => 'Please enter receiver locale'));
         $this->form_validation->set_rules('receiver_postcode', 'receiver Postcode', 'trim');
-        $this->form_validation->set_rules('payment_method', 'Payment Method', 'trim|required|in_list[stripe,paystack]', array('required' => 'Please select a payment method', 'in_list' => 'Invalid payment method selected.'));
+        $this->form_validation->set_rules('payment_method', 'Payment Method', 'trim|required|in_list[stripe]', array('required' => 'Please select a payment method', 'in_list' => 'This payment method is temporarily unavailable.'));
 
         $payment_method = $this->input->post('payment_method');
 
