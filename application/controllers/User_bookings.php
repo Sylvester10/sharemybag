@@ -88,8 +88,19 @@ class User_bookings extends MY_Controller
 
     public function buy_bag_space($hash)
     {
-        $this->dashboard_header('Buy Space');
         $traveller = $this->traveller_read_model->get_traveller_details_by_hash($hash);
+        if (
+            !$traveller ||
+            $traveller->status !== 'Approved' ||
+            !$this->traveller_read_model->is_bookable_by_cutoff($traveller)
+        ) {
+            $this->session->set_flashdata('status_error', 'This traveller is no longer available for booking.');
+            $this->session->set_flashdata('title', 'Traveller Unavailable');
+            redirect('user_bookings');
+            return;
+        }
+
+        $this->dashboard_header('Buy Space');
         $data['user_details'] = $this->user_details;
         $data['user_id'] = $this->user_details->id;
         $data['traveller_details'] = $traveller;
@@ -117,7 +128,9 @@ class User_bookings extends MY_Controller
             return;
         }
         $traveller = $this->travellers_model->update_traveller_space($id, true);
-        echo !$traveller ? 0 : $traveller->available_space;
+        echo (!$traveller || !$this->traveller_read_model->is_bookable_by_cutoff($traveller))
+            ? 0
+            : $traveller->available_space;
     }
 
 
@@ -189,6 +202,21 @@ class User_bookings extends MY_Controller
             };
 
             $traveller_details = $this->traveller_read_model->get_traveller_details_by_id($traveller_id);
+            if (
+                !$traveller_details ||
+                $traveller_details->status !== 'Approved' ||
+                !$this->traveller_read_model->is_bookable_by_cutoff($traveller_details)
+            ) {
+                echo json_encode([
+                    'status' => false,
+                    'msg' => 'This traveller is no longer available. Search for another traveller to continue.',
+                    'title' => 'Traveller Unavailable',
+                    'msg_timeout' => 6000,
+                    'csrf_hash' => $csrf_hash,
+                ]);
+                return;
+            }
+
             $calculations = json_decode($this->input->post('price_calculations'));
             $selected_space = $calculations->selectedSpace; // Use selectedSpace from calculations for accuracy
             $_POST['traveller_commission'] = $this->users_model->calculate_traveller_commission(
