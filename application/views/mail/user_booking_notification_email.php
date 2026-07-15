@@ -82,6 +82,8 @@ include 'email_header.php'; ?>
     ⚠️ Please drop your items off with the traveller by your region's last drop-off date. There will be no refund or transfer of service to another traveller.
 </div>
 
+<p style="font-size:13px; color:#6b7280;">You can find your travellers details by clicking on the history button on your account.</p>
+
 <p style="font-size:13px; color:#6b7280;">Please inform your packer that illegal drugs are strictly prohibited. For a full list of prohibited items, check our <a href="<?php echo base_url(); ?>#faqss" class="text-link">FAQ section</a>.</p>
 
 <hr class="divider">

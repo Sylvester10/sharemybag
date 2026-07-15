@@ -394,7 +394,6 @@
                                 <p class="mt-2 mb-3">Select payment method and click "finish" to continue to payments </p>
 
                                 <div class="booking-payment-options">
-                                    <?php /* Paystack is temporarily unavailable.
                                     <div class="mb-4 radio_buttons booking-payment-option">
                                         <div class="form-check radio_check">
                                             <input class="form-check-input booking-payment-input" type="radio" name="payment_method" id="paystack" value="paystack" checked>
@@ -403,11 +402,10 @@
                                             </label>
                                         </div>
                                     </div>
-                                    */ ?>
 
                                     <div class="mb-4 radio_buttons booking-payment-option">
                                         <div class="form-check radio_check">
-                                            <input class="form-check-input booking-payment-input" type="radio" name="payment_method" id="stripe" value="stripe" checked>
+                                            <input class="form-check-input booking-payment-input" type="radio" name="payment_method" id="stripe" value="stripe">
                                             <label class="form-check-label booking-payment-card" for="stripe">
                                                 <img src="<?php echo base_url('assets/general/stripe.svg'); ?>" alt="Stripe" width="100" height="20">
                                             </label>

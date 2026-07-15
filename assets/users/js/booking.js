@@ -241,7 +241,7 @@ jQuery(document).ready(function ($) {
   }
 
   function getSelectedPaymentMethod() {
-    return $('input[name="payment_method"]:checked').val() || 'stripe';
+    return $('input[name="payment_method"]:checked').val() || 'paystack';
   }
 
   function syncPaymentMethod() {
@@ -975,7 +975,7 @@ function updateitems() {
 }
 
 function getSelectedPaymentMethod() {
-  return $('input[name="payment_method"]:checked').val() || 'stripe';
+  return $('input[name="payment_method"]:checked').val() || 'paystack';
 }
 
 function syncPaymentMethod() {
@@ -1051,7 +1051,7 @@ function calculateBooking() {
   let selectedSpace = 0;
   let selectedPrice = 0;
   let insurance = 0;
-  let paymentMethod = $('input[name="payment_method"]:checked').val() || 'stripe';
+  let paymentMethod = $('input[name="payment_method"]:checked').val() || 'paystack';
 
   // --- UPDATED CURRENCY ATTRIBUTES ---
   let currency = $('#holdThisInfo').attr('currency');
