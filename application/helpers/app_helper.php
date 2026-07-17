@@ -2034,18 +2034,21 @@ function user_avatar_table($user_photo, $image_src, $default_avatar)
 	}
 
 	$secure_href = $image_src;
-	if (strpos($relative_path, 'assets/selfie/') === 0) {
+	$is_selfie = (strpos($relative_path, 'assets/selfie/') === 0);
+	$is_id_card = (strpos($relative_path, 'assets/id_cards/') === 0);
+	$is_utility = (strpos($relative_path, 'assets/utility/') === 0);
+	if ($is_selfie) {
 		$secure_href = base_url('file/selfie/' . rawurlencode($user_photo));
-	} elseif (strpos($relative_path, 'assets/id_cards/') === 0) {
+	} elseif ($is_id_card) {
 		$secure_href = base_url('file/id_cards/' . rawurlencode($user_photo));
-	} elseif (strpos($relative_path, 'assets/utility/') === 0) {
+	} elseif ($is_utility) {
 		$secure_href = base_url('file/utility/' . rawurlencode($user_photo));
 	}
 
 	$thumbnail_src = $is_pdf ? pdf_icon : $secure_href;
 
-	if ($is_pdf) {
-		return '<a target="_blank" href="' . $secure_href . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
+	if ($is_pdf || $is_selfie || $is_id_card || $is_utility) {
+		return '<a target="_blank" rel="noopener" href="' . $secure_href . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
 	}
 
 	return '<a href="' . $secure_href . '" class="smb-file-preview" data-preview-src="' . $secure_href . '" data-preview-title="Document Preview"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
