@@ -299,6 +299,7 @@
                                         'local_number' => set_value('alt_phone'),
                                         'label' => 'Alternative Number (optional)',
                                         'placeholder' => '7911123456',
+                                        'required' => false,
                                     )); ?>
 
                                     <div class="col-12 col-md-6">
