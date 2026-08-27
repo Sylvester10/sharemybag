@@ -45,6 +45,7 @@ $columns = array(
     array('label' => 'Total KG'),
     array('label' => 'Insurance'),
     array('label' => 'Revenue'),
+    array('label' => 'Exchange Rate', 'class' => 'min-w-150'),
     array('label' => 'Traveller Commission'),
     array('label' => 'Payment Method'),
 );

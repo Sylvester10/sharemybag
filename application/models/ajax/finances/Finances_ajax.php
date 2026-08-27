@@ -39,7 +39,7 @@ class Finances_ajax extends CI_Model
 	}
 
 	var $table = 'bookings';
-	var $column_order = array(null, 'bookings.traveller_departure_date', 'bookings.traveller_name', 'bookings.total_amount', 'bookings.selected_price', 'bookings.service_charge', 'bookings.selected_space', 'bookings.vat', 'bookings.insurance', 'bookings.traveller_commission', 'bookings.payment_method');
+	var $column_order = array(null, 'bookings.traveller_departure_date', 'bookings.traveller_name', 'bookings.total_amount', 'bookings.selected_price', 'bookings.service_charge', null, null, null, 'bookings.selected_space', 'bookings.insurance', null, null, 'bookings.traveller_commission', 'bookings.payment_method');
 	var $column_search = array('bookings.traveller_departure_date', 'bookings.traveller_name', 'bookings.total_amount', 'bookings.selected_price', 'bookings.service_charge', 'bookings.selected_space', 'bookings.vat', 'bookings.insurance', 'bookings.traveller_commission', 'bookings.payment_method');
 	var $order = array('bookings.date_added' => 'desc');
 
@@ -86,6 +86,7 @@ class Finances_ajax extends CI_Model
 	function get_records($month = null, $year = null, $route = null)
 	{
 		$this->the_query();
+		$this->db->select('bookings.*');
 		$length = $this->requestLength();
 		if ($length !== -1) {
 			$this->db->limit($length, $this->requestStart());

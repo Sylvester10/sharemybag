@@ -11,6 +11,7 @@ class User_bookings extends MY_Controller
         $this->load->model('users_model');
         $this->load->model('finance_read_model');
         $this->load->model('user_read_model');
+        $this->load->model('booking_read_model');
         $this->load->model('traveller_read_model');
         $this->load->model('user_bookings_model');
         $this->load->model('travellers_model');
@@ -159,7 +160,6 @@ class User_bookings extends MY_Controller
 
         // Form validation for booking details
         $this->form_validation->set_rules('insurance', 'Insurance', 'trim');
-        $this->form_validation->set_rules('need_help', 'Need Help', 'trim');
         $this->form_validation->set_rules('agent_country_code', 'agent country code', 'trim|required', array('required' => 'Please select agent country code'));
         $this->form_validation->set_rules('agent_phone', 'agent mobile', 'trim|required', array('required' => 'Please enter agent number'));
         $this->form_validation->set_rules('agent_email', 'agent email', 'trim|valid_email|required', array('required' => 'Please enter agent number', 'valid_email' => 'Please enter a valid email'));
@@ -337,7 +337,9 @@ class User_bookings extends MY_Controller
 
                         if ($response && $response->status) {
                             // Save reference and set initial payment status for your tracking
-                            $this->users_model->mark_paystack_initialized($booking->id, $reference);
+                            if (!$this->users_model->mark_paystack_initialized($booking->id, $reference, $exchange_rate)) {
+                                throw new Exception('Failed to persist Paystack transaction details.');
+                            }
 
                             $res = [
                                 'status' => true,
@@ -473,13 +475,31 @@ class User_bookings extends MY_Controller
         $this->session->set_flashdata($flash_key, $result['msg']);
         $this->session->set_flashdata('title', $result['title']);
         $this->session->set_flashdata('msg_timeout', $result['msg_timeout']);
+
+        if (!empty($result['status']) && !empty($result['booking_id'])) {
+            $this->session->set_flashdata('booking_success_id', (int) $result['booking_id']);
+        }
     }
 
 
     public function booking_success()
     {
+        $data['booking'] = null;
+        $booking_id = (int) $this->session->flashdata('booking_success_id');
+
+        if ($booking_id > 0) {
+            $booking = $this->booking_read_model->get_booking_details_by_id($booking_id);
+            if (
+                $booking &&
+                (int) $booking->user_id === (int) $this->user_details->id &&
+                payment_status_normalize($booking->payment_status) === 'completed'
+            ) {
+                $data['booking'] = $booking;
+            }
+        }
+
         $this->dashboard_header('Booking Successful');
-        $this->load->view('users/booking_success');
+        $this->load->view('users/booking_success', $data);
         $this->dashboard_footer();
     }
 }

@@ -69,11 +69,14 @@ class Admin_finances extends MY_Controller
             $payment_status = $this->booking_presenter->format_payment_status_text($y->payment_status);
             $metrics = $this->booking_presenter->collect_item_metrics($y->items);
             $traveller_commission = booking_stored_traveller_commission($y);
-            $profit = (float) $y->total_amount - $traveller_commission - (float) $y->vat;
+            $revenue = (float) $y->total_amount - $traveller_commission - (float) $y->vat;
             $commission = payment_status_normalize($y->payment_status) == 'completed'
                 ? $this->booking_presenter->format_money_with_sign($sign, $traveller_commission)
                 : 'N/A';
             $payment_method = $this->booking_presenter->format_payment_method($y->payment_method, 'Bank');
+            $exchange_rate = strtolower(trim((string) $y->payment_method)) === 'paystack'
+                ? $this->format_exchange_rate($y->paystack_exchange_rate, $sign)
+                : 'N/A';
 
             $row = array();
             $row[] = $rowNumber++;
@@ -92,7 +95,8 @@ class Admin_finances extends MY_Controller
             $row[] = $y->selected_space . 'KG';
 
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->insurance);
-            $row[] = $this->booking_presenter->format_money_with_sign($sign, $profit);
+            $row[] = $this->booking_presenter->format_money_with_sign($sign, $revenue);
+            $row[] = $exchange_rate;
             $row[] = $commission;
             $row[] = $payment_method;
             $data[] = $row;
@@ -145,11 +149,14 @@ class Admin_finances extends MY_Controller
             $payment_status = $this->booking_presenter->format_payment_status_text($y->payment_status);
             $metrics = $this->booking_presenter->collect_item_metrics($y->items);
             $traveller_commission = booking_stored_traveller_commission($y);
-            $profit = (float) $y->total_amount - $traveller_commission - (float) $y->vat;
+            $revenue = (float) $y->total_amount - $traveller_commission - (float) $y->vat;
             $commission = payment_status_normalize($y->payment_status) == 'completed'
                 ? $this->booking_presenter->format_money_with_sign($sign, $traveller_commission)
                 : 'N/A';
             $payment_method = $this->booking_presenter->format_payment_method($y->payment_method, 'Bank');
+            $exchange_rate = strtolower(trim((string) $y->payment_method)) === 'paystack'
+                ? $this->format_exchange_rate($y->paystack_exchange_rate, $sign)
+                : 'N/A';
 
             $row = array();
             $row[] = $rowNumber++;
@@ -168,7 +175,8 @@ class Admin_finances extends MY_Controller
             $row[] = $y->selected_space . 'KG';
 
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->insurance);
-            $row[] = $this->booking_presenter->format_money_with_sign($sign, $profit);
+            $row[] = $this->booking_presenter->format_money_with_sign($sign, $revenue);
+            $row[] = $exchange_rate;
             $row[] = $commission;
             $row[] = $payment_method;
             $data[] = $row;
@@ -183,6 +191,16 @@ class Admin_finances extends MY_Controller
         );
 
         echo json_encode($output);
+    }
+
+
+    private function format_exchange_rate($rate, $currency_sign)
+    {
+        if ($rate === null || !is_numeric($rate) || (float) $rate <= 0) {
+            return 'N/A';
+        }
+
+        return '&#8358;' . number_format((float) $rate, 2) . ' = ' . $currency_sign . '1';
     }
 
 

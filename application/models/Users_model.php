@@ -155,6 +155,9 @@ class Users_model extends MY_Model
             'password' => $password,
             'verification_code' => NULL // Clear old code after verification
         ];
+        if ($this->db->field_exists('email_verified_at', 'users')) {
+            $data['email_verified_at'] = date('Y-m-d H:i:s');
+        }
         if ($this->db->field_exists('verification_code_expires_at', 'users')) {
             $data['verification_code_expires_at'] = null;
         }
@@ -293,14 +296,24 @@ class Users_model extends MY_Model
             'state'     => $this->input->post('state', TRUE),
             'post_code' => $this->input->post('post_code', TRUE),
             'address'   => $this->input->post('address', TRUE),
-            'number'    => normalize_phone_number(
-                $this->input->post('country_code', TRUE),
-                $this->input->post('number', TRUE)
-            ),
         );
 
         $this->db->where('id', $id);
         return $this->db->update('users', $data);
+    }
+
+    public function mark_phone_verified($userId, $phone)
+    {
+        $this->db->trans_start();
+        $this->db->where('id', (int) $userId);
+        $this->db->update('users', array(
+            'number' => $phone,
+            'verified_phone_e164' => $phone,
+            'phone_verified_at' => date('Y-m-d H:i:s'),
+        ));
+        $this->db->trans_complete();
+
+        return $this->db->trans_status();
     }
 
 
@@ -405,7 +418,6 @@ class Users_model extends MY_Model
             // ── Booking extras ──
             'payment_method'  => $payment_method,
             'items'           => $this->input->post('items', TRUE),
-            'need_help'       => $this->input->post('need_help', TRUE),
         );
 
         $this->db->insert('bookings', $data);
@@ -423,11 +435,12 @@ class Users_model extends MY_Model
     }
 
 
-    public function mark_paystack_initialized($booking_id, $reference)
+    public function mark_paystack_initialized($booking_id, $reference, $exchange_rate)
     {
         $this->db->where('id', $booking_id);
         $updated = $this->db->update('bookings', [
             'paystack_ref' => $reference,
+            'paystack_exchange_rate' => round((float) $exchange_rate, 4),
             'payment_status' => payment_status_normalize('canceled')
         ]);
         if ($updated) {
@@ -502,6 +515,7 @@ class Users_model extends MY_Model
             'msg' => 'Please check your email for details.',
             'msg_timeout' => 7000,
             'redirect' => 'booking-success',
+            'booking_id' => (int) $booking->id,
         ];
     }
 
@@ -515,6 +529,7 @@ class Users_model extends MY_Model
             'date_added' => x_date($booking->date_added),
             'items' => $booking->items,
             'insurance' => $booking->insurance,
+            'user_fullname' => $booking->user_fullname,
             'traveller_name' => $booking->traveller_name,
             'traveller_contact' => $booking->traveller_contact,
             'traveller_departure_state' => $booking->traveller_departure_state,
@@ -527,7 +542,9 @@ class Users_model extends MY_Model
             'traveller_current_state' => $booking->traveller_current_state,
             'traveller_arrival_airport' => $booking->traveller_arrival_airport,
             'traveller_arrival_state' => $booking->traveller_arrival_state,
+            'traveller_destination' => isset($booking->traveller_destination) ? $booking->traveller_destination : $booking->traveller_arrival_state,
             'currency' => currency_symbol_text($booking->currency),
+            'currency_code' => currency_code_normalize($booking->currency),
         ];
     }
 
