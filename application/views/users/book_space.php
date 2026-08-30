@@ -112,13 +112,13 @@
                                 </div>
                             </div>
 
-                            <div class="card border border-warning mt-3 mb-3">
-                                <div class="card-body py-3">
-                                    <p class="mb-0 text-center text-black fs-3">
-                                        <i class="ti ti-alert-circle me-1"></i>
-                                        <b>No Bar Soaps are not allowed</b> <br> Please do not add bar soaps to your parcel unless purchased by Sharemybag.
-                                    </p>
-                                </div>
+                            <div class="parcel-guarantee-notice mt-3 mb-3" role="status" aria-live="polite">
+                                <span class="parcel-guarantee-notice__icon" aria-hidden="true">
+                                    <i class="ti ti-alert-circle"></i>
+                                </span>
+                                <p class="parcel-guarantee-notice__text mb-0">
+                                    Please note that <strong>Bar Soaps</strong> are not allowed in your parcel unless purchased by Sharemybag.
+                                </p>
                             </div>
 
                             <div class="row">
@@ -320,7 +320,7 @@
 
                         </fieldset>
 
-                        <h3> <i class="ti ti-shield-check fs-4"></i> Parcel Guarantee </h3>
+                        <h3> <i class="ti ti-shield-check fs-4"></i> Parcel Protection </h3>
                         <fieldset>
                             <h4 class="card-title mb-2 bookspace_title">Parcel protection <b class="!tw-text-[#f36b24]">(Optional)</b></h4>
                             <p class="card-subtitle mb-3 fs-3">Sharemybag covers your parcel upto £20 in the case of loss or damage during the travellers journey. If you want extra protection choose from the options below.</p>
@@ -334,10 +334,10 @@
                                 <select name="insurance" id="insuranceBox" class="form-select border border-primary">
                                     <option value="">Do you want parcel protection?</option>
                                     <option value="<?= number_format($ins_low_val, 2); ?>" data-insurance="<?= number_format($ins_low_val, 2); ?>" data-coverage="100">
-                                        Parcel Guarantee <?= $symbol ?><?= number_format($ins_low_val, 2); ?>
+                                        Parcel Protection <?= $symbol ?><?= number_format($ins_low_val, 2); ?>
                                     </option>
                                     <option value="<?= number_format($ins_high_val, 2); ?>" data-insurance="<?= number_format($ins_high_val, 2); ?>" data-coverage="300">
-                                        Parcel Guarantee <?= $symbol ?><?= number_format($ins_high_val, 2); ?>
+                                        Parcel Protection <?= $symbol ?><?= number_format($ins_high_val, 2); ?>
                                     </option>
                                 </select>
                             </div>
@@ -372,7 +372,7 @@
 
                                 <h3 class=" mb-3"><b> <?= x_date($traveller_details->travel_date) ?></b></h3>
 
-                                <p class="mt-2"> You're buying </p>
+                                <p class="mt-2"> You are buying </p>
 
                                 <h3 class=" mb-3"><b> <span id="total-kgs">10</span>KG</b></h3>
 
