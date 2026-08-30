@@ -69,7 +69,7 @@
 
 /* verification begin */
 .image_container {
-    aspect-ratio: 2/1;
+    aspect-ratio: 4/1.2;
     position: relative;
     overflow: hidden;
 }
@@ -749,7 +749,7 @@ div#default_order_info {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    max-width: 410px;
+    max-width:600px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -1086,8 +1086,9 @@ div#default_order_info {
 }
 
 .parcel-guarantee-notice {
-    align-items: flex-start;
+    align-items: center;
     background: #fff8f4;
+    border: 1px solid #f36b24;
     border-left-width: 5px;
     border-radius: 7px;
     color: #3f2a20;
@@ -1122,6 +1123,28 @@ div#default_order_info {
 
 .parcel-guarantee-notice__text strong {
     color: #020713;
+}
+
+.booking-support-link {
+    align-items: center;
+    color: #f36b24;
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 700;
+    gap: 6px;
+    margin-top: 10px;
+    text-decoration: none;
+}
+
+.booking-support-link:hover,
+.booking-support-link:focus-visible {
+    color: #0f5f3a;
+    text-decoration: underline;
+}
+
+.booking-support-link:focus-visible {
+    outline: 3px solid rgba(22, 121, 75, 0.22);
+    outline-offset: 3px;
 }
 
 .booking-mobile-added-feedback {
@@ -1885,4 +1908,23 @@ table.dataTable thead > tr > th.sorting:before {
 .swiper-pagination-custom,
 .swiper-pagination-fraction {
     bottom: 0 !important;
+}
+/* Authentication and verified contact states */
+.auth-profile-code-input {
+	min-height: 52px;
+	font-size: 1.35rem;
+	font-weight: 600;
+	letter-spacing: .35rem;
+	text-align: center;
+}
+
+#phoneVerificationState .badge {
+	display: inline-flex;
+	align-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#phoneVerificationModal.fade .modal-dialog {
+		transition: none;
+	}
 }
