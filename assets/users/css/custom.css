@@ -1085,6 +1085,45 @@ div#default_order_info {
     outline-offset: 3px;
 }
 
+.parcel-guarantee-notice {
+    align-items: flex-start;
+    background: #fff8f4;
+    border-left-width: 5px;
+    border-radius: 7px;
+    color: #3f2a20;
+    display: flex;
+    gap: 12px;
+    max-width: 720px;
+    padding: 14px 16px;
+}
+
+.parcel-guarantee-notice__icon {
+    align-items: center;
+    background: #f36b24;
+    border-radius: 50%;
+    color: #ffffff;
+    display: inline-flex;
+    flex: 0 0 30px;
+    height: 30px;
+    justify-content: center;
+    margin-top: 1px;
+    width: 30px;
+}
+
+.parcel-guarantee-notice__icon .ti {
+    font-size: 19px;
+}
+
+.parcel-guarantee-notice__text {
+    color: inherit;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.parcel-guarantee-notice__text strong {
+    color: #020713;
+}
+
 .booking-mobile-added-feedback {
     align-items: center;
     background: #020713;
