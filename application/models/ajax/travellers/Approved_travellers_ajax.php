@@ -283,21 +283,21 @@ class Approved_travellers_ajax extends CI_Model
             </div>
         </div>
 
-        <div class="modal fade" id="offline' . $traveller->id . '" role="dialog">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content modal-widths">
-                    <div class="modal-header">
+        <div class="modal fade admin-offline-booking-modal" id="offline' . $traveller->id . '" role="dialog">
+            <div class="modal-dialog modal-lg admin-offline-booking-dialog">
+                <div class="modal-content modal-widths admin-offline-booking-content">
+                    <div class="modal-header admin-offline-booking-header">
                         <div class="pull-right">
                             <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
                         </div>
                         <h4 class="modal-title">Update offline booking: ' . $traveller->fullname . '</h4>
                     </div>
 
-                    ' . form_open_multipart('admin_travellers/add_offline_booking/' . $traveller->id, 'id="offline_booking_form"') . '
+                    ' . form_open_multipart('admin_travellers/add_offline_booking/' . $traveller->id, 'id="offline_booking_form" class="admin-offline-booking-form"') . '
 
-                    <div class="modal-body">
+                    <div class="modal-body admin-offline-booking-body">
 
-                        <div class="form-group">
+                        <div class="form-group admin-offline-booking-user">
                             <label class="form-control-label">Select SMB User *</label>
                             <select name="user_id" id="user_id_' . $traveller->id . '" class="form-control select2-user" required>
                                 <option value="">-- Select User --</option>
@@ -306,16 +306,16 @@ class Approved_travellers_ajax extends CI_Model
                         </div>
 
 						<hr>
-                        <h5 class="mt-3"><strong>Agent Details</strong></h5>
+						<h5 class="mt-3 admin-offline-booking-section-title"><strong>Agent Details</strong></h5>
                         
-                        <div class="form-check mb-2">
+                        <div class="form-check mb-2 admin-offline-booking-autofill">
                             <input class="form-check-input autofill-agent" type="checkbox" id="autofill-agent-' . $traveller->id . '">
                             <label class="form-check-label" for="autofill-agent-' . $traveller->id . '">
                                 Fill with selected SMB User details
                             </label>
                         </div>
                         
-                        <div class="row">
+                        <div class="row admin-offline-booking-grid">
                             <div class="col-lg-12 mb-2">
                                 <label>Full Name *</label>
 								<br>
@@ -355,16 +355,16 @@ class Approved_travellers_ajax extends CI_Model
                         </div>
 
 						<hr>
-                        <h5 class="mt-3"><strong>Receiver Details</strong></h5>
+                        <h5 class="mt-3 admin-offline-booking-section-title"><strong>Receiver Details</strong></h5>
                         
-                        <div class="form-check mb-2">
+                        <div class="form-check mb-2 admin-offline-booking-autofill">
                             <input class="form-check-input autofill-receiver" type="checkbox" id="autofill-receiver-' . $traveller->id . '">
                             <label class="form-check-label" for="autofill-receiver-' . $traveller->id . '">
                                 Fill with selected SMB User details
                             </label>
                         </div>
                         
-                        <div class="row">
+                        <div class="row admin-offline-booking-grid">
                             <div class="col-md-12 mb-2">
                                 <label>Full Name *</label>
 								<br>
@@ -401,8 +401,8 @@ class Approved_travellers_ajax extends CI_Model
                         </div>
 
 						<hr>
-                        <h5 class="mt-3"><strong>Bag Space Details</strong></h5>
-                        <div class="form-group mt-3">
+						<h5 class="mt-3 admin-offline-booking-section-title"><strong>Bag Space Details</strong></h5>
+                        <div class="form-group mt-3 admin-offline-booking-space">
                             <label>How much Bag Space was bought? *</label>
                             <br>
                             <select class="form-control select2container" name="selected_space" required>
@@ -411,7 +411,7 @@ class Approved_travellers_ajax extends CI_Model
                         </div>
                     </div>
 
-					<div class="modal-footer">
+					<div class="modal-footer admin-offline-booking-footer">
 
                         <div class="mt-3">
                             <button type="submit" id="send_mail_btn" class="btn btn-md btn-primary">
