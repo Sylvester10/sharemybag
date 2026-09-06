@@ -36,10 +36,25 @@ class User_bookings extends MY_Controller
     // Search
     public function search()
     {
-        $destination = $this->input->post('destination');
-        $travellers = $this->traveller_read_model->get_travellers_by_destination($destination);
-        $is_verified = $this->user_details->is_verified;
+        $location = trim((string) $this->input->post('location', true));
+        $destination = trim((string) $this->input->post('destination', true));
         $csrf_hash = $this->security->get_csrf_hash();
+        $supported_countries = countries();
+
+        if (
+            !in_array($location, $supported_countries, true) ||
+            !in_array($destination, $supported_countries, true) ||
+            $location === $destination
+        ) {
+            echo json_encode(array(
+                'status' => false,
+                'msg' => 'Select two different route locations.',
+                'csrf_hash' => $csrf_hash,
+            ));
+            return;
+        }
+
+        $travellers = $this->traveller_read_model->get_travellers_by_route($location, $destination);
 
         if (count($travellers) > 0) {
             $data = array();
@@ -51,8 +66,6 @@ class User_bookings extends MY_Controller
 
                 $days = get_date_difference(date('Y-m-d H:i:s'), $traveller->travel_date);
                 $days = !$days ? 'Today' : ($days > 1 ? "$days Days" : "$days Day");
-                $location = ($traveller->destination == 'Nigeria') ? $traveller->location : $traveller->current_state;
-
                 // Check if profile is complete
                 $profile_completed = (
                     empty($this->user_details->number) ||
@@ -75,7 +88,7 @@ class User_bookings extends MY_Controller
                     'bag_locked' => $traveller->bag_locked,
                     'is_verified' => (int)$this->user_details->is_verified,
                     'profile_completed' => $profile_completed,
-                    'destination' => $destination,
+                    'destination' => $traveller->destination,
                     'csrf_hash' => $csrf_hash,
                 );
             }

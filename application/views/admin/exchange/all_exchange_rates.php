@@ -2,7 +2,7 @@
 <?php require "application/views/admin/exchange/modal/new_exchange.php";  ?>
 
 	<div class="new-item">
-		<a class="btn btn-default btn-sm button-adjust" data-toggle="modal" data-target="#new_exchange"><i class="las la-plus"></i> New Exchange Rate</a>
+		<a class="btn btn-primary btn-sm button-adjust" data-toggle="modal" data-target="#new_exchange"><i class="las la-plus"></i> New Exchange Rate</a>
 	</div>
 
 <?php ?>

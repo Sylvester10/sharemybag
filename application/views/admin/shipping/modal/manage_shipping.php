@@ -1,18 +1,16 @@
-<div class="modal fade admin-shipping-modal" id="manageShippingModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header admin-shipping-modal__header">
-                <div>
-                    <p class="admin-shipping-modal__eyebrow">Shipping Workspace</p>
-                    <h3 class="admin-shipping-modal__title" id="shippingModalTitle">Create Shipping Record</h3>
-                    <p class="admin-shipping-modal__subtitle" id="shippingModalSubtitle">Find the booking first, then confirm the shipping details that will show in the admin shipping table.</p>
-                </div>
-                <button type="button" class="close admin-shipping-modal__close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<?php
+$current_admin_id = isset($current_admin_id) ? (int) $current_admin_id : 0;
+$lock_staff_selection = !empty($lock_staff_selection);
+?>
+<div class="modal fade admin-form-modal admin-form-modal--wide admin-shipping-modal" id="manageShippingModal" tabindex="-1" role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="shippingModalTitle">
+    <div class="modal-dialog modal-lg admin-form-modal__dialog" role="document">
+        <div class="modal-content admin-form-modal__content">
+            <div class="modal-header ">
+                <div class="pull-right"><button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close" title="Close">&times;</button></div>
+                <h4 class="modal-title admin-form-modal__title" id="shippingModalTitle">Create Shipping Record</h4>
             </div>
 
-            <div class="modal-body admin-shipping-modal__body">
+            <div class="modal-body admin-form-modal__body admin-shipping-modal__body">
                 <div class="admin-shipping-steps">
                     <div class="admin-shipping-step is-active" data-step-indicator="1">1. Search Booking</div>
                     <div class="admin-shipping-step" data-step-indicator="2">2. Shipping Details</div>
@@ -35,7 +33,6 @@
                                 </button>
                             </span>
                         </div>
-                        <p class="admin-form-note">Use this if the booking was created without shipping support. Selecting it will allow you to create the first shipping record and automatically mark the booking as needing help.</p>
                     </div>
 
                     <div class="table-responsive admin-shipping-search-results-wrap">
@@ -66,12 +63,17 @@
 
                     <div class="admin-parcel-modal__grid">
                         <div class="admin-parcel-field--full">
-                            <label class="admin-parcel-field__label" for="shipping_pickup_address">Pickup Address</label>
+                            <label class="admin-parcel-field__label" for="shipping_carrier_tracking_id">Carrier Tracking ID</label>
+                            <input type="text" id="shipping_carrier_tracking_id" class="form-control admin-parcel-field__input" maxlength="150" placeholder="Enter the courier or carrier tracking ID">
+                        </div>
+
+                        <div class="admin-parcel-field--full">
+                            <label class="admin-parcel-field__label" for="shipping_pickup_address">Traveler's Pickup Address</label>
                             <textarea id="shipping_pickup_address" class="form-control admin-parcel-field__input admin-parcel-field__textarea" rows="3"></textarea>
                         </div>
 
                         <div class="admin-parcel-field--full">
-                            <label class="admin-parcel-field__label" for="shipping_dropoff_address">Drop-off Address</label>
+                            <label class="admin-parcel-field__label" for="shipping_dropoff_address">Receiver's Drop-off Address</label>
                             <textarea id="shipping_dropoff_address" class="form-control admin-parcel-field__input admin-parcel-field__textarea" rows="3"></textarea>
                         </div>
 
@@ -91,10 +93,10 @@
 
                         <div>
                             <label class="admin-parcel-field__label" for="shipping_staff_admin_id">Staff</label>
-                            <select id="shipping_staff_admin_id" class="form-control admin-parcel-field__input">
+                            <select id="shipping_staff_admin_id" class="form-control admin-parcel-field__input" <?php echo $lock_staff_selection ? 'disabled' : ''; ?>>
                                 <option value="">Select staff</option>
                                 <?php foreach ($staff_options as $staff) { ?>
-                                    <option value="<?php echo (int) $staff->id; ?>">
+                                    <option value="<?php echo (int) $staff->id; ?>" <?php echo (int) $staff->id === $current_admin_id ? 'selected' : ''; ?>>
                                         <?php echo html_escape($staff->name); ?>
                                     </option>
                                 <?php } ?>
@@ -104,8 +106,9 @@
                         <div>
                             <label class="admin-parcel-field__label" for="shipping_status">Status</label>
                             <select id="shipping_status" class="form-control admin-parcel-field__input">
-                                <option value="In Transit">In Transit</option>
-                                <option value="Completed">Completed</option>
+                                <?php foreach (shipping_status_creation_options() as $statusOption) { ?>
+                                    <option value="<?php echo html_escape($statusOption); ?>"><?php echo html_escape($statusOption); ?></option>
+                                <?php } ?>
                             </select>
                         </div>
 
@@ -117,14 +120,14 @@
                 </div>
             </div>
 
-            <div class="modal-footer admin-shipping-modal__footer">
+            <div class="modal-footer admin-form-modal__footer admin-shipping-modal__footer">
                 <button type="button" class="btn btn-default admin-parcel-btn--muted d-none" id="shipping_back_btn">
                     <i class="las la-arrow-left"></i> Back
                 </button>
                 <button type="button" class="btn btn-primary" id="shipping_next_btn">
                     Continue <i class="las la-arrow-right"></i>
                 </button>
-                <button type="button" class="btn btn-success d-none" id="shipping_submit_btn">
+                <button type="button" class="btn btn-primary d-none" id="shipping_submit_btn">
                     <i class="las la-save"></i> Save Shipping
                 </button>
             </div>
@@ -132,20 +135,18 @@
     </div>
 </div>
 
-<div class="modal fade admin-shipping-modal" id="shippingStatusModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header admin-shipping-modal__header admin-shipping-modal__header--status">
+<div class="modal fade admin-form-modal admin-form-modal--compact admin-shipping-modal" id="shippingStatusModal" tabindex="-1" role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="shippingStatusModalTitle">
+    <div class="modal-dialog admin-form-modal__dialog" role="document">
+        <div class="modal-content admin-form-modal__content">
+            <div class="modal-header  admin-shipping-modal__header admin-shipping-modal__header--status">
                 <div>
                     <p class="admin-shipping-modal__eyebrow">Shipping Update</p>
-                    <h3 class="admin-shipping-modal__title">Add Tracking Update</h3>
+                    <h3 class="admin-shipping-modal__title admin-form-modal__title" id="shippingStatusModalTitle">Add Tracking Update</h3>
                     <p class="admin-shipping-modal__subtitle">Add a new update to the shipping history and sync the active status for the booking.</p>
                 </div>
-                <button type="button" class="close admin-shipping-modal__close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close" title="Close">&times;</button>
             </div>
-            <div class="modal-body admin-shipping-modal__body">
+            <div class="modal-body admin-form-modal__body admin-shipping-modal__body">
                 <div class="alert alert-danger d-none admin-parcel-alert" id="shipping_status_error"></div>
                 <input type="hidden" id="shipping_status_booking_id" value="0">
 
@@ -153,8 +154,7 @@
                     <div>
                         <label class="admin-parcel-field__label" for="shipping_status_update">Status</label>
                         <select id="shipping_status_update" class="form-control admin-parcel-field__input">
-                            <option value="In Transit">In Transit</option>
-                            <option value="Completed">Completed</option>
+                            <option value="">Select the next status</option>
                         </select>
                     </div>
 
@@ -169,9 +169,9 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer admin-shipping-modal__footer">
+            <div class="modal-footer admin-form-modal__footer admin-shipping-modal__footer">
                 <button type="button" class="btn btn-default admin-parcel-btn--muted" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-warning" id="shipping_status_submit_btn">
+                <button type="button" class="btn btn-primary" id="shipping_status_submit_btn">
                     <i class="las la-sync"></i> Add Update
                 </button>
             </div>

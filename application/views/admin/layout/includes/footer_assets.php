@@ -43,4 +43,4 @@
 
 
 <script src="<?php echo base_url(); ?>assets/admin/custom/js/script.js"></script>
-<script src="<?php echo base_url(); ?>assets/admin/custom/js/admin_script.js"></script>
+<script src="<?php echo base_url(); ?>assets/admin/custom/js/admin_script.js?v=<?php echo filemtime(FCPATH . 'assets/admin/custom/js/admin_script.js'); ?>"></script>

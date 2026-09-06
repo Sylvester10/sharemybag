@@ -474,6 +474,24 @@ function hideFormLoader() {
 	}
 }
 
+function normalizeBookingPartyName(value) {
+	return String(value || "")
+		.trim()
+		.replace(/\s+/g, " ")
+		.toLowerCase();
+}
+
+function bookingAgentAndReceiverMatch(form) {
+	let agentName = normalizeBookingPartyName(
+		form.find("[name='agent_name']").val()
+	);
+	let receiverName = normalizeBookingPartyName(
+		form.find("[name='receiver_name']").val()
+	);
+
+	return agentName !== "" && receiverName !== "" && agentName === receiverName;
+}
+
 $(".form-wizard-ajax").each(function () {
 	let advanced_form = $(this).show();
 	ensureFormHasCsrfInput(this);
@@ -511,6 +529,26 @@ $(".form-wizard-ajax").each(function () {
 					}
 				}
 				// === END: CUSTOM VALIDATION FOR BOOKING FORM ===
+
+				// Stop duplicate booking parties while leaving Receiver Details,
+				// before the user reaches Parcel Protection.
+				let currentStep = advanced_form.find(".body").eq(currentIndex);
+				if (
+					advanced_form.hasClass("booking-wizard-form") &&
+					newIndex > currentIndex &&
+					currentStep.find("[name='receiver_name']").length > 0 &&
+					bookingAgentAndReceiverMatch(advanced_form)
+				) {
+					toastr.error(
+						"Enter different details for the agent and receiver.",
+						"Booking Error",
+						{
+							progressBar: true,
+							timeOut: 6000,
+						}
+					);
+					return false;
+				}
 
 				// Needed in some cases if the user went back (clean up)
 				if (currentIndex < newIndex) {

@@ -5,7 +5,7 @@
 
 <div class="admin-section">
     <div class="admin-page-actions">
-        <button type="button" class="btn btn-success btn-lg open-create-shipping" data-booking-id="0">
+        <button type="button" class="btn btn-primary btn-lg open-create-shipping" data-booking-id="0">
             <i class="las la-plus-circle"></i> Add Shipping
         </button>
     </div>
@@ -22,7 +22,7 @@
         array('label' => 'Drop-off Address', 'class' => 'min-w-300'),
         array('label' => 'Country', 'class' => 'min-w-140'),
         array('label' => 'Courier', 'class' => 'min-w-140'),
-        array('label' => 'Tracking Number', 'class' => 'min-w-140'),
+        array('label' => 'Carrier Tracking ID', 'class' => 'min-w-160'),
         array('label' => 'Status', 'class' => 'min-w-120'),
         array('label' => 'Date Added', 'class' => 'min-w-200'),
     );

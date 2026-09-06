@@ -21,7 +21,7 @@ $year_options = array('' => 'Year');
 $currentYear = date('Y');
 for ($y = $currentYear; $y >= $currentYear - 10; $y--) {
     $year_options[$y] = $y;
-} 
+}
 $route_options = array(
     '' => 'Route',
     'United Kingdom-Nigeria' => 'United Kingdom - Nigeria',
@@ -36,16 +36,16 @@ $columns = array(
     array('label' => ''),
     array('label' => 'Travel Date', 'class' => 'min-w-200'),
     array('label' => 'Traveller', 'class' => 'min-w-200'),
+    array('label' => 'Total KG'),
     array('label' => 'Total Amount'),
-    array('label' => 'Select Items Amount', 'class' => 'min-w-150'),
     array('label' => 'Service Charge'),
     array('label' => 'Special Fee'),
-    array('label' => 'Special Item?'),
-    array('label' => 'Premium Item?'),
-    array('label' => 'Total KG'),
+    array('label' => 'Premium Item Amount', 'class' => 'min-w-150'),
     array('label' => 'Insurance'),
-    array('label' => 'Profit'),
+    array('label' => 'Commission per KG', 'class' => 'min-w-150'),
+    array('label' => 'Total Commission', 'class' => 'min-w-150'),
     array('label' => 'Traveller Commission'),
+    array('label' => 'Exchange Rate', 'class' => 'min-w-150'),
     array('label' => 'Payment Method'),
 );
 $this->load->view('admin/partials/filter_row', array('label' => 'Filter', 'filters' => $filters));

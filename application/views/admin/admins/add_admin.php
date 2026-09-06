@@ -1,15 +1,14 @@
 <!-- views/admin/admins/add_admin.php -->
 
 <div class="new-item admin-page-actions">
-    <a class="btn btn-default btn-sm" href="<?php echo site_url('all_admins'); ?>">
-        <i class="las la-arrow-left"></i> All Admins
+    <a class="btn btn-default btn-sm admin-back-btn" href="<?php echo site_url('all_admins'); ?>">
+        <i class="las la-arrow-left"></i> Back to Admins
     </a>
 </div>
 
-<div class="row admin-form-grid">
+<div class="row admin-form-grids">
     <div class="col-md-6 col-sm-12">
         <div class="admin-panel-card ">
-            <h2>Add New Admin Account</h2>
             <p class="admin-form-note">Create internal admin access with a role that matches the exact operational scope.</p>
 
                 <?php echo form_open(site_url('add_admin_ajax'), ['id' => 'add_admin_form']); ?>
@@ -55,6 +54,17 @@
                         </option>
                     </select>
                     <small class="form-text text-muted" id="role_hint"></small>
+                </div>
+
+                <div class="form-group">
+                    <input type="hidden" name="can_manage_shipping" value="0">
+                    <div class="checkbox">
+                        <label for="canManageShipping">
+                            <input type="checkbox" id="canManageShipping" name="can_manage_shipping" value="1"
+                                <?php echo set_checkbox('can_manage_shipping', '1'); ?>>
+                            Allow access to the Shipping workspace
+                        </label>
+                    </div>
                 </div>
 
                 <hr>
@@ -105,6 +115,12 @@
                             <td class="text-center text-success"><i class="las la-check"></i></td>
                             <td class="text-center text-success"><i class="las la-check"></i></td>
                             <td class="text-center text-danger"><i class="las la-times"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Shipping workspace</td>
+                            <td class="text-center text-success"><i class="las la-check"></i></td>
+                            <td class="text-center"><span class="badge badge-info">Admin controlled</span></td>
+                            <td class="text-center"><span class="badge badge-info">Admin controlled</span></td>
                         </tr>
                         <tr>
                             <td>Users (view + approve + block)</td>
@@ -160,7 +176,18 @@
         'customer_support': 'Can manage bookings and users. Cannot access finances, travellers, or admin accounts.',
         'traveller_support': 'Can only view and manage travellers. No access to users, bookings, or finances.'
     };
-    document.querySelector('select[name="role"]').addEventListener('change', function() {
-        document.getElementById('role_hint').textContent = roleHints[this.value] || '';
-    });
+    var roleSelect = document.querySelector('select[name="role"]');
+    var shippingAccess = document.getElementById('canManageShipping');
+
+    function updateAdminAccessFields() {
+        document.getElementById('role_hint').textContent = roleHints[roleSelect.value] || '';
+        var isSuperAdmin = roleSelect.value === 'super_admin';
+        if (isSuperAdmin) {
+            shippingAccess.checked = true;
+        }
+        shippingAccess.disabled = isSuperAdmin;
+    }
+
+    roleSelect.addEventListener('change', updateAdminAccessFields);
+    updateAdminAccessFields();
 </script>

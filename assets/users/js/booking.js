@@ -535,10 +535,49 @@ jQuery(document).ready(function ($) {
     return;
   });
 
-  // Update booking on insurance select change
+  function updateParcelGuaranteeNotice() {
+    let guaranteeSelect = $('#insuranceBox');
+    let notice = $('#parcel-guarantee-notice');
+    let protectionNameTarget = $('#parcel-protection-name');
+    let coverageTarget = $('#parcel-guarantee-coverage');
+    let priceTarget = $('#parcel-guarantee-price');
+
+    if (
+      !guaranteeSelect.length ||
+      !notice.length ||
+      !protectionNameTarget.length ||
+      !coverageTarget.length ||
+      !priceTarget.length
+    ) {
+      return;
+    }
+
+    let selectedOption = guaranteeSelect.find('option:selected');
+    let coverage = selectedOption.attr('data-coverage');
+    let price = selectedOption.attr('data-insurance');
+    let protectionName = selectedOption.attr('data-protection-label');
+
+    if (!coverage || !price || !protectionName) {
+      protectionNameTarget.text('');
+      coverageTarget.text('');
+      priceTarget.text('');
+      notice.addClass('d-none');
+      return;
+    }
+
+    let currencySymbol = notice.attr('data-currency-symbol') || '';
+    protectionNameTarget.text(protectionName);
+    coverageTarget.text(currencySymbol + coverage);
+    priceTarget.text(currencySymbol + price);
+    notice.removeClass('d-none');
+  }
+
+  // Update the booking total and the applicable guarantee notice together.
   $('#insuranceBox').change(function () {
+    updateParcelGuaranteeNotice();
     updateBooking();
   });
+  updateParcelGuaranteeNotice();
 
   $('input[name="payment_method"]').change(function () {
     syncPaymentMethod();

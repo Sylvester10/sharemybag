@@ -16,8 +16,8 @@
     <?php else: ?>
 
         <div class="traveller-search-panel overflow-hidden">
-            <div class="card-body p-4">
-                <h4 class="traveller-search-title mb-2 text-white">Search for Travellers</h4>
+            <div class="card-body p-4 traveller-search-content">
+                <h4 class="mb-2 text-white traveller-search-title">Search Travellers</h4>
                 <p class="text-white mb-5 fs-3">
                     Find available travellers for your route and choose who will carry your parcel.
                 </p>
@@ -26,15 +26,29 @@
                 echo form_open('user_bookings/search', $form_attributes); ?>
 
                 <div class="traveller-search-box">
-                    <select class="form-select required traveller-search-select" name="destination" id="select_destination" required>
-                        <option value="">Where is your parcel going?</option>
-                        <?php foreach (countries() as $country): ?>
-                            <option value="<?php echo $country; ?>" <?php echo set_select('destination', $country); ?>>
-                                <?php echo $country; ?>
-                            </option>
-                        <?php endforeach; ?>
+                    <div class="traveller-search-fields">
+                        <div class="traveller-search-field">
+                            <select class="form-select required traveller-search-select" name="location" id="select_location" required>
+                                <option value="">Where is your parcel?</option>
+                                <?php foreach (countries() as $country): ?>
+                                    <option value="<?php echo $country; ?>" <?php echo set_select('location', $country); ?>>
+                                        <?php echo $country; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
 
-                    </select>
+                        <div class="traveller-search-field">
+                            <select class="form-select required traveller-search-select" name="destination" id="select_destination" required>
+                                <option value="">Where is your parcel going?</option>
+                                <?php foreach (countries() as $country): ?>
+                                    <option value="<?php echo $country; ?>" <?php echo set_select('destination', $country); ?>>
+                                        <?php echo $country; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
                     <button class="btn btn-primary traveller-search-submit" type="submit">
                         Search
                     </button>
@@ -46,16 +60,24 @@
 
     <?php endif; ?>
 
-    <!-- search loading -->
-    <div class="card d-none mb-0" id="search-spinner">
-        <div class="card-body">
-            <div class="card-title mb-3 mt-3 text-center">
-                <div class="spinner-border text-center" style="width: 3rem; height: 3rem" role="status"></div>
-            </div>
-
-            <p class="text-center">
-                Finding available travellers....
-            </p>
+    <!-- Search loading skeletons mirror the traveller result cards. -->
+    <div class="traveller-search-skeleton d-none mb-0" id="search-spinner" role="status" aria-live="polite" aria-label="Finding available travellers">
+        <span class="visually-hidden">Finding available travellers...</span>
+        <div class="traveller-results-grid" aria-hidden="true">
+            <?php for ($skeleton = 0; $skeleton < 3; $skeleton++): ?>
+                <article class="traveller-result-card traveller-result-card-skeleton">
+                    <div class="traveller-skeleton-block traveller-skeleton-visual"></div>
+                    <div class="traveller-card-content">
+                        <div class="traveller-skeleton-block traveller-skeleton-title"></div>
+                        <div class="traveller-skeleton-meta">
+                            <div class="traveller-skeleton-block"></div>
+                            <div class="traveller-skeleton-block"></div>
+                            <div class="traveller-skeleton-block"></div>
+                        </div>
+                    </div>
+                    <div class="traveller-skeleton-block traveller-skeleton-action"></div>
+                </article>
+            <?php endfor; ?>
         </div>
     </div>
 

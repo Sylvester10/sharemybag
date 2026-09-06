@@ -1,5 +1,14 @@
 <div class="container-fluid">
 
+    <div class="traveller-search-panel overflow-hidden">
+        <div class="card-body p-4">
+            <h4 class="mb-2 text-white">Booking History</h4>
+            <p class="text-white mb-1 fs-3">
+                View your complete booking history and details.
+            </p>
+        </div>
+    </div>
+
     <div class="card">
 
         <?php if (count($booking) == 0) { ?>
@@ -16,13 +25,9 @@
 
         <?php } else { ?>
 
-            <div class="card-header text-bg-primary">
-                <h4 class="mb-0 text-white">Booking History</h4>
-            </div>
-
             <div class="card-body">
 
-                <div class="card !tw-bg-[#020713]">
+                <!-- <div class="card !tw-bg-[#020713]">
                     <div class="card-body">
                         <h1 class="card-text text-center fw-bolder" style="color: red;">
                             <i class="ti ti-alert-triangle fs-9"></i>
@@ -47,6 +52,31 @@
                         </div>
 
                         <p class="text-center mt-3 mb-0" style="color: red;">There is no refund or transfer of service to another traveler </p>
+                    </div>
+                </div> -->
+
+                <div class="parcel-guarantee-notice container-fluid mb-3 !tw-bg-[#020713]" role="status" aria-live="polite">
+                    <div class="the_list text-white fs-2">
+
+                        <div class="list-item">
+                            <i class="ti ti-brand-chrome fs-4 flex-shrink-0"></i>
+                            <span class="list-text text-white">If you are posting your items, label your parcel like this: name of traveller + SMB[sender’s name].</span>
+                        </div>
+
+                        <div class="list-item">
+                            <i class="ti ti-brand-chrome fs-4 flex-shrink-0"></i>
+                            <span class="list-text text-white">Remember to include a return address.</span>
+                        </div>
+
+                        <div class="list-item">
+                            <i class="ti ti-brand-chrome fs-4 flex-shrink-0"></i>
+                            <span class="list-text text-white">Send us tracking details if you are sending your items via Royal Mail or Evri</span>
+                        </div>
+
+                        <div class="list-item" style="color: red;">
+                            <i class="ti ti-brand-chrome fs-4 flex-shrink-0"></i>
+                            <span class="list-text" style="color: red;">There is no refund or transfer of service to another traveler</span>
+                        </div>
                     </div>
                 </div>
 
@@ -92,6 +122,13 @@
                                     <i class="ti ti-location"></i> ' . $y->traveller_drop_address2 . ' <b>(Second Drop-off)</b> <br />
                                     <i class="ti ti-calendar"></i> ' . x_date($y->traveller_drop_date1) . ' <br/>
                                     <i class="ti ti-phone"></i> ' . business_phone_number . ' <br />';
+
+                                    if ($normalized_status === 'completed') {
+                                        $support_url = booking_support_whatsapp_url($y);
+                                        if ($support_url !== '') {
+                                            $traveller_details .= '<a class="booking-support-link" href="' . html_escape($support_url) . '" target="_blank" rel="noopener noreferrer"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> Need help with this parcel?</a>';
+                                        }
+                                    }
 
                                     // agent details
                                     $agent_details = '<i class="ti ti-user"></i> ' . $y->agent_name . ' <br />

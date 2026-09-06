@@ -4,103 +4,103 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Approved_users_model_ajax extends CI_Model
 {
-	public function __construct()
-	{
-		parent::__construct();
-		$this->load->model('admin_user_model');
-		$this->load->model('user_read_model');
-	}
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->model('admin_user_model');
+        $this->load->model('user_read_model');
+    }
 
-	var $table = 'users';
-	var $column_order = array(null, 'selfie', 'id_card', 'firstname', 'number', 'email', 'country', 'address', 'account_status', 'last_login', 'date_registered'); //set column field database for datatable orderable
-	var $column_search = array('selfie', 'id_card', 'firstname', 'number', 'email', 'country', 'address', 'account_status', 'last_login', 'date_registered'); //set column field database for datatable searchable
-	var $order = array('date_registered' => 'DESC');
-
-
-	private function the_query()
-	{
-		$search_value = datatable_search_value();
-		$this->db->from($this->table);
-		ci_where_not_deleted($this->db, $this->table);
-		$i = 0;
-		foreach ($this->column_search as $item) // loop column
-		{
-			if ($search_value !== '') // if datatable send POST for search
-			{
-				if ($i === 0) // first loop
-				{
-					$this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
-					$this->db->like($item, $search_value);
-				} else {
-					$this->db->or_like($item, $search_value);
-				}
-				if (count($this->column_search) - 1 == $i) //last loop
-					$this->db->group_end(); //close bracket
-			}
-			$i++;
-		}
-		if (isset($_POST['order'])) { // here order processing
-			$this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
-		} else if (isset($this->order)) {
-			$order = $this->order;
-			$this->db->order_by(key($order), $order[key($order)]);
-		}
-	}
+    var $table = 'users';
+    var $column_order = array(null, 'selfie', 'id_card', 'firstname', 'number', 'email', 'country', 'address', 'account_status', 'last_login', 'date_registered'); //set column field database for datatable orderable
+    var $column_search = array('selfie', 'id_card', 'firstname', 'number', 'email', 'country', 'address', 'account_status', 'last_login', 'date_registered'); //set column field database for datatable searchable
+    var $order = array('date_registered' => 'DESC');
 
 
-	function get_records()
-	{
-		$this->the_query();
-		if ($_POST['length'] != -1)
-			$this->db->limit($_POST['length'], $_POST['start']);
-		$this->db->where('is_verified', VERIFY_APPROVED);
-		$query = $this->db->get();
-		return $query->result();
-	}
+    private function the_query()
+    {
+        $search_value = datatable_search_value();
+        $this->db->from($this->table);
+        ci_where_not_deleted($this->db, $this->table);
+        $i = 0;
+        foreach ($this->column_search as $item) // loop column
+        {
+            if ($search_value !== '') // if datatable send POST for search
+            {
+                if ($i === 0) // first loop
+                {
+                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
+                    $this->db->like($item, $search_value);
+                } else {
+                    $this->db->or_like($item, $search_value);
+                }
+                if (count($this->column_search) - 1 == $i) //last loop
+                    $this->db->group_end(); //close bracket
+            }
+            $i++;
+        }
+        if (isset($_POST['order'])) { // here order processing
+            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        } else if (isset($this->order)) {
+            $order = $this->order;
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+    }
+
+
+    function get_records()
+    {
+        $this->the_query();
+        if ($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $this->db->where('is_verified', VERIFY_APPROVED);
+        $query = $this->db->get();
+        return $query->result();
+    }
 
 
 
-	function count_filtered_records()
-	{
-		$this->the_query();
-		$this->db->where('is_verified', VERIFY_APPROVED);
-		$query = $this->db->get();
-		return $query->num_rows();
-	}
+    function count_filtered_records()
+    {
+        $this->the_query();
+        $this->db->where('is_verified', VERIFY_APPROVED);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
 
 
-	public function count_all_records()
-	{
-		$this->db->where('is_verified', VERIFY_APPROVED);
-		$this->db->from($this->table);
-		ci_where_not_deleted($this->db, $this->table);
-		return $this->db->count_all_results();
-	}
+    public function count_all_records()
+    {
+        $this->db->where('is_verified', VERIFY_APPROVED);
+        $this->db->from($this->table);
+        ci_where_not_deleted($this->db, $this->table);
+        return $this->db->count_all_results();
+    }
 
 
-	public function actions($user)
-	{
-		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
-		$id = $y->id;
+    public function actions($user)
+    {
+        $y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
+        $id = $y->id;
 
-		if ($y->account_status == 1) {
-			$block_action = '<p><a type="button" href="' . base_url('admin_users/block_user/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Block User </a></p>';
-		} else {
-			$block_action = '<p><a type="button" href="' . base_url('admin_users/unblock_user/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-check" style="color: green"></i> &nbsp; Unblock User </a></p>';
-		};
+        if ($y->account_status == 1) {
+            $block_action = '<p><a type="button" href="' . base_url('admin_users/block_user/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Block User </a></p>';
+        } else {
+            $block_action = '<p><a type="button" href="' . base_url('admin_users/unblock_user/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-check" style="color: green"></i> &nbsp; Unblock User </a></p>';
+        };
 
-		if ($y->is_verified == VERIFY_NONE) {
+        if ($y->is_verified == VERIFY_NONE) {
 
-			$verify_action = null;
-		} elseif ($y->is_verified == VERIFY_PENDING) {
+            $verify_action = null;
+        } elseif ($y->is_verified == VERIFY_PENDING) {
 
-			$verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable admin-verification-action" data-loading-text="Verifying..."> <i class="las la-check" style="color: green"></i> &nbsp; Verify Account </a></p>';
-		} elseif ($y->is_verified == VERIFY_APPROVED) {
+            $verify_action = '<p><a type="button" href="' . base_url('admin_users/verify_user/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable admin-verification-action" data-loading-text="Verifying..."> <i class="las la-check" style="color: green"></i> &nbsp; Verify Account </a></p>';
+        } elseif ($y->is_verified == VERIFY_APPROVED) {
 
-			$verify_action = $this->unverify_action_button($id);
-		}
+            $verify_action = $this->unverify_action_button($id);
+        }
 
-		return '<p><a type="button" href="' . base_url('admin_users/user_login_admin/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable" target="_blank"> <i class="las la-sign-in-alt text-success"></i> Login as Super User </a></p>
+        return '<p><a type="button" href="' . base_url('admin_users/user_login_admin/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable" target="_blank"> <i class="las la-sign-in-alt text-success"></i> Login as Super User </a></p>
 
 		' . $verify_action . '
 
@@ -109,21 +109,21 @@ class Approved_users_model_ajax extends CI_Model
 		' . $block_action . '
 
 		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $id . '"> <i class="las la-trash" style="color: red"></i> &nbsp; Delete </a></p>';
-	}
+    }
 
 
-	public function options($id)
-	{
+    public function options($id)
+    {
 
-		return '<div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $id . '" title="Options"> <i class="las la-bars"></i> </a></div>';
-	}
+        return '<div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $id . '" title="Options"> <i class="las la-bars"></i> </a></div>';
+    }
 
 
-	public function modal_options($user)
-	{
-		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
-		$id = $y->id;
-		return '<div class="modal fade" id="options' . $id . '" role="dialog">
+    public function modal_options($user)
+    {
+        $y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
+        $id = $y->id;
+        return '<div class="modal fade" id="options' . $id . '" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content modal-width">
 					<div class="modal-header">
@@ -133,89 +133,92 @@ class Approved_users_model_ajax extends CI_Model
 						<h4 class="modal-title">Actions: ' . $y->firstname . '</h4>
 					</div><!--/.modal-header-->
 					<div class="modal-body">'
-			. $this->actions($y) .
-			'</div>
+            . $this->actions($y) .
+            '</div>
 				</div>
 			</div>
 		</div>';
-	}
+    }
 
 
-	public function message_admin_form($id)
-	{
-		$y = $this->user_read_model->get_user_details_by_id($id);
-		return form_open('admin_users/message_admin/' . $y->id) .
-			'<div>
-				<textarea class="t200 w-100 m-b-20" name="message" placeholder="Your message" required></textarea>
+    public function message_admin_form($id)
+    {
+        $y = $this->user_read_model->get_user_details_by_id($id);
+        return form_open('admin_users/message_admin/' . $y->id, 'class="admin-form-modal__form"') .
+            '<div class="modal-body admin-form-modal__body">
+				<div class="admin-form-modal__section">
+					<label for="approved_user_message_' . $y->id . '">Message *</label>
+					<textarea class="form-control t200 w-100" id="approved_user_message_' . $y->id . '" name="message" placeholder="Your message" required></textarea>
+				</div>
 			</div>
-			<div>
-				<button class="btn btn-primary"> <i class="las la-arrow-circle-right"></i> Send Message</button>
+			<div class="modal-footer admin-form-modal__footer">
+				<button type="submit" class="btn btn-primary"> <i class="las la-arrow-circle-right"></i> Send Message</button>
 			</div>'
-			. form_close();
-	}
+            . form_close();
+    }
 
 
-	public function modal_message_admin($id)
-	{
-		$y = $this->user_read_model->get_user_details_by_id($id);
-		return '<div class="modal fade" id="message' . $id . '" role="dialog">
-					<div class="modal-dialog">
-						<div class="modal-content modal-form">
-							<div class="modal-header">
+    public function modal_message_admin($id)
+    {
+        $y = $this->user_read_model->get_user_details_by_id($id);
+        return '<div class="modal fade admin-form-modal admin-form-modal--compact" id="message' . $id . '" role="dialog" aria-modal="true" aria-labelledby="approved_user_message_title_' . $id . '">
+					<div class="modal-dialog admin-form-modal__dialog">
+						<div class="modal-content modal-form admin-form-modal__content">
+							<div class="modal-header ">
 								<div class="pull-right">
 									<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
 								</div>
-								<h4 class="modal-title">Message: ' . $y->firstname . '</h4>
+								<h4 class="modal-title admin-form-modal__title" id="approved_user_message_title_' . $id . '">Message: ' . $y->firstname . '</h4>
 							</div><!--/.modal-header-->
-							<div class="modal-body">'
-			. $this->message_admin_form($id) .
-			'</div>
+							' . $this->message_admin_form($id) . '
 						</div>
 					</div>
 				</div>';
-	}
+    }
 
 
-	private function unverify_action_button($id)
-	{
-		return '<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#unverify' . $id . '"> <i class="las la-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
-	}
+    private function unverify_action_button($id)
+    {
+        return '<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#unverify' . $id . '"> <i class="las la-times" style="color: red"></i> &nbsp; Un-verify Account </a></p>';
+    }
 
 
-	private function modal_unverify($user)
-	{
-		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
-		$id = $y->id;
-		$options = verification_rejection_reason_options();
-		$reason_options = '<option value="">Select a reason</option>';
-		foreach ($options as $value => $label) {
-			$reason_options .= '<option value="' . html_escape($value) . '">' . html_escape($label) . '</option>';
-		}
+    private function modal_unverify($user)
+    {
+        $y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
+        $id = $y->id;
+        $options = verification_rejection_reason_options();
+        $reason_options = '<option value="">Select a reason</option>';
+        foreach ($options as $value => $label) {
+            $reason_options .= '<option value="' . html_escape($value) . '">' . html_escape($label) . '</option>';
+        }
 
-		return '
-			<div class="modal fade admin-parcel-modal" id="unverify' . $id . '" tabindex="-1" role="dialog">
-				<div class="modal-dialog modal-md" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
+        return '
+			<div class="modal fade admin-form-modal admin-form-modal--compact admin-parcel-modal" id="unverify' . $id . '" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="approved_unverify_title_' . $id . '">
+				<div class="modal-dialog modal-md admin-form-modal__dialog" role="document">
+					<div class="modal-content admin-form-modal__content">
+						<div class="modal-header ">
 							<div class="pull-right">
 								<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
 							</div>
-							<h4 class="modal-title">Un-verify: ' . html_escape($y->firstname) . '</h4>
+							<h4 class="modal-title admin-form-modal__title" id="approved_unverify_title_' . $id . '">Un-verify: ' . html_escape($y->firstname) . '</h4>
 						</div>
-							'. form_open('admin_users/unverify_user/' . $id, 'class="admin-verification-form"') .'
-						<div class="modal-body admin-parcel-modal__body">
+							' . form_open('admin_users/unverify_user/' . $id, 'class="admin-verification-form admin-form-modal__form"') . '
+						<div class="modal-body admin-form-modal__body admin-parcel-modal__body">
+							<div class="admin-form-modal__section">
 							<div class="admin-parcel-modal__grid">
 								<div class="admin-parcel-field">
-									<label class="admin-parcel-field__label" for="rejection_reason">Reason *</label>
-									<select name="rejection_reason" class="form-control" required>' . $reason_options . '</select>
+									<label class="admin-parcel-field__label" for="approved_unverify_reason_' . $id . '">Reason *</label>
+									<select name="rejection_reason" id="approved_unverify_reason_' . $id . '" class="form-control" required>' . $reason_options . '</select>
 								</div>
 								<div class="admin-parcel-field admin-parcel-field--full">
-									<label class="admin-parcel-field__label" for="rejection_note">Additional note</label>
-									<textarea name="rejection_note" class="form-control admin-parcel-field__input admin-parcel-field__textarea w-100" rows="3" placeholder="Optional notes for user to correct issues with their verification"></textarea>
+									<label class="admin-parcel-field__label" for="approved_unverify_note_' . $id . '">Additional note</label>
+									<textarea name="rejection_note" id="approved_unverify_note_' . $id . '" class="form-control admin-parcel-field__input admin-parcel-field__textarea w-100" rows="3" placeholder="Optional notes for user to correct issues with their verification"></textarea>
 								</div>
 							</div>
+							</div>
 						</div>
-						<div class="modal-footer admin-parcel-modal__footer">
+						<div class="modal-footer admin-form-modal__footer admin-parcel-modal__footer">
 								<button type="submit" class="btn btn-danger admin-verification-submit" data-loading-text="Sending feedback..."> Send Feedback </button>
 						</div>
 						' . form_close() . '
@@ -223,15 +226,15 @@ class Approved_users_model_ajax extends CI_Model
 				</div>
 			</div>
 		';
-	}
+    }
 
 
-	public function modals($user)
-	{
-		$y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
-		$modal_delete_confirm = modal_delete_confirm($y->id, $y->firstname, 'user', 'admin_users/delete_user');
-		return 	$this->modal_options($y) .
-			$this->modal_unverify($y) .
-			$modal_delete_confirm;
-	}
+    public function modals($user)
+    {
+        $y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
+        $modal_delete_confirm = modal_delete_confirm($y->id, $y->firstname, 'user', 'admin_users/delete_user');
+        return     $this->modal_options($y) .
+            $this->modal_unverify($y) .
+            $modal_delete_confirm;
+    }
 }

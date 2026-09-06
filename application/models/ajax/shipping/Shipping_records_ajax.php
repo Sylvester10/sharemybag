@@ -3,7 +3,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Shipping_records_ajax extends CI_Model
 {
-    private $table = 'bookings';
+    private $table = 'shipping_records';
     private $column_order = array(
         null,
         'shipping_records.staff_name',
@@ -14,7 +14,7 @@ class Shipping_records_ajax extends CI_Model
         'shipping_records.dropoff_address',
         'shipping_records.pickup_country',
         'shipping_records.courier',
-        'bookings.tracking_id',
+        'shipping_records.carrier_tracking_id',
         'shipping_records.status',
         'shipping_records.date_added',
     );
@@ -30,6 +30,7 @@ class Shipping_records_ajax extends CI_Model
         'shipping_records.dropoff_address',
         'shipping_records.pickup_country',
         'shipping_records.courier',
+        'shipping_records.carrier_tracking_id',
         'bookings.tracking_id',
         'shipping_records.status',
     );
@@ -60,10 +61,10 @@ class Shipping_records_ajax extends CI_Model
             bookings.receiver_locality,
             bookings.receiver_postcode,
             bookings.tracking_id,
-            bookings.need_help,
             bookings.delivery_status AS booking_delivery_status,
             bookings.date_added AS booking_date_added,
             shipping_records.id AS shipping_record_id,
+            shipping_records.carrier_tracking_id,
             shipping_records.pickup_address,
             shipping_records.dropoff_address,
             shipping_records.pickup_country,
@@ -73,13 +74,12 @@ class Shipping_records_ajax extends CI_Model
             shipping_records.status,
             shipping_records.date_added
         ');
-        $this->db->from($this->table);
+        $this->db->from('shipping_records');
+        $this->db->join('bookings', 'bookings.id = shipping_records.booking_id', 'inner');
         $this->db->join('users', 'users.id = bookings.user_id', 'left');
-        $this->db->join('shipping_records', 'shipping_records.booking_id = bookings.id', 'left');
         $this->db->join('admins', 'admins.id = shipping_records.staff_admin_id', 'left');
         ci_where_not_deleted($this->db, 'bookings');
         ci_where_not_deleted($this->db, 'users');
-        $this->db->where('bookings.need_help', 'Yes');
         $this->db->where('bookings.payment_status', 'completed');
 
         $i = 0;
@@ -129,9 +129,9 @@ class Shipping_records_ajax extends CI_Model
 
     public function count_all_records()
     {
-        $this->db->from($this->table);
+        $this->db->from('shipping_records');
+        $this->db->join('bookings', 'bookings.id = shipping_records.booking_id', 'inner');
         ci_where_not_deleted($this->db, 'bookings');
-        $this->db->where('bookings.need_help', 'Yes');
         $this->db->where('bookings.payment_status', 'completed');
         return $this->db->count_all_results();
     }

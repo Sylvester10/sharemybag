@@ -69,7 +69,7 @@
 
 /* verification begin */
 .image_container {
-    aspect-ratio: 2/1;
+    aspect-ratio: 4/1.2;
     position: relative;
     overflow: hidden;
 }
@@ -188,7 +188,6 @@ img.img-changed ~ .inside_button {
     color: #f36b24;
     font-size: 20px;
 }
-
 
 .kyc-form-card {
     border: 1px solid #e9edf3;
@@ -429,9 +428,9 @@ img.img-changed ~ .inside_button {
     text-align: center;
 }
 
-.kyc-wizard-form.wizard > .actions a[href="#previous"],
-.kyc-wizard-form.wizard > .actions a[href="#previous"]:hover,
-.kyc-wizard-form.wizard > .actions a[href="#previous"]:active {
+.kyc-wizard-form.wizard > .actions a[href='#previous'],
+.kyc-wizard-form.wizard > .actions a[href='#previous']:hover,
+.kyc-wizard-form.wizard > .actions a[href='#previous']:active {
     background: #020713;
 }
 
@@ -749,7 +748,7 @@ div#default_order_info {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    max-width: 410px;
+    max-width: 600px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -1082,6 +1081,68 @@ div#default_order_info {
 
 .booking-choice-input:focus-visible + .booking-choice-card {
     outline: 3px solid rgba(243, 107, 36, 0.28);
+    outline-offset: 3px;
+}
+
+.parcel-guarantee-notice {
+    align-items: center;
+    background: #fff8f4;
+    border: 1px solid #f36b24;
+    border-left-width: 5px;
+    border-radius: 7px;
+    color: #3f2a20;
+    display: flex;
+    gap: 12px;
+    max-width: 720px;
+    padding: 14px 16px;
+}
+
+.parcel-guarantee-notice__icon {
+    align-items: center;
+    background: #f36b24;
+    border-radius: 50%;
+    color: #ffffff;
+    display: inline-flex;
+    flex: 0 0 30px;
+    height: 30px;
+    justify-content: center;
+    margin-top: 1px;
+    width: 30px;
+}
+
+.parcel-guarantee-notice__icon .ti {
+    font-size: 19px;
+}
+
+.parcel-guarantee-notice__text {
+    color: inherit;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.parcel-guarantee-notice__text strong {
+    color: #020713;
+}
+
+.booking-support-link {
+    align-items: center;
+    color: #f36b24;
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 700;
+    gap: 6px;
+    margin-top: 10px;
+    text-decoration: none;
+}
+
+.booking-support-link:hover,
+.booking-support-link:focus-visible {
+    color: #0f5f3a;
+    text-decoration: underline;
+}
+
+.booking-support-link:focus-visible {
+    outline: 3px solid rgba(22, 121, 75, 0.22);
     outline-offset: 3px;
 }
 
@@ -1420,7 +1481,7 @@ table.dataTable thead > tr > th.sorting:before {
 }
 
 .traveller-search-content {
-    max-width: 640px;
+    max-width: 980px;
     position: relative;
     z-index: 1;
 }
@@ -1454,10 +1515,35 @@ table.dataTable thead > tr > th.sorting:before {
     background: #ffffff;
     border-radius: 7px;
     display: flex;
-    gap: 30px;
-    max-width: 450px;
-    padding: 0.1rem 0.5rem;
-    min-height: 55px !important;
+    gap: 12px;
+    max-width: 700px;
+    padding: 10px;
+    height: 60px;
+}
+
+.traveller-search-fields {
+    display: grid;
+    flex: 1 1 auto;
+    gap: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
+}
+
+.traveller-search-field {
+    min-width: 0;
+    padding: 0 14px;
+}
+
+.traveller-search-field + .traveller-search-field {
+    border-left: 1px solid #e8edf3;
+}
+
+.traveller-search-field label {
+    color: #4f5d73;
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 2px;
 }
 
 .traveller-search-select {
@@ -1498,6 +1584,75 @@ table.dataTable thead > tr > th.sorting:before {
     border-color: #020713;
     outline: none;
     transform: translateY(-1px);
+}
+
+.traveller-search-submit:disabled {
+    cursor: wait;
+    opacity: 0.7;
+    transform: none;
+}
+
+.traveller-search-skeleton {
+    padding: 20px;
+}
+
+.traveller-result-card-skeleton {
+    pointer-events: none;
+}
+
+.traveller-skeleton-block {
+    background: #edf0f4;
+    border-radius: 7px;
+    overflow: hidden;
+    position: relative;
+}
+
+.traveller-skeleton-block::after {
+    animation: traveller-skeleton-shimmer 1.35s infinite;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.72),
+        transparent
+    );
+    content: '';
+    inset: 0;
+    position: absolute;
+    transform: translateX(-100%);
+}
+
+.traveller-skeleton-visual {
+    height: 124px;
+    width: 150px;
+}
+
+.traveller-skeleton-title {
+    height: 24px;
+    margin-bottom: 22px;
+    max-width: 440px;
+}
+
+.traveller-skeleton-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+}
+
+.traveller-skeleton-meta .traveller-skeleton-block {
+    height: 16px;
+    width: 120px;
+}
+
+.traveller-skeleton-action {
+    height: 44px;
+    justify-self: end;
+    width: 130px;
+}
+
+@keyframes traveller-skeleton-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .search-results-card .card-body {
@@ -1703,6 +1858,10 @@ table.dataTable thead > tr > th.sorting:before {
     .traveller-result-card-clickable:focus {
         transform: none;
     }
+
+    .traveller-skeleton-block::after {
+        animation: none;
+    }
 }
 
 .swiper {
@@ -1739,9 +1898,26 @@ table.dataTable thead > tr > th.sorting:before {
 
     .traveller-search-box {
         align-items: stretch;
-        flex-wrap: wrap;
+        flex-direction: column;
         padding: 10px;
         gap: 15px;
+        height: 220px;
+    }
+
+    .traveller-search-fields {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .traveller-search-field {
+        padding: 8px 4px;
+    }
+
+    .traveller-search-field + .traveller-search-field {
+        border-left: 0;
+        border-top: 1px solid #e8edf3;
+        margin-top: 4px;
+        padding-top: 12px;
     }
 
     .traveller-search-select {
@@ -1773,6 +1949,20 @@ table.dataTable thead > tr > th.sorting:before {
         padding: 18px;
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .traveller-result-card-skeleton {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .traveller-skeleton-visual {
+        display: none;
+    }
+
+    .traveller-skeleton-action {
+        justify-self: stretch;
+        width: 100%;
     }
 
     .traveller-card-visual {
@@ -1846,4 +2036,23 @@ table.dataTable thead > tr > th.sorting:before {
 .swiper-pagination-custom,
 .swiper-pagination-fraction {
     bottom: 0 !important;
+}
+/* Authentication and verified contact states */
+.auth-profile-code-input {
+    min-height: 52px;
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.35rem;
+    text-align: center;
+}
+
+#phoneVerificationState .badge {
+    display: inline-flex;
+    align-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #phoneVerificationModal.fade .modal-dialog {
+        transition: none;
+    }
 }

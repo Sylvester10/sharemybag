@@ -2876,19 +2876,64 @@ function shipping_status_normalize($status)
 	$status = strtolower(trim((string) $status));
 
 	$map = array(
-		'' => 'In Transit',
-		'pending' => 'In Transit',
-		'booking pending' => 'In Transit',
-		'shipment created' => 'In Transit',
+		'' => 'Awaiting Collection',
+		'pending' => 'Awaiting Collection',
+		'booking pending' => 'Awaiting Collection',
+		'shipment created' => 'Awaiting Collection',
+		'awaiting collection' => 'Awaiting Collection',
 		'in transit' => 'In Transit',
 		'completed' => 'Completed',
 		'delivered' => 'Completed',
-		'failed delivery' => 'In Transit',
-		'cancelled' => 'In Transit',
-		'canceled' => 'In Transit',
+		'failed delivery' => 'Awaiting Collection',
+		'cancelled' => 'Awaiting Collection',
+		'canceled' => 'Awaiting Collection',
 	);
 
-	return isset($map[$status]) ? $map[$status] : 'In Transit';
+	return isset($map[$status]) ? $map[$status] : 'Awaiting Collection';
+}
+
+
+function shipping_status_creation_options()
+{
+	return array('Awaiting Collection', 'In Transit', 'Completed');
+}
+
+
+function shipping_status_next_options($currentStatus)
+{
+	$currentStatus = shipping_status_normalize($currentStatus);
+	$options = array(
+		'Awaiting Collection' => array('In Transit', 'Completed'),
+		'In Transit' => array('Completed'),
+		'Completed' => array(),
+	);
+
+	return $options[$currentStatus];
+}
+
+
+function shipping_status_transition_allowed($currentStatus, $nextStatus, $allowSame = false)
+{
+	$currentStatus = shipping_status_normalize($currentStatus);
+	$nextStatus = shipping_status_normalize($nextStatus);
+
+	if ($allowSame && $currentStatus === $nextStatus) {
+		return true;
+	}
+
+	return in_array($nextStatus, shipping_status_next_options($currentStatus), true);
+}
+
+
+function shipping_status_to_booking_delivery($status)
+{
+	$map = array(
+		'Awaiting Collection' => 'Shipment Created',
+		'In Transit' => 'In Transit',
+		'Completed' => 'Delivered',
+	);
+
+	return $map[shipping_status_normalize($status)];
 }
 
 
@@ -2899,6 +2944,9 @@ function shipping_status_badge($status)
 	switch ($status) {
 		case 'Completed':
 			$class = 'badge-success';
+			break;
+		case 'Awaiting Collection':
+			$class = 'badge-warning';
 			break;
 		case 'In Transit':
 		default:
@@ -2923,6 +2971,8 @@ function shipping_courier_options()
 		'Canada Post',
 		'GIG Logistics',
 		'EMS',
+		'Bolt',
+		'Uber',
 		'Other',
 	);
 }
@@ -2953,6 +3003,41 @@ function account_status_badge($status)
 	return ((int) $status === 0)
 		? smb_badge('Blocked', 'badge-danger')
 		: smb_badge('Active', 'badge-success');
+}
+
+
+function admin_shipping_access_allowed($admin)
+{
+	if (!$admin) {
+		return false;
+	}
+
+	$role = is_array($admin)
+		? (string) ($admin['role'] ?? '')
+		: (string) ($admin->role ?? '');
+
+	if ($role === 'super_admin') {
+		return true;
+	}
+
+	if (!in_array($role, array('customer_support', 'traveller_support'), true)) {
+		return false;
+	}
+
+	$hasPermissionField = is_array($admin)
+		? array_key_exists('can_manage_shipping', $admin)
+		: property_exists($admin, 'can_manage_shipping');
+
+	// Compatibility only while migration 016 is being deployed.
+	if (!$hasPermissionField) {
+		return $role === 'customer_support';
+	}
+
+	$permission = is_array($admin)
+		? $admin['can_manage_shipping']
+		: $admin->can_manage_shipping;
+
+	return (int) $permission === 1;
 }
 
 
@@ -3071,6 +3156,69 @@ function currency_label($currency)
 		default:
 			return 'British Pound';
 	}
+}
+
+
+/**
+ * Build the pre-filled WhatsApp support URL used by completed bookings.
+ *
+ * The support number can be overridden with SUPPORT_WHATSAPP_NUMBER. Booking
+ * details are encoded into the query string rather than rendered as HTML so
+ * every caller can apply the escaping appropriate to its own surface.
+ *
+ * @param array|object $booking
+ * @return string
+ */
+function booking_support_whatsapp_url($booking)
+{
+	$details = is_object($booking) ? get_object_vars($booking) : (array) $booking;
+	$value = function ($key, $fallback = '') use ($details) {
+		return isset($details[$key]) && $details[$key] !== null
+			? trim((string) $details[$key])
+			: $fallback;
+	};
+
+	$support_number = isset($_ENV['SUPPORT_WHATSAPP_NUMBER'])
+		? (string) $_ENV['SUPPORT_WHATSAPP_NUMBER']
+		: (defined('business_phone_number') ? business_phone_number : '');
+	$support_number = preg_replace('/\D+/', '', $support_number);
+
+	if ($support_number === '') {
+		return '';
+	}
+
+	$reference = $value('tracking_id');
+	$customer = $value('user_fullname', $value('customer_name'));
+	$traveller = $value('traveller_name');
+	$origin = $value('traveller_current_state', $value('traveller_departure_state'));
+	$destination = $value('traveller_destination', $value('traveller_arrival_state'));
+	$total_amount = $value('total_amount');
+	$currency = $value('currency_code', $value('currency'));
+
+	if (in_array($currency, array('£', '$', '₦'), true)) {
+		$currency_symbol = $currency;
+	} else {
+		$currency_symbol = currency_symbol_text($currency);
+	}
+
+	$lines = array('Hi, I need help with this booking.');
+	if ($reference !== '') {
+		$lines[] = 'Booking reference: ' . $reference;
+	}
+	if ($customer !== '') {
+		$lines[] = 'Customer: ' . $customer;
+	}
+	if ($traveller !== '') {
+		$lines[] = 'Traveller: ' . $traveller;
+	}
+	if ($origin !== '' || $destination !== '') {
+		$lines[] = 'Route: ' . trim($origin . ($origin !== '' && $destination !== '' ? ' to ' : '') . $destination);
+	}
+	if ($total_amount !== '' && is_numeric($total_amount)) {
+		$lines[] = 'Amount: ' . $currency_symbol . number_format((float) $total_amount, 2);
+	}
+
+	return 'https://wa.me/' . $support_number . '?text=' . rawurlencode(implode("\n", $lines));
 }
 
 

@@ -3,7 +3,7 @@
 <?php //require("application/views/admin/gallery/modals/upload_photo.php");  ?>
 
 <div class="new-item">
-	<button class="btn btn-default btn-sm button-adjust" data-toggle="collapse" data-target="#upload_photo"
+	<button class="btn btn-primary btn-sm button-adjust" data-toggle="collapse" data-target="#upload_photo"
 		aria-expanded="false" aria-controls="collapseExample"><i class="las la-upload"></i> Upload Advert</button>
 	<a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('track'); ?>"
 		target="_blank"><i class="las la-eye"></i> View in Site</a>
@@ -28,7 +28,7 @@
 		<?php echo form_close(); ?>
 
 		<div class="text-center m-t-20">
-			<a class="btn btn-primary" href="<?php echo base_url('admin_adverts/update_adverts'); ?>"
+			<a class="btn btn-default" href="<?php echo base_url('admin_adverts/update_adverts'); ?>"
 				title="Update Advert">Upload Advert</a>
 		</div>
 
@@ -53,7 +53,7 @@
 if ($total_records > 0) { ?>
 
 	<?php
-	//select options bulk actions 
+	//select options bulk actions
 	$options_array = array(
 		//'value' => 'Caption'
 		'publish' => 'Publish',
@@ -87,11 +87,11 @@ if ($total_records > 0) { ?>
 						<div><?php echo checkbox_bulk_action($p->id); ?></div>
 						<div>
 
-							<a class="btn btn-primary btn-xs" type="button"
+							<a class="btn btn-default btn-xs" type="button"
 								href="<?php echo base_url('assets/adverts/' . $p->photo); ?>" title="View full image"
 								target="_blank">View</a>
 
-							<button class="btn btn-primary btn-xs clipboard_copy" type="button"
+							<button class="btn btn-default btn-xs clipboard_copy" type="button"
 								data-clipboard-text="<?php echo base_url('assets/adverts/' . $p->photo); ?>"
 								title="Copy image URL to clipboard">Copy URL</button>
 

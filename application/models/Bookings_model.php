@@ -81,7 +81,6 @@ class Bookings_model extends \MY_Model
 			'receiver_postcode'  => $this->input->post('receiver_postcode', TRUE),
 			'payment_method'  => $this->input->post('payment_method', TRUE),
 			'items'           => $this->input->post('items', TRUE),
-			'need_help'       => $this->input->post('need_help', TRUE),
 		);
 
 
@@ -176,7 +175,6 @@ class Bookings_model extends \MY_Model
 			'receiver_postcode'  => $this->input->post('receiver_postcode', TRUE),
 			'payment_method'  => $this->input->post('payment_method', TRUE),
 			'items'           => $this->input->post('items', TRUE),
-			'need_help'       => $this->input->post('need_help', TRUE),
 		);
 		if ($id_photo) $data['id_photo'] = $id_photo;
 		if ($selfie) $data['selfie'] = $selfie;
@@ -376,6 +374,7 @@ class Bookings_model extends \MY_Model
 
 		$data['tracking_id'] = $booking->tracking_id;
 		$data['total_amount'] = $booking->total_amount;
+		$data['user_fullname'] = $booking->user_fullname;
 		$data['agent_name'] = $booking->agent_name;
 		$data['date_added'] = x_date($booking->date_added);
 		$data['items'] = $booking->items;
@@ -393,6 +392,9 @@ class Bookings_model extends \MY_Model
 		$data['traveller_current_state'] = $booking->traveller_current_state;
 		$data['traveller_arrival_airport'] = $booking->traveller_arrival_airport;
 		$data['traveller_arrival_state'] = $booking->traveller_arrival_state;
+		$data['traveller_destination'] = isset($booking->traveller_destination) ? $booking->traveller_destination : $booking->traveller_arrival_state;
+		$data['currency'] = currency_symbol_text($booking->currency);
+		$data['currency_code'] = currency_code_normalize($booking->currency);
 
 		// Send email to Admin and User
 		// send_email_notification($this, 'customers@sharemybag.co.uk', 'New Booking', $data, 'admin_booking_notification_email');

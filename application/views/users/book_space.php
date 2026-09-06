@@ -27,11 +27,6 @@
                     <b class="fs-2">Flammables</b>
                 </div>
 
-                <div class="icos">
-                    <i class="ti ti-ban fs-9"></i>
-                    <b class="fs-2">Bar Soaps</b>
-                </div>
-
             </div>
             <div class="text-center">
                 <p class="text-subtle">Please be aware of the above restrictions when sending a parcel with Share My Bag.</p>
@@ -117,13 +112,13 @@
                                 </div>
                             </div>
 
-                            <div class="card border border-warning mt-3 mb-3">
-                                <div class="card-body py-3">
-                                    <p class="mb-0 text-center text-black fs-3">
-                                        <i class="ti ti-alert-circle me-1"></i>
-                                        <b>No Bar Soaps are not allowed</b> <br> Please do not add bar soaps to your parcel unless purchased by Sharemybag.
-                                    </p>
-                                </div>
+                            <div class="parcel-guarantee-notice mt-3 mb-3" role="status" aria-live="polite">
+                                <span class="parcel-guarantee-notice__icon" aria-hidden="true">
+                                    <i class="ti ti-alert-circle"></i>
+                                </span>
+                                <p class="parcel-guarantee-notice__text mb-0">
+                                    Please note that <strong>Bar Soaps</strong> are not allowed in your parcel unless purchased by Sharemybag.
+                                </p>
                             </div>
 
                             <div class="row">
@@ -325,36 +320,35 @@
 
                         </fieldset>
 
-                        <h3> <i class="ti ti-shield-check fs-4"></i> Parcel Guarantee </h3>
+                        <h3> <i class="ti ti-shield-check fs-4"></i> Parcel Protection </h3>
                         <fieldset>
-                            <h4 class="card-title mb-4 bookspace_title">Parcel protection <b class="!tw-text-[#f36b24]">(Optional)</b></h4>
+                            <h4 class="card-title mb-2 bookspace_title">Parcel protection <b class="!tw-text-[#f36b24]">(Optional)</b></h4>
+                            <p class="card-subtitle mb-3 fs-3">As with everything else in life, anything can happen. If it does, Sharemybag covers your parcel up to £20 in the case of loss or damage during the traveller's journey. If you want extra protection choose from the options below.</p>
 
-                            <div class="col-lg-6 mb-3">
+                            <div class="col-lg-6 mb-3"
                                 <?php
                                 // Insurance prices
                                 $ins_low_val = 3.99;
                                 $ins_high_val = 13.99;
                                 ?>
                                 <select name="insurance" id="insuranceBox" class="form-select border border-primary">
-                                    <option value="">Do you want parcel insurance?</option>
-                                    <option value="<?= number_format($ins_low_val, 2); ?>" data-insurance="<?= number_format($ins_low_val, 2); ?>">
-                                        Parcel Guarantee <?= $symbol ?><?= number_format($ins_low_val, 2); ?>
+                                    <option value="">Do you want parcel protection?</option>
+                                    <option value="<?= number_format($ins_low_val, 2); ?>" data-insurance="<?= number_format($ins_low_val, 2); ?>" data-coverage="100" data-protection-label="Parcel Protection">
+                                        Parcel Protection <?= $symbol ?><?= number_format($ins_low_val, 2); ?>
                                     </option>
-                                    <option value="<?= number_format($ins_high_val, 2); ?>" data-insurance="<?= number_format($ins_high_val, 2); ?>">
-                                        Parcel Guarantee <?= $symbol ?><?= number_format($ins_high_val, 2); ?>
+                                    <option value="<?= number_format($ins_high_val, 2); ?>" data-insurance="<?= number_format($ins_high_val, 2); ?>" data-coverage="300" data-protection-label="Parcel Protection Plus">
+                                        Parcel Protection⁺ <?= $symbol ?><?= number_format($ins_high_val, 2); ?>
                                     </option>
                                 </select>
                             </div>
 
-                            <p class="card-subtitle mb-3">
-                                Insurance covers your parcel up to <b class="text-black"><?= $symbol ?>100</b> when you purchase a parcel guarantee of <b class="text-black"><?= $symbol ?>3.99</b> or up to <b class="text-black"><?= $symbol ?>300</b> when you buy a parcel guarantee of <b class="text-black"><?= $symbol ?>13.99</b> in the case of loss or avoidable damage <b class="text-black">(except fish)</b> during the traveller’s journey.
-                            </p>
-
-                            <div class="form-check">
-                                <label class="formlabel">
-                                    <b class="text-black">Do you need help connecting this parcel to the traveller?</b>
-                                </label>
-                                <input class="form-check-input" type="checkbox" value="Yes" name="need_help">
+                            <div id="parcel-guarantee-notice" class="parcel-guarantee-notice d-none" data-currency-symbol="<?= html_escape(currency_symbol_text($currency)) ?>" role="status" aria-live="polite">
+                                <span class="parcel-guarantee-notice__icon" aria-hidden="true">
+                                    <i class="ti ti-alert-circle"></i>
+                                </span>
+                                <p class="parcel-guarantee-notice__text mb-0">
+                                    <strong id="parcel-protection-name">Parcel Protection</strong> covers your parcel up to <strong id="parcel-guarantee-coverage"></strong> when you purchase this protection for <strong id="parcel-guarantee-price"></strong>, in case of loss or avoidable damage, except perishable goods, during the traveller’s journey.
+                                </p>
                             </div>
                         </fieldset>
 
@@ -378,7 +372,7 @@
 
                                 <h3 class=" mb-3"><b> <?= x_date($traveller_details->travel_date) ?></b></h3>
 
-                                <p class="mt-2"> You're buying </p>
+                                <p class="mt-2"> You are buying </p>
 
                                 <h3 class=" mb-3"><b> <span id="total-kgs">10</span>KG</b></h3>
 

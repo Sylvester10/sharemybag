@@ -7,20 +7,21 @@ $dropoffAddress = trim(implode(', ', array_filter(array($record->dropoff_address
 <input type="hidden" id="csrf_hash" value="<?php echo html_escape($this->security->get_csrf_hash()); ?>" />
 
 <div class="admin-page-actions">
-    <a href="<?php echo base_url('shipping'); ?>" class="btn btn-default">
+    <a href="<?php echo base_url('shipping'); ?>" class="btn btn-default admin-back-btn">
         <i class="las la-arrow-left"></i> Back to Shipping
     </a>
-    <button type="button" class="btn btn-info open-edit-shipping" data-booking-id="<?php echo (int) $record->booking_id; ?>">
+    <button type="button" class="btn btn-default open-edit-shipping" data-booking-id="<?php echo (int) $record->booking_id; ?>">
         <i class="las la-pen"></i> Edit Shipping
     </button>
-    <button type="button" class="btn btn-warning open-status-shipping" data-booking-id="<?php echo (int) $record->booking_id; ?>">
+    <button type="button" class="btn btn-primary open-status-shipping" data-booking-id="<?php echo (int) $record->booking_id; ?>">
         <i class="las la-sync"></i> Add Tracking Update
     </button>
 </div>
 
 <div class="admin-summary-chip">
     <i class="las la-truck"></i>
-    <span>Tracking: <strong><?php echo html_escape($record->tracking_id); ?></strong></span>
+    <span>Booking Reference: <strong><?php echo html_escape($record->booking_tracking_id); ?></strong></span>
+    <span>Carrier Tracking ID: <strong><?php echo html_escape($record->carrier_tracking_id); ?></strong></span>
     <span><?php echo shipping_status_badge($status); ?></span>
 </div>
 
@@ -36,6 +37,10 @@ $dropoffAddress = trim(implode(', ', array_filter(array($record->dropoff_address
                 <tr>
                     <th>Courier</th>
                     <td><?php echo html_escape($record->courier ?: 'Not Assigned'); ?></td>
+                </tr>
+                <tr>
+                    <th>Carrier Tracking ID</th>
+                    <td><code><?php echo html_escape($record->carrier_tracking_id); ?></code></td>
                 </tr>
                 <tr>
                     <th>Pickup Country</th>

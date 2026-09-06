@@ -334,7 +334,10 @@ class Admin_bookings extends MY_Controller
     {
         $this->check_data_exists($id, 'id', 'bookings', 'admin');
         $bookings_details = $this->booking_read_model->get_booking_details_by_id($id);
-        $page_title = 'Booking Info: ' . $bookings_details->agent_name;
+        $booking_reference = !empty($bookings_details->tracking_id)
+            ? $bookings_details->tracking_id
+            : '#' . (int) $bookings_details->id;
+        $page_title = 'Booking Info: ' . $booking_reference;
         $this->admin_header($page_title, $page_title);
         $data['y'] = $bookings_details;
         $this->load->view('admin/bookings/view_booking', $data);
