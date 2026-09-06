@@ -1,6 +1,21 @@
 <?php $email_title = 'Booking Confirmation';
 include 'email_header.php'; ?>
 
+<?php
+$booking_support_url = booking_support_whatsapp_url(array(
+    'tracking_id' => $tracking_id ?? '',
+    'user_fullname' => $user_fullname ?? ($agent_name ?? ''),
+    'traveller_name' => $traveller_name ?? '',
+    'traveller_current_state' => $traveller_current_state ?? '',
+    'traveller_departure_state' => $traveller_departure_state ?? '',
+    'traveller_destination' => $traveller_destination ?? '',
+    'traveller_arrival_state' => $traveller_arrival_state ?? '',
+    'total_amount' => $total_amount ?? '',
+    'currency' => $currency ?? '',
+    'currency_code' => $currency_code ?? '',
+));
+?>
+
 <p class="greeting">Thank you for your order!</p>
 <p style="margin-bottom:4px;">Payment received:</p>
 <p class="amount-display"><?= $currency ?><?= number_format($total_amount, 2) ?></p>
@@ -79,10 +94,16 @@ include 'email_header.php'; ?>
 </p>
 
 <div class="warning-box">
-    ⚠️ Please drop your items off with the traveller by your region's last drop-off date. There will be no refund or transfer of service to another traveller.
+    Please drop your items off with the traveller by your region's last drop-off date. There will be no refund or transfer of service to another traveller.
 </div>
 
 <p style="font-size:13px; color:#6b7280;">You can find your travellers details by clicking on the history button on your account.</p>
+
+<?php if ($booking_support_url !== '') { ?>
+    <div class="btn-wrap">
+        <a href="<?= htmlspecialchars($booking_support_url, ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer">Need help with this parcel?</a>
+    </div>
+<?php } ?>
 
 <p style="font-size:13px; color:#6b7280;">Please inform your packer that illegal drugs are strictly prohibited. For a full list of prohibited items, check our <a href="<?php echo base_url(); ?>#faqss" class="text-link">FAQ section</a>.</p>
 

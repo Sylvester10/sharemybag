@@ -103,12 +103,426 @@ jQuery(document).ready(function ($) {
     });
 
     $(document).on('submit', 'form.admin-verification-form', function () {
+        if (
+            $(this).hasClass('admin-form-modal__form') &&
+            !this.checkValidity()
+        ) {
+            return;
+        }
+
         var submitButton = $(this).find('.admin-verification-submit');
 
         if (submitButton.length) {
             setAdminVerificationLoading(submitButton);
         }
     });
+
+    // Shared inline validation for modal forms using the admin form system.
+    var adminModalFieldIndex = 0;
+    var adminModalFieldSelector =
+        'input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select, textarea';
+    var adminModalDelegatedFieldSelector =
+        'form.admin-form-modal__form input:not([type="hidden"]):not([type="submit"]):not([type="button"]), ' +
+        'form.admin-form-modal__form select, ' +
+        'form.admin-form-modal__form textarea';
+
+    function getAdminModalValidationMessage(field) {
+        var customMessage = field.getAttribute('data-validation-message');
+
+        if (customMessage) {
+            return customMessage;
+        }
+
+        if (field.validity) {
+            if (field.validity.valueMissing) {
+                return 'This field is required.';
+            }
+
+            if (field.validity.typeMismatch && field.type === 'email') {
+                return 'Enter a valid email address.';
+            }
+
+            if (field.validity.patternMismatch) {
+                return 'Enter a value in the required format.';
+            }
+
+            if (field.validity.tooShort) {
+                return 'Enter at least ' + field.minLength + ' characters.';
+            }
+
+            if (field.validity.tooLong) {
+                return 'Enter no more than ' + field.maxLength + ' characters.';
+            }
+
+            if (field.validity.rangeUnderflow) {
+                return 'Enter a value of at least ' + field.min + '.';
+            }
+
+            if (field.validity.rangeOverflow) {
+                return 'Enter a value no greater than ' + field.max + '.';
+            }
+
+            if (field.validity.stepMismatch || field.validity.badInput) {
+                return 'Enter a valid value.';
+            }
+        }
+
+        return field.validationMessage || 'Check this field and try again.';
+    }
+
+    function prepareAdminModalField(field) {
+        var $field = $(field);
+        var fieldId = $field.attr('id');
+
+        if (!fieldId) {
+            adminModalFieldIndex += 1;
+            fieldId = 'admin_modal_field_' + adminModalFieldIndex;
+            $field.attr('id', fieldId);
+        }
+
+        var $fieldContainer = $field.closest(
+            '.form-group, [class*="col-"], .admin-form-modal__section'
+        );
+        var $label = $fieldContainer.find('label').first();
+
+        if ($label.length && !$label.attr('for')) {
+            $label.attr('for', fieldId);
+        }
+
+        return fieldId;
+    }
+
+    function getAdminModalErrorAnchor(field) {
+        var $field = $(field);
+        var $phoneGroup = $field.closest('[data-smb-phone-input]');
+
+        if ($phoneGroup.length) {
+            return $phoneGroup;
+        }
+
+        if ($field.hasClass('select2-hidden-accessible')) {
+            var $select2 = $field.next('.select2-container');
+            if ($select2.length) {
+                return $select2;
+            }
+        }
+
+        return $field;
+    }
+
+    function clearAdminModalFieldError(field) {
+        var $field = $(field);
+        var errorId = $field.attr('data-admin-error-id');
+        var $phoneGroup = $field.closest('[data-smb-phone-input]');
+
+        $field
+            .removeClass('admin-form-modal__control--invalid')
+            .removeAttr('aria-invalid');
+
+        if ($field.hasClass('select2-hidden-accessible')) {
+            $field
+                .next('.select2-container')
+                .find('.select2-selection')
+                .removeClass('admin-form-modal__control--invalid')
+                .removeAttr('aria-invalid');
+        }
+
+        if ($phoneGroup.length) {
+            $phoneGroup.removeClass('admin-form-modal__field-group--invalid');
+        }
+
+        if (errorId) {
+            $('#' + errorId).remove();
+            $field.removeAttr('data-admin-error-id');
+
+            var describedBy = ($field.attr('aria-describedby') || '')
+                .split(/\s+/)
+                .filter(function (id) {
+                    return id && id !== errorId;
+                })
+                .join(' ');
+
+            if (describedBy) {
+                $field.attr('aria-describedby', describedBy);
+            } else {
+                $field.removeAttr('aria-describedby');
+            }
+        }
+    }
+
+    function showAdminModalFieldError(field, message) {
+        var $field = $(field);
+        var fieldId = prepareAdminModalField(field);
+        var errorId = fieldId + '_error';
+        var $anchor = getAdminModalErrorAnchor(field);
+        var $phoneGroup = $field.closest('[data-smb-phone-input]');
+        var describedBy = ($field.attr('aria-describedby') || '')
+            .split(/\s+/)
+            .filter(Boolean);
+
+        $('#' + errorId).remove();
+        $anchor.after(
+            $('<span>', {
+                class: 'admin-form-modal__field-error',
+                id: errorId,
+                text: message,
+            })
+        );
+
+        if (describedBy.indexOf(errorId) === -1) {
+            describedBy.push(errorId);
+        }
+
+        $field
+            .addClass('admin-form-modal__control--invalid')
+            .attr('aria-invalid', 'true')
+            .attr('aria-describedby', describedBy.join(' '))
+            .attr('data-admin-error-id', errorId);
+
+        if ($field.hasClass('select2-hidden-accessible')) {
+            $field
+                .next('.select2-container')
+                .find('.select2-selection')
+                .addClass('admin-form-modal__control--invalid')
+                .attr('aria-invalid', 'true');
+        }
+
+        if ($phoneGroup.length) {
+            $phoneGroup.addClass('admin-form-modal__field-group--invalid');
+        }
+    }
+
+    function validateAdminModalField(field) {
+        if (field.disabled || !field.willValidate) {
+            clearAdminModalFieldError(field);
+            return true;
+        }
+
+        if (
+            field.required &&
+            (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') &&
+            typeof field.value === 'string' &&
+            field.value.trim() === ''
+        ) {
+            showAdminModalFieldError(field, 'This field is required.');
+            return false;
+        }
+
+        if (field.checkValidity()) {
+            clearAdminModalFieldError(field);
+            return true;
+        }
+
+        showAdminModalFieldError(field, getAdminModalValidationMessage(field));
+        return false;
+    }
+
+    function clearAdminModalErrorSummary($form) {
+        $form.find('.admin-form-modal__error-summary').remove();
+    }
+
+    function showAdminModalErrorSummary($form, invalidCount) {
+        var $body = $form.find('.admin-form-modal__body').first();
+        var message =
+            invalidCount === 1
+                ? 'Please correct the highlighted field.'
+                : 'Please correct the ' + invalidCount + ' highlighted fields.';
+        var $summary = $('<div>', {
+            class: 'admin-form-modal__error-summary',
+            role: 'alert',
+            tabindex: '-1',
+            text: message,
+        });
+
+        clearAdminModalErrorSummary($form);
+        $body.prepend($summary);
+        return $summary;
+    }
+
+    function focusAdminModalField(field) {
+        var $field = $(field);
+
+        if ($field.hasClass('select2-hidden-accessible')) {
+            $field.select2('open');
+            return;
+        }
+
+        field.focus();
+    }
+
+    function clearAdminModalValidation($form) {
+        clearAdminModalErrorSummary($form);
+        $form.find(adminModalFieldSelector).each(function () {
+            clearAdminModalFieldError(this);
+            $(this).removeData('admin-validation-touched');
+        });
+        $form.removeData('admin-validation-submitted');
+    }
+
+    function prepareAdminModalForm(form) {
+        var $form = $(form);
+
+        $form.attr('novalidate', 'novalidate');
+        $form.find(adminModalFieldSelector).each(function () {
+            prepareAdminModalField(this);
+        });
+    }
+
+    function ensureOfflineBookingForm(modal) {
+        var $modal = $(modal);
+        var $form = $modal.find('form.admin-offline-booking-form').first();
+
+        if ($form.length) {
+            return $form;
+        }
+
+        var action = $modal.attr('data-form-action');
+        var $body = $modal.find('.admin-offline-booking-body').first();
+        var $footer = $modal.find('.admin-offline-booking-footer').first();
+
+        if (!action || !$body.length || !$footer.length) {
+            return $();
+        }
+
+        $form = $('<form>', {
+            action: action,
+            method: 'post',
+            enctype: 'multipart/form-data',
+            class: 'admin-form-modal__form admin-offline-booking-form',
+            novalidate: 'novalidate',
+        });
+
+        $form.attr('id', 'offline_booking_form_' + ($modal.attr('id') || 'modal'));
+        $form.insertBefore($body);
+
+        $modal
+            .find('.admin-form-modal__content > input[type="hidden"]')
+            .appendTo($form);
+        $form.append($body, $footer);
+
+        if (!$form.find('input[name="q2r_secure"]').length && getCsrfHash()) {
+            $('<input>', {
+                type: 'hidden',
+                name: 'q2r_secure',
+                value: getCsrfHash(),
+            }).prependTo($form);
+        }
+
+        return $form;
+    }
+
+    function validateAdminModalForm(form, focusFirstInvalid) {
+        var $form = $(form);
+        var invalidFields = [];
+
+        prepareAdminModalForm(form);
+        $form.data('admin-validation-submitted', true);
+        $form.find(adminModalFieldSelector).each(function () {
+            if (!validateAdminModalField(this)) {
+                invalidFields.push(this);
+            }
+        });
+
+        if (!invalidFields.length) {
+            clearAdminModalErrorSummary($form);
+            return true;
+        }
+
+        showAdminModalErrorSummary($form, invalidFields.length);
+
+        if (focusFirstInvalid) {
+            focusAdminModalField(invalidFields[0]);
+        }
+
+        return false;
+    }
+
+    $('form.admin-form-modal__form').each(function () {
+        prepareAdminModalForm(this);
+    });
+
+    $(document).on('show.bs.modal', '.admin-form-modal', function () {
+        var $modal = $(this);
+
+        if (
+            $modal.parents('form').length &&
+            ($modal.hasClass('admin-offline-booking-modal') ||
+                $modal.find('form.admin-form-modal__form').length)
+        ) {
+            $modal.appendTo(document.body);
+        }
+
+        if ($modal.hasClass('admin-offline-booking-modal')) {
+            ensureOfflineBookingForm(this);
+        }
+
+        $modal.find('form.admin-form-modal__form').each(function () {
+            prepareAdminModalForm(this);
+        });
+    });
+
+    $(document).on(
+        'blur',
+        adminModalDelegatedFieldSelector,
+        function () {
+            $(this).data('admin-validation-touched', true);
+            validateAdminModalField(this);
+        }
+    );
+
+    $(document).on(
+        'input change',
+        adminModalDelegatedFieldSelector,
+        function () {
+            var $field = $(this);
+            var $form = $field.closest('form.admin-form-modal__form');
+
+            if (
+                $field.data('admin-validation-touched') ||
+                $form.data('admin-validation-submitted')
+            ) {
+                validateAdminModalField(this);
+            }
+
+            if (!$form.find('[aria-invalid="true"]').length) {
+                clearAdminModalErrorSummary($form);
+            }
+        }
+    );
+
+    $(document).on('submit', 'form.admin-form-modal__form', function (event) {
+        if (validateAdminModalForm(this, true)) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    });
+
+    $(document).on('hidden.bs.modal', '.admin-form-modal', function () {
+        clearAdminModalValidation($(this).find('form.admin-form-modal__form'));
+    });
+
+    window.AdminModalValidation = {
+        clear: function (form) {
+            clearAdminModalValidation($(form));
+        },
+        clearFieldError: function (field) {
+            var target = $(field)[0];
+            if (target) {
+                clearAdminModalFieldError(target);
+            }
+        },
+        setFieldError: function (field, message) {
+            var target = $(field)[0];
+            if (target) {
+                showAdminModalFieldError(target, message);
+            }
+        },
+        validate: function (form) {
+            return validateAdminModalForm($(form)[0], true);
+        },
+    };
 
     $('#filePreviewModal').on('hidden.bs.modal', function () {
         $('#filePreviewModalImage').attr('src', '');
@@ -325,6 +739,23 @@ jQuery(document).ready(function ($) {
         travellerTable.ajax.reload();
     });
 
+    if ($('#arrivals_travellers_table').length) {
+        var arrivalsTravellerTable = initializeDataTable(
+            '#arrivals_travellers_table',
+            base_url + 'shipping/arrivals_ajax',
+            'Search/filter arrivals:',
+            function (d) {
+                d.destination = $('#arrivals_destination_filter').val();
+            }
+        )
+            .order([1, 'desc'])
+            .draw();
+
+        $('#arrivals_destination_filter').on('change', function () {
+            arrivalsTravellerTable.ajax.reload();
+        });
+    }
+
     /////////////////////////////////////////////////////////
 
     initializeDataTable(
@@ -398,7 +829,7 @@ jQuery(document).ready(function ($) {
             d.route = $('#route_filter_gbp').val(); // UPDATED: route
         }
     )
-        .order([1, 'desc'])
+        .order([])
         .draw();
 
     // Trigger reload on filter change
@@ -426,7 +857,7 @@ jQuery(document).ready(function ($) {
             d.route = $('#route_filter_cad').val(); // UPDATED: route
         }
     )
-        .order([1, 'desc'])
+        .order([])
         .draw();
 
     // Trigger reload on filter change
@@ -525,6 +956,9 @@ jQuery(document).ready(function ($) {
         modal.find('input[name="' + type + '_locality"]').val('');
         modal.find('input[name="' + type + '_postcode"]').val('');
         syncModalPhoneInputs(modal);
+        modal
+            .find('input[name^="' + type + '_"], select[name^="' + type + '_"]')
+            .trigger('input');
     }
 
     $(document).on('change', '.select2-user', function () {
@@ -571,6 +1005,9 @@ jQuery(document).ready(function ($) {
                 modal
                     .find('input[name="agent_postcode"]')
                     .val(userData.postal_code);
+                modal
+                    .find('input[name^="agent_"], select[name^="agent_"]')
+                    .trigger('input');
             } else {
                 alert('Please select an SMB User first.');
                 $(this).prop('checked', false);
@@ -600,6 +1037,9 @@ jQuery(document).ready(function ($) {
                 modal
                     .find('input[name="receiver_postcode"]')
                     .val(userData.postal_code);
+                modal
+                    .find('input[name^="receiver_"], select[name^="receiver_"]')
+                    .trigger('input');
             } else {
                 alert('Please select an SMB User first.');
                 $(this).prop('checked', false);
@@ -1004,7 +1444,7 @@ jQuery(document).ready(function ($) {
         }
 
         $('#shipping_selected_context').html(
-            '<div class="admin-shipping-context__tracking"><strong>Tracking ID:</strong> ' +
+            '<div class="admin-shipping-context__tracking"><strong>Booking Reference:</strong> ' +
                 $('<div>').text(context.tracking_id || '').html() +
                 '</div>' +
                 '<div class="admin-shipping-context__meta">' +
@@ -1014,8 +1454,43 @@ jQuery(document).ready(function ($) {
         );
     }
 
+    function shippingRenderStatusOptions(currentStatus, mode, providedOptions, selector) {
+        var $select = $(selector || '#shipping_status');
+        var creationOptions = ['Awaiting Collection', 'In Transit', 'Completed'];
+        var transitionOptions = {
+            'Awaiting Collection': ['In Transit', 'Completed'],
+            'In Transit': ['Completed'],
+            'Completed': [],
+        };
+        var options = mode === 'create'
+            ? creationOptions
+            : (providedOptions || transitionOptions[currentStatus] || []);
+
+        $select.empty().prop('disabled', false);
+        if (!options.length) {
+            $select
+                .append($('<option>').val(currentStatus).text(currentStatus + ' (final)'))
+                .val(currentStatus)
+                .prop('disabled', true);
+            return;
+        }
+
+        if (mode === 'edit') {
+            $select.append($('<option>').val('').text('Select the next status'));
+        }
+
+        $.each(options, function (_, status) {
+            $select.append($('<option>').val(status).text(status));
+        });
+
+        if (mode === 'create') {
+            $select.val(currentStatus || 'Awaiting Collection');
+        }
+    }
+
     function shippingApplyContext(context) {
         $('#shipping_booking_id').val(context.booking_id || 0);
+        $('#shipping_carrier_tracking_id').val(context.carrier_tracking_id || '');
         $('#shipping_pickup_address').val(context.pickup_address || '');
         $('#shipping_dropoff_address').val(context.dropoff_address || '');
         $('#shipping_pickup_country').val(context.pickup_country || '');
@@ -1023,7 +1498,12 @@ jQuery(document).ready(function ($) {
         $('#shipping_staff_admin_id')
             .val(context.staff_admin_id || '')
             .trigger('change.select2');
-        $('#shipping_status').val(context.status || 'In Transit');
+        shippingRenderStatusOptions(
+            context.status || 'Awaiting Collection',
+            $('#shipping_mode').val() || 'create',
+            context.status_next_options || null,
+            '#shipping_status'
+        );
         shippingRenderSelectedContext(context);
     }
 
@@ -1033,6 +1513,7 @@ jQuery(document).ready(function ($) {
         $('#shipping_mode').val(mode);
         $('#shipping_booking_id').val(bookingId);
         $('#shipping_search_query').val('');
+        $('#shipping_carrier_tracking_id').val('');
         $('#shipping_tracking_note').val('');
         $('#shipping_search_results tbody').html(
             '<tr><td colspan="6" class="text-center text-muted">Search for a booking to continue.</td></tr>'
@@ -1040,10 +1521,10 @@ jQuery(document).ready(function ($) {
 
         if (mode === 'edit') {
             $('#shippingModalTitle').text('Edit Shipping Record');
-            $('#shippingModalSubtitle').text('Update the active shipping details for this booking and optionally append a note to the update history.');
+        } else if (bookingId) {
+            $('#shippingModalTitle').text('Book Shipping');
         } else {
             $('#shippingModalTitle').text('Create Shipping Record');
-            $('#shippingModalSubtitle').text('Find the booking first, then confirm the shipping details that will show in the admin shipping table.');
         }
 
         if (bookingId) {
@@ -1210,6 +1691,7 @@ jQuery(document).ready(function ($) {
         var mode = $('#shipping_mode').val() || 'create';
         var payload = {
             booking_id: bookingId,
+            carrier_tracking_id: $.trim($('#shipping_carrier_tracking_id').val()),
             pickup_address: $.trim($('#shipping_pickup_address').val()),
             dropoff_address: $.trim($('#shipping_dropoff_address').val()),
             pickup_country: $.trim($('#shipping_pickup_country').val()),
@@ -1223,6 +1705,18 @@ jQuery(document).ready(function ($) {
         if (!bookingId) {
             $('#shipping_modal_error')
                 .text('Select a booking before saving.')
+                .removeClass('d-none');
+            return;
+        }
+        if (!payload.carrier_tracking_id) {
+            $('#shipping_modal_error')
+                .text('Enter the carrier tracking ID before saving.')
+                .removeClass('d-none');
+            return;
+        }
+        if (!payload.status) {
+            $('#shipping_modal_error')
+                .text('Select the next shipping status before saving.')
                 .removeClass('d-none');
             return;
         }
@@ -1279,9 +1773,42 @@ jQuery(document).ready(function ($) {
         $('#shipping_status_booking_id').val(bookingId);
         $('#shipping_status_heading').val('');
         $('#shipping_status_body').val('');
-        $('#shipping_status_update').val('In Transit');
+        $('#shipping_status_update').empty().append('<option value="">Loading...</option>').prop('disabled', true);
         $('#shipping_status_error').addClass('d-none').text('');
+        $('#shipping_status_submit_btn').prop('disabled', true);
         $('#shippingStatusModal').modal('show');
+
+        $.ajax({
+            url: base_url + 'shipping/shipping_context_ajax/' + bookingId,
+            type: 'POST',
+            data: { q2r_secure: getCsrfHash() },
+            success: function (response) {
+                var res = parseJsonResponse(response) || {};
+                updateCsrfHash(res.csrf_hash);
+                if (!res.status || !res.context) {
+                    $('#shipping_status_error').text(res.msg || 'Unable to load the current status.').removeClass('d-none');
+                    return;
+                }
+
+                shippingRenderStatusOptions(
+                    res.context.status,
+                    'edit',
+                    res.context.status_next_options || [],
+                    '#shipping_status_update'
+                );
+                if (!(res.context.status_next_options || []).length) {
+                    $('#shipping_status_error').text('This shipment is completed and has no further status options.').removeClass('d-none');
+                    $('#shipping_status_submit_btn').prop('disabled', true);
+                } else {
+                    $('#shipping_status_submit_btn').prop('disabled', false);
+                }
+            },
+            error: function (xhr) {
+                var res = parseJsonResponse(xhr.responseText) || {};
+                updateCsrfHash(res.csrf_hash);
+                $('#shipping_status_error').text(res.msg || 'Unable to load the current status.').removeClass('d-none');
+            },
+        });
     });
 
     $(document).on('click', '#shipping_status_submit_btn', function () {

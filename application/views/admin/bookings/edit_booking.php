@@ -1,6 +1,6 @@
 <div class="new-item">
-    <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('bookings'); ?>"><i
-            class="las la-book"></i> All Bookings</a>
+    <a class="btn btn-default btn-sm button-adjust admin-back-btn" href="<?php echo base_url('bookings'); ?>"><i
+            class="las la-arrow-left"></i> Back to Bookings</a>
 </div>
 
 <?php
@@ -14,7 +14,7 @@ echo form_open_multipart('bookings/edit_booking_ajax/' . $y->id, $form_attribute
 
         <div class="form-group">
             <label class="form-control-label">Category*</label>
-            <?php 
+            <?php
                 $options = array(
                     'Normal' => 'Normal',
                     'Fish/Oil' => 'Fish/Oil',
@@ -42,7 +42,7 @@ echo form_open_multipart('bookings/edit_booking_ajax/' . $y->id, $form_attribute
 
         <div class="form-group">
             <label class="form-control-label">Total Size</label>
-            <?php 
+            <?php
                 $options = array(
                     '1' => '1 KG',
                     '1.5' => '1.5 KG',

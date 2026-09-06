@@ -86,7 +86,6 @@ class User_bookings_model extends MY_Model
             // Booking extras
             'payment_method'  => $this->input->post('payment_method', TRUE),
             'items'           => $this->input->post('items', TRUE),
-            'need_help'       => $this->input->post('need_help', TRUE),
         );
 
         $this->db->trans_start();

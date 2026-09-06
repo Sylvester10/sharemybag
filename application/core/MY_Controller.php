@@ -179,6 +179,31 @@ class MY_Controller extends CI_Controller
 	}
 
 
+	/**
+	 * Resolve account-level access to the shipping workspace.
+	 *
+	 * Super admins always retain access. The role fallback keeps deployments
+	 * compatible while migration 016 is being applied; once the column exists,
+	 * the stored account permission is authoritative for support staff.
+	 */
+	public function admin_can_manage_shipping()
+	{
+		$admin = $this->common_model->get_admin_details($this->session->admin_email ?? $this->session->email);
+		return admin_shipping_access_allowed($admin);
+	}
+
+
+	public function admin_shipping_restricted()
+	{
+		if ($this->admin_can_manage_shipping()) {
+			return true;
+		}
+
+		$this->session->set_flashdata('status_msg_error', 'You do not have permission to access the shipping workspace.');
+		redirect(site_url('admin'));
+	}
+
+
 	public function return_to_dashboard()
 	{
 		//if admin is still logged in and tries to access login page, redirect to admin dashboard

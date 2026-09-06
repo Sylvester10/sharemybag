@@ -18,6 +18,36 @@ $selfie_holder_id = $is_nigeria ? 'selfie_holder' : 'selfie_holder2';
                     <form action="<?= base_url('kyc/verify_ajax') ?>" class="form-wizard-ajax kyc-wizard-form" method="POST" enctype="multipart/form-data" target="_blank" redirect="<?= base_url('dashboard') ?>">
                         <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
 
+                        <h3><i class="ti ti-id"></i> ID Card</h3>
+                        <fieldset>
+                            <div class="kyc-step-heading">
+                                <span class="kyc-step-icon"><i class="ti ti-id"></i></span>
+                                <div>
+                                    <h5>ID Card</h5>
+                                    <p>Select your ID type and upload a clear photo of the document.</p>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="kyc_id_type">ID Type *</label>
+                                <select name="id_type" id="kyc_id_type" required class="required form-select border border-primary">
+                                    <option value="">Select</option>
+                                    <?php foreach ($id_options as $option) { ?>
+                                        <option value="<?php echo html_escape($option); ?>"><?php echo html_escape($option); ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+
+                            <div class="">
+                                <label class="form-label" for="<?php echo $id_input_id; ?>">Upload ID *</label>
+                                <input class="required form-control border border-primary mb-3 <?php echo $id_input_class; ?>" type="file" name="id_photo" id="<?php echo $id_input_id; ?>" holder="<?php echo $id_holder_id; ?>" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+                                <div class="image_container kyc-image-preview">
+                                    <img src="<?= base_url('assets/general/id-card.png') ?>" alt="ID preview" id="<?php echo $id_holder_id; ?>">
+                                    <span class="reset_img_input inside_button">Remove ID</span>
+                                </div>
+                            </div>
+                        </fieldset>
+
                         <h3><i class="ti ti-user-shield"></i> Before You Start</h3>
                         <fieldset>
                             <div class="kyc-guide-card kyc-guide-panel">
@@ -45,36 +75,6 @@ $selfie_holder_id = $is_nigeria ? 'selfie_holder' : 'selfie_holder2';
                                         <i class="ti ti-circle-check"></i>
                                         <span>Files should be JPG or PNG. Proof of address can also be PDF where required.</span>
                                     </div>
-                                </div>
-                            </div>
-                        </fieldset>
-
-                        <h3><i class="ti ti-id"></i> ID Card</h3>
-                        <fieldset>
-                            <div class="kyc-step-heading">
-                                <span class="kyc-step-icon"><i class="ti ti-id"></i></span>
-                                <div>
-                                    <h5>ID Card</h5>
-                                    <p>Select your ID type and upload a clear photo of the document.</p>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label" for="kyc_id_type">ID Type *</label>
-                                <select name="id_type" id="kyc_id_type" required class="required form-select border border-primary">
-                                    <option value="">Select</option>
-                                    <?php foreach ($id_options as $option) { ?>
-                                        <option value="<?php echo html_escape($option); ?>"><?php echo html_escape($option); ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-
-                            <div class="">
-                                <label class="form-label" for="<?php echo $id_input_id; ?>">Upload ID *</label>
-                                <input class="required form-control border border-primary mb-3 <?php echo $id_input_class; ?>" type="file" name="id_photo" id="<?php echo $id_input_id; ?>" holder="<?php echo $id_holder_id; ?>" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
-                                <div class="image_container kyc-image-preview">
-                                    <img src="<?= base_url('assets/general/id-card.png') ?>" alt="ID preview" id="<?php echo $id_holder_id; ?>">
-                                    <span class="reset_img_input inside_button">Remove ID</span>
                                 </div>
                             </div>
                         </fieldset>
@@ -145,7 +145,7 @@ $selfie_holder_id = $is_nigeria ? 'selfie_holder' : 'selfie_holder2';
                             </button>
 
                             <div class="mb-3 image_container kyc-image-preview">
-                                <img src="<?= base_url('assets/general/selfie.png') ?>" alt="Selfie preview" id="<?php echo $selfie_holder_id; ?>">
+                                <img src="<?= base_url('assets/general/selfie2.png') ?>" alt="Selfie preview" id="<?php echo $selfie_holder_id; ?>">
                                 <span class="reset_img_input inside_button">Remove Selfie</span>
                             </div>
 

@@ -538,12 +538,14 @@ jQuery(document).ready(function ($) {
   function updateParcelGuaranteeNotice() {
     let guaranteeSelect = $('#insuranceBox');
     let notice = $('#parcel-guarantee-notice');
+    let protectionNameTarget = $('#parcel-protection-name');
     let coverageTarget = $('#parcel-guarantee-coverage');
     let priceTarget = $('#parcel-guarantee-price');
 
     if (
       !guaranteeSelect.length ||
       !notice.length ||
+      !protectionNameTarget.length ||
       !coverageTarget.length ||
       !priceTarget.length
     ) {
@@ -553,8 +555,10 @@ jQuery(document).ready(function ($) {
     let selectedOption = guaranteeSelect.find('option:selected');
     let coverage = selectedOption.attr('data-coverage');
     let price = selectedOption.attr('data-insurance');
+    let protectionName = selectedOption.attr('data-protection-label');
 
-    if (!coverage || !price) {
+    if (!coverage || !price || !protectionName) {
+      protectionNameTarget.text('');
       coverageTarget.text('');
       priceTarget.text('');
       notice.addClass('d-none');
@@ -562,6 +566,7 @@ jQuery(document).ready(function ($) {
     }
 
     let currencySymbol = notice.attr('data-currency-symbol') || '';
+    protectionNameTarget.text(protectionName);
     coverageTarget.text(currencySymbol + coverage);
     priceTarget.text(currencySymbol + price);
     notice.removeClass('d-none');

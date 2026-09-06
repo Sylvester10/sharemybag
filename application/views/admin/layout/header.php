@@ -113,14 +113,17 @@
 									</li>
 								<?php endif; ?>
 
-								<?php if (in_array($role, ['super_admin', 'traveller_support'])): ?>
+								<?php $can_manage_travellers = in_array($role, ['super_admin', 'traveller_support']); ?>
+								<?php $can_manage_shipping = $ci->admin_can_manage_shipping(); ?>
+								<?php if ($can_manage_travellers || $can_manage_shipping): ?>
 									<!-- Travellers — super_admin + traveller_support -->
 									<li>
 										<a><i class="las la-plane"></i> Travellers <span class="las la-angle-down"></span></a>
 										<ul class="nav child_menu">
-											<li><a href="<?php echo base_url('admin_travellers'); ?>">Upcoming Travellers</a></li>
-											<li><a href="<?php echo base_url('admin_travellers/approved_travellers'); ?>">All Travellers</a></li>
-											<li><a href="<?php echo base_url('admin_travellers/pending_travellers'); ?>">Pending Travellers</a></li>
+											<?php if ($can_manage_travellers): ?><li><a href="<?php echo base_url('admin_travellers'); ?>">Upcoming Travellers</a></li><?php endif; ?>
+											<?php if ($can_manage_shipping): ?><li><a href="<?php echo base_url('shipping/arrivals'); ?>">Arrivals</a></li><?php endif; ?>
+											<?php if ($can_manage_travellers): ?><li><a href="<?php echo base_url('admin_travellers/approved_travellers'); ?>">All Travellers</a></li><?php endif; ?>
+											<?php if ($can_manage_travellers): ?><li><a href="<?php echo base_url('admin_travellers/pending_travellers'); ?>">Pending Travellers</a></li><?php endif; ?>
 										</ul>
 									</li>
 								<?php endif; ?>
@@ -137,7 +140,7 @@
 									</li>
 								<?php endif; ?>
 
-								<?php if (in_array($role, ['super_admin', 'customer_support'])): ?>
+								<?php if ($ci->admin_can_manage_shipping()): ?>
 									<li>
 										<a href="<?php echo base_url('shipping'); ?>">
 											<i class="las la-truck"></i> Shipping
@@ -158,6 +161,12 @@
 									<li>
 										<a href="<?php echo base_url('admin_pricing'); ?>">
 											<i class="las la-tags"></i> Pricing
+										</a>
+									</li>
+
+									<li>
+										<a href="<?php echo base_url('admin/authentication_settings'); ?>">
+											<i class="las la-shield-alt"></i> Authentication
 										</a>
 									</li>
 

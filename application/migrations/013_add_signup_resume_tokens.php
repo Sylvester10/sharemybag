@@ -28,7 +28,10 @@ class Migration_Add_signup_resume_tokens extends CI_Migration
             $this->dbforge->add_column('users', $fields);
         }
 
-        if ($this->db->field_exists('signup_resume_token', 'users')) {
+        if (
+            $this->db->field_exists('signup_resume_token', 'users')
+            && !$this->hasIndex('users', 'users_signup_resume_token_idx')
+        ) {
             $this->db->query('CREATE INDEX users_signup_resume_token_idx ON users (signup_resume_token)');
         }
     }
@@ -39,9 +42,22 @@ class Migration_Add_signup_resume_tokens extends CI_Migration
             $this->dbforge->drop_column('users', 'signup_resume_expires_at');
         }
 
-        if ($this->db->field_exists('signup_resume_token', 'users')) {
+        if ($this->hasIndex('users', 'users_signup_resume_token_idx')) {
             $this->db->query('DROP INDEX users_signup_resume_token_idx ON users');
+        }
+
+        if ($this->db->field_exists('signup_resume_token', 'users')) {
             $this->dbforge->drop_column('users', 'signup_resume_token');
         }
+    }
+
+    private function hasIndex($table, $indexName)
+    {
+        $query = $this->db->query(
+            "SHOW INDEX FROM {$table} WHERE Key_name = ?",
+            array($indexName)
+        );
+
+        return $query->num_rows() > 0;
     }
 }

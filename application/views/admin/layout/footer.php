@@ -20,7 +20,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div class="pull-right">
-                    <button type="button" class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close">&times;</button>
+                    <button type="button" class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close" title="Close">&times;</button>
                 </div>
                 <h4 class="modal-title pull-left" id="filePreviewModalLabel">Document Preview</h4>
             </div>

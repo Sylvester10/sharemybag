@@ -1,7 +1,7 @@
-<div class="modal fade admin-parcel-modal" id="addParcelModal" tabindex="-1" role="dialog" aria-labelledby="addParcelModalLabel">
-    <div class="modal-dialog modal-md" role="document">
-        <div class="modal-content">
-            <div class="modal-header admin-parcel-modal__header admin-parcel-modal__header--add">
+<div class="modal fade admin-form-modal admin-form-modal--compact admin-parcel-modal" id="addParcelModal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="addParcelModalLabel">
+    <div class="modal-dialog modal-md admin-form-modal__dialog" role="document">
+        <div class="modal-content admin-form-modal__content">
+            <div class="modal-header  admin-parcel-modal__header admin-parcel-modal__header--add">
                 <div>
                     <p class="admin-parcel-modal__eyebrow">Booking Update</p>
                     <h4 class="modal-title admin-parcel-modal__title" id="addParcelModalLabel">
@@ -9,11 +9,9 @@
                     </h4>
                     <p class="admin-parcel-modal__subtitle">Add a new item and recalculate the booking total automatically.</p>
                 </div>
-                <button type="button" class="close admin-parcel-modal__close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close" title="Close">&times;</button>
             </div>
-            <div class="modal-body admin-parcel-modal__body">
+            <div class="modal-body admin-form-modal__body admin-parcel-modal__body">
                 <input type="hidden" id="add_booking_id">
                 <div class="admin-parcel-modal__grid">
                     <div class="admin-parcel-field admin-parcel-field--full">
@@ -47,9 +45,9 @@
                 </div>
                 <div id="add_parcel_error" class="alert alert-danger d-none admin-parcel-alert"></div>
             </div>
-            <div class="modal-footer admin-parcel-modal__footer">
+            <div class="modal-footer admin-form-modal__footer admin-parcel-modal__footer">
                 <button type="button" class="btn btn-default admin-parcel-btn admin-parcel-btn--muted" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" id="confirmAddParcel">
+                <button type="button" class="btn btn-primary" id="confirmAddParcel">
                     <i class="las la-plus"></i> Add Parcel
                 </button>
             </div>
@@ -57,10 +55,10 @@
     </div>
 </div>
 
-<div class="modal fade admin-parcel-modal" id="removeParcelModal" tabindex="-1" role="dialog" aria-labelledby="removeParcelModalLabel">
-    <div class="modal-dialog modal-md" role="document">
-        <div class="modal-content">
-            <div class="modal-header admin-parcel-modal__header admin-parcel-modal__header--remove">
+<div class="modal fade admin-form-modal admin-form-modal--compact admin-parcel-modal" id="removeParcelModal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="removeParcelModalLabel">
+    <div class="modal-dialog modal-md admin-form-modal__dialog" role="document">
+        <div class="modal-content admin-form-modal__content">
+            <div class="modal-header  admin-parcel-modal__header admin-parcel-modal__header--remove">
                 <div>
                     <p class="admin-parcel-modal__eyebrow">Booking Update</p>
                     <h4 class="modal-title admin-parcel-modal__title" id="removeParcelModalLabel">
@@ -68,11 +66,9 @@
                     </h4>
                     <p class="admin-parcel-modal__subtitle">Choose a parcel to remove and keep a short audit note if needed.</p>
                 </div>
-                <button type="button" class="close admin-parcel-modal__close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close" title="Close">&times;</button>
             </div>
-            <div class="modal-body admin-parcel-modal__body">
+            <div class="modal-body admin-form-modal__body admin-parcel-modal__body">
                 <input type="hidden" id="remove_booking_id">
                 <div class="admin-parcel-select-header">
                     <span>Select the parcel to remove</span>
@@ -85,7 +81,7 @@
                 </div>
                 <div id="remove_parcel_error" class="alert alert-danger d-none admin-parcel-alert"></div>
             </div>
-            <div class="modal-footer admin-parcel-modal__footer">
+            <div class="modal-footer admin-form-modal__footer admin-parcel-modal__footer">
                 <button type="button" class="btn btn-default admin-parcel-btn admin-parcel-btn--muted" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger" id="confirmRemoveParcel" disabled>
                     <i class="las la-minus"></i> Remove Selected

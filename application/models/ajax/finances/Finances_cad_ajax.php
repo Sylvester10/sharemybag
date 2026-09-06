@@ -19,7 +19,7 @@ class Finances_cad_ajax extends CI_Model
 		$allowed_values = currency_db_values($currency);
 		$this->db->where_in('bookings.currency', $allowed_values);
 	}
- 
+
 	private function applyPaymentMethodFilter()
 	{
 		$this->db->where("(LOWER(COALESCE(bookings.payment_method, '')) IN ('paystack','stripe','offline','bank') OR bookings.payment_method IS NULL)", null, false);
@@ -32,9 +32,9 @@ class Finances_cad_ajax extends CI_Model
 	}
 
 	var $table = 'bookings';
-	var $column_order = array(null, 'bookings.traveller_departure_date', 'bookings.traveller_name', 'bookings.total_amount', 'bookings.selected_price', 'bookings.service_charge', null, null, null, 'bookings.selected_space', 'bookings.insurance', null, null, 'bookings.traveller_commission', 'bookings.payment_method');
+	var $column_order = array(null, 'bookings.traveller_departure_date', 'bookings.traveller_name', 'bookings.selected_space', 'bookings.total_amount', 'bookings.service_charge', null, null, 'bookings.insurance', null, null, 'bookings.traveller_commission', null, 'bookings.payment_method');
 	var $column_search = array('bookings.traveller_departure_date', 'bookings.traveller_name', 'bookings.total_amount', 'bookings.selected_price', 'bookings.service_charge', 'bookings.selected_space', 'bookings.vat', 'bookings.insurance', 'bookings.traveller_commission', 'bookings.payment_method');
-	var $order = array('bookings.date_added' => 'desc');
+	var $order = array('bookings.date_added' => 'desc', 'bookings.id' => 'desc');
 
 
 	private function the_query()
@@ -70,8 +70,9 @@ class Finances_cad_ajax extends CI_Model
 				$this->db->order_by($this->column_order[$order_column_index], $order_direction);
 			}
 		} else if (isset($this->order)) {
-			$order = $this->order;
-			$this->db->order_by(key($order), $order[key($order)]);
+			foreach ($this->order as $column => $direction) {
+				$this->db->order_by($column, $direction);
+			}
 		}
 	}
 
@@ -79,7 +80,7 @@ class Finances_cad_ajax extends CI_Model
 	function get_records($month = null, $year = null, $route = null)
 	{
 		$this->the_query();
-		$this->db->select('bookings.*');
+		$this->db->select('bookings.*, travellers.location AS traveller_route_origin, travellers.destination AS traveller_route_destination');
 		$length = $this->requestLength();
 		if ($length !== -1) {
 			$this->db->limit($length, $this->requestStart());

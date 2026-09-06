@@ -39,6 +39,22 @@
                     </div>
                 </div>
 
+                <?php if (!empty($booking)) {
+                    $support_url = booking_support_whatsapp_url($booking);
+                    if ($support_url !== '') { ?>
+                        <div class="alert alert-success mt-4 mb-0" role="region" aria-label="Booking support">
+                            <p class="mb-2 fw-semibold text-dark">Need assistance with your completed booking?</p>
+                            <a class="btn btn-success btn-sm"
+                                href="<?= html_escape($support_url) ?>"
+                                target="_blank"
+                                rel="noopener noreferrer">
+                                <i class="ti ti-brand-whatsapp me-1" aria-hidden="true"></i>
+                                Need help with this parcel?
+                            </a>
+                        </div>
+                    <?php }
+                } ?>
+
                 <h4 class="card-title fs-5 mt-3 mb-10" style="color: red;"> There is no refund or transfer of service to another traveler </h4>
             </div>
 

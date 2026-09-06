@@ -240,6 +240,7 @@ class Admin_Users extends MY_Controller
 
         if (!$this->form_validation->run()) {
             $this->user_profile($id);
+            return;
         }
 
         if ($this->admin_user_model->update_user($id)) {

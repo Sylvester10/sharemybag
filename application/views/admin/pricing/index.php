@@ -80,7 +80,7 @@ $status_error = $this->session->flashdata('status_msg_error');
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#pricing_<?php echo html_escape($route['route_key']); ?>">
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#pricing_<?php echo html_escape($route['route_key']); ?>">
                                         <i class="las la-pen"></i> Edit
                                     </button>
                                 </td>
@@ -96,16 +96,17 @@ $status_error = $this->session->flashdata('status_msg_error');
 <?php foreach ($pricing_routes as $route): ?>
     <?php $route_key = $route['route_key']; ?>
     <?php $symbol = currency_symbol($route['currency']); ?>
-    <div class="modal fade" id="pricing_<?php echo html_escape($route_key); ?>" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
+    <div class="modal fade admin-form-modal admin-form-modal--wide" id="pricing_<?php echo html_escape($route_key); ?>" role="dialog" aria-modal="true" aria-labelledby="pricingTitle_<?php echo html_escape($route_key); ?>">
+        <div class="modal-dialog modal-lg admin-form-modal__dialog">
+            <div class="modal-content admin-form-modal__content">
+                <div class="modal-header ">
                     <div class="pull-right">
-                        <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close">&times;</button>
+                        <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close" title="Close">&times;</button>
                     </div>
-                    <h4 class="modal-title">Edit Pricing: <?php echo html_escape($route['origin'] . ' - ' . $route['destination']); ?></h4>
+                    <h4 class="modal-title admin-form-modal__title" id="pricingTitle_<?php echo html_escape($route_key); ?>">Edit Pricing: <?php echo html_escape($route['origin'] . ' - ' . $route['destination']); ?></h4>
                 </div>
-                <div class="modal-body">
+                <?php echo form_open('admin_pricing/update/' . $route_key, 'class="admin-form-modal__form"'); ?>
+                <div class="modal-body admin-form-modal__body">
                     <div class="alert alert-info">
                         Currency for this route is fixed to <strong><?php echo html_escape($route['currency']); ?></strong>. Customer-facing prices and traveller payouts below all use <?php echo $symbol; ?>.
                     </div>
@@ -120,66 +121,67 @@ $status_error = $this->session->flashdata('status_msg_error');
                         </div>
                     </div>
 
-                    <?php echo form_open('admin_pricing/update/' . $route_key); ?>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h4>Customer Charges</h4>
+                    <div class="admin-form-modal__section">
+                        <div class="row admin-form-modal__grid">
+                            <div class="col-md-12">
+                                <h4 class="admin-form-modal__section-title">Customer Charges</h4>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Service Charge (per booking)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="service_charge" value="<?php echo html_escape(number_format($route['service_charge'], 2, '.', '')); ?>" required>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Normal Items Rate (per kg)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="normal_rate" value="<?php echo html_escape(number_format($route['normal_rate'], 2, '.', '')); ?>" required>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Fish/Meat &amp; Medication Rate (per kg)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="special_rate" value="<?php echo html_escape(number_format($route['special_rate'], 2, '.', '')); ?>" required>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Duty-Free Shopping Rate (per kg)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="duty_free_rate" value="<?php echo html_escape(number_format($route['duty_free_rate'], 2, '.', '')); ?>" required>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Documents &amp; Small Electronics Rate (per item)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="premium_small_rate" value="<?php echo html_escape(number_format($route['premium_small_rate'], 2, '.', '')); ?>" required>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Laptop Rate (per item)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="premium_laptop_rate" value="<?php echo html_escape(number_format($route['premium_laptop_rate'], 2, '.', '')); ?>" required>
+                            </div>
                         </div>
-                        <div class="col-md-4 form-group">
-                            <label>Service Charge (per booking)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="service_charge" value="<?php echo html_escape(number_format($route['service_charge'], 2, '.', '')); ?>" required>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>Normal Items Rate (per kg)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="normal_rate" value="<?php echo html_escape(number_format($route['normal_rate'], 2, '.', '')); ?>" required>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>Fish/Meat &amp; Medication Rate (per kg)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="special_rate" value="<?php echo html_escape(number_format($route['special_rate'], 2, '.', '')); ?>" required>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>Duty-Free Shopping Rate (per kg)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="duty_free_rate" value="<?php echo html_escape(number_format($route['duty_free_rate'], 2, '.', '')); ?>" required>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>Documents &amp; Small Electronics Rate (per item)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="premium_small_rate" value="<?php echo html_escape(number_format($route['premium_small_rate'], 2, '.', '')); ?>" required>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>Laptop Rate (per item)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="premium_laptop_rate" value="<?php echo html_escape(number_format($route['premium_laptop_rate'], 2, '.', '')); ?>" required>
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h4>Traveller Payouts</h4>
+                        <div class="row admin-form-modal__grid">
+                            <div class="col-md-12">
+                                <h4 class="admin-form-modal__section-title">Traveller Payouts</h4>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Normal Items Payout (per kg)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="normal_payout_rate" value="<?php echo html_escape(number_format($route['normal_payout_rate'], 2, '.', '')); ?>" required>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Fish/Meat &amp; Medication Payout (per kg)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="special_payout_rate" value="<?php echo html_escape(number_format($route['special_payout_rate'], 2, '.', '')); ?>" required>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Documents &amp; Small Electronics Payout (per item)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="premium_small_payout_rate" value="<?php echo html_escape(number_format($route['premium_small_payout_rate'], 2, '.', '')); ?>" required>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Laptop Payout (per item)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" name="premium_laptop_payout_rate" value="<?php echo html_escape(number_format($route['premium_laptop_payout_rate'], 2, '.', '')); ?>" required>
+                            </div>
                         </div>
-                        <div class="col-md-4 form-group">
-                            <label>Normal Items Payout (per kg)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="normal_payout_rate" value="<?php echo html_escape(number_format($route['normal_payout_rate'], 2, '.', '')); ?>" required>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>Fish/Meat &amp; Medication Payout (per kg)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="special_payout_rate" value="<?php echo html_escape(number_format($route['special_payout_rate'], 2, '.', '')); ?>" required>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>Documents &amp; Small Electronics Payout (per item)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="premium_small_payout_rate" value="<?php echo html_escape(number_format($route['premium_small_payout_rate'], 2, '.', '')); ?>" required>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>Laptop Payout (per item)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="premium_laptop_payout_rate" value="<?php echo html_escape(number_format($route['premium_laptop_payout_rate'], 2, '.', '')); ?>" required>
-                        </div>
-                    </div>
 
-                    <div class="text-right" style="margin-top: 20px;">
-                        <button type="submit" class="btn btn-success">
-                            <i class="las la-save"></i> Save Pricing
-                        </button>
                     </div>
-                    <?php echo form_close(); ?>
                 </div>
+                <div class="modal-footer admin-form-modal__footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="las la-save"></i> Save Pricing
+                    </button>
+                </div>
+                <?php echo form_close(); ?>
             </div>
         </div>
     </div>

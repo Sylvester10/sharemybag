@@ -236,6 +236,301 @@ body [class*=" la"] {
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
 }
 
+/* Shared admin modal-form foundation. Add these classes alongside existing modal classes. */
+.admin-form-modal {
+  --admin-form-modal-primary: #2a3f54;
+  --admin-form-modal-background: #f7f9fc;
+  --admin-form-modal-surface: #fff;
+  --admin-form-modal-border: #dbe4f0;
+  --admin-form-modal-text: #344054;
+  --admin-form-modal-muted: #5f6b7a;
+  --admin-form-modal-radius: 8px;
+  --admin-form-modal-control-height: 44px;
+}
+
+.admin-form-modal .admin-form-modal__dialog {
+  width: min(94vw, 720px);
+}
+
+.admin-form-modal.admin-form-modal--compact .admin-form-modal__dialog {
+  width: min(94vw, 520px);
+}
+
+.admin-form-modal.admin-form-modal--wide .admin-form-modal__dialog {
+  width: min(94vw, 860px);
+}
+
+.admin-form-modal .admin-form-modal__content {
+  background: var(--admin-form-modal-background);
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+
+.admin-form-modal .admin-form-modal__form {
+  margin: 0;
+}
+
+.admin-form-modal .admin-form-modal__header {
+  align-items: center;
+  background: var(--admin-form-modal-primary);
+  border-bottom: 0;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 24px;
+}
+
+.admin-form-modal .admin-form-modal__header .pull-right {
+  float: none !important;
+  order: 2;
+}
+
+.admin-form-modal .admin-form-modal__title {
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.admin-form-modal .admin-form-modal__body {
+  background: var(--admin-form-modal-background);
+  max-height: 68vh;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.admin-form-modal .admin-form-modal__section {
+  background: var(--admin-form-modal-surface);
+  border: 1px solid var(--admin-form-modal-border);
+  border-radius: var(--admin-form-modal-radius);
+  margin-bottom: 18px;
+  padding: 18px;
+}
+
+.admin-form-modal .admin-form-modal__section-title {
+  align-items: center;
+  color: var(--admin-form-modal-primary);
+  display: flex;
+  font-size: 15px;
+  font-weight: 600;
+  gap: 10px;
+  margin: 22px 0 12px;
+}
+
+.admin-form-modal .admin-form-modal__section-title::before {
+  background: var(--admin-form-modal-primary);
+  border-radius: 999px;
+  content: '';
+  flex: 0 0 4px;
+  height: 18px;
+  width: 4px;
+}
+
+.admin-form-modal .admin-form-modal__assist {
+  align-items: center;
+  background: #eef3f8;
+  border: 1px solid var(--admin-form-modal-border);
+  border-radius: 6px;
+  color: #435268;
+  display: flex;
+  margin-bottom: 16px;
+  min-height: 42px;
+  padding: 10px 12px;
+}
+
+.admin-form-modal .admin-form-modal__grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.admin-form-modal .admin-form-modal__grid > [class*='col-'] {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.admin-form-modal .admin-form-modal__grid > .col-lg-12,
+.admin-form-modal .admin-form-modal__grid > .col-md-12,
+.admin-form-modal .admin-form-modal__grid > .col-sm-12 {
+  width: 100%;
+}
+
+.admin-form-modal .admin-form-modal__grid > .col-lg-6,
+.admin-form-modal .admin-form-modal__grid > .col-md-6,
+.admin-form-modal .admin-form-modal__grid > .col-sm-6 {
+  width: 50%;
+}
+
+.admin-form-modal .admin-form-modal__grid > .col-lg-4,
+.admin-form-modal .admin-form-modal__grid > .col-md-4,
+.admin-form-modal .admin-form-modal__grid > .col-sm-4 {
+  width: 33.333333%;
+}
+
+.admin-form-modal .admin-form-modal__note {
+  color: var(--admin-form-modal-muted);
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 9px;
+}
+
+.admin-form-modal label,
+.admin-form-modal .form-control-label,
+.admin-form-modal .form-label {
+  color: var(--admin-form-modal-text);
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+
+.admin-form-modal .form-controls,
+.admin-form-modal .form-control,
+.admin-form-modal .admin-form-modal__control,
+.admin-form-modal .select2-container--default .select2-selection--single {
+  background-color: var(--admin-form-modal-surface);
+  border: 1px solid #cfd8e6;
+  border-radius: 6px;
+  box-shadow: none;
+  color: var(--admin-form-modal-text);
+  font-size: 14px;
+  height: var(--admin-form-modal-control-height);
+  min-height: var(--admin-form-modal-control-height);
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.admin-form-modal textarea.form-control,
+.admin-form-modal textarea.admin-form-modal__control {
+  height: auto;
+  min-height: 96px;
+}
+
+.admin-form-modal .form-controls:focus,
+.admin-form-modal .form-control:focus,
+.admin-form-modal .admin-form-modal__control:focus,
+.admin-form-modal .select2-container--default.select2-container--focus .select2-selection--multiple,
+.admin-form-modal .select2-container--default.select2-container--open .select2-selection--single {
+  border-color: var(--admin-form-modal-primary);
+  /* box-shadow: 0 0 0 3px rgba(42, 63, 84, 0.12); */
+  outline: 0;
+}
+
+.admin-form-modal .select2-container {
+  width: 100% !important;
+}
+
+.admin-form-modal .select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 22px;
+  padding-left: 0;
+  padding-right: 24px;
+}
+
+.admin-form-modal .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 42px;
+  right: 6px;
+}
+
+.admin-form-modal .smb-phone-input {
+  align-items: stretch;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  width: 100%;
+}
+
+.admin-form-modal .smb-phone-input__country {
+  border-bottom-right-radius: 0;
+  border-right: 0;
+  border-top-right-radius: 0;
+  flex: 0 0 126px;
+  max-width: 126px;
+  min-width: 126px;
+  padding-left: 10px;
+  padding-right: 24px;
+  width: 126px !important;
+}
+
+.admin-form-modal .smb-phone-input__number {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+
+.admin-form-modal .admin-form-modal__footer {
+  align-items: center;
+  background: #fbfcfe;
+  border-top: 1px solid #eef2f7;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+}
+
+.admin-form-modal .admin-form-modal__footer .mt-3 {
+  margin-top: 0 !important;
+}
+
+.admin-form-modal .admin-form-modal__footer .btn {
+  min-height: 42px;
+  min-width: 150px;
+}
+
+.admin-form-modal .admin-form-modal__error-summary {
+  background: #fff5f5;
+  border: 1px solid #f3b8b8;
+  border-radius: 6px;
+  color: #842029;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 18px;
+  padding: 11px 13px;
+}
+
+.admin-form-modal .admin-form-modal__error-summary:focus {
+  box-shadow: 0 0 0 3px rgba(201, 48, 44, 0.12);
+  outline: 0;
+}
+
+.admin-form-modal .admin-form-modal__field-error {
+  color: #b42318;
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-top: 6px;
+}
+
+.admin-form-modal .admin-form-modal__control--invalid,
+.admin-form-modal .form-control.admin-form-modal__control--invalid,
+.admin-form-modal .form-controls.admin-form-modal__control--invalid,
+.admin-form-modal .select2-selection.admin-form-modal__control--invalid {
+  border-color: #c9302c !important;
+  /* box-shadow: 0 0 0 3px rgba(201, 48, 44, 0.1) !important; */
+}
+
+.admin-form-modal .admin-form-modal__control--invalid:focus,
+.admin-form-modal .select2-container--open .select2-selection.admin-form-modal__control--invalid {
+  border-color: #a61b17 !important;
+  /* box-shadow: 0 0 0 3px rgba(201, 48, 44, 0.16) !important; */
+  outline: 0;
+}
+
+.admin-form-modal .smb-phone-input.admin-form-modal__field-group--invalid .smb-phone-input__country,
+.admin-form-modal .smb-phone-input.admin-form-modal__field-group--invalid .smb-phone-input__number {
+  border-color: #c9302c !important;
+}
+
+.admin-form-modal .admin-form-modal__field-error[hidden],
+.admin-form-modal .admin-form-modal__error-summary[hidden] {
+  display: none !important;
+}
+
 /* Offline booking is a dense data-entry flow, so keep its improvements scoped. */
 .admin-offline-booking-modal .admin-offline-booking-dialog {
   width: min(94vw, 860px);
@@ -245,19 +540,19 @@ body [class*=" la"] {
   background: #f7f9fc;
 }
 
-.admin-offline-booking-modal .admin-offline-booking-header {
+.admin-offline-booking-modal .modal-header {
   align-items: center;
   display: flex;
   justify-content: space-between;
   padding: 20px 24px;
 }
 
-.admin-offline-booking-modal .admin-offline-booking-header .pull-right {
+.admin-offline-booking-modal .pull-right {
   float: none !important;
   order: 2;
 }
 
-.admin-offline-booking-modal .admin-offline-booking-header .modal-title {
+.admin-offline-booking-modal .modal-title {
   font-size: 18px;
   line-height: 1.4;
   margin: 0;
@@ -275,8 +570,9 @@ body [class*=" la"] {
   background: #fff;
   border: 1px solid #dbe4f0;
   border-radius: 8px;
-  margin-bottom: 22px;
+  margin-bottom: 5px;
   padding: 18px;
+  width: 50%;
 }
 
 .admin-offline-booking-modal .admin-offline-booking-section-title {
@@ -361,7 +657,7 @@ body [class*=" la"] {
 .admin-offline-booking-modal .form-control:focus,
 .admin-offline-booking-modal .select2-container--default.select2-container--open .select2-selection--single {
   border-color: #2a3f54;
-  box-shadow: 0 0 0 3px rgba(42, 63, 84, 0.12);
+  /* box-shadow: 0 0 0 3px rgba(42, 63, 84, 0.12); */
   outline: 0;
 }
 
@@ -535,7 +831,7 @@ body [class*=" la"] {
 
 .admin-parcel-modal .modal-content {
   border: 0;
-  border-radius: 18px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
 }
@@ -550,11 +846,11 @@ body [class*=" la"] {
 }
 
 .admin-parcel-modal__header--add {
-  background: linear-gradient(135deg, #0f766e 0%, #159957 100%);
+  background: #2a3f54;
 }
 
 .admin-parcel-modal__header--remove {
-  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+  background: #2a3f54;
 }
 
 .admin-parcel-modal__eyebrow {
@@ -568,8 +864,8 @@ body [class*=" la"] {
 
 .admin-parcel-modal__title {
   margin: 0;
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .admin-parcel-modal__title i {
@@ -707,9 +1003,9 @@ body [class*=" la"] {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  padding: 18px 24px 24px;
-  border-top: 0;
-  background: #fff;
+  padding: 16px 24px;
+  border-top: 1px solid #eef2f7;
+  background: #fbfcfe;
 }
 
 .admin-parcel-btn--muted {
@@ -742,9 +1038,9 @@ body [class*=" la"] {
 
 .admin-shipping-modal .modal-content {
   border: 0;
-  border-radius: 22px;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 18px 56px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 48px);
@@ -779,7 +1075,7 @@ body [class*=" la"] {
 }
 
 .admin-shipping-modal__header--status {
-  background: linear-gradient(135deg, #8a4b08 0%, #d97706 100%);
+  background: #2a3f54;
 }
 
 .admin-shipping-modal__eyebrow {
@@ -809,7 +1105,8 @@ body [class*=" la"] {
   color: #fff;
   opacity: 1;
   text-shadow: none;
-  font-size: 30px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .admin-shipping-modal__body {
@@ -822,10 +1119,10 @@ body [class*=" la"] {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  padding: 18px 26px 26px;
-  background: #fff;
+  padding: 16px 24px;
+  background: #fbfcfe;
   flex-shrink: 0;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #eef2f7;
 }
 
 .admin-shipping-steps {
@@ -963,12 +1260,47 @@ body [class*=" la"] {
     width: 100%;
   }
 
+  .admin-form-modal .admin-form-modal__dialog {
+    margin: 12px auto;
+    width: calc(100% - 24px);
+  }
+
+  .admin-form-modal .admin-form-modal__header,
+  .admin-form-modal .admin-form-modal__body,
+  .admin-form-modal .admin-form-modal__footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .admin-form-modal .admin-form-modal__body {
+    max-height: 72vh;
+  }
+
+  .admin-form-modal .admin-form-modal__grid > [class*='col-'] {
+    width: 100%;
+  }
+
+  .admin-form-modal .smb-phone-input__country {
+    flex-basis: 108px;
+    max-width: 108px;
+    min-width: 108px;
+    width: 108px !important;
+  }
+
+  .admin-form-modal .admin-form-modal__footer {
+    flex-direction: column-reverse;
+  }
+
+  .admin-form-modal .admin-form-modal__footer .btn {
+    width: 100%;
+  }
+
   .admin-offline-booking-modal .admin-offline-booking-dialog {
     margin: 12px auto;
     width: calc(100% - 24px);
   }
 
-  .admin-offline-booking-modal .admin-offline-booking-header,
+  .admin-offline-booking-modal,
   .admin-offline-booking-modal .admin-offline-booking-body,
   .admin-offline-booking-modal .admin-offline-booking-footer {
     padding-left: 16px;

@@ -76,6 +76,9 @@ assert_contains_text($footer_view, 'booking-summary-drawer-open', 'Mobile summar
 assert_contains_text($footer_view, 'aria-expanded', 'Mobile summary button should expose its expanded state.');
 
 assert_contains_text($ajax_helpers, 'advanced_form.hasClass("booking-wizard-form")', 'Booking wizard validation should suppress text labels without affecting other forms.');
+assert_contains_text($ajax_helpers, "[name='receiver_name']", 'Booking wizard validation should identify the Receiver Details step by its field rather than a fragile step number.');
+assert_contains_text($ajax_helpers, 'bookingAgentAndReceiverMatch', 'Booking wizard should compare agent and receiver details before leaving Receiver Details.');
+assert_contains_text($ajax_helpers, 'Enter different details for the agent and receiver.', 'Duplicate agent and receiver details should show the established booking error immediately.');
 assert_not_contains_text($ajax_helpers, 'age-2', 'Booking wizard should not inherit sample age-step skip logic.');
 
 fwrite(STDOUT, "PASS: booking wizard has responsive stepper styling hooks.\n");
