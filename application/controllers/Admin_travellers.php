@@ -524,19 +524,14 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('receiver_postcode', 'Receiver Postal Code', 'trim|required');
         $this->form_validation->set_rules('selected_space', 'Selected Space', 'required');
 
-        // **CRITICAL BUG FIX HERE**
-        // You MUST check if validation passed before running the model.
         if ($this->form_validation->run()) {
-            // Validation passed
             if ($this->users_model->add_offline_booking_to_db($id)) {
-                $this->travellers_model->update_traveller_space($id);
                 $this->session->set_flashdata('status_msg', "Offline booking data added successfully.");
             } else {
-                $this->session->set_flashdata('error_msg', "Failed to add booking. Please try again.");
+                $this->session->set_flashdata('status_msg_error', "Failed to add booking. Please try again.");
             }
         } else {
-            // Validation failed
-            $this->session->set_flashdata('error_msg', "Failed to add booking: " . validation_errors());
+            $this->session->set_flashdata('status_msg_error', "Failed to add booking: " . validation_errors());
         }
 
         redirect($this->agent->referrer());
