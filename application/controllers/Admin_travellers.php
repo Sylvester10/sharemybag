@@ -312,14 +312,12 @@ class Admin_travellers extends MY_Controller
             'location',
             'current_state',
             'drop_address1',
-            'drop_area1',
             'drop_date1',
             'departure_state',
             'arrival_airport',
             'arrival_state',
             'destination_area',
             'drop_address2',
-            'drop_area2',
             'drop_date2',
             'destination',
             'travel_date',
@@ -370,8 +368,6 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('airline', 'Airline', 'required');
         $this->form_validation->set_rules('area', 'Area', 'trim|min_length[2]|max_length[100]');
         $this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
-        $this->form_validation->set_rules('drop_area1', 'First Drop Off Area', 'trim|max_length[150]');
-        $this->form_validation->set_rules('drop_area2', 'Last Drop Off Area', 'trim|max_length[150]');
         $this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
         $this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim');
 
@@ -528,19 +524,14 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('receiver_postcode', 'Receiver Postal Code', 'trim|required');
         $this->form_validation->set_rules('selected_space', 'Selected Space', 'required');
 
-        // **CRITICAL BUG FIX HERE**
-        // You MUST check if validation passed before running the model.
         if ($this->form_validation->run()) {
-            // Validation passed
             if ($this->users_model->add_offline_booking_to_db($id)) {
-                $this->travellers_model->update_traveller_space($id);
                 $this->session->set_flashdata('status_msg', "Offline booking data added successfully.");
             } else {
-                $this->session->set_flashdata('error_msg', "Failed to add booking. Please try again.");
+                $this->session->set_flashdata('status_msg_error', "Failed to add booking. Please try again.");
             }
         } else {
-            // Validation failed
-            $this->session->set_flashdata('error_msg', "Failed to add booking: " . validation_errors());
+            $this->session->set_flashdata('status_msg_error', "Failed to add booking: " . validation_errors());
         }
 
         redirect($this->agent->referrer());
@@ -605,10 +596,8 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('destination_area', 'Final Destination Area', 'trim|max_length[150]');
         $this->form_validation->set_rules('airline', 'Airline', 'required');
         $this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
-        $this->form_validation->set_rules('drop_area1', 'First Drop Off Area', 'trim|max_length[150]');
-        $this->form_validation->set_rules('drop_area2', 'Last Drop Off Area', 'trim|max_length[150]');
         $this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
-        $this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim|required');
+        $this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim');
 
         $config = [
             'upload_path' => 'assets/itinerary',
