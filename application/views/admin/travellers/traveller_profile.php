@@ -79,6 +79,7 @@
                 <p><b>Travel Date:</b> <?= x_date($y->travel_date); ?></p>
                 <p><b>Arrival Date:</b> <?= ($y->arrival_date == "") ? "N/A" : x_date($y->arrival_date); ?></p>
                 <p><b>Unwanted Items:</b> <?= $y->unwanted_items; ?></p>
+                <p><b>Additional Information:</b> <?= trim((string) $y->additional_info) === '' ? 'N/A' : nl2br(html_escape($y->additional_info)); ?></p>
 
             </div>
         </div>
