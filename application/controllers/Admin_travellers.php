@@ -394,6 +394,7 @@ class Admin_travellers extends MY_Controller
         $this->admin_header($page_title, $page_title);
         $data['y'] = $traveller_details;
         $data['booking_details'] = $this->traveller_read_model->get_booking_details_by_traveller_id($id);
+        $data['is_super_admin'] = $this->get_admin_role() === 'super_admin';
         $this->load->view('admin/travellers/traveller_profile', $data);
         $this->admin_footer();
     }

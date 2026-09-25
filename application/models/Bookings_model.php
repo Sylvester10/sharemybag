@@ -25,6 +25,7 @@ class Bookings_model extends \MY_Model
 		$this->load->model('travellers_model');
 		$this->load->model('finance_read_model');
 		$this->load->model('shipping_read_model');
+		$this->load->model('booking_action_log_model');
 		$this->traveller_details = $this->traveller_read_model->get_traveller_details_by_id($this->session->id);
 	}
 
@@ -604,33 +605,438 @@ class Bookings_model extends \MY_Model
 	}
 
 
-	public function cancel_booking($id)
+	public function cancel_parcel($id, $adminId, array $cancellation)
 	{
-		$booking = $this->booking_read_model->get_booking_details_by_id($id);
-		if (!$booking) {
-			return false;
+		$id = (int) $id;
+		$adminId = (int) $adminId;
+		$reason = trim((string) ($cancellation['reason'] ?? ''));
+		$refundStatus = strtolower(trim((string) ($cancellation['refund_status'] ?? '')));
+		$refundReference = trim((string) ($cancellation['refund_reference'] ?? ''));
+		$refundAmount = $cancellation['refund_amount'] ?? null;
+
+		if ($id <= 0 || $adminId <= 0 || $reason === '') {
+			return array('status' => false, 'msg' => 'A valid booking and cancellation reason are required.');
+		}
+		if (!in_array($refundStatus, array('refunded', 'not_required'), true)) {
+			return array('status' => false, 'msg' => 'Select a valid refund status.');
+		}
+		if ($refundAmount === '' || $refundAmount === null || !is_numeric($refundAmount) || (float) $refundAmount < 0) {
+			return array('status' => false, 'msg' => 'Enter a valid refund amount.');
+		}
+		if ($refundStatus === 'refunded' && $refundReference === '') {
+			return array('status' => false, 'msg' => 'Enter the manual refund reference.');
 		}
 
-		$this->db->trans_start();
+		$this->db->trans_begin();
 
-		$this->db->where('id', $id);
-		$this->db->update('bookings', array(
+		// Lock shipping before booking to match the shipping update workflow's
+		// lock order and avoid a cancellation/status-update deadlock.
+		$shipping = $this->db->query(
+			'SELECT * FROM shipping_records WHERE booking_id = ? ORDER BY id DESC LIMIT 1 FOR UPDATE',
+			array($id)
+		)->row();
+		$booking = $this->db->query('SELECT * FROM bookings WHERE id = ? FOR UPDATE', array($id))->row();
+		if (!$booking || (!empty($booking->deleted_at))) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'Booking not found.');
+		}
+
+		$paymentStatus = payment_status_normalize($booking->payment_status);
+		if ($paymentStatus === 'canceled') {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'This parcel has already been cancelled.');
+		}
+		if ($paymentStatus !== 'completed') {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'Only completed bookings can be cancelled.');
+		}
+
+		$shippingStatus = $shipping ? shipping_status_normalize($shipping->status) : null;
+		if (in_array($shippingStatus, array('In Transit', 'Completed'), true)) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'This parcel cannot be cancelled because shipping is already ' . $shippingStatus . '.');
+		}
+
+		$beforeTraveller = $this->db->select('id, original_bag_space, used_space, available_space')
+			->where('id', (int) $booking->traveller_id)
+			->get('travellers')->row_array();
+		$shippingHistory = $shipping
+			? $this->db->where('tracking_id', $booking->tracking_id)->order_by('date_added', 'ASC')->get('shipping')->result_array()
+			: array();
+		$beforeSnapshot = array(
+			'booking' => $this->cancellation_booking_snapshot($booking),
+			'traveller_capacity' => $beforeTraveller,
+			'shipping_status' => $shippingStatus,
+			'shipping_record' => $shipping ? (array) $shipping : null,
+			'shipping_history' => $shippingHistory,
+		);
+
+		$refundAmount = round((float) $refundAmount, 2);
+		if ($refundStatus === 'not_required') {
+			$refundAmount = 0.00;
+			$refundReference = '';
+		}
+
+		// An Awaiting Collection arrangement has not left the traveller yet.
+		// Remove it from the live shipping queue while retaining its full details
+		// in the append-only cancellation snapshot above.
+		if ($shipping) {
+			$this->db->where('id', (int) $shipping->id)->delete('shipping_records');
+			$this->db->where('tracking_id', $booking->tracking_id)->delete('shipping');
+		}
+
+		$this->db->where('id', $id)->update('bookings', array(
 			'payment_status' => payment_status_normalize('canceled'),
+			'cancelled_at' => date('Y-m-d H:i:s'),
+			'cancelled_by_admin_id' => $adminId,
+			'cancellation_reason' => $reason,
+			'refund_status' => $refundStatus,
+			'refund_reference' => $refundReference !== '' ? $refundReference : null,
+			'refund_amount' => number_format($refundAmount, 2, '.', ''),
 		));
 
-		$this->travellers_model->update_traveller_space($booking->traveller_id);
-
-		$this->db->trans_complete();
-
-		if ($this->db->trans_status() === FALSE) {
-			log_message('error', 'Transaction failed in ' . __METHOD__);
-			return false;
+		if ($this->db->trans_status() === false) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'Unable to cancel this parcel.');
 		}
 
+		if (!$this->travellers_model->update_traveller_space((int) $booking->traveller_id)) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'Unable to restore traveller bag space. The parcel was not cancelled.');
+		}
+		$updatedBooking = $this->db->where('id', $id)->get('bookings')->row();
+		$afterTraveller = $this->db->select('id, original_bag_space, used_space, available_space')
+			->where('id', (int) $booking->traveller_id)
+			->get('travellers')->row_array();
+		$afterSnapshot = array(
+			'booking' => $this->cancellation_booking_snapshot($updatedBooking),
+			'traveller_capacity' => $afterTraveller,
+			'shipping_status' => null,
+		);
+
+		$auditId = $this->booking_action_log_model->record(array(
+			'booking_id' => $id,
+			'booking_reference' => $booking->tracking_id ?? null,
+			'action' => Booking_action_log_model::ACTION_CANCEL,
+			'from_traveller_id' => (int) $booking->traveller_id,
+			'admin_id' => $adminId,
+			'reason' => $reason,
+			'refund_status' => $refundStatus,
+			'refund_reference' => $refundReference,
+			'refund_amount' => $refundAmount,
+			'currency' => $booking->currency ?? null,
+			'before_snapshot' => $beforeSnapshot,
+			'after_snapshot' => $afterSnapshot,
+		));
+
+		if (!$auditId || $this->db->trans_status() === false) {
+			$this->db->trans_rollback();
+			log_message('error', 'Cancellation audit failed for booking ' . $id);
+			return array('status' => false, 'msg' => 'Cancellation was not saved because its audit record could not be created.');
+		}
+
+		$this->db->trans_commit();
 		$this->finance_read_model->clearFinanceSummaryCaches();
 		$this->booking_read_model->clearBookingCountCaches();
+		$this->shipping_read_model->clearShippingCountCaches();
+		$this->traveller_read_model->clearTravellerCountCaches();
 
-		return true;
+		return array(
+			'status' => true,
+			'msg' => 'Parcel cancelled successfully. Traveller bag space has been restored.',
+			'audit_id' => (int) $auditId,
+		);
+	}
+
+
+	public function get_move_parcel_context($bookingId)
+	{
+		$bookingId = (int) $bookingId;
+		$booking = $this->booking_read_model->get_booking_details_by_id($bookingId);
+		if (!$booking || payment_status_normalize($booking->payment_status) !== 'completed') {
+			return array('status' => false, 'msg' => 'Only completed parcel bookings can be moved.');
+		}
+
+		$shipping = $this->shipping_read_model->get_shipping_record_by_booking_id($bookingId);
+		if ($shipping) {
+			return array('status' => false, 'msg' => 'A shipping record already exists for this parcel. Move it before arranging shipping.');
+		}
+
+		$sourceTraveller = $this->traveller_read_model->get_traveller_details_by_id((int) $booking->traveller_id);
+		if (!$sourceTraveller) {
+			return array('status' => false, 'msg' => 'The current traveller could not be found.');
+		}
+
+		$this->db->select('id, fullname, location, destination, travel_date, arrival_date, available_space');
+		$this->db->from('travellers');
+		$this->db->where('id !=', (int) $sourceTraveller->id);
+		$this->db->where('status', traveller_status_normalize('Approved'));
+		$this->db->where('bag_locked', 0);
+		$this->db->where('available_space >=', (float) $booking->selected_space);
+		$this->db->where('travel_date >=', traveller_minimum_bookable_date());
+		$this->db->where('location', $sourceTraveller->location);
+		$this->db->where('destination', $sourceTraveller->destination);
+		$this->db->where('deleted_at IS NULL', null, false);
+		$this->db->order_by('travel_date', 'ASC');
+		$this->db->order_by('fullname', 'ASC');
+		$travellers = $this->db->get()->result();
+
+		$options = array();
+		foreach ($travellers as $traveller) {
+			$options[] = array(
+				'id' => (int) $traveller->id,
+				'fullname' => $traveller->fullname,
+				'location' => $traveller->location,
+				'destination' => $traveller->destination,
+				'travel_date' => substr((string) $traveller->travel_date, 0, 10),
+				'travel_date_label' => x_day_ordinal($traveller->travel_date) . ' of ' . x_month_long($traveller->travel_date) . ' ' . x_year_long($traveller->travel_date),
+				'arrival_date' => substr((string) $traveller->arrival_date, 0, 10),
+				'available_space' => (float) $traveller->available_space,
+			);
+		}
+
+		return array(
+			'status' => true,
+			'context' => array(
+				'booking_id' => $bookingId,
+				'booking_reference' => $booking->tracking_id,
+				'parcel_size' => (float) $booking->selected_space,
+				'current_traveller' => $sourceTraveller->fullname,
+				'route' => trim((string) $sourceTraveller->location) . ' - ' . trim((string) $sourceTraveller->destination),
+				'eligible_travellers' => $options,
+			),
+		);
+	}
+
+
+	public function move_parcel($bookingId, $targetTravellerId, $adminId, $reason)
+	{
+		$bookingId = (int) $bookingId;
+		$targetTravellerId = (int) $targetTravellerId;
+		$adminId = (int) $adminId;
+		$reason = trim((string) $reason);
+
+		if ($bookingId <= 0 || $targetTravellerId <= 0 || $adminId <= 0 || $reason === '') {
+			return array('status' => false, 'msg' => 'A booking, destination traveller, and move reason are required.');
+		}
+
+		$this->db->trans_begin();
+
+		// Shipping is locked first to match the shipping workflow lock order.
+		$shipping = $this->db->query(
+			'SELECT * FROM shipping_records WHERE booking_id = ? ORDER BY id DESC LIMIT 1 FOR UPDATE',
+			array($bookingId)
+		)->row();
+		if ($shipping) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'A shipping record already exists for this parcel. Move it before arranging shipping.');
+		}
+
+		$booking = $this->db->query('SELECT * FROM bookings WHERE id = ? FOR UPDATE', array($bookingId))->row();
+		if (!$booking || !empty($booking->deleted_at)) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'Booking not found.');
+		}
+		if (payment_status_normalize($booking->payment_status) !== 'completed') {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'Only completed parcel bookings can be moved.');
+		}
+
+		$sourceTravellerId = (int) $booking->traveller_id;
+		if ($sourceTravellerId === $targetTravellerId) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'Select a different traveller.');
+		}
+
+		$lockedTravellerIds = array($sourceTravellerId, $targetTravellerId);
+		sort($lockedTravellerIds, SORT_NUMERIC);
+		$travellerRows = $this->db->query(
+			'SELECT * FROM travellers WHERE id IN (?, ?) ORDER BY id ASC FOR UPDATE',
+			$lockedTravellerIds
+		)->result();
+		$travellers = array();
+		foreach ($travellerRows as $traveller) {
+			$travellers[(int) $traveller->id] = $traveller;
+		}
+
+		$sourceTraveller = $travellers[$sourceTravellerId] ?? null;
+		$targetTraveller = $travellers[$targetTravellerId] ?? null;
+		if (!$sourceTraveller || !$targetTraveller || !empty($targetTraveller->deleted_at)) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'The selected traveller is unavailable.');
+		}
+
+		if (traveller_status_normalize($targetTraveller->status) !== traveller_status_normalize('Approved')) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'The selected traveller is not approved.');
+		}
+		if ((int) $targetTraveller->bag_locked === 1 || !traveller_is_bookable_by_cutoff($targetTraveller->travel_date)) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'The selected traveller is no longer available for bookings.');
+		}
+
+		$sourceRoute = strtolower(trim((string) $sourceTraveller->location)) . '|' . strtolower(trim((string) $sourceTraveller->destination));
+		$targetRoute = strtolower(trim((string) $targetTraveller->location)) . '|' . strtolower(trim((string) $targetTraveller->destination));
+		if ($sourceRoute !== $targetRoute) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'The selected traveller must have the same origin and destination.');
+		}
+
+		$parcelSize = (float) $booking->selected_space;
+		if ($parcelSize <= 0 || (float) $targetTraveller->available_space < $parcelSize) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'The selected traveller does not have enough available bag space.');
+		}
+
+		$beforeSnapshot = array(
+			'booking' => $this->booking_assignment_snapshot($booking),
+			'source_traveller' => $this->traveller_capacity_snapshot($sourceTraveller),
+			'target_traveller' => $this->traveller_capacity_snapshot($targetTraveller),
+		);
+
+		$this->db->where('id', $bookingId)->update('bookings', array(
+			'traveller_id' => $targetTravellerId,
+			'traveller_name' => $this->bounded_booking_text($targetTraveller->fullname, 100),
+			'traveller_contact' => $this->bounded_booking_text($targetTraveller->phone, 50),
+			'traveller_email' => $this->bounded_booking_text($targetTraveller->email, 100),
+			'traveller_departure_date' => $this->bounded_booking_text($targetTraveller->travel_date, 100),
+			'traveller_arrival_date' => $this->bounded_booking_text($targetTraveller->arrival_date, 50),
+			'traveller_departure_state' => $this->bounded_booking_text($targetTraveller->departure_state, 100),
+			'traveller_current_state' => $this->bounded_booking_text($targetTraveller->current_state, 100),
+			'traveller_arrival_state' => $this->bounded_booking_text($targetTraveller->arrival_state, 100),
+			'traveller_destination' => $this->bounded_booking_text($targetTraveller->destination, 100),
+			'traveller_arrival_airport' => $this->bounded_booking_text($targetTraveller->arrival_airport, 100),
+			'traveller_drop_address1' => $this->bounded_booking_text($targetTraveller->drop_address1, 100),
+			'traveller_drop_date1' => $this->bounded_booking_text($targetTraveller->drop_date1, 50),
+			'traveller_drop_address2' => $this->bounded_booking_text($targetTraveller->drop_address2, 100),
+			'traveller_drop_date2' => $this->bounded_booking_text($targetTraveller->drop_date2, 50),
+		));
+
+		if ($this->db->trans_status() === false) {
+			$this->db->trans_rollback();
+			return array('status' => false, 'msg' => 'Unable to move this parcel.');
+		}
+
+		foreach ($lockedTravellerIds as $travellerId) {
+			if (!$this->travellers_model->update_traveller_space($travellerId)) {
+				$this->db->trans_rollback();
+				return array('status' => false, 'msg' => 'Unable to recalculate traveller bag space.');
+			}
+		}
+
+		$updatedBooking = $this->db->where('id', $bookingId)->get('bookings')->row();
+		$updatedSource = $this->db->where('id', $sourceTravellerId)->get('travellers')->row();
+		$updatedTarget = $this->db->where('id', $targetTravellerId)->get('travellers')->row();
+		$afterSnapshot = array(
+			'booking' => $this->booking_assignment_snapshot($updatedBooking),
+			'source_traveller' => $this->traveller_capacity_snapshot($updatedSource),
+			'target_traveller' => $this->traveller_capacity_snapshot($updatedTarget),
+		);
+
+		$auditId = $this->booking_action_log_model->record(array(
+			'booking_id' => $bookingId,
+			'booking_reference' => $booking->tracking_id ?? null,
+			'action' => Booking_action_log_model::ACTION_MOVE,
+			'from_traveller_id' => $sourceTravellerId,
+			'to_traveller_id' => $targetTravellerId,
+			'admin_id' => $adminId,
+			'reason' => $reason,
+			'currency' => $booking->currency ?? null,
+			'before_snapshot' => $beforeSnapshot,
+			'after_snapshot' => $afterSnapshot,
+		));
+
+		if (!$auditId || $this->db->trans_status() === false) {
+			$this->db->trans_rollback();
+			log_message('error', 'Move audit failed for booking ' . $bookingId);
+			return array('status' => false, 'msg' => 'The parcel was not moved because its audit record could not be created.');
+		}
+
+		$this->db->trans_commit();
+		$this->finance_read_model->clearFinanceSummaryCaches();
+		$this->booking_read_model->clearBookingCountCaches();
+		$this->shipping_read_model->clearShippingCountCaches();
+		$this->traveller_read_model->clearTravellerCountCaches();
+
+		return array(
+			'status' => true,
+			'msg' => 'Parcel moved successfully to ' . $targetTraveller->fullname . '.',
+			'audit_id' => (int) $auditId,
+		);
+	}
+
+
+	private function booking_assignment_snapshot($booking)
+	{
+		if (!$booking) {
+			return null;
+		}
+
+		return array(
+			'id' => (int) $booking->id,
+			'tracking_id' => $booking->tracking_id ?? null,
+			'traveller_id' => (int) $booking->traveller_id,
+			'traveller_name' => $booking->traveller_name ?? null,
+			'traveller_email' => $booking->traveller_email ?? null,
+			'traveller_departure_date' => $booking->traveller_departure_date ?? null,
+			'traveller_destination' => $booking->traveller_destination ?? null,
+			'selected_space' => (float) $booking->selected_space,
+			'traveller_commission' => (float) $booking->traveller_commission,
+			'payment_status' => $booking->payment_status ?? null,
+		);
+	}
+
+
+	private function traveller_capacity_snapshot($traveller)
+	{
+		if (!$traveller) {
+			return null;
+		}
+
+		return array(
+			'id' => (int) $traveller->id,
+			'fullname' => $traveller->fullname ?? null,
+			'location' => $traveller->location ?? null,
+			'destination' => $traveller->destination ?? null,
+			'travel_date' => $traveller->travel_date ?? null,
+			'original_bag_space' => (float) $traveller->original_bag_space,
+			'used_space' => (float) $traveller->used_space,
+			'available_space' => (float) $traveller->available_space,
+		);
+	}
+
+
+	private function bounded_booking_text($value, $maximumLength)
+	{
+		$value = trim((string) $value);
+		return function_exists('mb_substr')
+			? mb_substr($value, 0, $maximumLength)
+			: substr($value, 0, $maximumLength);
+	}
+
+
+	private function cancellation_booking_snapshot($booking)
+	{
+		if (!$booking) {
+			return null;
+		}
+
+		return array(
+			'id' => (int) $booking->id,
+			'tracking_id' => $booking->tracking_id ?? null,
+			'traveller_id' => (int) $booking->traveller_id,
+			'selected_space' => (float) $booking->selected_space,
+			'payment_status' => $booking->payment_status ?? null,
+			'delivery_status' => $booking->delivery_status ?? null,
+			'total_amount' => isset($booking->total_amount) ? (float) $booking->total_amount : null,
+			'currency' => $booking->currency ?? null,
+			'cancelled_at' => $booking->cancelled_at ?? null,
+			'cancelled_by_admin_id' => isset($booking->cancelled_by_admin_id) ? (int) $booking->cancelled_by_admin_id : null,
+			'cancellation_reason' => $booking->cancellation_reason ?? null,
+			'refund_status' => $booking->refund_status ?? null,
+			'refund_reference' => $booking->refund_reference ?? null,
+			'refund_amount' => isset($booking->refund_amount) ? (float) $booking->refund_amount : null,
+		);
 	}
 
 
@@ -712,12 +1118,6 @@ class Bookings_model extends \MY_Model
 						break;
 				    case 'confirm':
 						$this->confirm_booking($id);
-						break;
-					case 'cancel':
-						$this->cancel_booking($id);
-						break;
-					case 'delete':
-						$this->delete_booking($id);
 						break;
 				}
 			}

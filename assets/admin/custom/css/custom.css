@@ -999,6 +999,106 @@ body [class*=" la"] {
   border-radius: 12px;
 }
 
+.admin-form-field-error {
+  display: block;
+  margin-top: 6px;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.admin-parcel-field.has-error .admin-parcel-field__input {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+}
+
+.admin-info-guide {
+  margin: 4px 0 18px;
+  padding: 14px 16px;
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.admin-info-guide__title {
+  margin-bottom: 10px;
+  color: #1f4f7a;
+  font-weight: 700;
+}
+
+.admin-info-guide__title i {
+  margin-right: 5px;
+}
+
+.admin-info-guide__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 24px;
+}
+
+.admin-info-guide__item {
+  display: flex;
+  gap: 5px;
+  align-items: baseline;
+}
+
+.admin-info-guide__item b {
+  color: #334155;
+  white-space: nowrap;
+}
+
+.admin-lifecycle-guide__grid {
+  grid-template-areas:
+    "needs full"
+    "partial cleared";
+}
+
+.admin-lifecycle-guide__needs {
+  grid-area: needs;
+}
+
+.admin-lifecycle-guide__partial {
+  grid-area: partial;
+}
+
+.admin-lifecycle-guide__full {
+  grid-area: full;
+}
+
+.admin-lifecycle-guide__cleared {
+  grid-area: cleared;
+}
+
+.admin-payout-guide .admin-info-guide__body {
+  max-width: 1100px;
+}
+
+@media (max-width: 767px) {
+  .admin-info-guide__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-lifecycle-guide__grid {
+    grid-template-areas:
+      "needs"
+      "partial"
+      "full"
+      "cleared";
+  }
+
+  .admin-info-guide__item {
+    display: block;
+  }
+
+  .admin-info-guide__item b,
+  .admin-info-guide__item span {
+    display: block;
+  }
+}
+
 .admin-parcel-modal__footer {
   display: flex;
   justify-content: flex-end;

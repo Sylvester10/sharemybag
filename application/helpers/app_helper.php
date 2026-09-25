@@ -2959,6 +2959,31 @@ function shipping_status_badge($status)
 }
 
 
+function arrival_lifecycle_badge($status)
+{
+	$status = trim((string) $status);
+
+	switch ($status) {
+		case 'Cleared':
+			$class = 'badge-success';
+			break;
+		case 'Fully Arranged':
+			$class = 'badge-primary';
+			break;
+		case 'Partially Arranged':
+			$class = 'badge-warning';
+			break;
+		case 'Needs Shipping':
+		default:
+			$status = 'Needs Shipping';
+			$class = 'badge-danger';
+			break;
+	}
+
+	return smb_badge($status, $class);
+}
+
+
 function shipping_courier_options()
 {
 	return array(

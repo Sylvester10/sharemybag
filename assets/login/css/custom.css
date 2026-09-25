@@ -38,9 +38,6 @@
   .pricing-action-info {
     padding: 1.5rem !important;
   }
-  .otp-input-container {
-    gap: 4px !important;
-  }
 }
 
 .main-btn.primary {
@@ -111,6 +108,20 @@
 
 .copyright {
   font-size: 14px;
+}
+
+[data-password-panel],
+[data-passwordless-code-panel],
+[data-login-credentials-panel] {
+  transition: opacity 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-password-panel],
+  [data-passwordless-code-panel],
+  [data-login-credentials-panel] {
+    transition: none;
+  }
 }
 
 #preloader {
@@ -262,26 +273,75 @@
 }
 
 .otp-input-container {
-  display: flex !important;
-  justify-content: space-between !important;
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto 1rem;
 }
 
 .otp-input-container input[type="text"] {
-  /* width: 45px !important; */
-  height: 45px !important;
-  margin: 0 8px !important;
-  border: 1px solid #eee !important;
-  border-radius: 4px !important;
+  width: 100% !important;
+  min-width: 0;
+  height: 52px !important;
+  margin: 0 !important;
+  padding: 0 0.25rem !important;
+  border: 1px solid #ced4da !important;
+  border-radius: 7px !important;
+  background-color: #fff;
   font-size: 24px !important;
+  font-weight: 600;
   text-align: center !important;
-  transition: all 0.3s ease-in-out !important;
+  caret-color: #f36b24;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
 }
 
 .otp-input-container input[type="text"]:focus {
   border-color: #f36b24 !important;
   outline: none !important;
-  transform: scale(1.1) !important;
+  box-shadow: 0 0 0 3px rgba(243, 107, 36, 0.2) !important;
+}
+
+.otp-input-container.is-invalid input[type="text"] {
+  border-color: #dc3545 !important;
+}
+
+.otp-input-container.is-invalid input[type="text"]:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.18) !important;
+}
+
+.otp-input-container input[type="text"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+@media (max-width: 767px) {
+  .otp-input-container {
+    gap: 6px;
+  }
+
+  .otp-input-container input[type="text"] {
+    height: 46px !important;
+    padding: 0 !important;
+    font-size: 20px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .otp-input-container {
+    gap: 4px;
+  }
+
+  .otp-input-container input[type="text"] {
+    height: 42px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .otp-input-container input[type="text"] {
+    transition: none !important;
+  }
 }
 
 .otp-input-container2 {

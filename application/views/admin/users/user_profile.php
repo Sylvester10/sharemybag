@@ -169,7 +169,6 @@
 //select options bulk actions
 $options_array = array(
     //'value' => 'Caption'
-    'delete' => 'Delete'
 );
 echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
 
@@ -198,9 +197,18 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
                 <tr>
                     <td> <?php echo checkbox_bulk_action($y->id); ?></td>
-                    <?php echo '<td> <div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $y->id . '" title="Options"> <i class="las la-bars"></i> </a></div>';
+					<?php {
+						$cancelAction = '';
+						if (!empty($is_super_admin) && payment_status_normalize($y->payment_status) === 'completed') {
+							$cancelAction = '<p><button type="button" class="btn btn-danger btn-sm btn-block action-btn clickable open-cancel-parcel" data-booking-id="' . (int) $y->id . '" data-booking-reference="' . html_escape($y->tracking_id) . '" data-refund-amount="' . html_escape(number_format((float) $y->total_amount, 2, '.', '')) . '" data-currency="' . html_escape(strtoupper((string) $y->currency)) . '"><i class="las la-times"></i> &nbsp; Cancel Parcel</button></p>
+								' . (empty($y->shipping_record_id)
+									? '<p><button type="button" class="btn btn-primary btn-sm btn-block action-btn clickable open-move-parcel" data-booking-id="' . (int) $y->id . '" data-booking-reference="' . html_escape($y->tracking_id) . '"><i class="las la-exchange-alt"></i> &nbsp; Move Parcel</button></p>'
+									: '');
+						}
 
-                    echo '<div class="modal fade" id="options' . $y->id . '" role="dialog">
+						echo '<td> <div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $y->id . '" title="Options"> <i class="las la-bars"></i> </a></div>';
+
+						echo '<div class="modal fade" id="options' . $y->id . '" role="dialog">
 							<div class="modal-dialog">
 								<div class="modal-content modal-width">
 									<div class="modal-header">
@@ -210,36 +218,13 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 										<h4 class="modal-title">Actions:' . $y->tracking_id . '</h4>
 									</div><!--/.modal-header-->
 									<div class="modal-body">
-
-										<p><a type="button" href="#" class="btn btn-danger btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $y->id . '"> <i class="las la-trash"></i> &nbsp; Delete </a></p>
-
+										<p><a type="button" href="' . base_url('admin_bookings/view_booking/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"><i class="las la-eye" style="color:green"></i> &nbsp; View Booking</a></p>
+										' . $cancelAction . '
 									</div>
 								</div>
 							</div>
-						</div>
-
-						<div class="modal fade" id="delete' . $y->id . '" role="dialog">
-							<div class="modal-dialog">
-								<div class="modal-content">
-									<div class="modal-header">
-										<div class="pull-right">
-											<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close" title="Close">&times;</button>
-										</div>
-										<h4 class="modal-title">' . $y->tracking_id . '</h4>
-									</div><!--/.modal-header-->
-									<div class="modal-body">
-										Are you sure you want to permanently delete this transaction?
-									</div>
-									<div class="modal-footer">
-										<button data-dismiss="modal" class="btn btn-default btn-sm">No, Cancel</button>
-										<a class="btn btn-sm btn-danger" role="button" href="' . base_url('admin_bookings/delete_booking/' . $y->id) . '">Yes, Delete</a>
-									</div>
-								</div>
-							</div>
-						</div></td>'
-
-
-                    ?>
+						</div></td>';
+					} ?>
 
                     <?php
 
@@ -313,4 +298,5 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 <?php echo form_close(); ?>
 
-<?php  ?>
+<?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/cancel_parcel'); ?>
+<?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/move_parcel'); ?>

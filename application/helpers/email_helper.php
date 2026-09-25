@@ -33,9 +33,10 @@ function email_call2action_blue($url, $caption)
 
 
 // Function to send email notification
-function send_email_notification($CI, $email, $subject, $data = [], $email_type)
+function send_email_notification($CI, $email, $subject, $data, $email_type)
 {
 	$email_type = 'mail/' . $email_type;
+	$mail = null;
 	try {
 		require_once 'application/third_party/mail.php';
 
@@ -53,14 +54,16 @@ function send_email_notification($CI, $email, $subject, $data = [], $email_type)
 		$mail->Body = $body;
 		$mail->AltBody = $body; // Plain text alternative
 
-		$mail->send(); // Send the email
-	} catch (Exception $e) {
-		log_message('error', 'Mail sending failed: ' . $mail->ErrorInfo);
+		return $mail->send(); // Send the email
+	} catch (Throwable $e) {
+		$error = $mail && !empty($mail->ErrorInfo) ? $mail->ErrorInfo : $e->getMessage();
+		log_message('error', 'Mail sending failed: ' . $error);
+		return false;
 	}
 }
 
 // Function to send bulk email notifications
-function send_bulk_email_notification($CI, $emails = [], $subject, $data = [], $email_type)
+function send_bulk_email_notification($CI, $emails, $subject, $data, $email_type)
 {
 	if (empty($emails) || !is_array($emails)) {
 		log_message('error', 'No valid email addresses provided.');
@@ -104,5 +107,3 @@ function send_bulk_email_notification($CI, $emails = [], $subject, $data = [], $
 		log_message('error', 'Bulk mail sending failed: ' . $e->getMessage());
 	}
 }
-
-

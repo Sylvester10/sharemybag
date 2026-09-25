@@ -16,6 +16,12 @@ $formatAddress = function ($address, $locality = '', $postcode = '') {
     <span><strong>Completed Bookings:</strong> <?php echo (int) $y->booking_count; ?></span>
 </div>
 <div class="admin-summary-chip">
+    <span><strong>Shipping Arranged:</strong> <?php echo (int) $y->shipping_count; ?> of <?php echo (int) $y->booking_count; ?></span>
+</div>
+<div class="admin-summary-chip">
+    <span><strong>Arrival Lifecycle:</strong> <?php echo arrival_lifecycle_badge($y->arrival_lifecycle); ?></span>
+</div>
+<div class="admin-summary-chip">
     <span><strong>Available Space:</strong> <?php echo (float) $y->available_space; ?> KG</span>
 </div>
 
@@ -48,6 +54,7 @@ $formatAddress = function ($address, $locality = '', $postcode = '') {
                 <p><b>Airline:</b> <?php echo html_escape($y->airline); ?></p>
                 <p><b>Travel Date:</b> <?php echo x_date($y->travel_date); ?></p>
                 <p><b>Arrival Date:</b> <?php echo $y->arrival_date ? x_date($y->arrival_date) : 'N/A'; ?></p>
+                <p><b>Additional Information:</b> <?php echo trim((string) $y->additional_info) === '' ? 'N/A' : nl2br(html_escape($y->additional_info)); ?></p>
             </div>
         </div>
     </div>
@@ -65,6 +72,7 @@ $formatAddress = function ($address, $locality = '', $postcode = '') {
                 <th class="min-w-240">Traveler / Pickup</th>
                 <th class="min-w-240">Receiver / Drop-off</th>
                 <th class="min-w-200">Items</th>
+                <th class="min-w-150">Shipping Status</th>
                 <th class="min-w-120">Amount</th>
                 <th class="min-w-150">Date</th>
             </tr>
@@ -101,6 +109,22 @@ $formatAddress = function ($address, $locality = '', $postcode = '') {
                                         <?php } else { ?>
                                             <p><button type="button" class="btn btn-primary btn-sm btn-block action-btn open-create-shipping" data-booking-id="<?php echo (int) $booking->id; ?>" data-dismiss="modal"><i class="las la-truck"></i> &nbsp; Book Shipping</button></p>
                                         <?php } ?>
+                                        <?php if (!empty($is_super_admin)) { ?>
+                                            <?php if (!$shippingExists) { ?>
+                                                <p><button type="button" class="btn btn-primary btn-sm btn-block action-btn open-move-parcel"
+                                                    data-booking-id="<?php echo (int) $booking->id; ?>"
+                                                    data-booking-reference="<?php echo html_escape($booking->tracking_id); ?>">
+                                                    <i class="las la-exchange-alt"></i> &nbsp; Move Parcel
+                                                </button></p>
+                                            <?php } ?>
+                                            <p><button type="button" class="btn btn-danger btn-sm btn-block action-btn open-cancel-parcel"
+                                                data-booking-id="<?php echo (int) $booking->id; ?>"
+                                                data-booking-reference="<?php echo html_escape($booking->tracking_id); ?>"
+                                                data-refund-amount="<?php echo html_escape(number_format((float) $booking->total_amount, 2, '.', '')); ?>"
+                                                data-currency="<?php echo html_escape(strtoupper((string) $booking->currency)); ?>">
+                                                <i class="las la-times"></i> &nbsp; Cancel Parcel
+                                            </button></p>
+                                        <?php } ?>
                                     </div>
                                 </div></div>
                             </div>
@@ -119,12 +143,17 @@ $formatAddress = function ($address, $locality = '', $postcode = '') {
                             <?php echo nl2br(html_escape($formatAddress($booking->receiver_address, $booking->receiver_locality, $booking->receiver_postcode))); ?>
                         </td>
                         <td><?php echo html_escape($itemNames ? implode(', ', $itemNames) : 'No item details'); ?></td>
+                        <td>
+                            <?php echo $shippingExists
+                                ? shipping_status_badge($booking->shipping_status)
+                                : smb_badge('Needs Shipping', 'badge-danger'); ?>
+                        </td>
                         <td><?php echo html_escape(currency_symbol_text($booking->currency) . number_format((float) $booking->total_amount, 2)); ?></td>
                         <td><?php echo x_datetime_full($booking->date_added); ?></td>
                     </tr>
                 <?php } ?>
             <?php } else { ?>
-                <tr><td colspan="8" class="text-center text-muted">No completed bookings were found for this traveler.</td></tr>
+                <tr><td colspan="9" class="text-center text-muted">No completed bookings were found for this traveler.</td></tr>
             <?php } ?>
         </tbody>
     </table>
@@ -136,3 +165,5 @@ $formatAddress = function ($address, $locality = '', $postcode = '') {
     'current_admin_id' => $current_admin_id,
     'lock_staff_selection' => $lock_staff_selection,
 )); ?>
+<?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/cancel_parcel'); ?>
+<?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/move_parcel'); ?>

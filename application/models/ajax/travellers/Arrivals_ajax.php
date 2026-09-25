@@ -17,6 +17,7 @@ class Arrivals_ajax extends CI_Model
         'travellers.used_space',
         'travellers.available_space',
         'booking_count',
+        'arrival_lifecycle',
         'travellers.status',
     );
 
@@ -38,6 +39,7 @@ class Arrivals_ajax extends CI_Model
     {
         $this->db->from('travellers');
         $this->db->join('bookings', 'bookings.traveller_id = travellers.id', 'inner');
+        $this->db->join('shipping_records', 'shipping_records.booking_id = bookings.id', 'left');
         ci_where_not_deleted($this->db, 'travellers');
         ci_where_not_deleted($this->db, 'bookings');
         $this->db->where('travellers.travel_date <', date('Y-m-d'));
@@ -68,11 +70,41 @@ class Arrivals_ajax extends CI_Model
         $this->db->group_end();
     }
 
+    private function lifecycleSelect()
+    {
+        return "
+            COUNT(DISTINCT bookings.id) AS booking_count,
+            COUNT(DISTINCT CASE WHEN shipping_records.id IS NOT NULL THEN bookings.id END) AS shipping_count,
+            COUNT(DISTINCT CASE WHEN shipping_records.status = 'Awaiting Collection' THEN bookings.id END) AS awaiting_collection_count,
+            COUNT(DISTINCT CASE WHEN shipping_records.status = 'In Transit' THEN bookings.id END) AS in_transit_count,
+            COUNT(DISTINCT CASE WHEN shipping_records.status = 'Completed' THEN bookings.id END) AS completed_shipping_count,
+            CASE
+                WHEN COUNT(DISTINCT CASE WHEN shipping_records.id IS NOT NULL THEN bookings.id END) = 0 THEN 'Needs Shipping'
+                WHEN COUNT(DISTINCT CASE WHEN shipping_records.id IS NOT NULL THEN bookings.id END) < COUNT(DISTINCT bookings.id) THEN 'Partially Arranged'
+                WHEN (
+                    COUNT(DISTINCT CASE WHEN shipping_records.status = 'In Transit' THEN bookings.id END)
+                    + COUNT(DISTINCT CASE WHEN shipping_records.status = 'Completed' THEN bookings.id END)
+                ) = COUNT(DISTINCT bookings.id) THEN 'Cleared'
+                ELSE 'Fully Arranged'
+            END AS arrival_lifecycle
+        ";
+    }
+
+    private function applyLifecycleFilter()
+    {
+        $lifecycle = trim((string) $this->input->post('lifecycle', true));
+        $allowed = array('Needs Shipping', 'Partially Arranged', 'Fully Arranged', 'Cleared');
+        if (in_array($lifecycle, $allowed, true)) {
+            $this->db->having('arrival_lifecycle', $lifecycle);
+        }
+    }
+
     public function get_records()
     {
-        $this->db->select('travellers.*, COUNT(DISTINCT bookings.id) AS booking_count', false);
+        $this->db->select('travellers.*, ' . $this->lifecycleSelect(), false);
         $this->buildEligibleQuery(true);
         $this->db->group_by('travellers.id');
+        $this->applyLifecycleFilter();
 
         if (isset($_POST['order'][0]['column'], $_POST['order'][0]['dir'])) {
             $index = (int) $_POST['order'][0]['column'];
@@ -95,10 +127,11 @@ class Arrivals_ajax extends CI_Model
 
     public function count_filtered_records()
     {
-        $this->db->select('COUNT(DISTINCT travellers.id) AS total', false);
+        $this->db->select('travellers.id, ' . $this->lifecycleSelect(), false);
         $this->buildEligibleQuery(true);
-        $row = $this->db->get()->row();
-        return $row ? (int) $row->total : 0;
+        $this->db->group_by('travellers.id');
+        $this->applyLifecycleFilter();
+        return $this->db->get()->num_rows();
     }
 
     public function count_all_records()
@@ -111,7 +144,7 @@ class Arrivals_ajax extends CI_Model
 
     public function get_eligible_traveller($travellerId)
     {
-        $this->db->select('travellers.*, COUNT(DISTINCT bookings.id) AS booking_count', false);
+        $this->db->select('travellers.*, ' . $this->lifecycleSelect(), false);
         $this->buildEligibleQuery(false);
         $this->db->where('travellers.id', (int) $travellerId);
         $this->db->group_by('travellers.id');
@@ -130,7 +163,6 @@ class Arrivals_ajax extends CI_Model
                 </div>
                 <div class="modal-body">
                     <p><a href="' . base_url('shipping/arrival_traveller/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"><i class="las la-user" style="color: green"></i> &nbsp; View Traveller</a></p>
-                    <p><a href="' . base_url('shipping/arrival_traveller/' . $id . '#arrival-bookings') . '" class="btn btn-default btn-sm btn-block action-btn clickable"><i class="las la-box-open" style="color: #f36b24"></i> &nbsp; View Bookings</a></p>
                 </div>
             </div></div>
         </div>';

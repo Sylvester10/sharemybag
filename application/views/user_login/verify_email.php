@@ -94,16 +94,14 @@
                                         <!--</div>-->
                                         
                                         <div class="col-sm-12 mb-3">
-                                            <label for="verificationCode" class="mb-1">Verification Code<span class="text-danger">*</span></label>
-                                            <div class="otp-input-container">
-                                                <input type="text" class="form-control otp-input" id="otp1" maxlength="1" autofocus>
-                                                <input type="text" class="form-control otp-input" id="otp2" maxlength="1">
-                                                <input type="text" class="form-control otp-input" id="otp3" maxlength="1">
-                                                <input type="text" class="form-control otp-input" id="otp4" maxlength="1">
-                                                <input type="text" class="form-control otp-input" id="otp5" maxlength="1">
-                                                <input type="text" class="form-control otp-input" id="otp6" maxlength="1">
-                                            </div>
-                                            <input type="hidden" name="verification_code" id="verificationCode" value="">
+                                            <label for="otp1" class="mb-1">Verification Code<span class="text-danger">*</span></label>
+                                            <?php $this->load->view('user_login/partials/otp_inputs', array(
+                                                'hidden_name' => 'verification_code',
+                                                'hidden_id' => 'verificationCode',
+                                                'input_id_prefix' => 'otp',
+                                                'group_label' => 'Email verification code',
+                                                'autofocus' => true,
+                                            )); ?>
                                         </div>
                                         
                                         

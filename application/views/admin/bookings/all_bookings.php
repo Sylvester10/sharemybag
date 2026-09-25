@@ -2,9 +2,7 @@
 //select options bulk actions
 $options_array = array(
 	//'value' => 'Caption'
-	'confirm' => 'Confirm',
-	'cancel' => 'Cancel',
-	'delete' => 'Delete'
+	'confirm' => 'Confirm'
 );
 echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
 <?php
@@ -33,3 +31,5 @@ $this->load->view('admin/partials/datatable_shell', array(
 <?php echo form_close(); ?>
 
 <?php $this->load->view('admin/bookings/modal/add_remove_parcel'); ?>
+<?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/cancel_parcel'); ?>
+<?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/move_parcel'); ?>

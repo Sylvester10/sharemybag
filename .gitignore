@@ -39,3 +39,8 @@ pet-runs
 _ide_helper.php
 generate_ide_helper.php
 PROJECT_REFERENCE.md
+
+# Local build verification and implementation evidence (not production runtime)
+/BUILD_VERIFICATION.json
+/evidence/
+/scripts/

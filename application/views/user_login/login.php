@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
     <meta name="description" content="<?php echo business_description; ?>">
-    <meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="index, follow">
     <link rel="canonical" href="<?= current_url(); ?>">
 
     <!-- Open Graph Tags -->
@@ -153,14 +153,14 @@
 
                             <div class="price-feature-col pricing-action-info p-5 right-radius bg-light-subtle order-0 order-lg-1">
                                 <a href="<?php echo base_url(); ?>" class="mb-5 d-block d-xl-none d-lg-none"><img src="<?= business_logo ?>" alt="logo" width="150" class="img-fluid"></a>
-                                <h1 class="h3">Login your account</h1>
-                                <!-- <p class="text-muted">Login your account</p> -->
+                                <h1 class="h3">Sign in to your account</h1>
+                                <p class="text-muted">Use a one-time code, or sign in with your password.</p>
 
                                 <div class="mt-4 register-form">
 
                                     <?php
                                     //process form asynchronously using AJAX
-                                    $form_attributes = array("id" => "user_login_form");
+                                    $form_attributes = array("id" => "user_login_form", "data-passwordless-request-form" => "");
                                     echo form_open('user_login/login_ajax', $form_attributes); ?>
 
                                     <?php
@@ -171,25 +171,26 @@
                                         <input type="hidden" id="requested_page" value="<?php echo base_url('dashboard'); ?>" />
                                     <?php } ?>
 
-                                    <div class="row">
+                                    <div class="row" data-login-credentials-panel>
                                         <div class="col-sm-12">
-                                            <label for="email" class="mb-1">Email <span class="text-danger">*</span></label>
+                                            <label for="identifier" class="mb-1">Email or WhatsApp number <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
-                                                <input type="email" class="form-control" placeholder="Email" name="email" id="email" required aria-label="email">
+                                                <input type="text" class="form-control" placeholder="name@example.com or +447911123456" name="identifier" id="identifier" required autocomplete="username" inputmode="email" aria-describedby="identifierHelp">
                                             </div>
+                                            <!-- <small id="identifierHelp" class="text-muted d-block mb-3">Phone sign-in works after the number has been verified in your profile.</small> -->
                                         </div>
-                                        <div class="col-sm-12">
+                                        <div class="col-sm-12 d-none" data-password-panel>
                                             <label for="password" class="mb-1">Password <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3 eye">
-                                                <input type="password" class="form-control" placeholder="Password" name="password" id="password" required aria-label="Password">
-                                                <button type="button" class="eyes toggle-password" data-target="password">
+                                                <input type="password" class="form-control" placeholder="Password" name="password" id="password" autocomplete="current-password" aria-label="Password">
+                                                <button type="button" class="eyes toggle-password" data-target="password" aria-label="Show or hide password">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
                                             </div>
                                         </div>
                                         <div class="col-sm-12">
-                                            <div class="form-check d-flex justify-content-end">
-                                                <a href="<?php echo base_url('forgot-password'); ?>" class="text-decoration-none copyright">Forgot Password?</a>
+                                            <div class="d-flex justify-content-end mb-2">
+                                                <button type="button" class="btn btn-link p-0 text-decoration-none copyright" data-password-mode-toggle>Use Password Instead</button>
                                             </div>
                                         </div>
 
@@ -197,12 +198,46 @@
 
                                         <div class="col-12">
                                             <button type="submit" id="submit" class="main-btn primary">
-                                                Log in
+                                                <span data-login-submit-label class="text-white">Get One-Time Code</span>
                                                 <span class="spinner-border spinner-border-sm text-light ms-2 d-none" id="search-spinner" role="status" aria-hidden="true"></span>
                                             </button>
                                         </div>
+                                        <div class="col-12 d-none mt-3" data-forgot-password-link>
+                                            <div class="text-center">
+                                                <a href="<?php echo base_url('forgot-password'); ?>" class="text-decoration-none copyright">Forgot Password?</a>
+                                            </div>
+                                        </div>
                                     </div>
 
+                                    <?php echo form_close(); ?>
+
+                                    <?php echo form_open('user_login/passwordless_verify_ajax', array('id' => 'passwordless_code_form', 'class' => 'd-none', 'data-passwordless-code-panel' => '')); ?>
+                                        <input type="hidden" name="challenge_token" data-challenge-token>
+                                        <div class="mb-3">
+                                            <button type="button" class="btn btn-link p-0 text-decoration-none" data-change-identifier>
+                                                <i class="fa fa-arrow-left me-1" aria-hidden="true"></i> Change email or phone number
+                                            </button>
+                                        </div>
+                                        <p class="text-muted mb-3" data-code-destination aria-live="polite"></p>
+                                        <?php $this->load->view('user_login/partials/otp_inputs', array(
+                                            'hidden_name' => 'code',
+                                            'hidden_id' => 'passwordlessCode',
+                                            'input_id_prefix' => 'passwordlessOtp',
+                                            'group_label' => 'One-time sign-in code',
+                                            'described_by' => 'passwordless_code_status',
+                                        )); ?>
+                                        <div class="mb-3" id="passwordless_code_status" aria-live="polite"></div>
+                                        <button type="submit" id="verify_passwordless_code" class="main-btn primary">
+                                            Verify and Sign In
+                                            <span class="spinner-border spinner-border-sm text-light ms-2 d-none" id="passwordless-code-spinner" role="status" aria-hidden="true"></span>
+                                        </button>
+                                        <p class="text-center text-muted copyright mt-3 mb-0" data-passwordless-resend data-cooldown="30">
+                                            Didn't receive the code?
+                                            <button type="button" class="btn btn-link p-0 text-decoration-none copyright" data-passwordless-resend-button disabled>
+                                                <span data-passwordless-resend-label data-passwordless-resend-countdown aria-live="polite">Resend Code</span>
+                                            </button>
+                                            <span class="spinner-border spinner-border-sm ms-2 d-none tw-text-color-primary" id="passwordless-resend-spinner" role="status" aria-label="Resending code"></span>
+                                        </p>
                                     <?php echo form_close(); ?>
 
                                     <!-- <p class="text-center text-muted mt-4 mb-4 copyright">Or</p>
@@ -254,6 +289,7 @@
 
     <!-- custom scripts -->
     <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/my_functions.js'); ?>"></script>
+    <script src="<?php echo base_url(); ?>assets/login/js/login.js?v=<?php echo filemtime(FCPATH . 'assets/login/js/login.js'); ?>"></script>
     <script src="<?php echo base_url(); ?>assets/website/js/home.js?v=<?php echo filemtime(FCPATH . 'assets/website/js/home.js'); ?>"></script>
 
     <!-- pass base_url to js -->

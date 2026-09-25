@@ -2,63 +2,62 @@ jQuery(document).ready(function ($) {
     'use strict';
 
     /*=========== OTP Input Logic ===========*/
-    const otpInputs = document.querySelectorAll(
-        '.otp-input-container .otp-input'
-    );
-    const hiddenVerificationCodeInput =
-        document.getElementById('verificationCode');
+    document.querySelectorAll('.otp-input-container').forEach((group) => {
+        const otpInputs = Array.from(group.querySelectorAll('.otp-input'));
+        const hiddenInput = document.getElementById(group.dataset.otpTarget);
 
-    otpInputs.forEach((input, index) => {
-        input.addEventListener('input', () => {
-            if (input.value.length === 1 && index < otpInputs.length - 1) {
-                otpInputs[index + 1].focus();
+        function syncGroup() {
+            if (hiddenInput) {
+                hiddenInput.value = otpInputs.map((input) => input.value).join('');
             }
-        });
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && index > 0 && input.value === '') {
-                otpInputs[index - 1].focus();
-            }
-        });
-    });
+        }
 
-    if (otpInputs.length > 0) {
-        otpInputs[0].addEventListener('paste', (e) => {
-            e.preventDefault();
-            const pastedData = (
-                e.clipboardData || window.clipboardData
-            ).getData('text');
-            const otp = pastedData
-                .replace(/\D/g, '')
-                .slice(0, otpInputs.length);
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                input.value = input.value.replace(/\D/g, '').slice(-1);
+                group.classList.remove('is-invalid');
+                group.setAttribute('aria-invalid', 'false');
+                syncGroup();
 
-            otp.split('').forEach((char, index) => {
-                if (otpInputs[index]) {
-                    otpInputs[index].value = char;
+                if (input.value && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
                 }
             });
 
-            if (otp.length === otpInputs.length) {
-                otpInputs[otp.length - 1].focus();
-            } else {
-                otpInputs[otp.length].focus();
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Backspace' && !input.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                } else if (event.key === 'ArrowLeft' && index > 0) {
+                    event.preventDefault();
+                    otpInputs[index - 1].focus();
+                } else if (event.key === 'ArrowRight' && index < otpInputs.length - 1) {
+                    event.preventDefault();
+                    otpInputs[index + 1].focus();
+                }
+            });
+        });
+
+        group.addEventListener('paste', (event) => {
+            event.preventDefault();
+            const clipboard = event.clipboardData || window.clipboardData;
+            const otp = clipboard.getData('text').replace(/\D/g, '').slice(0, otpInputs.length);
+
+            otpInputs.forEach((input, index) => {
+                input.value = otp[index] || '';
+            });
+            syncGroup();
+            group.classList.remove('is-invalid');
+            group.setAttribute('aria-invalid', 'false');
+
+            const focusIndex = Math.min(otp.length, otpInputs.length - 1);
+            if (otpInputs[focusIndex]) {
+                otpInputs[focusIndex].focus();
             }
         });
-    }
 
-    // Keep hiddenVerificationCodeInput in sync so the form-submit handler in
-    // home.js (which serializes the form) sends the combined OTP value.
-    function syncVerificationCode() {
-        if (!hiddenVerificationCodeInput) {
-            return;
+        const form = group.closest('form');
+        if (form) {
+            form.addEventListener('submit', syncGroup);
         }
-        let combined = '';
-        otpInputs.forEach((input) => {
-            combined += input.value;
-        });
-        hiddenVerificationCodeInput.value = combined;
-    }
-
-    otpInputs.forEach((input) => {
-        input.addEventListener('input', syncVerificationCode);
     });
 });

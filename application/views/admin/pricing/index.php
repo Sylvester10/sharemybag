@@ -25,8 +25,11 @@ $status_error = $this->session->flashdata('status_msg_error');
                 These values control booking prices, traveller payouts, the homepage estimate, and all route-based pricing displays. Changes are route-specific and super-admin only.
             </p>
 
-            <div class="alert alert-info">
-                <strong>How payouts work:</strong> each item uses one matching traveller payout only. Normal and duty-free items use the normal payout; fish/meat and medication use the special payout; documents and small electronics use the premium-small payout; laptops use the premium-laptop payout.
+            <div class="admin-info-guide admin-payout-guide" role="note" aria-label="How payouts work">
+                <div class="admin-info-guide__title"><i class="las la-info-circle"></i> How payouts work:</div>
+                <div class="admin-info-guide__body">
+                    Each item uses one matching traveller payout only. Normal and duty-free items use the normal payout; fish/meat and medication use the special payout; documents and small electronics use the premium-small payout; laptops use the premium-laptop payout.
+                </div>
             </div>
 
             <div class="table-responsive">

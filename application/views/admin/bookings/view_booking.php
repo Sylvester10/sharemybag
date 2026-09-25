@@ -30,6 +30,12 @@ $paymentMethod = $this->booking_presenter->format_payment_method($y->payment_met
 $parcelGuarantee = (float) $y->insurance > 0
     ? $currencySymbol . number_format((float) $y->insurance, 2)
     : 'Not selected';
+$moveLogs = array();
+foreach (($booking_action_logs ?? array()) as $actionLog) {
+    if (($actionLog->action ?? '') === Booking_action_log_model::ACTION_MOVE) {
+        $moveLogs[] = $actionLog;
+    }
+}
 ?>
 
 <div class="new-item admin-page-actions">
@@ -40,6 +46,87 @@ $parcelGuarantee = (float) $y->insurance > 0
         <i class="las la-arrow-left"></i> Back
     </button>
 </div>
+
+<p class="admin-status-line"><b>Delivery Status:</b> <?php echo delivery_status_badge($y->delivery_status); ?></p>
+
+<?php if (payment_status_normalize($y->payment_status) === 'canceled') {
+    $refundStatusKey = property_exists($y, 'refund_status') ? (string) $y->refund_status : '';
+    $refundStatusLabels = array(
+        'pending' => 'Pending Manual Refund',
+        'refunded' => 'Refunded Manually',
+        'not_required' => 'No Refund Required',
+    );
+    $refundStatusLabel = isset($refundStatusLabels[$refundStatusKey])
+        ? $refundStatusLabels[$refundStatusKey]
+        : $valueOrDefault($refundStatusKey);
+?>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 profile_details admin-detail-card">
+        <div class="well profile_view">
+            <div class="col-xs-12 bottom tw-flex tw-items-center tw-mt-[-10px]">
+                <div class="tw-ml-4">
+                    <p class="tw-text-[20px] tw-font-bold"><i class="las la-times-circle"></i> Cancellation &amp; Refund Record</p>
+                </div>
+            </div>
+            <div class="col-xs-12 tw-mt-8">
+                <p><b>Cancelled:</b> <?php echo $formatDateTime(property_exists($y, 'cancelled_at') ? $y->cancelled_at : ''); ?></p>
+                <p><b>Reason:</b> <?php echo nl2br(html_escape($valueOrDefault(property_exists($y, 'cancellation_reason') ? $y->cancellation_reason : ''))); ?></p>
+                <p><b>Refund Status:</b> <?php echo html_escape($refundStatusLabel); ?></p>
+                <p><b>Refund Amount:</b> <?php echo html_escape($currencySymbol . number_format((float) (property_exists($y, 'refund_amount') ? $y->refund_amount : 0), 2)); ?></p>
+                <p><b>Refund Reference:</b> <?php echo html_escape($valueOrDefault(property_exists($y, 'refund_reference') ? $y->refund_reference : '')); ?></p>
+                <p><b>Processed By:</b> <?php echo property_exists($y, 'cancelled_by_admin_id') && (int) $y->cancelled_by_admin_id > 0 ? 'Admin #' . (int) $y->cancelled_by_admin_id : 'N/A'; ?></p>
+            </div>
+        </div>
+    </div>
+</div>
+<?php } ?>
+
+<?php if (!empty($moveLogs)) { ?>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 profile_details admin-detail-card">
+        <div class="well profile_view">
+            <div class="col-xs-12 bottom tw-flex tw-items-center tw-mt-[-10px]">
+                <div class="tw-ml-4">
+                    <p class="tw-text-[20px] tw-font-bold"><i class="las la-exchange-alt"></i> Parcel Move History</p>
+                </div>
+            </div>
+            <div class="col-xs-12 tw-mt-8 table-responsive">
+                <table class="table table-bordered table-hover cell-text-middle" style="text-align:left">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>From Traveller</th>
+                            <th>To Traveller</th>
+                            <th>Reason</th>
+                            <th>Processed By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($moveLogs as $moveLog) {
+                            $beforeMove = json_decode((string) $moveLog->before_snapshot);
+                            $afterMove = json_decode((string) $moveLog->after_snapshot);
+                            $fromName = isset($beforeMove->source_traveller->fullname)
+                                ? $beforeMove->source_traveller->fullname
+                                : 'Traveller #' . (int) $moveLog->from_traveller_id;
+                            $toName = isset($afterMove->target_traveller->fullname)
+                                ? $afterMove->target_traveller->fullname
+                                : 'Traveller #' . (int) $moveLog->to_traveller_id;
+                        ?>
+                            <tr>
+                                <td><?php echo $formatDateTime($moveLog->date_added); ?></td>
+                                <td><?php echo html_escape($fromName); ?></td>
+                                <td><?php echo html_escape($toName); ?></td>
+                                <td><?php echo nl2br(html_escape($valueOrDefault($moveLog->reason))); ?></td>
+                                <td><?php echo 'Admin #' . (int) $moveLog->admin_id; ?></td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<?php } ?>
 
 <div class="row">
     <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 profile_details admin-detail-card">
@@ -54,7 +141,6 @@ $parcelGuarantee = (float) $y->insurance > 0
                 <p><b>Payment Status:</b> <?php echo $paymentStatus; ?></p>
                 <p><b>Payment Method:</b> <?php echo $paymentMethod; ?></p>
                 <p><b>Booking Status:</b> <?php echo html_escape($valueOrDefault($y->status, 'Pending')); ?></p>
-                <p><b>Delivery Status:</b> <?php echo delivery_status_badge($y->delivery_status); ?></p>
             </div>
         </div>
     </div>

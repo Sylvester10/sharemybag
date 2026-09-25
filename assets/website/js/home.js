@@ -42,6 +42,10 @@ jQuery(document).ready(function ($) {
     }
 
     function updateCsrf(newHash) {
+		if (typeof updateGlobalCsrfHash === 'function') {
+			updateGlobalCsrfHash(newHash);
+		}
+
         if (!newHash || !csrfHashInput.length) {
             return;
         }
@@ -435,18 +439,284 @@ jQuery(document).ready(function ($) {
         });
     });
 
-    //User login
-    $('#user_login_form').submit(function (e) {
-        e.preventDefault();
-        submitInlineAjax(this, {
-            url: base_url + 'user_login/login_ajax',
-            redirect: function () {
-                return $('#requested_page').val() || base_url + 'dashboard';
-            },
-            redirectDelay: 0,
-            resetOnSuccess: true,
+    // User login: one in-place flow for passwordless and password modes.
+    (function initPasswordlessLogin() {
+        var $loginForm = $('#user_login_form');
+        var $codeForm = $('#passwordless_code_form');
+        if (!$loginForm.length || !$codeForm.length) {
+            return;
+        }
+
+        var passwordMode = false;
+        var $passwordPanel = $loginForm.find('[data-password-panel]');
+        var $passwordInput = $loginForm.find('input[name="password"]');
+        var $submitLabel = $loginForm.find('[data-login-submit-label]');
+        var $forgotLink = $loginForm.find('[data-forgot-password-link]');
+		var $resendWrapper = $codeForm.find('[data-passwordless-resend]');
+		var $resendButton = $codeForm.find('[data-passwordless-resend-button]');
+		var $resendLabel = $codeForm.find('[data-passwordless-resend-label]');
+		var $resendSpinner = $('#passwordless-resend-spinner');
+		var passwordlessResendTimer = null;
+		var passwordlessResendSentTimer = null;
+		var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		function clearPasswordlessResendTimer() {
+			if (passwordlessResendTimer) {
+				window.clearInterval(passwordlessResendTimer);
+				passwordlessResendTimer = null;
+			}
+			if (passwordlessResendSentTimer) {
+				window.clearTimeout(passwordlessResendSentTimer);
+				passwordlessResendSentTimer = null;
+			}
+		}
+
+		function resetPasswordlessResend() {
+			clearPasswordlessResendTimer();
+			$resendWrapper.data('cooldown-active', '0');
+			$resendButton.prop('disabled', true).removeClass('disabled');
+			$resendLabel.text('Resend Code');
+			$resendSpinner.addClass('d-none');
+		}
+
+		function startPasswordlessResendCooldown(seconds) {
+			var remaining = parseInt(seconds, 10);
+			if (Number.isNaN(remaining) || remaining <= 0) {
+				remaining = parseInt($resendWrapper.data('cooldown'), 10) || 30;
+			}
+
+			clearPasswordlessResendTimer();
+			$resendWrapper.data('cooldown-active', '1');
+			$resendButton.prop('disabled', true);
+			$resendLabel.text('Resend in ' + remaining + 's');
+
+			passwordlessResendTimer = window.setInterval(function () {
+				remaining -= 1;
+				if (remaining <= 0) {
+					clearPasswordlessResendTimer();
+					$resendWrapper.data('cooldown-active', '0');
+					$resendButton.prop('disabled', false);
+					$resendLabel.text('Resend Code');
+					return;
+				}
+
+				$resendLabel.text('Resend in ' + remaining + 's');
+			}, 1000);
+		}
+
+		function showPasswordlessResendSent(seconds) {
+			clearPasswordlessResendTimer();
+			$resendWrapper.data('cooldown-active', '1');
+			$resendButton.prop('disabled', true);
+			$resendLabel.text('Sent');
+			passwordlessResendSentTimer = window.setTimeout(function () {
+				passwordlessResendSentTimer = null;
+				startPasswordlessResendCooldown(seconds);
+			}, 1000);
+		}
+
+        function resetPasswordlessCode() {
+            var $group = $codeForm.find('.otp-input-container');
+            $group.removeClass('is-invalid').attr('aria-invalid', 'false');
+            $group.find('.otp-input').val('');
+            $codeForm.find('input[name="code"]').val('');
+            $('#passwordless_code_status').empty();
+            $group.find('.otp-input').first().trigger('focus');
+        }
+
+        function markPasswordlessCodeInvalid() {
+            var $group = $codeForm.find('.otp-input-container');
+            $group.addClass('is-invalid').attr('aria-invalid', 'true');
+            var $firstEmpty = $group.find('.otp-input').filter(function () {
+                return !this.value;
+            }).first();
+            ($firstEmpty.length ? $firstEmpty : $group.find('.otp-input').first()).trigger('focus');
+        }
+
+        function setPasswordMode(enabled) {
+            passwordMode = !!enabled;
+			$passwordPanel.stop(true, true);
+			if (passwordMode) {
+				$passwordPanel.removeClass('d-none');
+				if (reduceMotion) {
+					$passwordPanel.show();
+				} else {
+					$passwordPanel.hide().slideDown(200);
+				}
+			} else if (reduceMotion || $passwordPanel.hasClass('d-none')) {
+				$passwordPanel.hide().addClass('d-none');
+			} else {
+				$passwordPanel.slideUp(200, function () {
+					$passwordPanel.addClass('d-none');
+				});
+			}
+            $forgotLink.toggleClass('d-none', !passwordMode);
+            $passwordInput.prop('required', passwordMode);
+            $submitLabel.text(passwordMode ? 'Login' : 'Get One-Time Code');
+            $loginForm.find('[data-password-mode-toggle]').text(
+                passwordMode ? 'Use One-Time Code Instead' : 'Use Password Instead'
+            );
+            if (passwordMode) {
+				window.setTimeout(function () {
+					$passwordInput.trigger('focus');
+				}, reduceMotion ? 0 : 200);
+            }
+        }
+
+        function renderAuthStatus($element, type, message) {
+            var $alert = $('<div>', {
+                class: 'alert text-center ' + (type === 'success' ? 'alert-success' : 'alert-danger'),
+                role: type === 'success' ? 'status' : 'alert',
+                text: message,
+            }).css('color', '#000');
+            $element.stop(true, true).empty().append($alert).show();
+        }
+
+        $loginForm.on('click', '[data-password-mode-toggle]', function () {
+            setPasswordMode(!passwordMode);
         });
-    });
+
+        $loginForm.on('submit', function (e) {
+            e.preventDefault();
+
+            if (passwordMode) {
+                submitInlineAjax(this, {
+                    url: base_url + 'user_login/login_ajax',
+                    redirect: function () {
+                        return $('#requested_page').val() || base_url + 'dashboard';
+                    },
+                    redirectDelay: 0,
+                    resetOnSuccess: true,
+                });
+                return;
+            }
+
+            var $submit = $loginForm.find('#submit');
+            var $spinner = $loginForm.find('#search-spinner');
+            var formData = appendCsrf($loginForm.serialize());
+            $submit.prop('disabled', true).addClass('disabled');
+            $spinner.removeClass('d-none');
+            $('#status_msg').empty();
+
+            $.ajax({
+                url: base_url + 'user_login/passwordless_request_ajax',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function (res) {
+                    updateCsrf(res.csrf_hash);
+                    if (!res.status) {
+                        renderAuthStatus($('#status_msg'), 'error', res.msg || 'We could not send a code.');
+                        return;
+                    }
+
+                    $codeForm.find('[data-challenge-token]').val(res.challenge_token || '');
+                    $codeForm.find('[data-code-destination]').text(
+                        'Code sent via ' + (res.delivery_channel || 'your selected channel') + ' to ' + (res.destination_hint || 'your registered contact') + '.'
+                    );
+                    $loginForm.addClass('d-none');
+                    $codeForm.removeClass('d-none');
+                    resetPasswordlessCode();
+					startPasswordlessResendCooldown(res.resend_after || 30);
+                },
+                error: function (xhr) {
+                    var error = getAjaxErrorMessage(xhr, 'We could not send a code. Please try again.');
+                    renderAuthStatus($('#status_msg'), 'error', error.message);
+                },
+                complete: function () {
+                    $submit.prop('disabled', false).removeClass('disabled');
+                    $spinner.addClass('d-none');
+                },
+            });
+        });
+
+        $codeForm.on('click', '[data-change-identifier]', function () {
+            resetPasswordlessCode();
+			resetPasswordlessResend();
+            $codeForm.addClass('d-none');
+            $loginForm.removeClass('d-none');
+            $('#identifier').trigger('focus');
+        });
+
+		$codeForm.on('click', '[data-passwordless-resend-button]', function () {
+			if ($resendButton.prop('disabled') || $resendWrapper.data('cooldown-active') === '1') {
+				return;
+			}
+
+			var $status = $('#passwordless_code_status');
+			$resendButton.prop('disabled', true);
+			$resendSpinner.removeClass('d-none');
+			$status.empty();
+
+			$.ajax({
+				url: base_url + 'user_login/passwordless_request_ajax',
+				type: 'POST',
+				data: appendCsrf($loginForm.serialize()),
+				dataType: 'json',
+				success: function (res) {
+					updateCsrf(res.csrf_hash);
+					if (!res.status) {
+						renderAuthStatus($status, 'error', res.msg || 'We could not resend the code.');
+						return;
+					}
+
+					$codeForm.find('[data-challenge-token]').val(res.challenge_token || '');
+					$codeForm.find('[data-code-destination]').text(
+						'Code sent via ' + (res.delivery_channel || 'your selected channel') + ' to ' + (res.destination_hint || 'your registered contact') + '.'
+					);
+					resetPasswordlessCode();
+					showPasswordlessResendSent(res.resend_after || 30);
+				},
+				error: function (xhr) {
+					var error = getAjaxErrorMessage(xhr, 'We could not resend the code. Please try again.');
+					renderAuthStatus($status, 'error', error.message);
+				},
+				complete: function () {
+					$resendSpinner.addClass('d-none');
+					if ($resendWrapper.data('cooldown-active') !== '1') {
+						$resendButton.prop('disabled', false);
+					}
+				},
+			});
+		});
+
+        $codeForm.on('submit', function (e) {
+            e.preventDefault();
+            var $submit = $('#verify_passwordless_code');
+            var $spinner = $('#passwordless-code-spinner');
+            var $status = $('#passwordless_code_status');
+            $submit.prop('disabled', true).addClass('disabled');
+            $spinner.removeClass('d-none');
+
+            $.ajax({
+                url: base_url + 'user_login/passwordless_verify_ajax',
+                type: 'POST',
+                data: appendCsrf($codeForm.serialize()),
+                dataType: 'json',
+                success: function (res) {
+                    updateCsrf(res.csrf_hash);
+                    if (res.status) {
+                        window.location.assign($('#requested_page').val() || base_url + 'dashboard');
+                        return;
+                    }
+                    renderAuthStatus($status, 'error', res.msg || 'This code could not be verified.');
+                    markPasswordlessCodeInvalid();
+                },
+                error: function (xhr) {
+                    var error = getAjaxErrorMessage(xhr, 'This code could not be verified.');
+                    renderAuthStatus($status, 'error', error.message);
+                    markPasswordlessCodeInvalid();
+                },
+                complete: function () {
+                    $submit.prop('disabled', false).removeClass('disabled');
+                    $spinner.addClass('d-none');
+                },
+            });
+        });
+
+        setPasswordMode(false);
+		resetPasswordlessResend();
+    })();
 
     //Date Picker
     if ($('#travelDate').length && typeof $.fn.daterangepicker === 'function' && typeof moment !== 'undefined') {

@@ -27,6 +27,11 @@
                     <b class="fs-2">Flammables</b>
                 </div>
 
+                <div class="icos">
+                    <i class="ti ti-ban fs-9"></i>
+                    <b class="fs-2">Bar Soaps</b>
+                </div>
+
             </div>
             <div class="text-center">
                 <p class="text-subtle">Please be aware of the above restrictions when sending a parcel with Share My Bag.</p>
@@ -117,7 +122,7 @@
                                     <i class="ti ti-alert-circle"></i>
                                 </span>
                                 <p class="parcel-guarantee-notice__text mb-0">
-                                    Please note that <strong>Bar Soaps</strong> are not allowed in your parcel unless purchased by Sharemybag.
+                                    <strong>Bar soaps are not allowed</strong> in your parcel unless purchased by ShareMyBag.
                                 </p>
                             </div>
 

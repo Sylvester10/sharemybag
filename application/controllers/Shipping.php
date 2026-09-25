@@ -74,6 +74,7 @@ class Shipping extends MY_Controller
                 (float) $traveller->used_space . ' KG',
                 (float) $traveller->available_space . ' KG',
                 (int) $traveller->booking_count,
+                arrival_lifecycle_badge($traveller->arrival_lifecycle),
                 traveller_status_badge($traveller->status),
             );
         }
@@ -102,6 +103,7 @@ class Shipping extends MY_Controller
         $data['courier_options'] = shipping_courier_options();
         $data['current_admin_id'] = (int) $this->admin_details->id;
         $data['lock_staff_selection'] = ($this->admin_details->role ?? '') !== 'super_admin';
+        $data['is_super_admin'] = ($this->admin_details->role ?? '') === 'super_admin';
 
         $this->admin_header($pageTitle, $pageTitle);
         $this->load->view('admin/travellers/arrival_profile', $data);

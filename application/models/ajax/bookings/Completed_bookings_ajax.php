@@ -18,9 +18,10 @@ class Completed_bookings_ajax extends CI_Model
     private function the_query()
     {
         $search_value = datatable_search_value();
-        $this->db->select('bookings.*, travellers.destination AS traveller_destination');
+        $this->db->select('bookings.*, travellers.destination AS traveller_destination, shipping_records.id AS shipping_record_id');
         $this->db->from($this->table);
         $this->db->join('travellers', 'bookings.traveller_id = travellers.id', 'left');
+        $this->db->join('shipping_records', 'shipping_records.booking_id = bookings.id', 'left');
         ci_where_not_deleted($this->db, $this->table);
         ci_where_not_deleted($this->db, 'travellers');
         $i = 0;
@@ -96,25 +97,34 @@ class Completed_bookings_ajax extends CI_Model
     }
 
 
-    public function actions($booking)
+    public function actions($booking, $isSuperAdmin = false)
     {
-        $new_action = '';
-        $booking_action = '';
+        $viewAction = '<p><a type="button" href="' . base_url('admin_bookings/view_booking/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-eye" style="color: green"></i> &nbsp; View Booking </a></p>';
+        $invoiceAction = '<p><a type="button" href="' . base_url('admin/invoice/' . $booking->id) . '" target="_blank" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-file-invoice" style="color: #0c6cf2"></i> &nbsp; View Invoice </a></p>';
+        $seenAction = '';
 
         if ($booking->new != 1) {
-            $new_action = '<p><a type="button" href="' . base_url('admin_bookings/update_new_status/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-eye" style="color: green"></i> &nbsp; Mark as Seen </a></p>';
+            $seenAction = '<p><a type="button" href="' . base_url('admin_bookings/update_new_status/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-eye" style="color: green"></i> &nbsp; Mark as Seen </a></p>';
         }
 
-        if (payment_status_normalize($booking->payment_status) != 'completed') {
-            $booking_action = '<p><a type="button" href="' . base_url('admin_bookings/confirm_booking/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-check" style="color: green"></i> &nbsp; Confirm Booking </a></p>';
-        } else {
-            $booking_action = '<p><a type="button" href="' . base_url('admin_bookings/cancel_booking/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Cancel Booking </a></p>';
+        $moveAction = '';
+        $cancelAction = '';
+        if ($isSuperAdmin) {
+            if (empty($booking->shipping_record_id)) {
+                $moveAction = '<p><button type="button" class="btn btn-primary btn-sm btn-block action-btn clickable open-move-parcel"'
+                    . ' data-booking-id="' . (int) $booking->id . '"'
+                    . ' data-booking-reference="' . html_escape($booking->tracking_id) . '">'
+                    . '<i class="las la-exchange-alt"></i> &nbsp; Move Parcel</button></p>';
+            }
+            $cancelAction = '<p><button type="button" class="btn btn-danger btn-sm btn-block action-btn clickable open-cancel-parcel"'
+                . ' data-booking-id="' . (int) $booking->id . '"'
+                . ' data-booking-reference="' . html_escape($booking->tracking_id) . '"'
+                . ' data-refund-amount="' . html_escape(number_format((float) $booking->total_amount, 2, '.', '')) . '"'
+                . ' data-currency="' . html_escape(strtoupper((string) $booking->currency)) . '">'
+                . '<i class="las la-times"></i> &nbsp; Cancel Parcel</button></p>';
         }
 
-        return $new_action . $booking_action . '
-        <p><a type="button" href="' . base_url('admin/invoice/' . $booking->id) . '" target="_blank" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-file-invoice" style="color: #0c6cf2"></i> &nbsp; View Invoice </a></p>
-        <p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $booking->id . '"> <i class="las la-trash" style="color: red"></i> &nbsp; Delete </a></p>';
-        // <p><a type="button" href="' . base_url('admin/invoice/download/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-download" style="color: #444"></i> &nbsp; Download Invoice </a></p>
+        return $viewAction . $invoiceAction . $seenAction . $moveAction . $cancelAction;
     }
 
 
@@ -124,7 +134,7 @@ class Completed_bookings_ajax extends CI_Model
     }
 
 
-    public function modal_options($booking)
+    public function modal_options($booking, $isSuperAdmin = false)
     {
         return '<div class="modal fade" id="options' . $booking->id . '" role="dialog">
 			<div class="modal-dialog">
@@ -136,7 +146,7 @@ class Completed_bookings_ajax extends CI_Model
 						<h4 class="modal-title">Actions: ' . $booking->agent_name . '</h4>
 					</div><!--/.modal-header-->
 					<div class="modal-body">'
-            . $this->actions($booking) .
+            . $this->actions($booking, $isSuperAdmin) .
             '</div>
 				</div>
 			</div>
@@ -144,10 +154,8 @@ class Completed_bookings_ajax extends CI_Model
     }
 
 
-    public function modals($booking)
+    public function modals($booking, $isSuperAdmin = false)
     {
-        $modal_delete_confirm = modal_delete_confirm($booking->id, $booking->agent_name, 'bookings', 'admin_bookings/delete_booking');
-        return $this->modal_options($booking) .
-            $modal_delete_confirm;
+        return $this->modal_options($booking, $isSuperAdmin);
     }
 }
