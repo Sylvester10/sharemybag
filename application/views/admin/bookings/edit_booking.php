@@ -14,7 +14,7 @@ echo form_open_multipart('bookings/edit_booking_ajax/' . $y->id, $form_attribute
 
         <div class="form-group">
             <label class="form-control-label">Category*</label>
-            <?php
+            <?php 
                 $options = array(
                     'Normal' => 'Normal',
                     'Fish/Oil' => 'Fish/Oil',
@@ -42,7 +42,7 @@ echo form_open_multipart('bookings/edit_booking_ajax/' . $y->id, $form_attribute
 
         <div class="form-group">
             <label class="form-control-label">Total Size</label>
-            <?php
+            <?php 
                 $options = array(
                     '1' => '1 KG',
                     '1.5' => '1.5 KG',

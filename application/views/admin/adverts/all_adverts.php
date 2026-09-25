@@ -53,7 +53,7 @@
 if ($total_records > 0) { ?>
 
 	<?php
-	//select options bulk actions
+	//select options bulk actions 
 	$options_array = array(
 		//'value' => 'Caption'
 		'publish' => 'Publish',

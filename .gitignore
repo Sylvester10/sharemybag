@@ -42,5 +42,7 @@ PROJECT_REFERENCE.md
 
 # Local build verification and implementation evidence (not production runtime)
 /BUILD_VERIFICATION.json
+/docs/twilio-verify.env.example
 /evidence/
 /scripts/
+/tests/

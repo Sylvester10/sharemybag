@@ -17,7 +17,7 @@
 
         <div class="traveller-search-panel overflow-hidden">
             <div class="card-body p-4 traveller-search-content">
-                <h4 class="mb-2 text-white traveller-search-title">Search Travellers</h4>
+                <h4 class="mb-2 text-white">Search Travellers</h4>
                 <p class="text-white mb-5 fs-3">
                     Find available travellers for your route and choose who will carry your parcel.
                 </p>
