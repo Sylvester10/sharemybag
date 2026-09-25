@@ -47,6 +47,7 @@ $columns = array(
     array('label' => 'Traveller Commission'),
     array('label' => 'Exchange Rate', 'class' => 'min-w-150'),
     array('label' => 'Payment Method'),
+    array('label' => 'Booking ID', 'class' => 'min-w-150'),
 );
 $this->load->view('admin/partials/filter_row', array('label' => 'Filter', 'filters' => $filters));
 $this->load->view('admin/partials/datatable_shell', array(

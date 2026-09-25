@@ -39,45 +39,40 @@ class Booking_presenter
         return $metrics;
     }
 
-    public function collect_finance_metrics($items_json, array $route_pricing, $fallback_selected_space = 0, $fallback_selected_price = 0)
+    public function collect_finance_metrics($items_json, $selected_space, $selected_price, $traveller_commission)
     {
         $items = $this->decode_items($items_json);
         $metrics = [
             'total_kg' => 0.0,
             'premium_item_amount' => 0.0,
-            'commission_per_kg' => 0.0,
+            'commission_per_kg' => null,
             'total_commission' => 0.0,
         ];
-        $kg_customer_amount = 0.0;
-        $kg_traveller_payout = 0.0;
+        $has_premium_items = false;
 
         foreach ($items as $item) {
             $category = isset($item->category) ? $item->category : '';
             $price_type = booking_category_price_type($category);
             $size = max(0, isset($item->size) ? (float) $item->size : 0.0);
-            $amount = isset($item->price) && is_numeric($item->price)
-                ? (float) $item->price
-                : booking_category_rate($route_pricing, $category) * $size;
+            $amount = isset($item->price) && is_numeric($item->price) ? (float) $item->price : 0.0;
 
             if ($price_type === 'premium_small' || $price_type === 'premium_laptop') {
                 $metrics['premium_item_amount'] += $amount;
+                $has_premium_items = true;
                 continue;
             }
 
             $metrics['total_kg'] += $size;
-            $kg_customer_amount += $amount;
-            $kg_traveller_payout += booking_category_payout_rate($route_pricing, $category) * $size;
         }
 
         // Older/offline bookings may not have item JSON. Use their stored parcel values.
-        if (empty($items) && (float) $fallback_selected_space > 0) {
-            $metrics['total_kg'] = (float) $fallback_selected_space;
-            $kg_customer_amount = (float) $fallback_selected_price;
-            $kg_traveller_payout = (float) $route_pricing['normal_payout_rate'] * $metrics['total_kg'];
+        if (empty($items) && (float) $selected_space > 0) {
+            $metrics['total_kg'] = (float) $selected_space;
         }
 
-        $metrics['total_commission'] = round($kg_customer_amount - $kg_traveller_payout, 2);
-        if ($metrics['total_kg'] > 0) {
+        // Use the immutable item charge and traveller payout stored on the booking.
+        $metrics['total_commission'] = round((float) $selected_price - (float) $traveller_commission, 2);
+        if (!$has_premium_items && $metrics['total_kg'] > 0) {
             $metrics['commission_per_kg'] = round($metrics['total_commission'] / $metrics['total_kg'], 2);
         }
         $metrics['premium_item_amount'] = round($metrics['premium_item_amount'], 2);

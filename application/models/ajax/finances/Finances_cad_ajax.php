@@ -32,8 +32,8 @@ class Finances_cad_ajax extends CI_Model
 	}
 
 	var $table = 'bookings';
-	var $column_order = array(null, 'bookings.traveller_departure_date', 'bookings.traveller_name', 'bookings.selected_space', 'bookings.total_amount', 'bookings.service_charge', null, null, 'bookings.insurance', null, null, 'bookings.traveller_commission', null, 'bookings.payment_method');
-	var $column_search = array('bookings.traveller_departure_date', 'bookings.traveller_name', 'bookings.total_amount', 'bookings.selected_price', 'bookings.service_charge', 'bookings.selected_space', 'bookings.vat', 'bookings.insurance', 'bookings.traveller_commission', 'bookings.payment_method');
+	var $column_order = array(null, 'bookings.traveller_departure_date', 'bookings.traveller_name', null, 'bookings.total_amount', 'bookings.service_charge', null, null, 'bookings.insurance', null, null, 'bookings.traveller_commission', null, 'bookings.payment_method', 'bookings.tracking_id');
+	var $column_search = array('bookings.traveller_departure_date', 'bookings.traveller_name', 'bookings.total_amount', 'bookings.selected_price', 'bookings.service_charge', 'bookings.selected_space', 'bookings.vat', 'bookings.insurance', 'bookings.traveller_commission', 'bookings.payment_method', 'bookings.tracking_id');
 	var $order = array('bookings.date_added' => 'desc', 'bookings.id' => 'desc');
 
 
