@@ -73,6 +73,7 @@ class Home extends MY_Controller
                 'departure_state'  => $selected_traveller->departure_state,
                 'arrival_airport'  => $selected_traveller->arrival_airport,
                 'arrival_state'    => $selected_traveller->arrival_state,
+                'area'             => isset($selected_traveller->area) ? $selected_traveller->area : '',
                 'destination_area' => isset($selected_traveller->destination_area) ? $selected_traveller->destination_area : '',
                 'available_space'  => $selected_traveller->available_space,
                 'id'               => $selected_traveller->id,
