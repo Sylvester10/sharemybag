@@ -67,13 +67,13 @@ class Admin_finances extends MY_Controller
             $sign = '&pound;';
             $payment_status = $this->booking_presenter->format_payment_status_text($y->payment_status);
             $metrics = $this->booking_presenter->collect_item_metrics($y->items);
+            $traveller_commission = booking_stored_traveller_commission($y);
             $finance_metrics = $this->booking_presenter->collect_finance_metrics(
                 $y->items,
-                booking_route_pricing($y->traveller_route_origin, $y->traveller_route_destination),
                 $y->selected_space,
-                $y->selected_price
+                $y->selected_price,
+                $traveller_commission
             );
-            $traveller_commission = booking_stored_traveller_commission($y);
             $commission = payment_status_normalize($y->payment_status) == 'completed'
                 ? $this->booking_presenter->format_money_with_sign($sign, $traveller_commission)
                 : 'N/A';
@@ -86,18 +86,21 @@ class Admin_finances extends MY_Controller
             $row[] = $rowNumber++;
             // Traveller's Date (Using Drop Date 1 as Travel Date)
             $row[] = x_date_full($y->traveller_departure_date);
-            $row[] = $y->traveller_name;
+            $row[] = html_escape($y->traveller_name);
             $row[] = $finance_metrics['total_kg'] . 'KG';
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->total_amount);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->service_charge);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $metrics['special_fee']);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $finance_metrics['premium_item_amount']);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->insurance);
-            $row[] = $this->booking_presenter->format_money_with_sign($sign, $finance_metrics['commission_per_kg']);
+            $row[] = $finance_metrics['commission_per_kg'] === null
+                ? 'N/A'
+                : $this->booking_presenter->format_money_with_sign($sign, $finance_metrics['commission_per_kg']);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $finance_metrics['total_commission']);
             $row[] = $commission;
             $row[] = $exchange_rate;
             $row[] = $payment_method;
+            $row[] = !empty($y->tracking_id) ? html_escape($y->tracking_id) : 'N/A';
             $data[] = $row;
         }
 
@@ -146,13 +149,13 @@ class Admin_finances extends MY_Controller
             $sign = '$';
             $payment_status = $this->booking_presenter->format_payment_status_text($y->payment_status);
             $metrics = $this->booking_presenter->collect_item_metrics($y->items);
+            $traveller_commission = booking_stored_traveller_commission($y);
             $finance_metrics = $this->booking_presenter->collect_finance_metrics(
                 $y->items,
-                booking_route_pricing($y->traveller_route_origin, $y->traveller_route_destination),
                 $y->selected_space,
-                $y->selected_price
+                $y->selected_price,
+                $traveller_commission
             );
-            $traveller_commission = booking_stored_traveller_commission($y);
             $commission = payment_status_normalize($y->payment_status) == 'completed'
                 ? $this->booking_presenter->format_money_with_sign($sign, $traveller_commission)
                 : 'N/A';
@@ -165,18 +168,21 @@ class Admin_finances extends MY_Controller
             $row[] = $rowNumber++;
             // Traveller's Date
             $row[] = x_date_full($y->traveller_departure_date);
-            $row[] = $y->traveller_name;
+            $row[] = html_escape($y->traveller_name);
             $row[] = $finance_metrics['total_kg'] . 'KG';
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->total_amount);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->service_charge);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $metrics['special_fee']);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $finance_metrics['premium_item_amount']);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->insurance);
-            $row[] = $this->booking_presenter->format_money_with_sign($sign, $finance_metrics['commission_per_kg']);
+            $row[] = $finance_metrics['commission_per_kg'] === null
+                ? 'N/A'
+                : $this->booking_presenter->format_money_with_sign($sign, $finance_metrics['commission_per_kg']);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $finance_metrics['total_commission']);
             $row[] = $commission;
             $row[] = $exchange_rate;
             $row[] = $payment_method;
+            $row[] = !empty($y->tracking_id) ? html_escape($y->tracking_id) : 'N/A';
             $data[] = $row;
         }
 
