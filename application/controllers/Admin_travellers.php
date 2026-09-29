@@ -369,6 +369,7 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('area', 'Area', 'trim|min_length[2]|max_length[100]');
         $this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
         $this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
+        $this->form_validation->set_rules('drop_date2', 'Last Drop Off Date', 'trim|required');
         $this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim');
 
         if (!$this->form_validation->run()) {
@@ -394,6 +395,7 @@ class Admin_travellers extends MY_Controller
         $this->admin_header($page_title, $page_title);
         $data['y'] = $traveller_details;
         $data['booking_details'] = $this->traveller_read_model->get_booking_details_by_traveller_id($id);
+        $data['is_super_admin'] = $this->get_admin_role() === 'super_admin';
         $this->load->view('admin/travellers/traveller_profile', $data);
         $this->admin_footer();
     }

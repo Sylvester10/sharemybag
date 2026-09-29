@@ -123,6 +123,7 @@ class Travellers_model extends \MY_Model
 		$data['available_space'] = $this->input->post('available_space', TRUE);
 		$data['original_bag_space'] = $this->input->post('available_space', TRUE);
 		$data['area'] = ucfirst($this->input->post('area', TRUE));
+		$data['additional_info'] = $this->input->post('additional_info', TRUE);
 		$unwanted_items = $this->input->post('unwanted_items', TRUE);
 		$data['unwanted_items'] = is_array($unwanted_items) ? implode(", ", $unwanted_items) : '';
 		$data['status'] = traveller_status_normalize('Approved');
