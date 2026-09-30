@@ -343,6 +343,55 @@ img.img-changed ~ .inside_button {
     padding: 26px;
 }
 
+.kyc-wizard-form.wizard > .content > .kyc-step-loader {
+    align-items: center;
+    background: #ffffff;
+    border-radius: 12px;
+    display: none;
+    inset: 0;
+    justify-content: center;
+    position: absolute;
+    z-index: 2;
+}
+
+.kyc-wizard-form.wizard > .content > .kyc-step-loader.is-visible {
+    display: flex;
+}
+
+.kyc-step-loader-icon {
+    animation: kyc-step-spin 700ms linear infinite;
+    border: 3px solid #f8dbc9;
+    border-radius: 50%;
+    border-top-color: #f36b24;
+    height: 34px;
+    width: 34px;
+}
+
+.kyc-wizard-form.kyc-step-transitioning > .steps,
+.kyc-wizard-form.kyc-step-transitioning > .actions {
+    pointer-events: none;
+}
+
+.kyc-wizard-form.wizard > .content > .body.kyc-step-entering {
+    animation: kyc-step-enter 220ms ease-out both;
+}
+
+@keyframes kyc-step-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes kyc-step-enter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kyc-step-loader-icon,
+    .kyc-wizard-form.wizard > .content > .body.kyc-step-entering {
+        animation: none;
+    }
+}
+
 .kyc-step-heading {
     align-items: flex-start;
     display: flex;
