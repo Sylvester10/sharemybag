@@ -494,6 +494,36 @@ function bookingAgentAndReceiverMatch(form) {
 
 $(".form-wizard-ajax").each(function () {
 	let advanced_form = $(this).show();
+	let isKycWizard = advanced_form.hasClass("kyc-wizard-form");
+	let kycTransitionTimer = null;
+	let reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+	function showKycStepLoader() {
+		if (!isKycWizard || reducedMotion) {
+			return;
+		}
+		advanced_form.addClass("kyc-step-transitioning");
+		advanced_form.find(".content").attr("aria-busy", "true");
+		advanced_form.find(".kyc-step-loader").addClass("is-visible");
+	}
+
+	function revealKycStep() {
+		if (!isKycWizard || reducedMotion) {
+			return;
+		}
+		clearTimeout(kycTransitionTimer);
+		kycTransitionTimer = setTimeout(function () {
+			advanced_form.find(".kyc-step-loader").removeClass("is-visible");
+			advanced_form.find(".content").attr("aria-busy", "false");
+			let currentBody = advanced_form.find(".content > .body.current");
+			currentBody.addClass("kyc-step-entering");
+			setTimeout(function () {
+				currentBody.removeClass("kyc-step-entering");
+				advanced_form.removeClass("kyc-step-transitioning");
+			}, 220);
+		}, 280);
+	}
+
 	ensureFormHasCsrfInput(this);
 
 	advanced_form.on("change input", "input, select, textarea", function () {
@@ -504,10 +534,14 @@ $(".form-wizard-ajax").each(function () {
 		.steps({
 			headerTag: "h3",
 			bodyTag: "fieldset",
-			transitionEffect: "slideLeft",
+			transitionEffect: isKycWizard ? "none" : "slideLeft",
 			onStepChanging: function (event, currentIndex, newIndex) {
-				// Allways allow previous action even if the current form is not valid!
+				if (isKycWizard && advanced_form.hasClass("kyc-step-transitioning")) {
+					return false;
+				}
+				// Always allow previous action even if the current form is not valid.
 				if (currentIndex > newIndex) {
+					showKycStepLoader();
 					return true;
 				}
 
@@ -559,10 +593,15 @@ $(".form-wizard-ajax").each(function () {
 						.removeClass("error");
 				}
 				advanced_form.validate().settings.ignore = ":disabled,:hidden";
-				return advanced_form.valid();
+				let valid = advanced_form.valid();
+				if (valid) {
+					showKycStepLoader();
+				}
+				return valid;
 			},
 			onStepChanged: function (event, currentIndex, priorIndex) {
 				autoLoadPageHelpers();
+				revealKycStep();
 			},
 // 			onFinishing: function (event, currentIndex) {
 // 				advanced_form.validate().settings.ignore = ":disabled";
@@ -594,6 +633,11 @@ $(".form-wizard-ajax").each(function () {
 			},
 			onInit: function (event, currentIndex) {
 				autoLoadPageHelpers();
+				if (isKycWizard) {
+					advanced_form.find(".content").append(
+						'<div class="kyc-step-loader" role="status" aria-label="Loading next step"><span class="kyc-step-loader-icon" aria-hidden="true"></span></div>'
+					);
+				}
 			},
 		})
 		.validate({

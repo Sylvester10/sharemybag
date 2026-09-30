@@ -59,20 +59,23 @@ $selfie_holder_id = $is_nigeria ? 'selfie_holder' : 'selfie_holder2';
                                     <p>Select your ID type and upload a clear photo of the document.</p>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <label class="form-label" for="kyc_id_type">ID Type *</label>
+                                    <select name="id_type" id="kyc_id_type" required class="required form-select border border-primary">
+                                        <option value="">Select</option>
+                                        <?php foreach ($id_options as $option) { ?>
+                                            <option value="<?php echo html_escape($option); ?>"><?php echo html_escape($option); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
 
-                            <div class="mb-3">
-                                <label class="form-label" for="kyc_id_type">ID Type *</label>
-                                <select name="id_type" id="kyc_id_type" required class="required form-select border border-primary">
-                                    <option value="">Select</option>
-                                    <?php foreach ($id_options as $option) { ?>
-                                        <option value="<?php echo html_escape($option); ?>"><?php echo html_escape($option); ?></option>
-                                    <?php } ?>
-                                </select>
+                                <div class="col-lg-6">
+                                    <label class="form-label" for="<?php echo $id_input_id; ?>">Upload ID *</label>
+                                    <input class="required form-control border border-primary mb-3 <?php echo $id_input_class; ?>" type="file" name="id_photo" id="<?php echo $id_input_id; ?>" holder="<?php echo $id_holder_id; ?>" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+                                </div>
                             </div>
-
-                            <div class="">
-                                <label class="form-label" for="<?php echo $id_input_id; ?>">Upload ID *</label>
-                                <input class="required form-control border border-primary mb-3 <?php echo $id_input_class; ?>" type="file" name="id_photo" id="<?php echo $id_input_id; ?>" holder="<?php echo $id_holder_id; ?>" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+                            <div class="col-lg-12">
                                 <div class="image_container kyc-image-preview">
                                     <img src="<?= base_url('assets/general/id-card.png') ?>" alt="ID preview" id="<?php echo $id_holder_id; ?>">
                                     <span class="reset_img_input inside_button">Remove ID</span>
