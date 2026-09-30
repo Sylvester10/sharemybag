@@ -68,8 +68,11 @@ class Dashboard extends MY_Controller
 
         if ($this->form_validation->run()) {
             $id = $this->user_details->id;
-            $this->users_model->update_profile_to_db($id);
-            $this->session->set_flashdata('status_msg', "Profile Updated");
+            if ($this->users_model->update_profile_to_db($id)) {
+                $this->session->set_flashdata('status_msg', "Profile Updated");
+            } else {
+                $this->session->set_flashdata('status_msg_error', 'Enter a complete international phone number and try again.');
+            }
         } else {
             $this->session->set_flashdata('status_msg_error', validation_errors());
         }

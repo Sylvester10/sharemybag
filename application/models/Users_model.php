@@ -292,11 +292,34 @@ class Users_model extends MY_Model
 
     public function update_profile_to_db($id)
     {
+        $phone = normalize_phone_number(
+            $this->input->post('country_code', TRUE),
+            $this->input->post('number', TRUE)
+        );
+        if (!preg_match('/^\+[1-9][0-9]{7,14}$/', $phone)) {
+            return false;
+        }
+
+        $current = $this->user_read_model->get_user_details_by_id($id);
+        if (!$current) {
+            return false;
+        }
+
         $data = array(
+            'number'    => $phone,
             'state'     => $this->input->post('state', TRUE),
             'post_code' => $this->input->post('post_code', TRUE),
             'address'   => $this->input->post('address', TRUE),
         );
+
+        if (normalize_phone_number('', (string) $current->number) !== $phone) {
+            if ($this->db->field_exists('verified_phone_e164', 'users')) {
+                $data['verified_phone_e164'] = null;
+            }
+            if ($this->db->field_exists('phone_verified_at', 'users')) {
+                $data['phone_verified_at'] = null;
+            }
+        }
 
         $this->db->where('id', $id);
         return $this->db->update('users', $data);

@@ -32,20 +32,31 @@ class Profile extends MY_Controller
 
     public function profile_ajax($id)
     {
+        if ((int) $id !== (int) $this->session->user_id) {
+            show_error('You are not allowed to update this profile.', 403);
+        }
+
         //check user exists
         $this->check_data_exists($id, 'id', 'users', 'profile');
         $csrf_hash = $this->security->get_csrf_hash();
 
         // validation rules
         $this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
-        $this->form_validation->set_rules('number', 'Number', 'trim|required');
+        $this->form_validation->set_rules('number', 'Phone Number', 'trim|required');
         $this->form_validation->set_rules('address', 'Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('post_code', 'Post Code', 'trim|required');
 
         if ($this->form_validation->run()) {
+            $phone = normalize_phone_number(
+                $this->input->post('country_code', TRUE),
+                $this->input->post('number', TRUE)
+            );
+            if (!preg_match('/^\+[1-9][0-9]{7,14}$/', $phone)) {
+                echo json_encode(['status' => false, 'msg' => 'Enter a complete international phone number.', 'title' => 'Check Your Number', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash]);
+                return;
+            }
 
-            //
             if ($this->users_model->update_profile_to_db($id)) {
 
                 $res = ['status' => true, 'msg' => 'Your profile has been updated successfully.', 'title' => 'Profile Updated.', 'msg_timeout' =>  6000, 'csrf_hash' => $csrf_hash];
