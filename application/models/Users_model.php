@@ -297,7 +297,6 @@ class Users_model extends MY_Model
             'post_code' => $this->input->post('post_code', TRUE),
             'address'   => $this->input->post('address', TRUE),
         );
-
         $this->db->where('id', $id);
         return $this->db->update('users', $data);
     }
@@ -306,14 +305,27 @@ class Users_model extends MY_Model
     {
         $this->db->trans_start();
         $this->db->where('id', (int) $userId);
-        $this->db->update('users', array(
+        $this->db->group_start()
+            ->where('phone_verified_at IS NULL', null, false)
+            ->or_where('verified_phone_e164 IS NULL', null, false)
+            ->or_where('verified_phone_e164', '')
+            ->group_end();
+        $updated = $this->db->update('users', array(
             'number' => $phone,
             'verified_phone_e164' => $phone,
             'phone_verified_at' => date('Y-m-d H:i:s'),
+            'phone_signin_enabled' => 1,
         ));
+        $updatedRows = $this->db->affected_rows();
         $this->db->trans_complete();
 
-        return $this->db->trans_status();
+        return $updated && $updatedRows === 1 && $this->db->trans_status();
+    }
+
+    public function set_phone_signin_enabled($userId, $enabled)
+    {
+        return $this->db->where('id', (int) $userId)
+            ->update('users', array('phone_signin_enabled' => $enabled ? 1 : 0));
     }
 
 

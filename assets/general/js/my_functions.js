@@ -298,6 +298,35 @@ function submitFormAjax(form) {
 //   extraData       object           extra key/value pairs appended to FormData
 //   successTimeout  number ms        how long the success alert stays before fading (default 3000)
 //   errorTimeout    number ms        how long the error alert stays before fading (default 4000)
+function clearAuthFieldError(form) {
+	let $form = $(form);
+	$form.find('.auth-inline-error').remove();
+	$form.find('.auth-invalid, .is-invalid').removeClass('auth-invalid is-invalid');
+	$form.find('[aria-invalid="true"]').attr('aria-invalid', 'false');
+}
+
+function showAuthFieldError(form, field, message) {
+	let $form = $(form);
+	clearAuthFieldError(form);
+	let $input = $form.find('[name="' + field + '"]').first();
+	if (!$input.length) {
+		return false;
+	}
+	if ($input.is('[type="hidden"]') && !$input.prev('.otp-input-container').length) {
+		return false;
+	}
+	let $target = $input.is('[type="hidden"]') && $input.prev('.otp-input-container').length
+		? $input.prev('.otp-input-container')
+		: $input.closest('.otp-input-container, [data-smb-phone-input], .input-group');
+	if (!$target.length) {
+		$target = $input;
+	}
+	$target.addClass($target.hasClass('otp-input-container') ? 'is-invalid' : 'auth-invalid');
+	$input.attr('aria-invalid', 'true');
+	$('<div>', { class: 'auth-inline-error mt-1', role: 'alert', text: message }).insertAfter($target);
+	return true;
+}
+
 function submitInlineAjax(form, opts) {
 	opts = opts || {};
 	if (!form) {
@@ -332,6 +361,7 @@ function submitInlineAjax(form, opts) {
 	let extraData = opts.extraData && typeof opts.extraData === "object" ? opts.extraData : null;
 	let successTimeout = typeof opts.successTimeout === "number" ? opts.successTimeout : 3000;
 	let errorTimeout = typeof opts.errorTimeout === "number" ? opts.errorTimeout : 4000;
+	let inlineErrorField = opts.inlineErrorField;
 
 	let formData = new FormData(form);
 	formData = appendGlobalCsrfToFormData(formData);
@@ -346,14 +376,9 @@ function submitInlineAjax(form, opts) {
 			return;
 		}
 		let cls = type === "success" ? "alert-success" : "alert-danger";
-		statusEl
-			.stop(true, true)
-			.html(
-				'<div class="alert ' + cls + ' text-center" style="color: #000">' +
-					msg +
-					"</div>"
-			)
-			.fadeIn("fast");
+		statusEl.stop(true, true).empty().append(
+			$('<div>', { class: 'alert ' + cls + ' text-center', text: msg }).css('color', '#000')
+		).fadeIn('fast');
 	}
 
 	function fadeOutAlert(delay) {
@@ -387,6 +412,18 @@ function submitInlineAjax(form, opts) {
 	}
 
 	showLoading();
+	if (inlineErrorField) {
+		clearAuthFieldError(form);
+		statusEl.empty();
+	}
+
+	function renderError(message, response) {
+		let field = typeof inlineErrorField === 'function' ? inlineErrorField(response || {}, form) : inlineErrorField;
+		if (!field || !showAuthFieldError(form, field, message)) {
+			renderAlert('danger', message);
+			fadeOutAlert(errorTimeout);
+		}
+	}
 
 	$.ajax({
 		url: url,
@@ -422,8 +459,7 @@ function submitInlineAjax(form, opts) {
 				fadeOutAlert(successTimeout);
 			} else {
 				hideLoading();
-				renderAlert("danger", (res && res.msg) || "Request failed.");
-				fadeOutAlert(errorTimeout);
+				renderError((res && res.msg) || "Request failed.", res);
 			}
 		},
 		error: function (xhr) {
@@ -450,8 +486,7 @@ function submitInlineAjax(form, opts) {
 			}
 
 			let ajaxError = getAjaxErrorMessage(xhr, fallback);
-			renderAlert("danger", ajaxError.message);
-			fadeOutAlert(errorTimeout);
+			renderError(ajaxError.message, responseJson);
 		},
 	});
 }

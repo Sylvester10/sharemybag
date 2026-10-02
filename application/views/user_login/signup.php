@@ -28,7 +28,7 @@
     <link href="<?php echo base_url(); ?>assets/general/css/phone-input.css?v=<?php echo filemtime(FCPATH . 'assets/general/css/phone-input.css'); ?>" rel="stylesheet">
 
     <!--custom css start-->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css?v=<?php echo filemtime(FCPATH . 'assets/login/css/custom.css'); ?>">
     <!--custom css end-->
 
 </head>

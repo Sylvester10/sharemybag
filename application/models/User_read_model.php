@@ -50,12 +50,14 @@ class User_read_model extends \MY_Model
 
     public function get_user_by_verified_phone($phone)
     {
-        if (!$this->db->field_exists('verified_phone_e164', $this->table)) {
+        if (!$this->db->field_exists('verified_phone_e164', $this->table)
+            || !$this->db->field_exists('phone_signin_enabled', $this->table)) {
             return null;
         }
 
         $this->db->where('verified_phone_e164', $phone);
         $this->db->where('phone_verified_at IS NOT NULL', null, false);
+        $this->db->where('phone_signin_enabled', 1);
         $this->applyNotDeleted();
         return $this->db->get($this->table)->row();
     }

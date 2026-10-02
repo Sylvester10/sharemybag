@@ -26,6 +26,8 @@ class Dashboard extends MY_Controller
         $data['account_status'] = $this->user_details->account_status;
         $data['is_verified'] = $this->user_details->is_verified;
         $data['is_profile_incomplete'] = $this->users_model->is_profile_incomplete($id);
+        $data['phone_signin_enabled'] = !empty($this->user_details->phone_signin_enabled);
+        $data['phone_is_verified'] = !empty($this->user_details->phone_verified_at) && !empty($this->user_details->verified_phone_e164);
         $data['approved_travellers'] = $this->traveller_read_model->count_active_approved_travellers();
         $data['total_bookings'] = $this->booking_read_model->count_bookings_by_user_id($id);
         $this->load->view('users/dashboard', $data);

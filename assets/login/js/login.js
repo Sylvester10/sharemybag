@@ -12,16 +12,24 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        function submitWhenComplete() {
+            if (group.dataset.otpAutoSubmit === 'true' && otpInputs.every((input) => /^[0-9]$/.test(input.value))) {
+                group.dispatchEvent(new CustomEvent('otp-complete', { bubbles: true }));
+            }
+        }
+
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', () => {
                 input.value = input.value.replace(/\D/g, '').slice(-1);
                 group.classList.remove('is-invalid');
                 group.setAttribute('aria-invalid', 'false');
                 syncGroup();
+				group.parentElement.querySelectorAll('.auth-inline-error').forEach((error) => error.remove());
 
                 if (input.value && index < otpInputs.length - 1) {
                     otpInputs[index + 1].focus();
                 }
+				submitWhenComplete();
             });
 
             input.addEventListener('keydown', (event) => {
@@ -46,6 +54,7 @@ jQuery(document).ready(function ($) {
                 input.value = otp[index] || '';
             });
             syncGroup();
+			group.parentElement.querySelectorAll('.auth-inline-error').forEach((error) => error.remove());
             group.classList.remove('is-invalid');
             group.setAttribute('aria-invalid', 'false');
 
@@ -53,6 +62,7 @@ jQuery(document).ready(function ($) {
             if (otpInputs[focusIndex]) {
                 otpInputs[focusIndex].focus();
             }
+			submitWhenComplete();
         });
 
         const form = group.closest('form');

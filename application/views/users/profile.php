@@ -79,39 +79,36 @@
                                         </div>
                                     </div>
 
+                                    <?php $phone_is_verified = !empty($user_details->phone_verified_at) && !empty($user_details->verified_phone_e164); ?>
+                                    <?php $phone_signin_enabled = $phone_is_verified && !empty($user_details->phone_signin_enabled); ?>
+                                    <div class="col-lg-6 mb-3 profile-phone-signin<?php echo $phone_signin_enabled ? ' is-active' : ''; ?>" id="profilePhoneSignIn">
+                                        <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                                            <label class="form-label mb-0" for="profilePhoneNumber">Phone Number <span class="text-danger">*</span></label>
+                                            <label class="profile-phone-signin-toggle mb-0" for="phoneSignInToggle">
+                                                <span>Enable phone sign-in</span>
+                                                <input type="checkbox" id="phoneSignInToggle" role="switch" aria-label="Enable phone sign-in" data-verified="<?php echo $phone_is_verified ? '1' : '0'; ?>" <?php echo $phone_signin_enabled ? 'checked' : ''; ?>>
+                                                <span class="profile-phone-signin-track" aria-hidden="true"></span>
+                                            </label>
+                                        </div>
                                     <?php $this->load->view('partials/phone_input', array(
-                                        'wrapper_class' => 'col-lg-6',
+                                        'wrapper_class' => '',
+                                        'group_class' => 'smb-phone-input input-group profile-phone-input-group',
                                         'field_name' => 'number',
                                         'country_code_name' => 'country_code',
                                         'country_code_id' => 'profileCountryCode',
                                         'input_id' => 'profilePhoneNumber',
                                         'value' => $user_details->number,
-                                        'label' => 'Phone Number',
+                                        'label' => '',
                                         'placeholder' => '7911123456',
                                         'required' => true,
-                                        'readonly' => false,
+                                        'readonly' => $phone_is_verified,
                                         'input_class' => 'required form-control border border-primary smb-phone-input__number',
                                         'select_class' => 'form-control border border-primary smb-phone-input__country',
+                                        'trailing_view' => 'users/partials/phone_verification_control',
+                                        'trailing_view_data' => array('phone_is_verified' => $phone_is_verified),
                                     )); ?>
-
-                                    <div class="col-lg-6 offset-lg-6 mt-n0 mb-4">
-                                        <div class="d-flex flex-wrap align-items-center gap-2" id="phoneVerificationState">
-                                            <?php if (!empty($user_details->phone_verified_at) && !empty($user_details->verified_phone_e164)): ?>
-                                                <span class="badge text-bg-success px-3 py-2">
-                                                    <i class="ti ti-circle-check me-1" aria-hidden="true"></i>
-                                                </span>
-                                                <small class="text-muted">This number can be used for passwordless sign-in.</small>
-                                            <?php endif; ?>
-                                            <button type="button" class="btn btn-outline-primary btn-sm" id="requestPhoneVerification">
-                                                <?php echo !empty($user_details->phone_verified_at) ? 'Verify a New Number' : 'Verify Phone Number'; ?>
-                                                <span class="spinner-border spinner-border-sm ms-1 d-none" id="phoneVerificationRequestSpinner" aria-hidden="true"></span>
-                                            </button>
-                                            <?php if (empty($user_details->phone_verified_at)): ?>
-                                                <small class="text-muted fs-2">Verify once to enable WhatsApp or SMS sign-in codes.</small>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div id="phoneVerificationStatus" class="mt-2" aria-live="polite"></div>
                                     </div>
+
                                 </div>
 
                                 <div class="row">
@@ -136,23 +133,18 @@
                                         </div>
                                     </div>
 
-                                    <?php if (empty($user_details->post_code) || empty($user_details->state) || empty($user_details->address) || empty($user_details->number)) { ?>
-
-                                        <div class="col-12">
+                                    <?php $profile_is_complete = !empty($user_details->post_code) && !empty($user_details->state) && !empty($user_details->address) && !empty($user_details->number); ?>
+                                        <div class="col-12<?php echo $profile_is_complete ? ' d-none' : ''; ?>" id="profileSubmitAction">
                                             <div class="d-flex align-items-center justify-content-start mt-4">
                                                 <button class="btn btn-primary">Submit</button>
                                             </div>
                                         </div>
 
-                                    <?php   } else { ?>
-
-                                        <div class="col-12">
+                                        <div class="col-12<?php echo $profile_is_complete ? '' : ' d-none'; ?>" id="profileSupportNotice">
                                             <div class="alert alert-dark mb-0 mt-4 text-center text-white fs-3">
                                                 Contact Support to update your profile details.
                                             </div>
                                         </div>
-
-                                    <?php  } ?>
 
                                 </div>
 
@@ -194,27 +186,27 @@
     </div>
 </div>
 
-<div class="modal fade" id="phoneVerificationModal" tabindex="-1" aria-labelledby="phoneVerificationModalLabel" aria-hidden="true">
+<div class="modal fade" id="phoneVerificationModal" tabindex="-1" role="dialog" aria-modal="true" aria-label="Phone verification" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="phoneVerificationModalLabel">Verify your phone number</h5>
+            <div class="modal-header border-0 pb-0 justify-content-end">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="verifyPhoneNumberForm" action="<?= base_url('profile/verify_phone_ajax') ?>" method="post">
                 <div class="modal-body">
                     <input type="hidden" name="challenge_token" id="phoneVerificationChallengeToken">
-                    <p class="text-muted" id="phoneVerificationInstructions">Enter the code sent to your phone.</p>
-                    <label for="phoneVerificationCode" class="form-label">Verification code</label>
-                    <input type="text" class="form-control auth-profile-code-input" id="phoneVerificationCode" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="10" required>
+                    <label class="form-label" for="phoneVerificationOtp1">Enter your verification code</label>
+                    <div class="profile-phone-otp">
+                    <?php $this->load->view('user_login/partials/otp_inputs', array(
+                        'hidden_name' => 'code',
+                        'hidden_id' => 'phoneVerificationCode',
+                        'auto_submit' => true,
+                        'input_id_prefix' => 'phoneVerificationOtp',
+                        'group_label' => 'Enter your verification code',
+                        'described_by' => 'phoneVerificationModalStatus',
+                    )); ?>
+                    </div>
                     <div id="phoneVerificationModalStatus" class="mt-3" aria-live="polite"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="verifyPhoneNumberButton">
-                        Verify Number
-                        <span class="spinner-border spinner-border-sm ms-1 d-none" id="phoneVerificationCodeSpinner" aria-hidden="true"></span>
-                    </button>
                 </div>
             </form>
         </div>

@@ -46,3 +46,6 @@ PROJECT_REFERENCE.md
 /evidence/
 /scripts/
 /tests/
+
+# Generated PDF font metrics
+/vendor/dompdf/dompdf/lib/fonts/*.afm.json

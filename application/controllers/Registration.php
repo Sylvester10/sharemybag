@@ -71,6 +71,7 @@ class Registration extends MY_Controller
                 $res = [
                     'status' => false,
                     'msg' => 'Enter the correct captcha code to continue.',
+                    'field' => 'c_captcha_code',
                     'title' => 'Sign Up Error',
                     'msg_timeout' => 6000,
                     'csrf_hash' => $csrf_hash
@@ -104,6 +105,7 @@ class Registration extends MY_Controller
                 $res = [
                     'status' => false,
                     'msg' => 'This email address is already registered. Sign in instead to continue.',
+                    'field' => 'email',
                     'title' => 'Sign Up Error',
                     'msg_timeout' => 7000,
                     'csrf_hash' => $csrf_hash
@@ -130,6 +132,7 @@ class Registration extends MY_Controller
             $res = [
                 'status' => false,
                 'msg' => first_validation_error('Please complete the sign-up form and try again.'),
+                'field' => array_key_first($this->form_validation->error_array()),
                 'title' => 'Sign Up Error',
                 'msg_timeout' => 6000,
                 'csrf_hash' => $csrf_hash
@@ -223,11 +226,11 @@ class Registration extends MY_Controller
                     self::VERIFICATION_MAX_ATTEMPTS,
                     self::VERIFICATION_LOCK_MINUTES
                 );
-                $res = ['status' => false, 'msg' => 'Enter the correct verification code and try again.', 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
+                $res = ['status' => false, 'msg' => 'Enter the correct verification code and try again.', 'field' => 'verification_code', 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             }
             echo json_encode($res);
         } else {
-            $res = ['status' => false, 'msg' => first_validation_error('Please complete the verification form.'), 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
+            $res = ['status' => false, 'msg' => first_validation_error('Please complete the verification form.'), 'field' => array_key_first($this->form_validation->error_array()), 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res);
         }
     }

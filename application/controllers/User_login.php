@@ -26,19 +26,23 @@ class User_login extends MY_Controller
 	public function login_ajax()
 	{
 		$csrf_hash = $this->security->get_csrf_hash();
-		$identifier = trim((string) ($this->input->post('identifier', TRUE) ?: $this->input->post('email', TRUE)));
-		if (empty($_POST['identifier']) && $identifier !== '') {
-			$_POST['identifier'] = $identifier;
-		}
+		$email = strtolower(trim((string) $this->input->post('email', TRUE)));
+		$isEmailLogin = $this->input->post('identifier_type', TRUE) === 'email' || $email !== '';
+		$identifier = $isEmailLogin ? $email : $this->submittedLoginPhone();
 		$login_throttle_key = 'login:' . get_user_ip() . ':' . strtolower($identifier !== '' ? $identifier : 'unknown');
-		$this->form_validation->set_rules('identifier', 'Email or WhatsApp number', 'trim|required');
+		if ($isEmailLogin) {
+			$this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
+		} else {
+			$this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
+			$this->form_validation->set_rules('phone', 'WhatsApp number', 'trim|required');
+		}
 		$this->form_validation->set_rules('password', 'Password', 'required');
 
-		if (!$this->form_validation->run()) {
+		if (!$this->form_validation->run() || $identifier === '') {
 			auth_throttle_hit($login_throttle_key, self::LOGIN_RATE_LIMIT_MAX, self::LOGIN_RATE_LIMIT_WINDOW);
 			echo json_encode([
 				'status' => false,
-				'msg' => first_validation_error('Enter your email or verified WhatsApp number and password.'),
+				'msg' => $identifier === '' && !$isEmailLogin ? 'Enter a valid phone number with its country code.' : first_validation_error('Enter your login details.'),
 				'title' => 'Sign In Error',
 				'msg_timeout' => 6000,
 				'csrf_hash' => $csrf_hash
@@ -59,8 +63,7 @@ class User_login extends MY_Controller
 			return;
 		}
 		$user = $this->user_read_model->get_login_user($identifier);
-
-		if ($user && filter_var($identifier, FILTER_VALIDATE_EMAIL) && empty($user->password)) {
+		if ($isEmailLogin && $user && empty($user->password)) {
 			$new_verification_code = generate_verification_code();
 			$this->users_model->update_user_verification_code($user->id, $new_verification_code);
 			$this->users_model->resend_verification_code($user->id);
@@ -70,7 +73,6 @@ class User_login extends MY_Controller
 				'status' => true,
 				'msg' => 'Your account setup is not complete yet. Verify your email to continue.',
 				'title' => 'Complete Setup',
-				'msg_timeout' => 7000,
 				'redirect' => base_url('verify-email/' . rawurlencode((string) $resume_token)),
 				'csrf_hash' => $csrf_hash
 			]);
@@ -104,11 +106,18 @@ class User_login extends MY_Controller
 	public function passwordless_request_ajax()
 	{
 		$csrf_hash = $this->security->get_csrf_hash();
-		$identifier = trim((string) $this->input->post('identifier', TRUE));
-		$this->form_validation->set_rules('identifier', 'Email or WhatsApp number', 'trim|required');
+		$isEmail = $this->input->post('identifier_type', TRUE) === 'email';
+		$email = strtolower(trim((string) $this->input->post('email', TRUE)));
+		$identifier = $isEmail ? $email : $this->submittedLoginPhone();
+		if ($isEmail) {
+			$this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
+		} else {
+			$this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
+			$this->form_validation->set_rules('phone', 'WhatsApp number', 'trim|required');
+		}
 
-		if (!$this->form_validation->run()) {
-			echo json_encode(array('status' => false, 'msg' => first_validation_error('Enter your email or WhatsApp number.'), 'title' => 'Check Your Details', 'csrf_hash' => $csrf_hash));
+		if (!$this->form_validation->run() || $identifier === '') {
+			echo json_encode(array('status' => false, 'msg' => $identifier === '' && !$isEmail ? 'Enter a valid phone number with its country code.' : first_validation_error('Enter a valid email address.'), 'title' => 'Check Your Details', 'csrf_hash' => $csrf_hash));
 			return;
 		}
 
@@ -120,11 +129,10 @@ class User_login extends MY_Controller
 		}
 
 		auth_throttle_hit($key, self::CODE_REQUEST_RATE_LIMIT_MAX, self::CODE_RATE_LIMIT_WINDOW);
-		$isEmail = filter_var($identifier, FILTER_VALIDATE_EMAIL) !== false;
 		$user = $this->user_read_model->get_login_user($identifier);
 
 		if (!$user || empty($user->password) || (int) $user->account_status === 0) {
-			$this->sendAnonymousChallengeResponse($isEmail ? 'email' : 'phone', $csrf_hash);
+			$this->sendUnavailableChallengeResponse($csrf_hash);
 			return;
 		}
 
@@ -132,16 +140,18 @@ class User_login extends MY_Controller
 			$code = generate_verification_code();
 			$token = $this->auth_challenge_model->createChallenge($user->id, 'login', 'email', strtolower($user->email), $code);
 			if (!$token) {
-				echo json_encode(array('status' => false, 'msg' => 'We could not prepare a sign-in code. Please try again.', 'title' => 'Code Not Sent', 'csrf_hash' => $csrf_hash));
+				$this->sendUnavailableChallengeResponse($csrf_hash);
 				return;
 			}
-
 			if (!send_email_notification($this, $user->email, 'Your Sign-In Code', array(
 				'firstname' => $user->firstname,
 				'login_code' => $code,
 			), 'user_login_code_email')) {
-				$this->auth_challenge_model->consume($this->challengeIdFromToken($token, 'login'));
-				$this->sendAnonymousChallengeResponse('email', $csrf_hash);
+				$challenge = $this->auth_challenge_model->getActiveChallenge($token, 'login');
+				if ($challenge) {
+					$this->auth_challenge_model->consume($challenge->id);
+				}
+				$this->sendUnavailableChallengeResponse($csrf_hash);
 				return;
 			}
 			$channel = 'email';
@@ -151,13 +161,12 @@ class User_login extends MY_Controller
 			$this->load->library('twilio_verify_service');
 			$result = $this->twilio_verify_service->sendCode($user->verified_phone_e164, $channel);
 			if (empty($result['success'])) {
-				$this->sendAnonymousChallengeResponse('phone', $csrf_hash);
+				$this->sendUnavailableChallengeResponse($csrf_hash);
 				return;
 			}
-
 			$token = $this->auth_challenge_model->createChallenge($user->id, 'login', $channel, $user->verified_phone_e164);
 			if (!$token) {
-				echo json_encode(array('status' => false, 'msg' => 'We could not prepare a sign-in code. Please try again.', 'title' => 'Code Not Sent', 'csrf_hash' => $csrf_hash));
+				$this->sendUnavailableChallengeResponse($csrf_hash);
 				return;
 			}
 			$destination = $user->verified_phone_e164;
@@ -202,7 +211,9 @@ class User_login extends MY_Controller
 			? $user->email
 			: ($user->verified_phone_e164 ?? '');
 
-		if ($challenge && $user && $this->auth_challenge_model->destinationMatches($challenge, $destination)) {
+		if ($challenge && $user
+			&& ($challenge->delivery_channel === 'email' || !empty($user->phone_signin_enabled))
+			&& $this->auth_challenge_model->destinationMatches($challenge, $destination)) {
 			if ($challenge->delivery_channel === 'email') {
 				$approved = $this->auth_challenge_model->codeMatches($challenge, $code);
 			} else {
@@ -227,10 +238,19 @@ class User_login extends MY_Controller
 		echo json_encode(array('status' => true, 'msg' => 'Sign-in successful.', 'title' => 'Welcome Back', 'csrf_hash' => $csrf_hash));
 	}
 
-	private function challengeIdFromToken($token, $purpose)
+	private function submittedLoginPhone()
 	{
-		$challenge = $this->auth_challenge_model->getActiveChallenge($token, $purpose);
-		return $challenge ? (int) $challenge->id : 0;
+		$countryCode = phone_country_code_normalize($this->input->post('country_code', TRUE));
+		$phone = trim((string) $this->input->post('phone', TRUE));
+		$supportedCodes = array_map(function ($country) {
+			return phone_country_code_normalize($country['code']);
+		}, phone_country_options());
+		if (!in_array($countryCode, $supportedCodes, true) || $phone === '') {
+			return '';
+		}
+
+		$identifier = normalize_phone_number($countryCode, $phone);
+		return preg_match('/^\+[1-9][0-9]{7,14}$/', $identifier) ? $identifier : '';
 	}
 
 	public function logout()
@@ -266,15 +286,12 @@ class User_login extends MY_Controller
 		return false;
 	}
 
-	private function sendAnonymousChallengeResponse($type, $csrfHash)
+	private function sendUnavailableChallengeResponse($csrfHash)
 	{
 		echo json_encode(array(
-			'status' => true,
-			'msg' => 'If those details match an eligible account, a one-time code has been sent.',
-			'challenge_token' => bin2hex(random_bytes(32)),
-			'delivery_channel' => $type === 'email' ? 'email' : $this->auth_challenge_model->getPhoneOtpChannel(),
-			'destination_hint' => 'your registered contact',
-			'resend_after' => 30,
+			'status' => false,
+			'msg' => 'We could not send a code. Check your details or use your password.',
+			'title' => 'Code Not Sent',
 			'csrf_hash' => $csrfHash,
 		));
 	}

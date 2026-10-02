@@ -98,6 +98,9 @@ if ($selected_country !== '' && isset($countries[$selected_country])) {
 			<?php echo $required ? 'required' : ''; ?>
 			<?php echo $readonly ? 'readonly' : ''; ?>
 			<?php echo $disabled ? 'disabled' : ''; ?>>
+		<?php if (!empty($trailing_view)): ?>
+			<?php $this->load->view($trailing_view, isset($trailing_view_data) ? $trailing_view_data : array()); ?>
+		<?php endif; ?>
 	</div>
 
 	<?php if ($help_text !== ''): ?>

@@ -47,7 +47,6 @@ class Profile extends MY_Controller
         $this->form_validation->set_rules('post_code', 'Post Code', 'trim|required');
 
         if ($this->form_validation->run()) {
-
             //
             if ($this->users_model->update_profile_to_db($id)) {
 
@@ -99,6 +98,34 @@ class Profile extends MY_Controller
         }
     }
 
+    public function set_phone_signin_ajax()
+    {
+        $csrf_hash = $this->security->get_csrf_hash();
+        $enabled = (string) $this->input->post('enabled', true);
+        if ($enabled !== '0' && $enabled !== '1') {
+            echo json_encode(array('status' => false, 'msg' => 'Choose a valid phone sign-in setting.', 'csrf_hash' => $csrf_hash));
+            return;
+        }
+
+        $user = $this->user_read_model->get_user_details_by_id((int) $this->session->user_id);
+        if (!$user || ($enabled === '1' && (empty($user->phone_verified_at) || empty($user->verified_phone_e164)))) {
+            echo json_encode(array('status' => false, 'msg' => 'Verify your phone number before enabling phone sign-in.', 'csrf_hash' => $csrf_hash));
+            return;
+        }
+
+        if (!$this->users_model->set_phone_signin_enabled($user->id, $enabled === '1')) {
+            echo json_encode(array('status' => false, 'msg' => 'We could not update phone sign-in. Please try again.', 'csrf_hash' => $csrf_hash));
+            return;
+        }
+
+        echo json_encode(array(
+            'status' => true,
+            'enabled' => $enabled === '1',
+            'msg' => $enabled === '1' ? 'Phone sign-in enabled.' : 'Phone sign-in disabled.',
+            'csrf_hash' => $csrf_hash,
+        ));
+    }
+
 	public function request_phone_verification_ajax()
 	{
 		$csrf_hash = $this->security->get_csrf_hash();
@@ -107,6 +134,11 @@ class Profile extends MY_Controller
 
 		if (!$this->form_validation->run()) {
 			echo json_encode(array('status' => false, 'msg' => first_validation_error('Enter a valid phone number.'), 'title' => 'Check Your Number', 'csrf_hash' => $csrf_hash));
+			return;
+		}
+		$currentUser = $this->user_read_model->get_user_details($this->session->email);
+		if ($currentUser && !empty($currentUser->phone_verified_at) && !empty($currentUser->verified_phone_e164)) {
+			echo json_encode(array('status' => false, 'msg' => 'Your phone number is already verified. Contact Support to change it.', 'title' => 'Phone Verified', 'csrf_hash' => $csrf_hash));
 			return;
 		}
 
@@ -170,6 +202,11 @@ class Profile extends MY_Controller
 
 		if (!$this->form_validation->run()) {
 			echo json_encode(array('status' => false, 'msg' => first_validation_error('Enter the complete verification code.'), 'title' => 'Check Your Code', 'csrf_hash' => $csrf_hash));
+			return;
+		}
+		$currentUser = $this->user_read_model->get_user_details($this->session->email);
+		if ($currentUser && !empty($currentUser->phone_verified_at) && !empty($currentUser->verified_phone_e164)) {
+			echo json_encode(array('status' => false, 'msg' => 'Your phone number is already verified. Contact Support to change it.', 'title' => 'Phone Verified', 'csrf_hash' => $csrf_hash));
 			return;
 		}
 
