@@ -78,6 +78,18 @@ class Traveller_read_model extends \MY_Model
         return $this->db->get($this->table)->result();
     }
 
+    public function get_travellers_by_route($location, $destination)
+    {
+        $this->db->where('location', $location);
+        $this->db->where('destination', $destination);
+        $this->db->where('status', 'Approved');
+        $this->db->where('available_space >=', 0);
+        $this->db->where('travel_date >=', traveller_minimum_bookable_date());
+        $this->applyNotDeleted();
+        $this->db->order_by('travel_date', 'ASC');
+        return $this->db->get($this->table)->result();
+    }
+
     public function is_bookable_by_cutoff($traveller, $now = null)
     {
         return $traveller && traveller_is_bookable_by_cutoff($traveller->travel_date, $now);
@@ -85,11 +97,14 @@ class Traveller_read_model extends \MY_Model
 
     public function get_booking_details_by_traveller_id($travellerId)
     {
-        $this->db->order_by('date_added', 'desc');
-        $this->db->where('traveller_id', $travellerId);
-        $this->db->where('payment_status', 'completed');
+        $this->db->select('bookings.*, shipping_records.id AS shipping_record_id, shipping_records.status AS shipping_status');
+        $this->db->from('bookings');
+        $this->db->join('shipping_records', 'shipping_records.booking_id = bookings.id', 'left');
+        $this->db->order_by('bookings.date_added', 'desc');
+        $this->db->where('bookings.traveller_id', $travellerId);
+        $this->db->where('bookings.payment_status', 'completed');
         $this->applyNotDeleted('bookings');
-        return $this->db->get('bookings')->result();
+        return $this->db->get()->result();
     }
 
     public function get_referrer_details($travellerId)

@@ -117,6 +117,21 @@ class MY_Controller extends CI_Controller
 		$data['inner_page_title'] = $inner_page_title;
 		$data['admin_details'] = $admin_details;
 		$data['ci'] = $this;
+		$role = $admin_details->role ?? 'super_admin';
+		$data['pending_users_count'] = 0;
+		$data['pending_travellers_count'] = 0;
+		$data['new_completed_bookings_count'] = 0;
+
+		if (in_array($role, ['super_admin', 'customer_support'], true)) {
+			$this->load->model('user_read_model');
+			$this->load->model('booking_read_model');
+			$data['pending_users_count'] = (int) $this->user_read_model->count_pending_users();
+			$data['new_completed_bookings_count'] = $this->booking_read_model->count_new_completed_bookings();
+		}
+		if (in_array($role, ['super_admin', 'traveller_support'], true)) {
+			$this->load->model('travellers_model');
+			$data['pending_travellers_count'] = (int) $this->travellers_model->count_pending_travellers();
+		}
 		return $this->load->view('admin/layout/header', $data);
 	}
 
@@ -176,6 +191,31 @@ class MY_Controller extends CI_Controller
 	{
 		$admin = $this->common_model->get_admin_details($this->session->admin_email ?? $this->session->email);
 		return $admin->role ?? 'super_admin';
+	}
+
+
+	/**
+	 * Resolve account-level access to the shipping workspace.
+	 *
+	 * Super admins always retain access. The role fallback keeps deployments
+	 * compatible while migration 016 is being applied; once the column exists,
+	 * the stored account permission is authoritative for support staff.
+	 */
+	public function admin_can_manage_shipping()
+	{
+		$admin = $this->common_model->get_admin_details($this->session->admin_email ?? $this->session->email);
+		return admin_shipping_access_allowed($admin);
+	}
+
+
+	public function admin_shipping_restricted()
+	{
+		if ($this->admin_can_manage_shipping()) {
+			return true;
+		}
+
+		$this->session->set_flashdata('status_msg_error', 'You do not have permission to access the shipping workspace.');
+		redirect(site_url('admin'));
 	}
 
 

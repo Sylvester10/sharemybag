@@ -21,6 +21,19 @@
 			cursor: not-allowed;
 			opacity: .4;
 		}
+		.admin-sidebar-count {
+			background: #d98613;
+			border-radius: 10px;
+			color: #fff;
+			display: inline-block;
+			font-size: 11px;
+			font-weight: 600;
+			line-height: 1.4;
+			margin-left: 5px;
+			min-width: 19px;
+			padding: 1px 5px;
+			text-align: center;
+		}
 	</style>
 
 </head>
@@ -104,23 +117,26 @@
 								<?php if (in_array($role, ['super_admin', 'customer_support'])): ?>
 									<!-- Users — super_admin + customer_support -->
 									<li>
-										<a><i class="las la-user"></i> Users <span class="las la-angle-down"></span></a>
+										<a><i class="las la-user"></i> Users <?php if ($pending_users_count > 0): ?><span class="admin-sidebar-count" aria-label="<?php echo $pending_users_count; ?> pending users"><?php echo $pending_users_count; ?></span><?php endif; ?> <span class="las la-angle-down"></span></a>
 										<ul class="nav child_menu">
 											<li><a href="<?php echo base_url('admin_users'); ?>"> All Users</a></li>
 											<li><a href="<?php echo base_url('admin_users/approved_users'); ?>"> Approved Users</a></li>
-											<li><a href="<?php echo base_url('admin_users/pending_users'); ?>"> Pending Users</a></li>
+											<li><a href="<?php echo base_url('admin_users/pending_users'); ?>"> Pending Users<?php if ($pending_users_count > 0): ?> <span class="admin-sidebar-count" aria-label="<?php echo $pending_users_count; ?> pending users"><?php echo $pending_users_count; ?></span><?php endif; ?></a></li>
 										</ul>
 									</li>
 								<?php endif; ?>
 
-								<?php if (in_array($role, ['super_admin', 'traveller_support'])): ?>
+								<?php $can_manage_travellers = in_array($role, ['super_admin', 'traveller_support']); ?>
+								<?php $can_manage_shipping = $ci->admin_can_manage_shipping(); ?>
+								<?php if ($can_manage_travellers || $can_manage_shipping): ?>
 									<!-- Travellers — super_admin + traveller_support -->
 									<li>
-										<a><i class="las la-plane"></i> Travellers <span class="las la-angle-down"></span></a>
+										<a><i class="las la-plane"></i> Travellers <?php if ($can_manage_travellers && $pending_travellers_count > 0): ?><span class="admin-sidebar-count" aria-label="<?php echo $pending_travellers_count; ?> pending travellers"><?php echo $pending_travellers_count; ?></span><?php endif; ?> <span class="las la-angle-down"></span></a>
 										<ul class="nav child_menu">
-											<li><a href="<?php echo base_url('admin_travellers'); ?>">Upcoming Travellers</a></li>
-											<li><a href="<?php echo base_url('admin_travellers/approved_travellers'); ?>">All Travellers</a></li>
-											<li><a href="<?php echo base_url('admin_travellers/pending_travellers'); ?>">Pending Travellers</a></li>
+											<?php if ($can_manage_travellers): ?><li><a href="<?php echo base_url('admin_travellers'); ?>">Upcoming Travellers</a></li><?php endif; ?>
+											<?php if ($can_manage_shipping): ?><li><a href="<?php echo base_url('shipping/arrivals'); ?>">Arrivals</a></li><?php endif; ?>
+											<?php if ($can_manage_travellers): ?><li><a href="<?php echo base_url('admin_travellers/approved_travellers'); ?>">All Travellers</a></li><?php endif; ?>
+											<?php if ($can_manage_travellers): ?><li><a href="<?php echo base_url('admin_travellers/pending_travellers'); ?>">Pending Travellers<?php if ($pending_travellers_count > 0): ?> <span class="admin-sidebar-count" aria-label="<?php echo $pending_travellers_count; ?> pending travellers"><?php echo $pending_travellers_count; ?></span><?php endif; ?></a></li><?php endif; ?>
 										</ul>
 									</li>
 								<?php endif; ?>
@@ -128,16 +144,16 @@
 								<?php if (in_array($role, ['super_admin', 'customer_support'])): ?>
 									<!-- Bookings — super_admin + customer_support -->
 									<li>
-										<a><i class="las la-book"></i> Bookings <span class="las la-angle-down"></span></a>
+							<a><i class="las la-book"></i> Bookings <?php if ($new_completed_bookings_count > 0): ?><span class="admin-sidebar-count" aria-label="<?php echo $new_completed_bookings_count; ?> new completed bookings"><?php echo $new_completed_bookings_count; ?></span><?php endif; ?> <span class="las la-angle-down"></span></a>
 										<ul class="nav child_menu">
 											<li><a href="<?php echo base_url('admin_bookings'); ?>">All Bookings</a></li>
-											<li><a href="<?php echo base_url('admin_bookings/completed_bookings'); ?>">Completed Bookings</a></li>
+								<li><a href="<?php echo base_url('admin_bookings/completed_bookings'); ?>">Completed Bookings<?php if ($new_completed_bookings_count > 0): ?> <span class="admin-sidebar-count" aria-label="<?php echo $new_completed_bookings_count; ?> new completed bookings"><?php echo $new_completed_bookings_count; ?></span><?php endif; ?></a></li>
 											<li><a href="<?php echo base_url('admin_bookings/canceled_bookings'); ?>">Canceled Bookings</a></li>
 										</ul>
 									</li>
 								<?php endif; ?>
 
-								<?php if (in_array($role, ['super_admin', 'customer_support'])): ?>
+								<?php if ($ci->admin_can_manage_shipping()): ?>
 									<li>
 										<a href="<?php echo base_url('shipping'); ?>">
 											<i class="las la-truck"></i> Shipping
@@ -158,6 +174,12 @@
 									<li>
 										<a href="<?php echo base_url('admin_pricing'); ?>">
 											<i class="las la-tags"></i> Pricing
+										</a>
+									</li>
+
+									<li>
+										<a href="<?php echo base_url('admin/authentication_settings'); ?>">
+											<i class="las la-shield-alt"></i> Authentication
 										</a>
 									</li>
 

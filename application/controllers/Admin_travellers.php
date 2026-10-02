@@ -369,6 +369,7 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('area', 'Area', 'trim|min_length[2]|max_length[100]');
         $this->form_validation->set_rules('address', 'Address', 'trim|min_length[2]|max_length[500]');
         $this->form_validation->set_rules('available_space', 'Available Space', 'trim|required');
+        $this->form_validation->set_rules('drop_date2', 'Last Drop Off Date', 'trim|required');
         $this->form_validation->set_rules('unwanted_items[]', 'Unwanted Items', 'trim');
 
         if (!$this->form_validation->run()) {
@@ -394,6 +395,7 @@ class Admin_travellers extends MY_Controller
         $this->admin_header($page_title, $page_title);
         $data['y'] = $traveller_details;
         $data['booking_details'] = $this->traveller_read_model->get_booking_details_by_traveller_id($id);
+        $data['is_super_admin'] = $this->get_admin_role() === 'super_admin';
         $this->load->view('admin/travellers/traveller_profile', $data);
         $this->admin_footer();
     }
@@ -524,19 +526,14 @@ class Admin_travellers extends MY_Controller
         $this->form_validation->set_rules('receiver_postcode', 'Receiver Postal Code', 'trim|required');
         $this->form_validation->set_rules('selected_space', 'Selected Space', 'required');
 
-        // **CRITICAL BUG FIX HERE**
-        // You MUST check if validation passed before running the model.
         if ($this->form_validation->run()) {
-            // Validation passed
             if ($this->users_model->add_offline_booking_to_db($id)) {
-                $this->travellers_model->update_traveller_space($id);
                 $this->session->set_flashdata('status_msg', "Offline booking data added successfully.");
             } else {
-                $this->session->set_flashdata('error_msg', "Failed to add booking. Please try again.");
+                $this->session->set_flashdata('status_msg_error', "Failed to add booking. Please try again.");
             }
         } else {
-            // Validation failed
-            $this->session->set_flashdata('error_msg', "Failed to add booking: " . validation_errors());
+            $this->session->set_flashdata('status_msg_error', "Failed to add booking: " . validation_errors());
         }
 
         redirect($this->agent->referrer());
@@ -545,8 +542,11 @@ class Admin_travellers extends MY_Controller
 
     public function approve_traveller($id)
     {
-        $this->travellers_model->approve_traveller($id);
-        $this->session->set_flashdata('status_msg', 'Traveller Approved and notified by email.');
+        if ($this->travellers_model->approve_traveller($id)) {
+            $this->session->set_flashdata('status_msg', 'Traveller Approved.');
+        } else {
+            $this->session->set_flashdata('status_msg_error', 'Traveller could not be approved.');
+        }
         redirect($this->agent->referrer());
     }
 

@@ -55,6 +55,14 @@ class Booking_read_model extends \MY_Model
         return $this->getBookingCountSummary()->completed_bookings;
     }
 
+    public function count_new_completed_bookings()
+    {
+        $this->db->where('payment_status', 'completed');
+        $this->db->where('new', 0);
+        $this->applyNotDeleted();
+        return (int) $this->db->count_all_results($this->table);
+    }
+
     public function get_canceled_bookings()
     {
         $this->db->where('payment_status', 'canceled');

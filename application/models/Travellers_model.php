@@ -99,7 +99,7 @@ class Travellers_model extends \MY_Model
 	public function update_traveller($id)
 	{
 		$existing_traveller = $this->traveller_read_model->get_traveller_details_by_id($id);
-		$was_approved_traveller = $existing_traveller && traveller_status_normalize($existing_traveller->status) === traveller_status_normalize('Approved');
+		$was_pending_traveller = $existing_traveller && traveller_status_normalize($existing_traveller->status) === 'Pending';
 
 		$data['fullname'] = ucwords($this->input->post('fullname', TRUE));
 		$data['phone'] = normalize_phone_number($this->input->post('c_code1', TRUE), $this->input->post('phone', TRUE));
@@ -123,6 +123,7 @@ class Travellers_model extends \MY_Model
 		$data['available_space'] = $this->input->post('available_space', TRUE);
 		$data['original_bag_space'] = $this->input->post('available_space', TRUE);
 		$data['area'] = ucfirst($this->input->post('area', TRUE));
+		$data['additional_info'] = $this->input->post('additional_info', TRUE);
 		$unwanted_items = $this->input->post('unwanted_items', TRUE);
 		$data['unwanted_items'] = is_array($unwanted_items) ? implode(", ", $unwanted_items) : '';
 		$data['status'] = traveller_status_normalize('Approved');
@@ -133,11 +134,9 @@ class Travellers_model extends \MY_Model
 		$updated = $this->db->update('travellers', $data);
 
 		if ($updated) {
-			// ONLY send email to traveller if the database update was successful
-			$email = $this->input->post('email', TRUE);
 			$this->traveller_read_model->clearTravellerCountCaches();
-			if (!$was_approved_traveller) {
-				send_email_notification($this, $email, 'Update Received', $data, 'traveller_approval_notification_email');
+			if ($was_pending_traveller) {
+				send_email_notification($this, $data['email'], 'Approved', $data, 'traveller_approval_notification_email');
 			}
 			return true;
 		}
@@ -370,11 +369,25 @@ class Travellers_model extends \MY_Model
 
 	public function approve_traveller($id)
 	{
+		$existing_traveller = $this->traveller_read_model->get_traveller_details_by_id($id);
+		if (!$existing_traveller) {
+			return false;
+		}
+		$was_pending_traveller = traveller_status_normalize($existing_traveller->status) === 'Pending';
 		$data = array(
 			'status' => traveller_status_normalize('Approved'),
 		);
 		$this->db->where('id', $id);
-		return $this->db->update('travellers', $data);
+		$updated = $this->db->update('travellers', $data);
+		if ($updated) {
+			$this->traveller_read_model->clearTravellerCountCaches();
+			if ($was_pending_traveller) {
+				send_email_notification($this, $existing_traveller->email, 'Approved', array(
+					'fullname' => $existing_traveller->fullname,
+				), 'traveller_approval_notification_email');
+			}
+		}
+		return $updated;
 	}
 
 
