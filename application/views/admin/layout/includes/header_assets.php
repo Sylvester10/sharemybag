@@ -13,7 +13,7 @@
 	<link href="<?php echo base_url(); ?>assets/website/css/line-awesome.min.css" rel="stylesheet">
 	<link href="<?php echo base_url(); ?>assets/general/countryflags/dist/flat.css" rel="stylesheet">
 	<link href="<?php echo base_url(); ?>assets/general/css/phone-input.css?v=<?php echo filemtime(FCPATH . 'assets/general/css/phone-input.css'); ?>" rel="stylesheet">
-	<link href="<?php echo base_url(); ?>assets/admin/custom/css/custom.css" rel="stylesheet">
+	<link href="<?php echo base_url(); ?>assets/admin/custom/css/custom.css?v=<?php echo filemtime(FCPATH . 'assets/admin/custom/css/custom.css'); ?>" rel="stylesheet">
 
 
 	<!-- Select2 -->

@@ -298,6 +298,35 @@ function submitFormAjax(form) {
 //   extraData       object           extra key/value pairs appended to FormData
 //   successTimeout  number ms        how long the success alert stays before fading (default 3000)
 //   errorTimeout    number ms        how long the error alert stays before fading (default 4000)
+function clearAuthFieldError(form) {
+	let $form = $(form);
+	$form.find('.auth-inline-error').remove();
+	$form.find('.auth-invalid, .is-invalid').removeClass('auth-invalid is-invalid');
+	$form.find('[aria-invalid="true"]').attr('aria-invalid', 'false');
+}
+
+function showAuthFieldError(form, field, message) {
+	let $form = $(form);
+	clearAuthFieldError(form);
+	let $input = $form.find('[name="' + field + '"]').first();
+	if (!$input.length) {
+		return false;
+	}
+	if ($input.is('[type="hidden"]') && !$input.prev('.otp-input-container').length) {
+		return false;
+	}
+	let $target = $input.is('[type="hidden"]') && $input.prev('.otp-input-container').length
+		? $input.prev('.otp-input-container')
+		: $input.closest('.otp-input-container, [data-smb-phone-input], .input-group');
+	if (!$target.length) {
+		$target = $input;
+	}
+	$target.addClass($target.hasClass('otp-input-container') ? 'is-invalid' : 'auth-invalid');
+	$input.attr('aria-invalid', 'true');
+	$('<div>', { class: 'auth-inline-error mt-1', role: 'alert', text: message }).insertAfter($target);
+	return true;
+}
+
 function submitInlineAjax(form, opts) {
 	opts = opts || {};
 	if (!form) {
@@ -332,6 +361,7 @@ function submitInlineAjax(form, opts) {
 	let extraData = opts.extraData && typeof opts.extraData === "object" ? opts.extraData : null;
 	let successTimeout = typeof opts.successTimeout === "number" ? opts.successTimeout : 3000;
 	let errorTimeout = typeof opts.errorTimeout === "number" ? opts.errorTimeout : 4000;
+	let inlineErrorField = opts.inlineErrorField;
 
 	let formData = new FormData(form);
 	formData = appendGlobalCsrfToFormData(formData);
@@ -346,14 +376,9 @@ function submitInlineAjax(form, opts) {
 			return;
 		}
 		let cls = type === "success" ? "alert-success" : "alert-danger";
-		statusEl
-			.stop(true, true)
-			.html(
-				'<div class="alert ' + cls + ' text-center" style="color: #000">' +
-					msg +
-					"</div>"
-			)
-			.fadeIn("fast");
+		statusEl.stop(true, true).empty().append(
+			$('<div>', { class: 'alert ' + cls + ' text-center', text: msg }).css('color', '#000')
+		).fadeIn('fast');
 	}
 
 	function fadeOutAlert(delay) {
@@ -387,6 +412,18 @@ function submitInlineAjax(form, opts) {
 	}
 
 	showLoading();
+	if (inlineErrorField) {
+		clearAuthFieldError(form);
+		statusEl.empty();
+	}
+
+	function renderError(message, response) {
+		let field = typeof inlineErrorField === 'function' ? inlineErrorField(response || {}, form) : inlineErrorField;
+		if (!field || !showAuthFieldError(form, field, message)) {
+			renderAlert('danger', message);
+			fadeOutAlert(errorTimeout);
+		}
+	}
 
 	$.ajax({
 		url: url,
@@ -422,8 +459,7 @@ function submitInlineAjax(form, opts) {
 				fadeOutAlert(successTimeout);
 			} else {
 				hideLoading();
-				renderAlert("danger", (res && res.msg) || "Request failed.");
-				fadeOutAlert(errorTimeout);
+				renderError((res && res.msg) || "Request failed.", res);
 			}
 		},
 		error: function (xhr) {
@@ -450,8 +486,7 @@ function submitInlineAjax(form, opts) {
 			}
 
 			let ajaxError = getAjaxErrorMessage(xhr, fallback);
-			renderAlert("danger", ajaxError.message);
-			fadeOutAlert(errorTimeout);
+			renderError(ajaxError.message, responseJson);
 		},
 	});
 }
@@ -474,8 +509,56 @@ function hideFormLoader() {
 	}
 }
 
+function normalizeBookingPartyName(value) {
+	return String(value || "")
+		.trim()
+		.replace(/\s+/g, " ")
+		.toLowerCase();
+}
+
+function bookingAgentAndReceiverMatch(form) {
+	let agentName = normalizeBookingPartyName(
+		form.find("[name='agent_name']").val()
+	);
+	let receiverName = normalizeBookingPartyName(
+		form.find("[name='receiver_name']").val()
+	);
+
+	return agentName !== "" && receiverName !== "" && agentName === receiverName;
+}
+
 $(".form-wizard-ajax").each(function () {
 	let advanced_form = $(this).show();
+	let isKycWizard = advanced_form.hasClass("kyc-wizard-form");
+	let kycTransitionTimer = null;
+	let reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+	function showKycStepLoader() {
+		if (!isKycWizard || reducedMotion) {
+			return;
+		}
+		advanced_form.addClass("kyc-step-transitioning");
+		advanced_form.find(".content").attr("aria-busy", "true");
+		advanced_form.find(".kyc-step-loader").addClass("is-visible");
+	}
+
+	function revealKycStep() {
+		if (!isKycWizard || reducedMotion) {
+			return;
+		}
+		clearTimeout(kycTransitionTimer);
+		kycTransitionTimer = setTimeout(function () {
+			advanced_form.find(".kyc-step-loader").removeClass("is-visible");
+			advanced_form.find(".content").attr("aria-busy", "false");
+			let currentBody = advanced_form.find(".content > .body.current");
+			currentBody.addClass("kyc-step-entering");
+			setTimeout(function () {
+				currentBody.removeClass("kyc-step-entering");
+				advanced_form.removeClass("kyc-step-transitioning");
+			}, 220);
+		}, 280);
+	}
+
 	ensureFormHasCsrfInput(this);
 
 	advanced_form.on("change input", "input, select, textarea", function () {
@@ -486,10 +569,14 @@ $(".form-wizard-ajax").each(function () {
 		.steps({
 			headerTag: "h3",
 			bodyTag: "fieldset",
-			transitionEffect: "slideLeft",
+			transitionEffect: isKycWizard ? "none" : "slideLeft",
 			onStepChanging: function (event, currentIndex, newIndex) {
-				// Allways allow previous action even if the current form is not valid!
+				if (isKycWizard && advanced_form.hasClass("kyc-step-transitioning")) {
+					return false;
+				}
+				// Always allow previous action even if the current form is not valid.
 				if (currentIndex > newIndex) {
+					showKycStepLoader();
 					return true;
 				}
 
@@ -512,6 +599,26 @@ $(".form-wizard-ajax").each(function () {
 				}
 				// === END: CUSTOM VALIDATION FOR BOOKING FORM ===
 
+				// Stop duplicate booking parties while leaving Receiver Details,
+				// before the user reaches Parcel Protection.
+				let currentStep = advanced_form.find(".body").eq(currentIndex);
+				if (
+					advanced_form.hasClass("booking-wizard-form") &&
+					newIndex > currentIndex &&
+					currentStep.find("[name='receiver_name']").length > 0 &&
+					bookingAgentAndReceiverMatch(advanced_form)
+				) {
+					toastr.error(
+						"Enter different details for the agent and receiver.",
+						"Booking Error",
+						{
+							progressBar: true,
+							timeOut: 6000,
+						}
+					);
+					return false;
+				}
+
 				// Needed in some cases if the user went back (clean up)
 				if (currentIndex < newIndex) {
 					// To remove error styles
@@ -521,10 +628,15 @@ $(".form-wizard-ajax").each(function () {
 						.removeClass("error");
 				}
 				advanced_form.validate().settings.ignore = ":disabled,:hidden";
-				return advanced_form.valid();
+				let valid = advanced_form.valid();
+				if (valid) {
+					showKycStepLoader();
+				}
+				return valid;
 			},
 			onStepChanged: function (event, currentIndex, priorIndex) {
 				autoLoadPageHelpers();
+				revealKycStep();
 			},
 // 			onFinishing: function (event, currentIndex) {
 // 				advanced_form.validate().settings.ignore = ":disabled";
@@ -556,6 +668,11 @@ $(".form-wizard-ajax").each(function () {
 			},
 			onInit: function (event, currentIndex) {
 				autoLoadPageHelpers();
+				if (isKycWizard) {
+					advanced_form.find(".content").append(
+						'<div class="kyc-step-loader" role="status" aria-label="Loading next step"><span class="kyc-step-loader-icon" aria-hidden="true"></span></div>'
+					);
+				}
 			},
 		})
 		.validate({

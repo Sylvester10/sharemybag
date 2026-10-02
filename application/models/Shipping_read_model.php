@@ -20,7 +20,7 @@ class Shipping_read_model extends \MY_Model
 
     public function count_all_shippings()
     {
-        return $this->getShippingDashboardSummary()->need_help_bookings;
+        return $this->getShippingDashboardSummary()->created_records;
     }
 
     public function clearShippingCountCaches()
@@ -70,7 +70,6 @@ class Shipping_read_model extends \MY_Model
     {
         $this->db->select('
             shipping_records.*,
-            bookings.need_help,
             bookings.user_fullname,
             bookings.user_email,
             users.number AS user_phone,
@@ -109,7 +108,6 @@ class Shipping_read_model extends \MY_Model
     {
         $this->db->select('
             bookings.id,
-            bookings.need_help,
             bookings.tracking_id,
             bookings.delivery_status,
             bookings.date_added,
@@ -135,6 +133,7 @@ class Shipping_read_model extends \MY_Model
             bookings.traveller_arrival_state,
             bookings.traveller_destination,
             shipping_records.pickup_address,
+            shipping_records.carrier_tracking_id,
             shipping_records.dropoff_address,
             shipping_records.pickup_country,
             shipping_records.courier,
@@ -163,7 +162,6 @@ class Shipping_read_model extends \MY_Model
 
         $this->db->select('
             bookings.id,
-            bookings.need_help,
             bookings.tracking_id,
             bookings.user_fullname,
             bookings.user_email,
@@ -216,10 +214,27 @@ class Shipping_read_model extends \MY_Model
         return $this->getShippingDashboardSummary();
     }
 
-    public function get_staff_options()
+    public function get_staff_options($currentAdminId, $includeAllEligible = false)
     {
-        $this->db->select('id, name, email, role');
+        $hasPermissionColumn = $this->db->field_exists('can_manage_shipping', 'admins');
+        $fields = 'id, name, email, role';
+        if ($hasPermissionColumn) {
+            $fields .= ', can_manage_shipping';
+        }
+
+        $this->db->select($fields);
         $this->db->from('admins');
+        if (!$includeAllEligible) {
+            $this->db->where('id', (int) $currentAdminId);
+        } elseif ($hasPermissionColumn) {
+            $this->db->group_start();
+            $this->db->where('role', 'super_admin');
+            $this->db->or_where('can_manage_shipping', 1);
+            $this->db->group_end();
+        } else {
+            $this->db->where_in('role', array('super_admin', 'customer_support'));
+        }
+        $this->db->order_by('CASE WHEN id = ' . (int) $currentAdminId . ' THEN 0 ELSE 1 END', '', false);
         $this->db->order_by('name', 'asc');
         return $this->db->get()->result();
     }
@@ -228,20 +243,20 @@ class Shipping_read_model extends \MY_Model
     {
         return $this->rememberCache('shipping.summary.dashboard', self::SHIPPING_COUNT_CACHE_TTL, function () {
             $this->db->select("
-                COUNT(CASE WHEN bookings.need_help = 'Yes' AND bookings.payment_status = 'completed' THEN 1 END) AS need_help_bookings,
                 COUNT(shipping_records.id) AS created_records,
+                SUM(CASE WHEN shipping_records.status = 'Awaiting Collection' THEN 1 ELSE 0 END) AS awaiting_collection_records,
                 SUM(CASE WHEN shipping_records.status = 'In Transit' THEN 1 ELSE 0 END) AS in_transit_records,
                 SUM(CASE WHEN shipping_records.status = 'Completed' THEN 1 ELSE 0 END) AS completed_records
             ", false);
-            $this->db->from('bookings');
-            $this->db->join('shipping_records', 'shipping_records.booking_id = bookings.id', 'left');
+            $this->db->from('shipping_records');
+            $this->db->join('bookings', 'bookings.id = shipping_records.booking_id', 'inner');
             $this->applyNotDeleted('bookings');
             $this->db->where('bookings.payment_status', 'completed');
             $row = $this->db->get()->row();
 
             return (object) array(
-                'need_help_bookings' => $row ? (int) $row->need_help_bookings : 0,
                 'created_records' => $row ? (int) $row->created_records : 0,
+                'awaiting_collection_records' => $row ? (int) $row->awaiting_collection_records : 0,
                 'in_transit_records' => $row ? (int) $row->in_transit_records : 0,
                 'completed_records' => $row ? (int) $row->completed_records : 0,
             );

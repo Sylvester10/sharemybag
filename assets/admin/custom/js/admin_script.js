@@ -103,12 +103,426 @@ jQuery(document).ready(function ($) {
     });
 
     $(document).on('submit', 'form.admin-verification-form', function () {
+        if (
+            $(this).hasClass('admin-form-modal__form') &&
+            !this.checkValidity()
+        ) {
+            return;
+        }
+
         var submitButton = $(this).find('.admin-verification-submit');
 
         if (submitButton.length) {
             setAdminVerificationLoading(submitButton);
         }
     });
+
+    // Shared inline validation for modal forms using the admin form system.
+    var adminModalFieldIndex = 0;
+    var adminModalFieldSelector =
+        'input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select, textarea';
+    var adminModalDelegatedFieldSelector =
+        'form.admin-form-modal__form input:not([type="hidden"]):not([type="submit"]):not([type="button"]), ' +
+        'form.admin-form-modal__form select, ' +
+        'form.admin-form-modal__form textarea';
+
+    function getAdminModalValidationMessage(field) {
+        var customMessage = field.getAttribute('data-validation-message');
+
+        if (customMessage) {
+            return customMessage;
+        }
+
+        if (field.validity) {
+            if (field.validity.valueMissing) {
+                return 'This field is required.';
+            }
+
+            if (field.validity.typeMismatch && field.type === 'email') {
+                return 'Enter a valid email address.';
+            }
+
+            if (field.validity.patternMismatch) {
+                return 'Enter a value in the required format.';
+            }
+
+            if (field.validity.tooShort) {
+                return 'Enter at least ' + field.minLength + ' characters.';
+            }
+
+            if (field.validity.tooLong) {
+                return 'Enter no more than ' + field.maxLength + ' characters.';
+            }
+
+            if (field.validity.rangeUnderflow) {
+                return 'Enter a value of at least ' + field.min + '.';
+            }
+
+            if (field.validity.rangeOverflow) {
+                return 'Enter a value no greater than ' + field.max + '.';
+            }
+
+            if (field.validity.stepMismatch || field.validity.badInput) {
+                return 'Enter a valid value.';
+            }
+        }
+
+        return field.validationMessage || 'Check this field and try again.';
+    }
+
+    function prepareAdminModalField(field) {
+        var $field = $(field);
+        var fieldId = $field.attr('id');
+
+        if (!fieldId) {
+            adminModalFieldIndex += 1;
+            fieldId = 'admin_modal_field_' + adminModalFieldIndex;
+            $field.attr('id', fieldId);
+        }
+
+        var $fieldContainer = $field.closest(
+            '.form-group, [class*="col-"], .admin-form-modal__section'
+        );
+        var $label = $fieldContainer.find('label').first();
+
+        if ($label.length && !$label.attr('for')) {
+            $label.attr('for', fieldId);
+        }
+
+        return fieldId;
+    }
+
+    function getAdminModalErrorAnchor(field) {
+        var $field = $(field);
+        var $phoneGroup = $field.closest('[data-smb-phone-input]');
+
+        if ($phoneGroup.length) {
+            return $phoneGroup;
+        }
+
+        if ($field.hasClass('select2-hidden-accessible')) {
+            var $select2 = $field.next('.select2-container');
+            if ($select2.length) {
+                return $select2;
+            }
+        }
+
+        return $field;
+    }
+
+    function clearAdminModalFieldError(field) {
+        var $field = $(field);
+        var errorId = $field.attr('data-admin-error-id');
+        var $phoneGroup = $field.closest('[data-smb-phone-input]');
+
+        $field
+            .removeClass('admin-form-modal__control--invalid')
+            .removeAttr('aria-invalid');
+
+        if ($field.hasClass('select2-hidden-accessible')) {
+            $field
+                .next('.select2-container')
+                .find('.select2-selection')
+                .removeClass('admin-form-modal__control--invalid')
+                .removeAttr('aria-invalid');
+        }
+
+        if ($phoneGroup.length) {
+            $phoneGroup.removeClass('admin-form-modal__field-group--invalid');
+        }
+
+        if (errorId) {
+            $('#' + errorId).remove();
+            $field.removeAttr('data-admin-error-id');
+
+            var describedBy = ($field.attr('aria-describedby') || '')
+                .split(/\s+/)
+                .filter(function (id) {
+                    return id && id !== errorId;
+                })
+                .join(' ');
+
+            if (describedBy) {
+                $field.attr('aria-describedby', describedBy);
+            } else {
+                $field.removeAttr('aria-describedby');
+            }
+        }
+    }
+
+    function showAdminModalFieldError(field, message) {
+        var $field = $(field);
+        var fieldId = prepareAdminModalField(field);
+        var errorId = fieldId + '_error';
+        var $anchor = getAdminModalErrorAnchor(field);
+        var $phoneGroup = $field.closest('[data-smb-phone-input]');
+        var describedBy = ($field.attr('aria-describedby') || '')
+            .split(/\s+/)
+            .filter(Boolean);
+
+        $('#' + errorId).remove();
+        $anchor.after(
+            $('<span>', {
+                class: 'admin-form-modal__field-error',
+                id: errorId,
+                text: message,
+            })
+        );
+
+        if (describedBy.indexOf(errorId) === -1) {
+            describedBy.push(errorId);
+        }
+
+        $field
+            .addClass('admin-form-modal__control--invalid')
+            .attr('aria-invalid', 'true')
+            .attr('aria-describedby', describedBy.join(' '))
+            .attr('data-admin-error-id', errorId);
+
+        if ($field.hasClass('select2-hidden-accessible')) {
+            $field
+                .next('.select2-container')
+                .find('.select2-selection')
+                .addClass('admin-form-modal__control--invalid')
+                .attr('aria-invalid', 'true');
+        }
+
+        if ($phoneGroup.length) {
+            $phoneGroup.addClass('admin-form-modal__field-group--invalid');
+        }
+    }
+
+    function validateAdminModalField(field) {
+        if (field.disabled || !field.willValidate) {
+            clearAdminModalFieldError(field);
+            return true;
+        }
+
+        if (
+            field.required &&
+            (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') &&
+            typeof field.value === 'string' &&
+            field.value.trim() === ''
+        ) {
+            showAdminModalFieldError(field, 'This field is required.');
+            return false;
+        }
+
+        if (field.checkValidity()) {
+            clearAdminModalFieldError(field);
+            return true;
+        }
+
+        showAdminModalFieldError(field, getAdminModalValidationMessage(field));
+        return false;
+    }
+
+    function clearAdminModalErrorSummary($form) {
+        $form.find('.admin-form-modal__error-summary').remove();
+    }
+
+    function showAdminModalErrorSummary($form, invalidCount) {
+        var $body = $form.find('.admin-form-modal__body').first();
+        var message =
+            invalidCount === 1
+                ? 'Please correct the highlighted field.'
+                : 'Please correct the ' + invalidCount + ' highlighted fields.';
+        var $summary = $('<div>', {
+            class: 'admin-form-modal__error-summary',
+            role: 'alert',
+            tabindex: '-1',
+            text: message,
+        });
+
+        clearAdminModalErrorSummary($form);
+        $body.prepend($summary);
+        return $summary;
+    }
+
+    function focusAdminModalField(field) {
+        var $field = $(field);
+
+        if ($field.hasClass('select2-hidden-accessible')) {
+            $field.select2('open');
+            return;
+        }
+
+        field.focus();
+    }
+
+    function clearAdminModalValidation($form) {
+        clearAdminModalErrorSummary($form);
+        $form.find(adminModalFieldSelector).each(function () {
+            clearAdminModalFieldError(this);
+            $(this).removeData('admin-validation-touched');
+        });
+        $form.removeData('admin-validation-submitted');
+    }
+
+    function prepareAdminModalForm(form) {
+        var $form = $(form);
+
+        $form.attr('novalidate', 'novalidate');
+        $form.find(adminModalFieldSelector).each(function () {
+            prepareAdminModalField(this);
+        });
+    }
+
+    function ensureOfflineBookingForm(modal) {
+        var $modal = $(modal);
+        var $form = $modal.find('form.admin-offline-booking-form').first();
+
+        if ($form.length) {
+            return $form;
+        }
+
+        var action = $modal.attr('data-form-action');
+        var $body = $modal.find('.admin-offline-booking-body').first();
+        var $footer = $modal.find('.admin-offline-booking-footer').first();
+
+        if (!action || !$body.length || !$footer.length) {
+            return $();
+        }
+
+        $form = $('<form>', {
+            action: action,
+            method: 'post',
+            enctype: 'multipart/form-data',
+            class: 'admin-form-modal__form admin-offline-booking-form',
+            novalidate: 'novalidate',
+        });
+
+        $form.attr('id', 'offline_booking_form_' + ($modal.attr('id') || 'modal'));
+        $form.insertBefore($body);
+
+        $modal
+            .find('.admin-form-modal__content > input[type="hidden"]')
+            .appendTo($form);
+        $form.append($body, $footer);
+
+        if (!$form.find('input[name="q2r_secure"]').length && getCsrfHash()) {
+            $('<input>', {
+                type: 'hidden',
+                name: 'q2r_secure',
+                value: getCsrfHash(),
+            }).prependTo($form);
+        }
+
+        return $form;
+    }
+
+    function validateAdminModalForm(form, focusFirstInvalid) {
+        var $form = $(form);
+        var invalidFields = [];
+
+        prepareAdminModalForm(form);
+        $form.data('admin-validation-submitted', true);
+        $form.find(adminModalFieldSelector).each(function () {
+            if (!validateAdminModalField(this)) {
+                invalidFields.push(this);
+            }
+        });
+
+        if (!invalidFields.length) {
+            clearAdminModalErrorSummary($form);
+            return true;
+        }
+
+        showAdminModalErrorSummary($form, invalidFields.length);
+
+        if (focusFirstInvalid) {
+            focusAdminModalField(invalidFields[0]);
+        }
+
+        return false;
+    }
+
+    $('form.admin-form-modal__form').each(function () {
+        prepareAdminModalForm(this);
+    });
+
+    $(document).on('show.bs.modal', '.admin-form-modal', function () {
+        var $modal = $(this);
+
+        if (
+            $modal.parents('form').length &&
+            ($modal.hasClass('admin-offline-booking-modal') ||
+                $modal.find('form.admin-form-modal__form').length)
+        ) {
+            $modal.appendTo(document.body);
+        }
+
+        if ($modal.hasClass('admin-offline-booking-modal')) {
+            ensureOfflineBookingForm(this);
+        }
+
+        $modal.find('form.admin-form-modal__form').each(function () {
+            prepareAdminModalForm(this);
+        });
+    });
+
+    $(document).on(
+        'blur',
+        adminModalDelegatedFieldSelector,
+        function () {
+            $(this).data('admin-validation-touched', true);
+            validateAdminModalField(this);
+        }
+    );
+
+    $(document).on(
+        'input change',
+        adminModalDelegatedFieldSelector,
+        function () {
+            var $field = $(this);
+            var $form = $field.closest('form.admin-form-modal__form');
+
+            if (
+                $field.data('admin-validation-touched') ||
+                $form.data('admin-validation-submitted')
+            ) {
+                validateAdminModalField(this);
+            }
+
+            if (!$form.find('[aria-invalid="true"]').length) {
+                clearAdminModalErrorSummary($form);
+            }
+        }
+    );
+
+    $(document).on('submit', 'form.admin-form-modal__form', function (event) {
+        if (validateAdminModalForm(this, true)) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    });
+
+    $(document).on('hidden.bs.modal', '.admin-form-modal', function () {
+        clearAdminModalValidation($(this).find('form.admin-form-modal__form'));
+    });
+
+    window.AdminModalValidation = {
+        clear: function (form) {
+            clearAdminModalValidation($(form));
+        },
+        clearFieldError: function (field) {
+            var target = $(field)[0];
+            if (target) {
+                clearAdminModalFieldError(target);
+            }
+        },
+        setFieldError: function (field, message) {
+            var target = $(field)[0];
+            if (target) {
+                showAdminModalFieldError(target, message);
+            }
+        },
+        validate: function (form) {
+            return validateAdminModalForm($(form)[0], true);
+        },
+    };
 
     $('#filePreviewModal').on('hidden.bs.modal', function () {
         $('#filePreviewModalImage').attr('src', '');
@@ -325,6 +739,24 @@ jQuery(document).ready(function ($) {
         travellerTable.ajax.reload();
     });
 
+    if ($('#arrivals_travellers_table').length) {
+        var arrivalsTravellerTable = initializeDataTable(
+            '#arrivals_travellers_table',
+            base_url + 'shipping/arrivals_ajax',
+            'Search/filter arrivals:',
+            function (d) {
+                d.destination = $('#arrivals_destination_filter').val();
+                d.lifecycle = $('#arrivals_lifecycle_filter').val();
+            }
+        )
+            .order([1, 'desc'])
+            .draw();
+
+        $('#arrivals_destination_filter, #arrivals_lifecycle_filter').on('change', function () {
+            arrivalsTravellerTable.ajax.reload();
+        });
+    }
+
     /////////////////////////////////////////////////////////
 
     initializeDataTable(
@@ -398,7 +830,7 @@ jQuery(document).ready(function ($) {
             d.route = $('#route_filter_gbp').val(); // UPDATED: route
         }
     )
-        .order([1, 'desc'])
+        .order([])
         .draw();
 
     // Trigger reload on filter change
@@ -426,7 +858,7 @@ jQuery(document).ready(function ($) {
             d.route = $('#route_filter_cad').val(); // UPDATED: route
         }
     )
-        .order([1, 'desc'])
+        .order([])
         .draw();
 
     // Trigger reload on filter change
@@ -525,6 +957,9 @@ jQuery(document).ready(function ($) {
         modal.find('input[name="' + type + '_locality"]').val('');
         modal.find('input[name="' + type + '_postcode"]').val('');
         syncModalPhoneInputs(modal);
+        modal
+            .find('input[name^="' + type + '_"], select[name^="' + type + '_"]')
+            .trigger('input');
     }
 
     $(document).on('change', '.select2-user', function () {
@@ -571,6 +1006,9 @@ jQuery(document).ready(function ($) {
                 modal
                     .find('input[name="agent_postcode"]')
                     .val(userData.postal_code);
+                modal
+                    .find('input[name^="agent_"], select[name^="agent_"]')
+                    .trigger('input');
             } else {
                 alert('Please select an SMB User first.');
                 $(this).prop('checked', false);
@@ -600,6 +1038,9 @@ jQuery(document).ready(function ($) {
                 modal
                     .find('input[name="receiver_postcode"]')
                     .val(userData.postal_code);
+                modal
+                    .find('input[name^="receiver_"], select[name^="receiver_"]')
+                    .trigger('input');
             } else {
                 alert('Please select an SMB User first.');
                 $(this).prop('checked', false);
@@ -948,6 +1389,415 @@ jQuery(document).ready(function ($) {
         });
     });
 
+    /* ================================================================
+       CONTROLLED PARCEL CANCELLATION
+       Super Admin only. Errors remain inside the modal; reload happens
+       only after the server commits the cancellation and audit entry.
+    ================================================================ */
+    function setParcelInlineError(fieldSelector, errorSelector, isValid, message, showAll) {
+        var $field = $(fieldSelector);
+        var $error = $(errorSelector);
+        var shouldShow = !isValid && (showAll || $field.data('validation-touched'));
+
+        $field.attr('aria-invalid', isValid ? 'false' : 'true');
+        $field.closest('.admin-parcel-field').toggleClass('has-error', shouldShow);
+        $error.toggleClass('d-none', !shouldShow).text(shouldShow ? message : '');
+    }
+
+    function validateCancelParcel(showAll) {
+        var bookingId = parseInt($('#cancel_booking_id').val(), 10) || 0;
+        var reason = $.trim($('#cancellation_reason').val());
+        var refundStatus = String($('#cancel_refund_status').val() || '');
+        var refundReference = $.trim($('#cancel_refund_reference').val());
+        var refundAmount = refundStatus === 'not_required'
+            ? 0
+            : parseFloat($('#cancel_refund_amount').val());
+        var confirmed = $('#confirm_cancel_parcel').is(':checked');
+        var validStatuses = ['refunded', 'not_required'];
+        var reasonValid = reason.length >= 5 && reason.length <= 500;
+        var statusValid = validStatuses.indexOf(refundStatus) !== -1;
+        var amountValid = refundStatus === 'not_required' || (!isNaN(refundAmount) && refundAmount >= 0);
+        var referenceValid = refundStatus !== 'refunded' || refundReference.length > 0;
+
+        setParcelInlineError('#cancellation_reason', '#cancellation_reason_error', reasonValid, 'Enter a cancellation reason between 5 and 500 characters.', showAll);
+        setParcelInlineError('#cancel_refund_status', '#cancel_refund_status_error', statusValid, 'Select a valid refund status.', showAll);
+        setParcelInlineError('#cancel_refund_amount', '#cancel_refund_amount_error', amountValid, 'Enter a valid refund amount.', showAll);
+        setParcelInlineError('#cancel_refund_reference', '#cancel_refund_reference_error', referenceValid, 'Enter the manual refund reference.', showAll);
+        setParcelInlineError('#confirm_cancel_parcel', '#confirm_cancel_parcel_error', confirmed, 'Confirm that you want to cancel this parcel.', showAll);
+
+        return bookingId > 0 && reasonValid && statusValid && amountValid && referenceValid && confirmed;
+    }
+
+    function syncCancelParcelSubmitState() {
+        $('#confirmCancelParcel').prop('disabled', !validateCancelParcel(false));
+    }
+
+    $(document).on('click', '.open-cancel-parcel', function (event) {
+        event.preventDefault();
+
+        var $trigger = $(this);
+        var bookingId = parseInt($trigger.data('booking-id'), 10) || 0;
+        var reference = String($trigger.data('booking-reference') || ('#' + bookingId));
+        var amount = parseFloat($trigger.data('refund-amount'));
+        var currency = String($trigger.data('currency') || '').toUpperCase();
+
+        if (!bookingId) {
+            return;
+        }
+
+        $('#cancel_booking_id').val(bookingId);
+        $('#cancel_parcel_reference').text(reference);
+        $('#cancellation_reason').val('');
+        $('#cancel_refund_status').val('');
+        $('#cancel_refund_amount')
+            .val(isNaN(amount) ? '0.00' : amount.toFixed(2))
+            .prop('disabled', false);
+        $('#cancel_refund_currency').text(currency || 'Currency');
+        $('#cancel_refund_reference').val('');
+        $('#cancel_refund_reference_group').hide();
+        $('#confirm_cancel_parcel').prop('checked', false);
+        $('#cancelParcelModal').find('input, select, textarea').removeData('validation-touched').attr('aria-invalid', 'false');
+        $('#cancelParcelModal').find('.admin-parcel-field').removeClass('has-error');
+        $('#cancelParcelModal').find('.admin-form-field-error').addClass('d-none').text('');
+        $('#cancel_parcel_error').addClass('d-none').text('');
+        $('#confirmCancelParcel').prop('disabled', true).html('<i class="las la-times"></i> Cancel Parcel');
+
+        var $actionModal = $trigger.closest('.modal');
+        if ($actionModal.length) {
+            $actionModal.modal('hide');
+            setTimeout(function () {
+                $('#cancelParcelModal').modal('show');
+            }, 200);
+        } else {
+            $('#cancelParcelModal').modal('show');
+        }
+    });
+
+    $(document).on('change', '#cancel_refund_status', function () {
+        var status = $(this).val();
+        var requiresReference = status === 'refunded';
+        $('#cancel_refund_reference_group').toggle(requiresReference);
+        $('#cancel_refund_reference').prop('required', requiresReference);
+
+        if (status === 'not_required') {
+            $('#cancel_refund_amount').val('0.00').prop('disabled', true);
+            $('#cancel_refund_reference').val('');
+        } else {
+            $('#cancel_refund_amount').prop('disabled', false);
+        }
+        syncCancelParcelSubmitState();
+    });
+
+    $(document).on('input', '#cancellation_reason, #cancel_refund_amount, #cancel_refund_reference', syncCancelParcelSubmitState);
+    $(document).on('change', '#confirm_cancel_parcel', function () {
+        $(this).data('validation-touched', true);
+        syncCancelParcelSubmitState();
+    });
+    $(document).on('blur', '#cancellation_reason, #cancel_refund_amount, #cancel_refund_reference', function () {
+        $(this).data('validation-touched', true);
+        validateCancelParcel(false);
+    });
+
+    $(document).on('click', '#confirmCancelParcel', function () {
+        var bookingId = parseInt($('#cancel_booking_id').val(), 10) || 0;
+        var reason = $.trim($('#cancellation_reason').val());
+        var refundStatus = $('#cancel_refund_status').val();
+        var refundReference = $.trim($('#cancel_refund_reference').val());
+        var refundAmount = refundStatus === 'not_required'
+            ? 0
+            : parseFloat($('#cancel_refund_amount').val());
+        var confirmed = $('#confirm_cancel_parcel').is(':checked');
+        var $error = $('#cancel_parcel_error');
+
+        $error.addClass('d-none').text('');
+
+        if (!bookingId) {
+            $error.text('Could not detect the selected booking. Close the modal and try again.').removeClass('d-none');
+            return;
+        }
+        if (!validateCancelParcel(true)) {
+            return;
+        }
+
+        var $button = $(this)
+            .prop('disabled', true)
+            .html('<i class="las la-spinner la-spin"></i> Cancelling...');
+
+        $.ajax({
+            url: base_url + 'admin_bookings/cancel_parcel_ajax',
+            type: 'POST',
+            data: {
+                booking_id: bookingId,
+                cancellation_reason: reason,
+                refund_status: refundStatus,
+                refund_reference: refundReference,
+                refund_amount: refundAmount,
+                q2r_secure: getCsrfHash(),
+            },
+            success: function (response) {
+                var result = response;
+                if (typeof response !== 'object') {
+                    try {
+                        result = JSON.parse(response);
+                    } catch (e) {
+                        result = { status: false, msg: 'Invalid server response.' };
+                    }
+                }
+
+                updateCsrfHash(result.csrf_hash);
+
+                if (result.status) {
+                    sessionStorage.setItem('parcel_success_msg', result.msg || 'Parcel cancelled successfully.');
+                    $('#cancelParcelModal').modal('hide');
+                    location.reload();
+                    return;
+                }
+
+                $button.html('<i class="las la-times"></i> Cancel Parcel');
+                syncCancelParcelSubmitState();
+                $error.text(result.msg || 'Unable to cancel this parcel.').removeClass('d-none');
+            },
+            error: function (xhr) {
+                var result = null;
+                try {
+                    result = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    result = null;
+                }
+
+                if (result && result.csrf_hash) {
+                    updateCsrfHash(result.csrf_hash);
+                }
+
+                $button.html('<i class="las la-times"></i> Cancel Parcel');
+                syncCancelParcelSubmitState();
+                $error.text((result && result.msg) || 'Server error. Please try again.').removeClass('d-none');
+            },
+        });
+    });
+
+    /* ================================================================
+       CONTROLLED PARCEL MOVE
+       Loads eligible travellers from the server, then submits a confirmed
+       reassignment. Validation failures remain in the modal.
+    ================================================================ */
+    var moveParcelContextRequest = null;
+
+    function validateMoveParcel(showAll) {
+        var bookingId = parseInt($('#move_booking_id').val(), 10) || 0;
+        var hasTraveller = !!$('#move_target_traveller_id').val();
+        var reason = $.trim($('#move_parcel_reason').val());
+        var reasonValid = reason.length >= 5 && reason.length <= 500;
+        var confirmed = $('#confirm_move_parcel').is(':checked');
+
+        setParcelInlineError('#move_target_traveller_id', '#move_target_traveller_error', hasTraveller, 'Select a destination traveller.', showAll);
+        setParcelInlineError('#move_parcel_reason', '#move_parcel_reason_error', reasonValid, 'Enter a move reason between 5 and 500 characters.', showAll);
+        setParcelInlineError('#confirm_move_parcel', '#confirm_move_parcel_error', confirmed, 'Confirm that you want to move this parcel.', showAll);
+
+        return bookingId > 0 && hasTraveller && reasonValid && confirmed;
+    }
+
+    function syncMoveParcelSubmitState() {
+        $('#confirmMoveParcel').prop('disabled', !validateMoveParcel(false));
+    }
+
+    function showMoveParcelModal(bookingId, reference, successUrl) {
+        $('#move_booking_id').val(bookingId);
+        $('#moveParcelModal').data('success-url', successUrl || '');
+        $('#move_parcel_reference').text(reference || ('#' + bookingId));
+        $('#move_parcel_reason').val('');
+        $('#confirm_move_parcel').prop('checked', false);
+        $('#moveParcelModal').find('input, select, textarea').removeData('validation-touched').attr('aria-invalid', 'false');
+        $('#moveParcelModal').find('.admin-parcel-field').removeClass('has-error');
+        $('#moveParcelModal').find('.admin-form-field-error').addClass('d-none').text('');
+        $('#move_parcel_error').addClass('d-none').text('');
+        $('#move_parcel_context').html('<i class="las la-spinner la-spin"></i> Loading eligible travellers...');
+        $('#move_target_traveller_id')
+            .empty()
+            .append($('<option>').val('').text('Loading eligible travellers...'))
+            .prop('disabled', true);
+        $('#confirmMoveParcel').prop('disabled', true).html('<i class="las la-exchange-alt"></i> Move Parcel');
+        $('#moveParcelModal').modal('show');
+
+        if (moveParcelContextRequest) {
+            moveParcelContextRequest.abort();
+        }
+
+        moveParcelContextRequest = $.ajax({
+            url: base_url + 'admin_bookings/move_parcel_context_ajax/' + bookingId,
+            type: 'POST',
+            data: { q2r_secure: getCsrfHash() },
+            success: function (response) {
+                var result = response;
+                if (typeof response !== 'object') {
+                    try {
+                        result = JSON.parse(response);
+                    } catch (e) {
+                        result = { status: false, msg: 'Invalid server response.' };
+                    }
+                }
+
+                updateCsrfHash(result.csrf_hash);
+                if (!result.status || !result.context) {
+                    $('#move_parcel_context').html('<i class="las la-exclamation-circle"></i> Move unavailable');
+                    $('#move_parcel_error').text(result.msg || 'Unable to load eligible travellers.').removeClass('d-none');
+                    return;
+                }
+
+                var context = result.context;
+                var travellers = context.eligible_travellers || [];
+                var $select = $('#move_target_traveller_id').empty();
+                $('#move_parcel_context').text(
+                    'Current traveller: ' + context.current_traveller +
+                    ' | Route: ' + context.route +
+                    ' | Parcel: ' + parseFloat(context.parcel_size || 0).toFixed(2) + ' KG'
+                );
+
+                if (!travellers.length) {
+                    $select.append($('<option>').val('').text('No eligible travellers available')).prop('disabled', true);
+                    $('#move_parcel_error')
+                        .text('No approved traveller on this route currently has enough available space.')
+                        .removeClass('d-none');
+                    return;
+                }
+
+                $select.append($('<option>').val('').text('Select destination traveller'));
+                $.each(travellers, function (_, traveller) {
+                    var label = traveller.fullname +
+                        ' — ' + (traveller.travel_date_label || traveller.travel_date) +
+                        ' — ' + parseFloat(traveller.available_space || 0).toFixed(2) + ' KG available';
+                    $select.append($('<option>').val(traveller.id).text(label));
+                });
+                $select.prop('disabled', false);
+                syncMoveParcelSubmitState();
+            },
+            error: function (xhr, status) {
+                if (status === 'abort') {
+                    return;
+                }
+
+                var result = null;
+                try {
+                    result = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    result = null;
+                }
+                if (result && result.csrf_hash) {
+                    updateCsrfHash(result.csrf_hash);
+                }
+                $('#move_parcel_context').html('<i class="las la-exclamation-circle"></i> Move unavailable');
+                $('#move_parcel_error').text((result && result.msg) || 'Unable to load eligible travellers.').removeClass('d-none');
+            },
+            complete: function () {
+                moveParcelContextRequest = null;
+            },
+        });
+    }
+
+    $(document).on('click', '.open-move-parcel', function (event) {
+        event.preventDefault();
+        var $trigger = $(this);
+        var bookingId = parseInt($trigger.data('booking-id'), 10) || 0;
+        var reference = String($trigger.data('booking-reference') || ('#' + bookingId));
+        var successUrl = String($trigger.data('success-url') || '');
+        if (!bookingId) {
+            return;
+        }
+
+        var $actionModal = $trigger.closest('.modal');
+        if ($actionModal.length) {
+            $actionModal.modal('hide');
+            setTimeout(function () {
+                showMoveParcelModal(bookingId, reference, successUrl);
+            }, 200);
+        } else {
+            showMoveParcelModal(bookingId, reference, successUrl);
+        }
+    });
+
+    $(document).on('input', '#move_parcel_reason', syncMoveParcelSubmitState);
+    $(document).on('change', '#move_target_traveller_id, #confirm_move_parcel', function () {
+        $(this).data('validation-touched', true);
+        syncMoveParcelSubmitState();
+    });
+    $(document).on('blur', '#move_parcel_reason', function () {
+        $(this).data('validation-touched', true);
+        validateMoveParcel(false);
+    });
+
+    $(document).on('click', '#confirmMoveParcel', function () {
+        var bookingId = parseInt($('#move_booking_id').val(), 10) || 0;
+        var targetTravellerId = parseInt($('#move_target_traveller_id').val(), 10) || 0;
+        var reason = $.trim($('#move_parcel_reason').val());
+        var confirmed = $('#confirm_move_parcel').is(':checked');
+        var $error = $('#move_parcel_error');
+
+        $error.addClass('d-none').text('');
+        if (!bookingId) {
+            $error.text('Could not detect the selected booking. Close the modal and try again.').removeClass('d-none');
+            return;
+        }
+        if (!validateMoveParcel(true)) {
+            return;
+        }
+
+        var $button = $(this)
+            .prop('disabled', true)
+            .html('<i class="las la-spinner la-spin"></i> Moving...');
+
+        $.ajax({
+            url: base_url + 'admin_bookings/move_parcel_ajax',
+            type: 'POST',
+            data: {
+                booking_id: bookingId,
+                target_traveller_id: targetTravellerId,
+                move_reason: reason,
+                q2r_secure: getCsrfHash(),
+            },
+            success: function (response) {
+                var result = response;
+                if (typeof response !== 'object') {
+                    try {
+                        result = JSON.parse(response);
+                    } catch (e) {
+                        result = { status: false, msg: 'Invalid server response.' };
+                    }
+                }
+
+                updateCsrfHash(result.csrf_hash);
+                if (result.status) {
+                    sessionStorage.setItem('parcel_success_msg', result.msg || 'Parcel moved successfully.');
+                    $('#moveParcelModal').modal('hide');
+                    var successUrl = String($('#moveParcelModal').data('success-url') || '');
+                    if (successUrl) {
+                        window.location.href = successUrl;
+                    } else {
+                        location.reload();
+                    }
+                    return;
+                }
+
+                $button.html('<i class="las la-exchange-alt"></i> Move Parcel');
+                syncMoveParcelSubmitState();
+                $error.text(result.msg || 'Unable to move this parcel.').removeClass('d-none');
+            },
+            error: function (xhr) {
+                var result = null;
+                try {
+                    result = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    result = null;
+                }
+                if (result && result.csrf_hash) {
+                    updateCsrfHash(result.csrf_hash);
+                }
+                $button.html('<i class="las la-exchange-alt"></i> Move Parcel');
+                syncMoveParcelSubmitState();
+                $error.text((result && result.msg) || 'Server error. Please try again.').removeClass('d-none');
+            },
+        });
+    });
+
     /////////////////////////////////////////////////////////
     // SHIPPING RECORDS
     // ------------------------------------------------------
@@ -1004,7 +1854,7 @@ jQuery(document).ready(function ($) {
         }
 
         $('#shipping_selected_context').html(
-            '<div class="admin-shipping-context__tracking"><strong>Tracking ID:</strong> ' +
+            '<div class="admin-shipping-context__tracking"><strong>Booking Reference:</strong> ' +
                 $('<div>').text(context.tracking_id || '').html() +
                 '</div>' +
                 '<div class="admin-shipping-context__meta">' +
@@ -1014,8 +1864,43 @@ jQuery(document).ready(function ($) {
         );
     }
 
+    function shippingRenderStatusOptions(currentStatus, mode, providedOptions, selector) {
+        var $select = $(selector || '#shipping_status');
+        var creationOptions = ['Awaiting Collection', 'In Transit', 'Completed'];
+        var transitionOptions = {
+            'Awaiting Collection': ['In Transit', 'Completed'],
+            'In Transit': ['Completed'],
+            'Completed': [],
+        };
+        var options = mode === 'create'
+            ? creationOptions
+            : (providedOptions || transitionOptions[currentStatus] || []);
+
+        $select.empty().prop('disabled', false);
+        if (!options.length) {
+            $select
+                .append($('<option>').val(currentStatus).text(currentStatus + ' (final)'))
+                .val(currentStatus)
+                .prop('disabled', true);
+            return;
+        }
+
+        if (mode === 'edit') {
+            $select.append($('<option>').val('').text('Select the next status'));
+        }
+
+        $.each(options, function (_, status) {
+            $select.append($('<option>').val(status).text(status));
+        });
+
+        if (mode === 'create') {
+            $select.val(currentStatus || 'Awaiting Collection');
+        }
+    }
+
     function shippingApplyContext(context) {
         $('#shipping_booking_id').val(context.booking_id || 0);
+        $('#shipping_carrier_tracking_id').val(context.carrier_tracking_id || '');
         $('#shipping_pickup_address').val(context.pickup_address || '');
         $('#shipping_dropoff_address').val(context.dropoff_address || '');
         $('#shipping_pickup_country').val(context.pickup_country || '');
@@ -1023,7 +1908,12 @@ jQuery(document).ready(function ($) {
         $('#shipping_staff_admin_id')
             .val(context.staff_admin_id || '')
             .trigger('change.select2');
-        $('#shipping_status').val(context.status || 'In Transit');
+        shippingRenderStatusOptions(
+            context.status || 'Awaiting Collection',
+            $('#shipping_mode').val() || 'create',
+            context.status_next_options || null,
+            '#shipping_status'
+        );
         shippingRenderSelectedContext(context);
     }
 
@@ -1033,6 +1923,7 @@ jQuery(document).ready(function ($) {
         $('#shipping_mode').val(mode);
         $('#shipping_booking_id').val(bookingId);
         $('#shipping_search_query').val('');
+        $('#shipping_carrier_tracking_id').val('');
         $('#shipping_tracking_note').val('');
         $('#shipping_search_results tbody').html(
             '<tr><td colspan="6" class="text-center text-muted">Search for a booking to continue.</td></tr>'
@@ -1040,10 +1931,10 @@ jQuery(document).ready(function ($) {
 
         if (mode === 'edit') {
             $('#shippingModalTitle').text('Edit Shipping Record');
-            $('#shippingModalSubtitle').text('Update the active shipping details for this booking and optionally append a note to the update history.');
+        } else if (bookingId) {
+            $('#shippingModalTitle').text('Book Shipping');
         } else {
             $('#shippingModalTitle').text('Create Shipping Record');
-            $('#shippingModalSubtitle').text('Find the booking first, then confirm the shipping details that will show in the admin shipping table.');
         }
 
         if (bookingId) {
@@ -1210,6 +2101,7 @@ jQuery(document).ready(function ($) {
         var mode = $('#shipping_mode').val() || 'create';
         var payload = {
             booking_id: bookingId,
+            carrier_tracking_id: $.trim($('#shipping_carrier_tracking_id').val()),
             pickup_address: $.trim($('#shipping_pickup_address').val()),
             dropoff_address: $.trim($('#shipping_dropoff_address').val()),
             pickup_country: $.trim($('#shipping_pickup_country').val()),
@@ -1223,6 +2115,18 @@ jQuery(document).ready(function ($) {
         if (!bookingId) {
             $('#shipping_modal_error')
                 .text('Select a booking before saving.')
+                .removeClass('d-none');
+            return;
+        }
+        if (!payload.carrier_tracking_id) {
+            $('#shipping_modal_error')
+                .text('Enter the carrier tracking ID before saving.')
+                .removeClass('d-none');
+            return;
+        }
+        if (!payload.status) {
+            $('#shipping_modal_error')
+                .text('Select the next shipping status before saving.')
                 .removeClass('d-none');
             return;
         }
@@ -1279,9 +2183,42 @@ jQuery(document).ready(function ($) {
         $('#shipping_status_booking_id').val(bookingId);
         $('#shipping_status_heading').val('');
         $('#shipping_status_body').val('');
-        $('#shipping_status_update').val('In Transit');
+        $('#shipping_status_update').empty().append('<option value="">Loading...</option>').prop('disabled', true);
         $('#shipping_status_error').addClass('d-none').text('');
+        $('#shipping_status_submit_btn').prop('disabled', true);
         $('#shippingStatusModal').modal('show');
+
+        $.ajax({
+            url: base_url + 'shipping/shipping_context_ajax/' + bookingId,
+            type: 'POST',
+            data: { q2r_secure: getCsrfHash() },
+            success: function (response) {
+                var res = parseJsonResponse(response) || {};
+                updateCsrfHash(res.csrf_hash);
+                if (!res.status || !res.context) {
+                    $('#shipping_status_error').text(res.msg || 'Unable to load the current status.').removeClass('d-none');
+                    return;
+                }
+
+                shippingRenderStatusOptions(
+                    res.context.status,
+                    'edit',
+                    res.context.status_next_options || [],
+                    '#shipping_status_update'
+                );
+                if (!(res.context.status_next_options || []).length) {
+                    $('#shipping_status_error').text('This shipment is completed and has no further status options.').removeClass('d-none');
+                    $('#shipping_status_submit_btn').prop('disabled', true);
+                } else {
+                    $('#shipping_status_submit_btn').prop('disabled', false);
+                }
+            },
+            error: function (xhr) {
+                var res = parseJsonResponse(xhr.responseText) || {};
+                updateCsrfHash(res.csrf_hash);
+                $('#shipping_status_error').text(res.msg || 'Unable to load the current status.').removeClass('d-none');
+            },
+        });
     });
 
     $(document).on('click', '#shipping_status_submit_btn', function () {

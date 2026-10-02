@@ -297,7 +297,6 @@ class Users_model extends MY_Model
             'post_code' => $this->input->post('post_code', TRUE),
             'address'   => $this->input->post('address', TRUE),
         );
-
         $this->db->where('id', $id);
         return $this->db->update('users', $data);
     }
@@ -306,14 +305,27 @@ class Users_model extends MY_Model
     {
         $this->db->trans_start();
         $this->db->where('id', (int) $userId);
-        $this->db->update('users', array(
+        $this->db->group_start()
+            ->where('phone_verified_at IS NULL', null, false)
+            ->or_where('verified_phone_e164 IS NULL', null, false)
+            ->or_where('verified_phone_e164', '')
+            ->group_end();
+        $updated = $this->db->update('users', array(
             'number' => $phone,
             'verified_phone_e164' => $phone,
             'phone_verified_at' => date('Y-m-d H:i:s'),
+            'phone_signin_enabled' => 1,
         ));
+        $updatedRows = $this->db->affected_rows();
         $this->db->trans_complete();
 
-        return $this->db->trans_status();
+        return $updated && $updatedRows === 1 && $this->db->trans_status();
+    }
+
+    public function set_phone_signin_enabled($userId, $enabled)
+    {
+        return $this->db->where('id', (int) $userId)
+            ->update('users', array('phone_signin_enabled' => $enabled ? 1 : 0));
     }
 
 
@@ -380,7 +392,6 @@ class Users_model extends MY_Model
             'traveller_name'            => $this->input->post('traveller_name', TRUE),
             'traveller_email'           => $this->input->post('traveller_email', TRUE),
             'traveller_contact'         => $this->input->post('traveller_contact', TRUE),
-            // 'traveller_travel_date'     => $this->input->post('traveller_travel_date', TRUE),
             'traveller_departure_date'  => $this->input->post('traveller_departure_date', TRUE),
             'traveller_arrival_date'    => $this->input->post('traveller_arrival_date', TRUE),
             'traveller_drop_address1'   => $this->input->post('traveller_drop_address1', TRUE),
@@ -576,7 +587,6 @@ class Users_model extends MY_Model
             'traveller_name' => $y->fullname,
             'traveller_contact' => $y->phone,
             'traveller_email' => $y->email,
-            'traveller_travel_date' => $y->travel_date,
             'traveller_departure_date' => $y->travel_date,
             'traveller_arrival_date' => $y->arrival_date,
             'traveller_departure_state' => $y->departure_state,

@@ -1,0 +1,3 @@
+*.sql
+*.sha256
+!.gitignore

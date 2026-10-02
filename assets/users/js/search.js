@@ -172,6 +172,42 @@ jQuery(document).ready(function ($) {
       </article>`;
     }
 
+    function updateRouteOptionAvailability() {
+        var location = $('#select_location').val();
+        var destination = $('#select_destination').val();
+
+        $('#select_location option').each(function () {
+            var shouldExclude = Boolean(destination) && $(this).val() === destination;
+            $(this).prop('disabled', shouldExclude).prop('hidden', shouldExclude);
+        });
+
+        $('#select_destination option').each(function () {
+            var shouldExclude = Boolean(location) && $(this).val() === location;
+            $(this).prop('disabled', shouldExclude).prop('hidden', shouldExclude);
+        });
+    }
+
+    function handleRouteChange(changedSelect, otherSelect) {
+        if (
+            changedSelect.val() &&
+            changedSelect.val() === otherSelect.val()
+        ) {
+            otherSelect.val('');
+        }
+
+        updateRouteOptionAvailability();
+    }
+
+    $('#select_location').on('change', function () {
+        handleRouteChange($(this), $('#select_destination'));
+    });
+
+    $('#select_destination').on('change', function () {
+        handleRouteChange($(this), $('#select_location'));
+    });
+
+    updateRouteOptionAvailability();
+
     $('#search-results').on(
         'click',
         '.traveller-result-card-clickable',
@@ -200,25 +236,39 @@ jQuery(document).ready(function ($) {
     // Search
     $('#search_form').submit(function (e) {
         e.preventDefault();
-        $('#search-spinner').removeClass('d-none');
-        $('#search-results').html('');
-        let val = $('#select_destination').val();
-        let url = $(this).attr('action');
+        var form = $(this);
+        var location = String($('#select_location').val() || '').trim();
+        var destination = String($('#select_destination').val() || '').trim();
+        var submitButton = form.find('.traveller-search-submit');
+        var url = form.attr('action');
 
-        if (val.trim() == '') {
-            $('#search-spinner').addClass('d-none');
+        if (!location || !destination || location === destination) {
+            toastr.error(
+                'Select two different route locations.',
+                'Check Your Route'
+            );
             return;
         }
 
-        let form_data = $(this).serialize();
+        $('#search-spinner').removeClass('d-none');
+        $('#search-results').attr('aria-busy', 'true').html('');
+        submitButton.prop('disabled', true);
+
         $.ajax({
             url: url,
             type: 'POST',
-            data: form_data,
+            data: form.serialize(),
             contentType: 'application/x-www-form-urlencoded',
+            dataType: 'json',
             success: function (response) {
-                response = JSON.parse(response);
-                let html_response = '';
+                var html_response = '';
+
+                if (
+                    response.csrf_hash &&
+                    typeof updateGlobalCsrfHash === 'function'
+                ) {
+                    updateGlobalCsrfHash(response.csrf_hash);
+                }
 
                 if (response.status) {
                     html_response += `
@@ -240,10 +290,7 @@ jQuery(document).ready(function ($) {
 
                     html_response += `</div>`;
 
-                    setTimeout(function () {
-                        $('#search-results').html(html_response);
-                        $('#search-spinner').addClass('d-none');
-                    }, 2000);
+                    $('#search-results').html(html_response);
                 } else {
                     var noResultsHtml = `
                               <div class="card mb-0">
@@ -252,17 +299,22 @@ jQuery(document).ready(function ($) {
                                         <dotlottie-wc src="https://lottie.host/764ac1e3-50ac-465b-89a9-8259af46e54b/Qx6tMx1p9G.lottie" style="width: 150px;height: 150px" autoplay loop></dotlottie-wc>
                                     </div>
                                     <h4 class="card-title mb-3 mt-3 text-center">No Traveller Available</h4>
+                                    <p class="text-center mb-0">${escapeHtml(response.msg || 'No travellers are available for that route right now.')}</p>
                                 </div>
                             </div>`;
-                    setTimeout(function () {
-                        $('#search-results').html(noResultsHtml);
-                        $('#search-spinner').addClass('d-none');
-                    }, 2000);
+                    $('#search-results').html(noResultsHtml);
                 }
             },
-            error: function (error) {
-                console.log(`This is the error ${error}`);
+            error: function () {
+                toastr.error(
+                    'We could not complete your search. Please try again.',
+                    'Search Unavailable'
+                );
+            },
+            complete: function () {
                 $('#search-spinner').addClass('d-none');
+                $('#search-results').attr('aria-busy', 'false');
+                submitButton.prop('disabled', false);
             },
         });
     });

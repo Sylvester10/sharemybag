@@ -28,7 +28,7 @@
     <link href="<?php echo base_url(); ?>assets/general/css/phone-input.css?v=<?php echo filemtime(FCPATH . 'assets/general/css/phone-input.css'); ?>" rel="stylesheet">
 
     <!--custom css start-->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css?v=<?php echo filemtime(FCPATH . 'assets/login/css/custom.css'); ?>">
     <!--custom css end-->
 
 </head>
@@ -181,6 +181,9 @@
                                             'placeholder' => '7911123456',
                                             'required' => true,
                                         )); ?>
+                                        <div class="col-sm-12 mt-n2 mb-3">
+                                            <small class="text-muted">After verification, this number can be used to receive sign-in codes through WhatsApp or SMS.</small>
+                                        </div>
                                         <div class="col-sm-12">
                                             <label for="password" class="mb-1">Country of Residence <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">

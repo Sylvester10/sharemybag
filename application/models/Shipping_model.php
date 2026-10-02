@@ -30,10 +30,18 @@ class Shipping_model extends \MY_Model
         if (!$data['staff_name']) {
             return array('status' => false, 'msg' => 'Please select a staff member.');
         }
+        if ($data['carrier_tracking_id'] === '') {
+            return array('status' => false, 'msg' => 'Please enter the carrier tracking ID.');
+        }
+        if (!in_array($data['status'], shipping_status_creation_options(), true)) {
+            return array('status' => false, 'msg' => 'Select a valid shipping status.');
+        }
+        if ($this->carrierTrackingExists($data['courier'], $data['carrier_tracking_id'])) {
+            return array('status' => false, 'msg' => 'That carrier tracking ID is already in use for the selected courier.');
+        }
 
         $this->db->trans_start();
         $this->db->insert('shipping_records', $data);
-        $this->touchBookingNeedHelp($bookingId);
         $this->syncBookingDeliveryStatus($booking->tracking_id, $data['status']);
         $this->insertShippingHistory($booking->tracking_id, $data['status'], $payload['tracking_note'] ?? '', true);
         $this->db->trans_complete();
@@ -70,6 +78,15 @@ class Shipping_model extends \MY_Model
         if (!$data['staff_name']) {
             return array('status' => false, 'msg' => 'Please select a staff member.');
         }
+        if ($data['carrier_tracking_id'] === '') {
+            return array('status' => false, 'msg' => 'Please enter the carrier tracking ID.');
+        }
+        if (!shipping_status_transition_allowed($existing->status, $data['status'], true)) {
+            return array('status' => false, 'msg' => 'Shipping status cannot move backwards.');
+        }
+        if ($this->carrierTrackingExists($data['courier'], $data['carrier_tracking_id'], $bookingId)) {
+            return array('status' => false, 'msg' => 'That carrier tracking ID is already in use for the selected courier.');
+        }
 
         $statusChanged = shipping_status_normalize($existing->status) !== $data['status'];
         $note = trim((string) ($payload['tracking_note'] ?? ''));
@@ -77,7 +94,6 @@ class Shipping_model extends \MY_Model
         $this->db->trans_start();
         $this->db->where('booking_id', $bookingId);
         $this->db->update('shipping_records', $data);
-        $this->touchBookingNeedHelp($bookingId);
         $this->syncBookingDeliveryStatus($booking->tracking_id, $data['status']);
         if ($statusChanged || $note !== '') {
             $this->insertShippingHistory($booking->tracking_id, $data['status'], $note, false);
@@ -113,6 +129,9 @@ class Shipping_model extends \MY_Model
         }
 
         $normalizedStatus = shipping_status_normalize($status);
+        if (!shipping_status_transition_allowed($record->status, $normalizedStatus)) {
+            return array('status' => false, 'msg' => 'Select a valid next shipping status.');
+        }
         $updateHeading = trim((string) $heading);
         $updateBody = trim((string) $body);
 
@@ -262,13 +281,14 @@ class Shipping_model extends \MY_Model
         return array(
             'booking_id' => (int) $booking->id,
             'tracking_id' => $booking->tracking_id,
+            'carrier_tracking_id' => trim((string) ($payload['carrier_tracking_id'] ?? $existing->carrier_tracking_id ?? '')),
             'pickup_address' => trim((string) ($payload['pickup_address'] ?? $existing->pickup_address ?? $defaults['pickup_address'])),
             'dropoff_address' => trim((string) ($payload['dropoff_address'] ?? $existing->dropoff_address ?? $defaults['dropoff_address'])),
             'pickup_country' => trim((string) ($payload['pickup_country'] ?? $existing->pickup_country ?? $defaults['pickup_country'])),
             'courier' => $this->normalizeCourier($payload['courier'] ?? $existing->courier ?? null),
             'staff_admin_id' => $staff ? (int) $staff->id : null,
             'staff_name' => $staff ? $staff->name : trim((string) ($existing->staff_name ?? '')),
-            'status' => shipping_status_normalize($payload['status'] ?? $existing->status ?? 'In Transit'),
+            'status' => shipping_status_normalize($payload['status'] ?? $existing->status ?? 'Awaiting Collection'),
         );
     }
 
@@ -347,24 +367,36 @@ class Shipping_model extends \MY_Model
 
     private function getStaffMeta($adminId)
     {
-        return $this->db
-            ->select('id, name, email, role')
+        $fields = 'id, name, email, role';
+        if ($this->db->field_exists('can_manage_shipping', 'admins')) {
+            $fields .= ', can_manage_shipping';
+        }
+
+        $staff = $this->db
+            ->select($fields)
             ->where('id', (int) $adminId)
             ->get('admins')
             ->row();
-    }
 
-    private function touchBookingNeedHelp($bookingId)
-    {
-        $this->db->where('id', $bookingId);
-        $this->db->update('bookings', array('need_help' => 'Yes'));
+        return admin_shipping_access_allowed($staff) ? $staff : null;
     }
 
     private function syncBookingDeliveryStatus($trackingId, $status)
     {
-        $normalized = shipping_status_normalize($status);
+        $normalized = shipping_status_to_booking_delivery($status);
         $this->db->where('tracking_id', $trackingId);
         $this->db->update('bookings', array('delivery_status' => $normalized));
+    }
+
+    private function carrierTrackingExists($courier, $carrierTrackingId, $excludeBookingId = 0)
+    {
+        $this->db->from('shipping_records');
+        $this->db->where('courier', trim((string) $courier));
+        $this->db->where('carrier_tracking_id', trim((string) $carrierTrackingId));
+        if ((int) $excludeBookingId > 0) {
+            $this->db->where('booking_id !=', (int) $excludeBookingId);
+        }
+        return $this->db->count_all_results() > 0;
     }
 
     private function insertShippingHistory($trackingId, $status, $body = '', $isFirstRecord = false, $headingOverride = '')

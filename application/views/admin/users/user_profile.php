@@ -3,7 +3,7 @@
 <?php echo custom_validation_errors(); ?>
 
 <div class="new-item admin-page-actions">
-    <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_users'); ?>"><i class="las la-users"></i> All Users</a>
+    <a class="btn btn-default btn-sm button-adjust admin-back-btn" href="<?php echo base_url('admin_users'); ?>"><i class="las la-arrow-left"></i> Back to Users</a>
 </div>
 
 
@@ -45,99 +45,101 @@
         </div>
     </div>
 
-    <div class="modal fade" id="update<?= $y->id ?>" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content modal-widths">
-                <div class="modal-header">
+    <div class="modal fade admin-form-modal admin-form-modal--wide" id="update<?= $y->id ?>" role="dialog" aria-modal="true" aria-labelledby="updateUserTitle<?= $y->id ?>">
+        <div class="modal-dialog modal-lg admin-form-modal__dialog">
+            <div class="modal-content modal-widths admin-form-modal__content">
+                <div class="modal-header ">
                     <div class="pull-right">
-                        <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close"> &times;</button>
+                        <button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close" title="Close">&times;</button>
                     </div>
-                    <h4 class="modal-title">Update Details: <?= $y->firstname ?> </h4>
+                    <h4 class="modal-title admin-form-modal__title" id="updateUserTitle<?= $y->id ?>">Update Details: <?= $y->firstname ?> </h4>
                 </div>
 
-                <?php echo form_open_multipart('admin_users/update_user_ajax/' . $y->id, 'id="offline_booking_form"'); ?>
+                <?php echo form_open_multipart('admin_users/update_user_ajax/' . $y->id, 'id="user_update_form_' . (int) $y->id . '" class="admin-form-modal__form"'); ?>
 
-                <div class="modal-body">
+                <div class="modal-body admin-form-modal__body">
 
-                    <div class="row">
-                        <div class="col-lg-6 mb-2">
-                            <div class="form-group">
-                                <label>First Name *</label>
+                    <div class="admin-form-modal__section">
+                        <div class="row admin-form-modal__grid">
+                            <div class="col-lg-6 mb-2">
+                                <div class="form-group">
+                                    <label>First Name *</label>
 
-                                <input type="text" name="firstname" value="<?php echo set_value('firstname', $y->firstname); ?>" class="form-controls" required>
+                                    <input type="text" name="firstname" value="<?php echo set_value('firstname', $y->firstname); ?>" class="form-controls" minlength="2" maxlength="500" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6 mb-2">
-                            <div class="form-group">
-                                <label>Last Name *</label>
+                            <div class="col-lg-6 mb-2">
+                                <div class="form-group">
+                                    <label>Last Name *</label>
 
-                                <input type="text" name="lastname" value="<?php echo set_value('lastname', $y->lastname); ?>" class="form-controls" required>
+                                    <input type="text" name="lastname" value="<?php echo set_value('lastname', $y->lastname); ?>" class="form-controls" minlength="2" maxlength="500" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="clearfix visible-lg-block"></div>
-                        <div class="col-lg-6 mb-2">
-                            <div class="form-group">
-                                <label>Email *</label>
+                            <div class="clearfix visible-lg-block"></div>
+                            <div class="col-lg-6 mb-2">
+                                <div class="form-group">
+                                    <label>Email *</label>
 
-                                <input type="email" name="email" value="<?php echo set_value('email', $y->email); ?>" class="form-controls" required>
+                                    <input type="email" name="email" value="<?php echo set_value('email', $y->email); ?>" class="form-controls" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6 mb-2">
-                            <div class="form-group">
-                                <?php $this->load->view('partials/phone_input', array(
-                                    'wrapper_class' => '',
-                                    'field_name' => 'number',
-                                    'country_code_name' => 'country_code',
-                                    'country_code_id' => 'userCountryCode',
-                                    'input_id' => 'userPhoneNumber',
-                                    'value' => set_value('number', $y->number),
-                                    'label' => 'Phone',
-                                    'required' => true,
-                                    'input_class' => 'form-controls smb-phone-input__number',
-                                    'select_class' => 'form-controls smb-phone-input__country',
-                                )); ?>
+                            <div class="col-lg-6 mb-2">
+                                <div class="form-group">
+                                    <?php $this->load->view('partials/phone_input', array(
+                                        'wrapper_class' => '',
+                                        'field_name' => 'number',
+                                        'country_code_name' => 'country_code',
+                                        'country_code_id' => 'userCountryCode',
+                                        'input_id' => 'userPhoneNumber',
+                                        'value' => set_value('number', $y->number),
+                                        'label' => 'Phone',
+                                        'required' => true,
+                                        'input_class' => 'form-controls smb-phone-input__number',
+                                        'select_class' => 'form-controls smb-phone-input__country',
+                                    )); ?>
+                                </div>
                             </div>
-                        </div>
-                        <div class="clearfix visible-lg-block"></div>
-                        <div class="col-lg-6 mb-2">
-                            <div class="form-group">
-                                <label class="form-control-label">Country*</label>
-                                <select class="form-control" name="country">
-                                    <option selected value="<?php echo $y->country; ?>"><?php echo $y->country; ?></option>
-                                    <?php
-                                    $countries = countries();
-                                    foreach ($countries as $country) { ?>
-                                        <option value="<?php echo $country; ?>"><?php echo $country; ?></option>
-                                    <?php } ?>
-                                </select>
+                            <div class="clearfix visible-lg-block"></div>
+                            <div class="col-lg-6 mb-2">
+                                <div class="form-group">
+                                    <label class="form-control-label">Country*</label>
+                                    <select class="form-control" name="country" required>
+                                        <option selected value="<?php echo $y->country; ?>"><?php echo $y->country; ?></option>
+                                        <?php
+                                        $countries = countries();
+                                        foreach ($countries as $country) { ?>
+                                            <option value="<?php echo $country; ?>"><?php echo $country; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6 mb-2">
-                            <div class="form-group">
-                                <label>Address *</label>
+                            <div class="col-lg-6 mb-2">
+                                <div class="form-group">
+                                    <label>Address *</label>
 
-                                <input type="text" name="address" value="<?php echo set_value('address', $y->address); ?>" class="form-controls" required>
+                                    <input type="text" name="address" value="<?php echo set_value('address', $y->address); ?>" class="form-controls" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="clearfix visible-lg-block"></div>
-                        <div class="col-lg-6 mb-2">
-                            <div class="form-group">
-                                <label>City *</label>
+                            <div class="clearfix visible-lg-block"></div>
+                            <div class="col-lg-6 mb-2">
+                                <div class="form-group">
+                                    <label>City *</label>
 
-                                <input type="text" name="state" value="<?php echo set_value('state', $y->state); ?>" class="form-controls" required>
+                                    <input type="text" name="state" value="<?php echo set_value('state', $y->state); ?>" class="form-controls" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6 mb-2">
-                            <div class="form-group">
-                                <label>Postal Code *</label>
+                            <div class="col-lg-6 mb-2">
+                                <div class="form-group">
+                                    <label>Postal Code *</label>
 
-                                <input type="text" name="post_code" value="<?php echo set_value('post_code', $y->post_code); ?>" class="form-controls" required>
+                                    <input type="text" name="post_code" value="<?php echo set_value('post_code', $y->post_code); ?>" class="form-controls" required>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="modal-footer">
+                <div class="modal-footer admin-form-modal__footer">
 
                     <div class="mt-3">
                         <button type="submit" id="send_mail_btn" class="btn btn-md btn-primary">
@@ -167,7 +169,6 @@
 //select options bulk actions
 $options_array = array(
     //'value' => 'Caption'
-    'delete' => 'Delete'
 );
 echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
 
@@ -196,48 +197,34 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
                 <tr>
                     <td> <?php echo checkbox_bulk_action($y->id); ?></td>
-                    <?php echo '<td> <div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $y->id . '" title="Options"> <i class="las la-bars"></i> </a></div>';
+					<?php {
+						$cancelAction = '';
+						if (!empty($is_super_admin) && payment_status_normalize($y->payment_status) === 'completed') {
+							$cancelAction = '<p><button type="button" class="btn btn-danger btn-sm btn-block action-btn clickable open-cancel-parcel" data-booking-id="' . (int) $y->id . '" data-booking-reference="' . html_escape($y->tracking_id) . '" data-refund-amount="' . html_escape(number_format((float) $y->total_amount, 2, '.', '')) . '" data-currency="' . html_escape(strtoupper((string) $y->currency)) . '"><i class="las la-times"></i> &nbsp; Cancel Parcel</button></p>
+								' . (empty($y->shipping_record_id)
+									? '<p><button type="button" class="btn btn-primary btn-sm btn-block action-btn clickable open-move-parcel" data-booking-id="' . (int) $y->id . '" data-booking-reference="' . html_escape($y->tracking_id) . '"><i class="las la-exchange-alt"></i> &nbsp; Move Parcel</button></p>'
+									: '');
+						}
 
-                    echo '<div class="modal fade" id="options' . $y->id . '" role="dialog">
+						echo '<td> <div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $y->id . '" title="Options"> <i class="las la-bars"></i> </a></div>';
+
+						echo '<div class="modal fade" id="options' . $y->id . '" role="dialog">
 							<div class="modal-dialog">
 								<div class="modal-content modal-width">
 									<div class="modal-header">
 										<div class="pull-right">
-											<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
+											<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" aria-label="Close" title="Close">&times;</button>
 										</div>
 										<h4 class="modal-title">Actions:' . $y->tracking_id . '</h4>
 									</div><!--/.modal-header-->
 									<div class="modal-body">
-
-										<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $y->id . '"> <i class="las la-trash" style="color: red"></i> &nbsp; Delete </a></p>
-
+										<p><a type="button" href="' . base_url('admin_bookings/view_booking/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"><i class="las la-eye" style="color:green"></i> &nbsp; View Booking</a></p>
+										' . $cancelAction . '
 									</div>
 								</div>
 							</div>
-						</div>
-
-						<div class="modal fade" id="delete' . $y->id . '" role="dialog">
-							<div class="modal-dialog">
-								<div class="modal-content">
-									<div class="modal-header">
-										<div class="pull-right">
-											<button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" class="close" title="Close"> &times;</button>
-										</div>
-										<h4 class="modal-title">' . $y->tracking_id . '</h4>
-									</div><!--/.modal-header-->
-									<div class="modal-body">
-										Are you sure you want to permanently delete this transaction?
-									</div>
-									<div class="modal-footer">
-										<a class="btn btn-sm btn-danger" role="button" href="' . base_url('admin_bookings/delete_booking/' . $y->id) . '"> Yes, Delete </a>
-										<button data-dismiss="modal" class="btn btn-sm"> No, Cancel </button>
-									</div>
-								</div>
-							</div>
-						</div></td>'
-
-
-                    ?>
+						</div></td>';
+					} ?>
 
                     <?php
 
@@ -311,4 +298,5 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 <?php echo form_close(); ?>
 
-<?php  ?>
+<?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/cancel_parcel'); ?>
+<?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/move_parcel'); ?>

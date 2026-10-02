@@ -28,6 +28,7 @@ class Admin_Users extends MY_Controller
         $this->load->model('admin_user_model');
         $this->load->model('user_read_model');
         $this->load->model('booking_read_model');
+        $this->load->model('shipping_read_model');
         $this->admin_details = $this->common_model->get_admin_details($this->session->email);
     }
 
@@ -212,7 +213,12 @@ class Admin_Users extends MY_Controller
         $this->admin_header($page_title, $page_title);
         $data['y'] = $user_details;
         $data['bookings'] = $this->booking_read_model->get_bookings_by_user_id($id);
+        foreach ($data['bookings'] as $booking) {
+            $shippingRecord = $this->shipping_read_model->get_shipping_record_by_booking_id((int) $booking->id);
+            $booking->shipping_record_id = $shippingRecord ? (int) $shippingRecord->id : null;
+        }
         $data['total_bookings'] = count($data['bookings']);
+        $data['is_super_admin'] = $this->get_admin_role() === 'super_admin';
         $this->load->view('admin/users/user_profile', $data);
         $this->admin_footer();
     }
@@ -240,6 +246,7 @@ class Admin_Users extends MY_Controller
 
         if (!$this->form_validation->run()) {
             $this->user_profile($id);
+            return;
         }
 
         if ($this->admin_user_model->update_user($id)) {

@@ -27,6 +27,7 @@ class Admin extends MY_Controller
 		$this->load->model('user_read_model');
 		$this->load->model('users_model');
 		$this->load->model('booking_read_model');
+		$this->load->model('auth_challenge_model');
 		$this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
 	}
 
@@ -62,6 +63,33 @@ class Admin extends MY_Controller
 		$this->output
 			->set_content_type('text/plain')
 			->set_output("Offline booking backfill completed. Updated {$updated} booking(s).");
+	}
+
+	public function authentication_settings()
+	{
+		$this->admin_role_restricted(['super_admin']);
+		$this->admin_header('Authentication', 'Authentication Settings');
+		$data['phone_otp_channel'] = $this->auth_challenge_model->getPhoneOtpChannel();
+		$this->load->view('admin/settings/authentication', $data);
+		$this->admin_footer();
+	}
+
+	public function update_authentication_settings()
+	{
+		$this->admin_role_restricted(['super_admin']);
+		$this->form_validation->set_rules('phone_otp_channel', 'Phone OTP channel', 'trim|required|in_list[whatsapp,sms]');
+
+		if (!$this->form_validation->run()) {
+			$this->session->set_flashdata('status_msg_error', validation_errors());
+			redirect('admin/authentication_settings');
+		}
+
+		$this->auth_challenge_model->updatePhoneOtpChannel(
+			$this->input->post('phone_otp_channel', true),
+			$this->admin_details->id
+		);
+		$this->session->set_flashdata('status_msg', 'Authentication settings updated successfully.');
+		redirect('admin/authentication_settings');
 	}
 
 
@@ -155,6 +183,7 @@ class Admin extends MY_Controller
 	/* ====== All Admins ====== */
 	public function admins()
 	{
+		$this->admin_role_restricted(['super_admin']);
 		$this->admin_header('Admins', 'Manage Admin Accounts');
 		$data['admins'] = $this->admin_model->get_all_admins();
 		$this->load->view('admin/admins/all_admins', $data);
@@ -165,6 +194,7 @@ class Admin extends MY_Controller
 	/* ====== Add Admin — show form ====== */
 	public function add()
 	{
+		$this->admin_role_restricted(['super_admin']);
 		$this->admin_header('Admins', 'Add New Admin');
 		$this->load->view('admin/admins/add_admin');
 		$this->admin_footer();
@@ -174,6 +204,7 @@ class Admin extends MY_Controller
 	/* ====== Add Admin — process ====== */
 	public function add_ajax()
 	{
+		$this->admin_role_restricted(['super_admin']);
 		$this->form_validation->set_rules('name',  'Name',  'trim|required');
 		$this->form_validation->set_rules(
 			'email',
@@ -184,6 +215,7 @@ class Admin extends MY_Controller
 		$this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
 		$this->form_validation->set_rules('phone',    'Phone',    'trim|required');
 		$this->form_validation->set_rules('role',     'Role',     'trim|required|in_list[super_admin,customer_support,traveller_support]');
+		$this->form_validation->set_rules('can_manage_shipping', 'Shipping access', 'trim|required|in_list[0,1]');
 		$this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]');
 		$this->form_validation->set_rules(
 			'c_password',
@@ -206,6 +238,7 @@ class Admin extends MY_Controller
 	/* ====== Edit Admin — show form ====== */
 	public function edit($id)
 	{
+		$this->admin_role_restricted(['super_admin']);
 		$this->check_data_exists($id, 'id', 'admins', 'edit-admin');
 		$this->admin_header('Admins', 'Edit Admin');
 		$data['y'] = $this->admin_model->get_admin_by_id($id);
@@ -217,6 +250,7 @@ class Admin extends MY_Controller
 	/* ====== Edit Admin — process ====== */
 	public function edit_ajax($id)
 	{
+		$this->admin_role_restricted(['super_admin']);
 		$this->check_data_exists($id, 'id', 'admins', 'edit-admin');
 
 		// 1. Fetch the existing admin record from the database
@@ -244,6 +278,7 @@ class Admin extends MY_Controller
 		$this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
 		$this->form_validation->set_rules('phone', 'Phone', 'trim|required');
 		$this->form_validation->set_rules('role',  'Role',  'trim|required|in_list[super_admin,customer_support,traveller_support]');
+		$this->form_validation->set_rules('can_manage_shipping', 'Shipping access', 'trim|required|in_list[0,1]');
 
 		// Password only validated if the field is filled in
 		if ($this->input->post('password')) {
@@ -270,6 +305,7 @@ class Admin extends MY_Controller
 	/* ====== Delete Admin ====== */
 	public function delete($id)
 	{
+		$this->admin_role_restricted(['super_admin']);
 		$this->check_data_exists($id, 'id', 'admins', 'all_admins');
 
 		// Cannot delete yourself

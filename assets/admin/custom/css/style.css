@@ -1121,3 +1121,243 @@ body.print_page {
 	width: 100%;
 	border-bottom: 1px solid black;
 }
+
+/*
+ * ShareMyBag admin button system
+ *
+ * Keep this scoped to the admin dashboard so the customer-facing templates
+ * retain their independent design system.
+ */
+body.nav-md {
+	--admin-button-primary: #337ab7;
+	--admin-button-primary-hover: #286090;
+	--admin-button-primary-border: #2e6da4;
+	--admin-button-default-bg: #ffffff;
+	--admin-button-default-hover: #e6e6e6;
+	--admin-button-default-border: #cccccc;
+	--admin-button-default-text: #333333;
+	--admin-button-success: #5cb85c;
+	--admin-button-success-hover: #449d44;
+	--admin-button-success-border: #4cae4c;
+	--admin-button-warning: #f0ad4e;
+	--admin-button-warning-hover: #ec971f;
+	--admin-button-warning-border: #eea236;
+	--admin-button-danger: #d9534f;
+	--admin-button-danger-hover: #c9302c;
+	--admin-button-danger-border: #d43f3a;
+}
+
+.right_col .btn,
+body.nav-md > .modal .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 38px;
+	padding: 8px 16px;
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 20px;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+
+.right_col .btn > i,
+body.nav-md > .modal .btn > i {
+	margin-right: 0;
+}
+
+.right_col .btn-sm,
+body.nav-md > .modal .btn-sm {
+	min-height: 32px;
+	padding: 5px 10px;
+	font-size: 12px;
+	line-height: 20px;
+}
+
+.right_col .btn-xs,
+body.nav-md > .modal .btn-xs {
+	min-height: 28px;
+	padding: 3px 8px;
+	font-size: 12px;
+	line-height: 20px;
+}
+
+.right_col .btn-lg,
+body.nav-md > .modal .btn-lg {
+	min-height: 44px;
+	padding: 11px 20px;
+	font-size: 16px;
+	line-height: 20px;
+}
+
+.right_col .btn-block,
+body.nav-md > .modal .btn-block {
+	display: flex;
+	width: 100%;
+}
+
+.right_col .btn-primary,
+body.nav-md > .modal .btn-primary {
+	color: #ffffff !important;
+	background-color: var(--admin-button-primary) !important;
+	border-color: var(--admin-button-primary-border) !important;
+}
+
+.right_col .btn-primary:hover,
+.right_col .btn-primary:focus,
+.right_col .btn-primary:active,
+.right_col .btn-primary.active,
+body.nav-md > .modal .btn-primary:hover,
+body.nav-md > .modal .btn-primary:focus,
+body.nav-md > .modal .btn-primary:active,
+body.nav-md > .modal .btn-primary.active {
+	color: #ffffff !important;
+	background-color: var(--admin-button-primary-hover) !important;
+	border-color: #204d74 !important;
+}
+
+.right_col .btn-default,
+body.nav-md > .modal .btn-default {
+	color: var(--admin-button-default-text) !important;
+	background-color: var(--admin-button-default-bg) !important;
+	border-color: var(--admin-button-default-border) !important;
+}
+
+.right_col .btn-default:hover,
+.right_col .btn-default:focus,
+.right_col .btn-default:active,
+body.nav-md > .modal .btn-default:hover,
+body.nav-md > .modal .btn-default:focus,
+body.nav-md > .modal .btn-default:active {
+	color: var(--admin-button-default-text) !important;
+	background-color: var(--admin-button-default-hover) !important;
+	border-color: #adadad !important;
+}
+
+.right_col .btn-success,
+body.nav-md > .modal .btn-success {
+	color: #ffffff !important;
+	background-color: var(--admin-button-success) !important;
+	border-color: var(--admin-button-success-border) !important;
+}
+
+.right_col .btn-success:hover,
+.right_col .btn-success:focus,
+.right_col .btn-success:active,
+body.nav-md > .modal .btn-success:hover,
+body.nav-md > .modal .btn-success:focus,
+body.nav-md > .modal .btn-success:active {
+	color: #ffffff !important;
+	background-color: var(--admin-button-success-hover) !important;
+	border-color: #398439 !important;
+}
+
+.right_col .btn-warning,
+body.nav-md > .modal .btn-warning {
+	color: #222222 !important;
+	background-color: var(--admin-button-warning) !important;
+	border-color: var(--admin-button-warning-border) !important;
+}
+
+.right_col .btn-warning:hover,
+.right_col .btn-warning:focus,
+.right_col .btn-warning:active,
+body.nav-md > .modal .btn-warning:hover,
+body.nav-md > .modal .btn-warning:focus,
+body.nav-md > .modal .btn-warning:active {
+	color: #222222 !important;
+	background-color: var(--admin-button-warning-hover) !important;
+	border-color: #d58512 !important;
+}
+
+.right_col .btn-danger,
+body.nav-md > .modal .btn-danger {
+	color: #ffffff !important;
+	background-color: var(--admin-button-danger) !important;
+	border-color: var(--admin-button-danger-border) !important;
+}
+
+.right_col .btn-danger:hover,
+.right_col .btn-danger:focus,
+.right_col .btn-danger:active,
+body.nav-md > .modal .btn-danger:hover,
+body.nav-md > .modal .btn-danger:focus,
+body.nav-md > .modal .btn-danger:active {
+	color: #ffffff !important;
+	background-color: var(--admin-button-danger-hover) !important;
+	border-color: #ac2925 !important;
+}
+
+.right_col .btn:focus-visible,
+body.nav-md > .modal .btn:focus-visible {
+	outline: 2px solid var(--admin-button-primary);
+	outline-offset: 2px;
+	box-shadow: 0 0 0 3px rgba(51, 122, 183, 0.24);
+}
+
+.right_col .btn.disabled,
+.right_col .btn[disabled],
+body.nav-md > .modal .btn.disabled,
+body.nav-md > .modal .btn[disabled] {
+	cursor: not-allowed;
+	opacity: 0.55;
+	box-shadow: none;
+}
+
+.right_col .admin-back-btn,
+body.nav-md > .modal .admin-back-btn {
+	color: var(--admin-button-default-text) !important;
+	background-color: var(--admin-button-default-bg) !important;
+	border-color: var(--admin-button-default-border) !important;
+}
+
+.right_col .admin-shipping-actions .btn,
+.right_col .action-btn,
+.right_col .modal-toggle-btn,
+.right_col .admin-parcel-btn--muted,
+.right_col #confirmAddParcel,
+.right_col #confirmRemoveParcel {
+	border-radius: 4px;
+}
+
+.right_col .admin-page-actions .button-adjust {
+	margin-top: 0;
+}
+
+.right_col .new-item .btn-sm {
+	padding: 5px 10px !important;
+	font-size: 12px;
+}
+
+.right_col .modal_close_btn,
+body.nav-md > .modal .modal_close_btn {
+	width: 30px;
+	height: 30px;
+	min-height: 30px;
+	padding: 0;
+	font-size: 20px;
+	line-height: 28px;
+}
+
+.right_col .modal-footer .btn + .btn,
+body.nav-md > .modal .modal-footer .btn + .btn {
+	margin-left: 0;
+}
+
+@media (max-width: 767px) {
+	.right_col .btn:not(.modal_close_btn),
+	body.nav-md > .modal .btn:not(.modal_close_btn) {
+		min-height: 44px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.right_col .btn,
+	body.nav-md > .modal .btn {
+		transition: none;
+	}
+}

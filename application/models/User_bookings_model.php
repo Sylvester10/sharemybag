@@ -49,7 +49,6 @@ class User_bookings_model extends MY_Model
             'traveller_name'            => $this->input->post('traveller_name', TRUE),
             'traveller_email'           => $this->input->post('traveller_email', TRUE),
             'traveller_contact'         => $this->input->post('traveller_contact', TRUE),
-            'traveller_travel_date'     => $this->input->post('traveller_travel_date', TRUE),
             'traveller_departure_date'  => $this->input->post('traveller_departure_date', TRUE),
             'traveller_arrival_date'    => $this->input->post('traveller_arrival_date', TRUE),
             'traveller_drop_address1'   => $this->input->post('traveller_drop_address1', TRUE),
@@ -86,7 +85,6 @@ class User_bookings_model extends MY_Model
             // Booking extras
             'payment_method'  => $this->input->post('payment_method', TRUE),
             'items'           => $this->input->post('items', TRUE),
-            'need_help'       => $this->input->post('need_help', TRUE),
         );
 
         $this->db->trans_start();

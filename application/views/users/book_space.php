@@ -27,6 +27,11 @@
                     <b class="fs-2">Flammables</b>
                 </div>
 
+                <div class="icos">
+                    <i class="ti ti-ban fs-9"></i>
+                    <b class="fs-2">Bar Soaps</b>
+                </div>
+
             </div>
             <div class="text-center">
                 <p class="text-subtle">Please be aware of the above restrictions when sending a parcel with Share My Bag.</p>
@@ -117,7 +122,7 @@
                                     <i class="ti ti-alert-circle"></i>
                                 </span>
                                 <p class="parcel-guarantee-notice__text mb-0">
-                                    Please note that <strong>Bar Soaps</strong> are not allowed in your parcel unless purchased by Sharemybag.
+                                    <strong>Bar soaps are not allowed</strong> in your parcel unless purchased by ShareMyBag.
                                 </p>
                             </div>
 
@@ -323,9 +328,9 @@
                         <h3> <i class="ti ti-shield-check fs-4"></i> Parcel Protection </h3>
                         <fieldset>
                             <h4 class="card-title mb-2 bookspace_title">Parcel protection <b class="!tw-text-[#f36b24]">(Optional)</b></h4>
-                            <p class="card-subtitle mb-3 fs-3">Sharemybag covers your parcel upto £20 in the case of loss or damage during the travellers journey. If you want extra protection choose from the options below.</p>
+                            <p class="card-subtitle mb-3 fs-3">As with everything else in life, anything can happen. If it does, Sharemybag covers your parcel up to £20 in the case of loss or damage during the traveller's journey. If you want extra protection choose from the options below.</p>
 
-                            <div class="col-lg-6 mb-3">
+                            <div class="col-lg-6 mb-3"
                                 <?php
                                 // Insurance prices
                                 $ins_low_val = 3.99;
@@ -333,11 +338,11 @@
                                 ?>
                                 <select name="insurance" id="insuranceBox" class="form-select border border-primary">
                                     <option value="">Do you want parcel protection?</option>
-                                    <option value="<?= number_format($ins_low_val, 2); ?>" data-insurance="<?= number_format($ins_low_val, 2); ?>" data-coverage="100">
+                                    <option value="<?= number_format($ins_low_val, 2); ?>" data-insurance="<?= number_format($ins_low_val, 2); ?>" data-coverage="100" data-protection-label="Parcel Protection">
                                         Parcel Protection <?= $symbol ?><?= number_format($ins_low_val, 2); ?>
                                     </option>
-                                    <option value="<?= number_format($ins_high_val, 2); ?>" data-insurance="<?= number_format($ins_high_val, 2); ?>" data-coverage="300">
-                                        Parcel Protection <?= $symbol ?><?= number_format($ins_high_val, 2); ?>
+                                    <option value="<?= number_format($ins_high_val, 2); ?>" data-insurance="<?= number_format($ins_high_val, 2); ?>" data-coverage="300" data-protection-label="Parcel Protection Plus">
+                                        Parcel Protection⁺ <?= $symbol ?><?= number_format($ins_high_val, 2); ?>
                                     </option>
                                 </select>
                             </div>
@@ -347,7 +352,7 @@
                                     <i class="ti ti-alert-circle"></i>
                                 </span>
                                 <p class="parcel-guarantee-notice__text mb-0">
-                                    Parcel Guarantee covers your parcel up to <strong id="parcel-guarantee-coverage"></strong> when you purchase a Parcel Guarantee of <strong id="parcel-guarantee-price"></strong>, in case of loss or avoidable damage, except perishable goods, during the traveller’s journey.
+                                    <strong id="parcel-protection-name">Parcel Protection</strong> covers your parcel up to <strong id="parcel-guarantee-coverage"></strong> when you purchase this protection for <strong id="parcel-guarantee-price"></strong>, in case of loss or avoidable damage, except perishable goods, during the traveller’s journey.
                                 </p>
                             </div>
                         </fieldset>

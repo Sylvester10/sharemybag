@@ -374,7 +374,7 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
             <div class="form-group">
                 <label class="form-control-label">Last Drop Off Date *</label>
                 <div class="input-group date calendar_date_datepicker" data-date-format="yyyy-mm-dd">
-                    <input type="text" class="form-control" name="drop_date2" value="<?php echo set_value('drop_date2', $y->drop_date2); ?>" readonly />
+                    <input type="text" class="form-control" name="drop_date2" value="<?php echo set_value('drop_date2', $y->drop_date2); ?>" readonly required />
                     <div class="input-group-addon">
                         <i class="las la-calendar"></i>
                     </div>
@@ -403,7 +403,7 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
 
             <div class="form-group">
                 <label class="form-control-label">Additional Information</label>
-                <textarea class="form-control t200" name="additional_info"><?php echo set_value('additional_info', strip_tags($y->additional_info)); ?></textarea>
+                <textarea class="form-control t200" name="additional_info" placeholder="Pickup address etc." required><?php echo set_value('additional_info', strip_tags($y->additional_info)); ?></textarea>
                 <div class="form-error"><?php echo form_error('additional_info'); ?></div>
             </div>
         </div>

@@ -39,6 +39,47 @@ class Booking_presenter
         return $metrics;
     }
 
+    public function collect_finance_metrics($items_json, $selected_space, $selected_price, $traveller_commission)
+    {
+        $items = $this->decode_items($items_json);
+        $metrics = [
+            'total_kg' => 0.0,
+            'premium_item_amount' => 0.0,
+            'commission_per_kg' => null,
+            'total_commission' => 0.0,
+        ];
+        $has_premium_items = false;
+
+        foreach ($items as $item) {
+            $category = isset($item->category) ? $item->category : '';
+            $price_type = booking_category_price_type($category);
+            $size = max(0, isset($item->size) ? (float) $item->size : 0.0);
+            $amount = isset($item->price) && is_numeric($item->price) ? (float) $item->price : 0.0;
+
+            if ($price_type === 'premium_small' || $price_type === 'premium_laptop') {
+                $metrics['premium_item_amount'] += $amount;
+                $has_premium_items = true;
+                continue;
+            }
+
+            $metrics['total_kg'] += $size;
+        }
+
+        // Older/offline bookings may not have item JSON. Use their stored parcel values.
+        if (empty($items) && (float) $selected_space > 0) {
+            $metrics['total_kg'] = (float) $selected_space;
+        }
+
+        // Use the immutable item charge and traveller payout stored on the booking.
+        $metrics['total_commission'] = round((float) $selected_price - (float) $traveller_commission, 2);
+        if (!$has_premium_items && $metrics['total_kg'] > 0) {
+            $metrics['commission_per_kg'] = round($metrics['total_commission'] / $metrics['total_kg'], 2);
+        }
+        $metrics['premium_item_amount'] = round($metrics['premium_item_amount'], 2);
+
+        return $metrics;
+    }
+
     public function render_item_table($items_json, $currency_code, $parcel_actions_html = '')
     {
         $metrics = $this->collect_item_metrics($items_json);

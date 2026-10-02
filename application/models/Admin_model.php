@@ -92,14 +92,18 @@ class Admin_model extends \CI_Model
 	public function add_admin()
 	{
 		$password = password_hash($this->input->post('password', TRUE), PASSWORD_DEFAULT);
+		$role = $this->input->post('role', TRUE);
 
 		$data = [
 			'name'     => ucwords(trim($this->input->post('name',  TRUE))),
 			'email'    => strtolower(trim($this->input->post('email', TRUE))),
 			'phone'    => normalize_phone_number($this->input->post('country_code', TRUE), $this->input->post('phone', TRUE)),
-			'role'     => $this->input->post('role',  TRUE),
+			'role'     => $role,
 			'password' => $password,
 		];
+		if ($this->db->field_exists('can_manage_shipping', 'admins')) {
+			$data['can_manage_shipping'] = $this->submittedShippingAccess($role);
+		}
 
 		$this->db->insert('admins', $data);
 		return;
@@ -108,12 +112,16 @@ class Admin_model extends \CI_Model
 
 	public function update_admin($id)
 	{
+		$role = $this->input->post('role', TRUE);
 		$data = [
 			'name'  => ucwords(trim($this->input->post('name',  TRUE))),
 			'email' => strtolower(trim($this->input->post('email', TRUE))),
 			'phone' => normalize_phone_number($this->input->post('country_code', TRUE), $this->input->post('phone', TRUE)),
-			'role'  => $this->input->post('role', TRUE),
+			'role'  => $role,
 		];
+		if ($this->db->field_exists('can_manage_shipping', 'admins')) {
+			$data['can_manage_shipping'] = $this->submittedShippingAccess($role);
+		}
 
 		// Only update password if a new one was supplied
 		$new_password = trim($this->input->post('password', TRUE));
@@ -130,5 +138,15 @@ class Admin_model extends \CI_Model
 	{
 		$this->db->where('id', $id);
 		return $this->db->delete('admins');
+	}
+
+
+	private function submittedShippingAccess($role)
+	{
+		if ($role === 'super_admin') {
+			return 1;
+		}
+
+		return $this->input->post('can_manage_shipping') ? 1 : 0;
 	}
 }

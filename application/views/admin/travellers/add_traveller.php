@@ -1,6 +1,6 @@
 <div class="new-item admin-page-actions">
-	<a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_travellers'); ?>"><i
-			class="las la-users"></i> Available Travellers</a>
+	<a class="btn btn-default btn-sm button-adjust admin-back-btn" href="<?php echo base_url('admin_travellers'); ?>"><i
+			class="las la-arrow-left"></i> Back to Travellers</a>
 </div>
 
 <?php

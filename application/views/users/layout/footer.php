@@ -203,6 +203,8 @@
         hash: "<?php echo $this->security->get_csrf_hash(); ?>"
     };
 </script>
+<script src="<?php echo base_url(); ?>assets/login/js/login.js?v=<?php echo filemtime(FCPATH . 'assets/login/js/login.js'); ?>"></script>
+<script src="<?php echo base_url(); ?>assets/users/js/profile_auth.js?v=<?php echo filemtime(FCPATH . 'assets/users/js/profile_auth.js'); ?>"></script>
 </body>
 
 </html>

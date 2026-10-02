@@ -1,6 +1,6 @@
 <div class="new-item">
-    <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('bookings'); ?>"><i
-            class="las la-book"></i> All Bookings</a>
+    <a class="btn btn-default btn-sm button-adjust admin-back-btn" href="<?php echo base_url('bookings'); ?>"><i
+            class="las la-arrow-left"></i> Back to Bookings</a>
 </div>
 
 <?php
