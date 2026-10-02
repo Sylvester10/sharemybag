@@ -334,6 +334,11 @@ class Admin_bookings extends MY_Controller
     {
         $this->check_data_exists($id, 'id', 'bookings', 'admin');
         $bookings_details = $this->booking_read_model->get_booking_details_by_id($id);
+        if (in_array($this->admin_details->role ?? 'super_admin', array('super_admin', 'customer_support'), true)
+            && $bookings_details->payment_status === 'completed'
+            && (int) $bookings_details->new === 0) {
+            $this->bookings_model->update_new_status((int) $id);
+        }
         $booking_reference = !empty($bookings_details->tracking_id)
             ? $bookings_details->tracking_id
             : '#' . (int) $bookings_details->id;
