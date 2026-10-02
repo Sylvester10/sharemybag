@@ -542,8 +542,11 @@ class Admin_travellers extends MY_Controller
 
     public function approve_traveller($id)
     {
-        $this->travellers_model->approve_traveller($id);
-        $this->session->set_flashdata('status_msg', 'Traveller Approved and notified by email.');
+        if ($this->travellers_model->approve_traveller($id)) {
+            $this->session->set_flashdata('status_msg', 'Traveller Approved.');
+        } else {
+            $this->session->set_flashdata('status_msg_error', 'Traveller could not be approved.');
+        }
         redirect($this->agent->referrer());
     }
 
