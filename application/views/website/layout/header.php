@@ -108,7 +108,13 @@
 
         @media (max-width: 991px) {
             .sandbox-badge--public {
-                display: none;
+                position: fixed;
+                top: 16px;
+                right: 16px;
+                margin-left: 0;
+                background: #fff0e6;
+                color: #8a3900;
+                z-index: 1040;
             }
         }
     </style>
