@@ -25,8 +25,8 @@ arrivals_lifecycle_assert(strpos($model, 'Fully Arranged') !== false, 'Fully Arr
 arrivals_lifecycle_assert(strpos($model, 'Cleared') !== false, 'Cleared state is required.');
 arrivals_lifecycle_assert(strpos($view, 'arrivals_lifecycle_filter') !== false, 'Arrivals must provide a lifecycle filter including cleared records.');
 arrivals_lifecycle_assert(strpos($javascript, 'd.lifecycle') !== false, 'The lifecycle filter must be sent to the Arrivals endpoint.');
-arrivals_lifecycle_assert(strpos($controller, 'arrival_lifecycle_badge') !== false, 'The Arrivals table must render the lifecycle state.');
+arrivals_lifecycle_assert(strpos($view, "'label' => 'Arrival Lifecycle'") === false, 'The simplified Arrivals table must not display a lifecycle column.');
 arrivals_lifecycle_assert(strpos($helper, 'function arrival_lifecycle_badge') !== false, 'Lifecycle states must use a shared badge presenter.');
-arrivals_lifecycle_assert(strpos($profile, 'Arrival Lifecycle') !== false, 'The traveller arrival profile must display its lifecycle.');
+arrivals_lifecycle_assert(strpos($profile, "'admin/travellers/traveller_profile'") !== false, 'Arrivals must reuse the existing traveler profile.');
 
 fwrite(STDOUT, "PASS: Arrivals lifecycle contracts are present.\n");

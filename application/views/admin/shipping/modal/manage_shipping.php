@@ -1,8 +1,9 @@
 <?php
 $current_admin_id = isset($current_admin_id) ? (int) $current_admin_id : 0;
 $lock_staff_selection = !empty($lock_staff_selection);
+$prefill_shipping_only = !empty($prefill_shipping_only);
 ?>
-<div class="modal fade admin-form-modal admin-form-modal--wide admin-shipping-modal" id="manageShippingModal" tabindex="-1" role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="shippingModalTitle">
+<div class="modal fade admin-form-modal admin-form-modal--wide admin-shipping-modal" id="manageShippingModal" data-prefill-only="<?php echo $prefill_shipping_only ? '1' : '0'; ?>" tabindex="-1" role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="shippingModalTitle">
     <div class="modal-dialog modal-lg admin-form-modal__dialog" role="document">
         <div class="modal-content admin-form-modal__content">
             <div class="modal-header ">
@@ -11,7 +12,7 @@ $lock_staff_selection = !empty($lock_staff_selection);
             </div>
 
             <div class="modal-body admin-form-modal__body admin-shipping-modal__body">
-                <div class="admin-shipping-steps">
+                <div class="admin-shipping-steps<?php echo $prefill_shipping_only ? ' d-none' : ''; ?>">
                     <div class="admin-shipping-step is-active" data-step-indicator="1">1. Search Booking</div>
                     <div class="admin-shipping-step" data-step-indicator="2">2. Shipping Details</div>
                 </div>
@@ -69,22 +70,23 @@ $lock_staff_selection = !empty($lock_staff_selection);
 
                         <div class="admin-parcel-field--full">
                             <label class="admin-parcel-field__label" for="shipping_pickup_address">Traveler's Pickup Address</label>
-                            <textarea id="shipping_pickup_address" class="form-control admin-parcel-field__input admin-parcel-field__textarea" rows="3"></textarea>
+                            <textarea id="shipping_pickup_address" class="form-control admin-parcel-field__input admin-parcel-field__textarea" rows="3" <?php echo $prefill_shipping_only ? 'readonly' : ''; ?>></textarea>
                         </div>
 
                         <div class="admin-parcel-field--full">
                             <label class="admin-parcel-field__label" for="shipping_dropoff_address">Receiver's Drop-off Address</label>
-                            <textarea id="shipping_dropoff_address" class="form-control admin-parcel-field__input admin-parcel-field__textarea" rows="3"></textarea>
+                            <textarea id="shipping_dropoff_address" class="form-control admin-parcel-field__input admin-parcel-field__textarea" rows="3" <?php echo $prefill_shipping_only ? 'readonly' : ''; ?>></textarea>
                         </div>
 
                         <div>
                             <label class="admin-parcel-field__label" for="shipping_pickup_country">Pickup Country</label>
-                            <input type="text" id="shipping_pickup_country" class="form-control admin-parcel-field__input" placeholder="Pickup country">
+                            <input type="text" id="shipping_pickup_country" class="form-control admin-parcel-field__input" placeholder="Pickup country" <?php echo $prefill_shipping_only ? 'readonly' : ''; ?>>
                         </div>
 
                         <div>
                             <label class="admin-parcel-field__label" for="shipping_courier">Courier</label>
                             <select id="shipping_courier" class="form-control admin-parcel-field__input">
+                                <option value="">Select courier</option>
                                 <?php foreach ($courier_options as $courier) { ?>
                                     <option value="<?php echo html_escape($courier); ?>"><?php echo html_escape($courier); ?></option>
                                 <?php } ?>

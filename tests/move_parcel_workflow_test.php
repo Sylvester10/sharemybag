@@ -15,7 +15,8 @@ $model = file_get_contents($root . '/application/models/Bookings_model.php');
 $auditModel = file_get_contents($root . '/application/models/Booking_action_log_model.php');
 $script = file_get_contents($root . '/assets/admin/custom/js/admin_script.js');
 $bookingView = file_get_contents($root . '/application/views/admin/bookings/view_booking.php');
-$arrivalView = file_get_contents($root . '/application/views/admin/travellers/arrival_profile.php');
+$arrivalView = file_get_contents($root . '/application/views/admin/travellers/arrival_profile.php')
+    . file_get_contents($root . '/application/views/admin/travellers/traveller_profile.php');
 $modalPath = $root . '/application/views/admin/bookings/modal/move_parcel.php';
 $modal = is_file($modalPath) ? file_get_contents($modalPath) : '';
 

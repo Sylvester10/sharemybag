@@ -1,11 +1,12 @@
+<?php $is_arrival_profile = !empty($is_arrival_profile); ?>
 <div class="new-item admin-page-actions">
     <a class="btn btn-default btn-sm button-adjust"
         href="<?php echo base_url('admin_travellers/update_traveller/' . $y->id); ?>"><i class="las la-pen"></i> Edit
         Traveller</a>
     <a class="btn btn-primary btn-sm button-adjust" href="#" data-toggle="modal" data-target="#addTravellerBagSpaceModal"><i class="las la-plus"></i> Add Bag Space</a>
     <a class="btn btn-danger btn-sm button-adjust" href="#" data-toggle="modal" data-target="#removeTravellerBagSpaceModal"><i class="las la-minus"></i> Remove Bag Space</a>
-    <a class="btn btn-default btn-sm button-adjust admin-back-btn" href="<?php echo base_url('admin_travellers'); ?>"><i
-            class="las la-arrow-left"></i> Back to Travellers</a>
+    <a class="btn btn-default btn-sm button-adjust admin-back-btn" href="<?php echo base_url($is_arrival_profile ? 'shipping/arrivals' : 'admin_travellers'); ?>"><i
+            class="las la-arrow-left"></i> <?php echo $is_arrival_profile ? 'Back to Arrivals' : 'Back to Travellers'; ?></a>
 </div>
 
 <input type="hidden" id="csrf_hash" value="<?php echo html_escape($this->security->get_csrf_hash()); ?>" />
@@ -124,6 +125,14 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
             <?php if (!empty($booking_details)) { ?>
                 <?php foreach ($booking_details as $booking) { ?>
 					<?php
+                    $shipping_booking_action = '';
+                    if ($is_arrival_profile && payment_status_normalize($booking->payment_status) === 'completed') {
+                        $has_shipping = !empty($booking->shipping_record_id);
+                        $shipping_booking_action = '<p><button type="button" class="btn btn-primary btn-sm btn-block action-btn '
+                            . ($has_shipping ? 'open-edit-shipping' : 'open-create-shipping')
+                            . '" data-booking-id="' . (int) $booking->id . '" data-dismiss="modal"><i class="las la-truck"></i> &nbsp; '
+                            . ($has_shipping ? 'Edit Shipping' : 'Book Shipping') . '</button></p>';
+                    }
 					$sensitive_booking_actions = '';
 					if (!empty($is_super_admin)) {
 						$move_booking_action = empty($booking->shipping_record_id)
@@ -152,6 +161,8 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 									<div class="modal-body">
 
 										<p><a type="button" href="' . base_url('admin_bookings/view_booking/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-eye" style="color: green"></i> &nbsp; View Booking </a></p>
+
+										' . $shipping_booking_action . '
 
 										<p><a type="button" href="#" class="btn btn-primary btn-sm btn-block action-btn clickable" onclick="openAddParcelModal(' . $booking->id . ')" data-dismiss="modal"> <i class="las la-plus"></i> &nbsp; Add Parcel </a></p>
 
@@ -320,3 +331,13 @@ foreach (kilogram() as $space) {
 <?php $this->load->view('admin/bookings/modal/add_remove_parcel'); ?>
 <?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/cancel_parcel'); ?>
 <?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/move_parcel'); ?>
+
+<?php if ($is_arrival_profile) {
+    $this->load->view('admin/shipping/modal/manage_shipping', array(
+        'staff_options' => $staff_options,
+        'courier_options' => $courier_options,
+        'current_admin_id' => $current_admin_id,
+        'lock_staff_selection' => $lock_staff_selection,
+        'prefill_shipping_only' => true,
+    ));
+} ?>

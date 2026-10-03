@@ -31,7 +31,7 @@ foreach (array($arrivalsModelPath, $arrivalsViewPath, $arrivalProfilePath) as $r
 
 $arrivalsModel = file_get_contents($arrivalsModelPath);
 $arrivalsView = file_get_contents($arrivalsViewPath);
-$arrivalProfile = file_get_contents($arrivalProfilePath);
+$arrivalProfile = file_get_contents($arrivalProfilePath) . file_get_contents($root . '/application/views/admin/travellers/traveller_profile.php');
 $shippingController = file_get_contents($root . '/application/controllers/Shipping.php');
 $shippingModel = file_get_contents($root . '/application/models/Shipping_model.php');
 $shippingReadModel = file_get_contents($root . '/application/models/Shipping_read_model.php');

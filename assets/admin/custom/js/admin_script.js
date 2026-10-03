@@ -1904,7 +1904,7 @@ jQuery(document).ready(function ($) {
         $('#shipping_pickup_address').val(context.pickup_address || '');
         $('#shipping_dropoff_address').val(context.dropoff_address || '');
         $('#shipping_pickup_country').val(context.pickup_country || '');
-        $('#shipping_courier').val(context.courier || 'DHL').trigger('change.select2');
+        $('#shipping_courier').val(context.courier || '').trigger('change.select2');
         $('#shipping_staff_admin_id')
             .val(context.staff_admin_id || '')
             .trigger('change.select2');
@@ -1950,6 +1950,7 @@ jQuery(document).ready(function ($) {
                         $('#shipping_modal_error')
                             .text(res.msg || 'Unable to load the booking context.')
                             .removeClass('d-none');
+                        $('#manageShippingModal').modal('show');
                         return;
                     }
 

@@ -108,6 +108,8 @@ class Shipping_read_model extends \MY_Model
     {
         $this->db->select('
             bookings.id,
+            travellers.drop_address1 AS traveller_pickup_address,
+            travellers.location AS traveller_pickup_country,
             bookings.tracking_id,
             bookings.delivery_status,
             bookings.date_added,
@@ -144,6 +146,7 @@ class Shipping_read_model extends \MY_Model
             shipping_records.date_updated AS shipping_date_updated
         ');
         $this->db->from('bookings');
+        $this->db->join('travellers', 'travellers.id = bookings.traveller_id', 'left');
         $this->db->join('users', 'users.id = bookings.user_id', 'left');
         $this->db->join('shipping_records', 'shipping_records.booking_id = bookings.id', 'left');
         $this->db->where('bookings.id', $bookingId);
@@ -162,6 +165,8 @@ class Shipping_read_model extends \MY_Model
 
         $this->db->select('
             bookings.id,
+            travellers.drop_address1 AS traveller_pickup_address,
+            travellers.location AS traveller_pickup_country,
             bookings.tracking_id,
             bookings.user_fullname,
             bookings.user_email,
@@ -189,6 +194,7 @@ class Shipping_read_model extends \MY_Model
             shipping_records.id AS shipping_record_id
         ');
         $this->db->from('bookings');
+        $this->db->join('travellers', 'travellers.id = bookings.traveller_id', 'left');
         $this->db->join('users', 'users.id = bookings.user_id', 'left');
         $this->db->join('shipping_records', 'shipping_records.booking_id = bookings.id', 'left');
         $this->applyNotDeleted('bookings');

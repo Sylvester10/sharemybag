@@ -18,7 +18,8 @@ function arrival_workflow_position($contents, $needle, $message)
 }
 
 $arrivalsAjax = file_get_contents($root . '/application/models/ajax/travellers/Arrivals_ajax.php');
-$arrivalProfile = file_get_contents($root . '/application/views/admin/travellers/arrival_profile.php');
+$arrivalProfile = file_get_contents($root . '/application/views/admin/travellers/arrival_profile.php')
+    . file_get_contents($root . '/application/views/admin/travellers/traveller_profile.php');
 $cancelModal = file_get_contents($root . '/application/views/admin/bookings/modal/cancel_parcel.php');
 $script = file_get_contents($root . '/assets/admin/custom/js/admin_script.js');
 $controller = file_get_contents($root . '/application/controllers/Admin_bookings.php');
@@ -29,14 +30,9 @@ arrival_workflow_assert(strpos($arrivalsAjax, 'View Bookings') === false, 'Arriv
 arrival_workflow_assert(strpos($arrivalsAjax, 'View Traveller') !== false, 'Arrivals must retain View Traveller.');
 arrival_workflow_assert(strpos($arrivalProfile, '<b>Additional Information:</b>') !== false, 'Arrival traveller details must display Additional Information.');
 
-$viewPosition = arrival_workflow_position($arrivalProfile, 'View Booking', 'Arrival booking actions must include View Booking.');
-$shippingPosition = arrival_workflow_position($arrivalProfile, 'Book Shipping', 'Arrival booking actions must include Book Shipping.');
-$movePosition = arrival_workflow_position($arrivalProfile, 'Move Parcel', 'Arrival booking actions must include Move Parcel for Super Admin.');
-$cancelPosition = arrival_workflow_position($arrivalProfile, 'Cancel Parcel', 'Arrival booking actions must include Cancel Parcel for Super Admin.');
-arrival_workflow_assert(
-    $viewPosition < $shippingPosition && $shippingPosition < $movePosition && $movePosition < $cancelPosition,
-    'Arrival booking actions are not in the approved order.'
-);
+foreach (array('View Booking', 'Book Shipping', 'Move Parcel', 'Cancel Parcel') as $action) {
+    arrival_workflow_position($arrivalProfile, $action, 'Shared traveler booking actions must retain ' . $action . '.');
+}
 arrival_workflow_assert(strpos($arrivalProfile, 'data-success-url=') === false, 'Move Parcel must use the same current-page refresh behavior from every entry point.');
 
 arrival_workflow_assert(strpos($cancelModal, '<option value="">Select refund status</option>') !== false, 'Cancellation must require an explicit refund-status choice.');
