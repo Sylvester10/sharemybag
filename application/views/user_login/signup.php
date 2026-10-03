@@ -34,6 +34,7 @@
 </head>
 
 <body>
+    <?php $this->load->view('partials/sandbox_badge', array('sandbox_badge_fixed' => true)); ?>
 
     <!-- preloader start -->
     <div id="preloader" class="bg-light-subtle">
