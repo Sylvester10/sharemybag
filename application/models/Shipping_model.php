@@ -27,6 +27,9 @@ class Shipping_model extends \MY_Model
         }
 
         $data = $this->prepareShippingRecordData($booking, $payload);
+        if ($data['pickup_address'] === '') {
+            return array('status' => false, 'msg' => "Add the traveler's 1st Drop Off Address before booking shipping.");
+        }
         if (!$data['staff_name']) {
             return array('status' => false, 'msg' => 'Please select a staff member.');
         }
@@ -282,7 +285,9 @@ class Shipping_model extends \MY_Model
             'booking_id' => (int) $booking->id,
             'tracking_id' => $booking->tracking_id,
             'carrier_tracking_id' => trim((string) ($payload['carrier_tracking_id'] ?? $existing->carrier_tracking_id ?? '')),
-            'pickup_address' => trim((string) ($payload['pickup_address'] ?? $existing->pickup_address ?? $defaults['pickup_address'])),
+            'pickup_address' => $existing
+                ? trim((string) ($payload['pickup_address'] ?? $existing->pickup_address))
+                : $defaults['pickup_address'],
             'dropoff_address' => trim((string) ($payload['dropoff_address'] ?? $existing->dropoff_address ?? $defaults['dropoff_address'])),
             'pickup_country' => trim((string) ($payload['pickup_country'] ?? $existing->pickup_country ?? $defaults['pickup_country'])),
             'courier' => $this->normalizeCourier($payload['courier'] ?? $existing->courier ?? null),
@@ -294,18 +299,15 @@ class Shipping_model extends \MY_Model
 
     private function buildShippingDefaults($booking)
     {
+        $context = $this->shipping_read_model->get_booking_shipping_context((int) $booking->id);
         return array(
-            'pickup_address' => $this->composeAddress(
-                $booking->agent_address ?? '',
-                $booking->agent_locality ?? '',
-                $booking->agent_postcode ?? ''
-            ),
+            'pickup_address' => trim((string) ($context->traveller_pickup_address ?? '')),
             'dropoff_address' => $this->composeAddress(
                 $booking->receiver_address ?? '',
                 $booking->receiver_locality ?? '',
                 $booking->receiver_postcode ?? ''
             ),
-            'pickup_country' => $this->inferPickupCountry($booking),
+            'pickup_country' => trim((string) ($context->traveller_pickup_country ?? '')) ?: $this->inferPickupCountry($booking),
         );
     }
 

@@ -15,19 +15,12 @@ $filters = array(
 
 $columns = array(
     array('label' => 'Actions', 'class' => 'min-w-120'),
-    array('label' => 'Travel Date', 'class' => 'min-w-150'),
+    array('label' => 'Arrival Date', 'class' => 'min-w-150'),
     array('label' => 'Name', 'class' => 'min-w-180'),
     array('label' => 'Phone', 'class' => 'min-w-150'),
     array('label' => 'Email', 'class' => 'min-w-200'),
-    array('label' => 'Current Location', 'class' => 'min-w-180'),
     array('label' => 'Destination', 'class' => 'min-w-180'),
-    array('label' => 'Arrival Airport', 'class' => 'min-w-180'),
-    array('label' => 'Arrival Date', 'class' => 'min-w-150'),
-    array('label' => 'Total Space', 'class' => 'min-w-110'),
-    array('label' => 'Used Space', 'class' => 'min-w-110'),
-    array('label' => 'Available Space', 'class' => 'min-w-120'),
     array('label' => 'Bookings', 'class' => 'min-w-100'),
-    array('label' => 'Status', 'class' => 'min-w-100'),
 );
 
 $this->load->view('admin/partials/filter_row', array('filters' => $filters));

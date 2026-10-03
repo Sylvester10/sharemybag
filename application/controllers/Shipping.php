@@ -62,19 +62,12 @@ class Shipping extends MY_Controller
         foreach ($list as $traveller) {
             $data[] = array(
                 $this->arrivals_model->action_menu($traveller),
-                x_date($traveller->travel_date),
+                $traveller->arrival_date ? x_date($traveller->arrival_date) : 'N/A',
                 html_escape($traveller->fullname),
                 html_escape($traveller->phone),
                 html_escape($traveller->email),
-                html_escape(trim($traveller->area . ', ' . $traveller->current_state, ', ')),
                 html_escape(traveller_destination_label($traveller->arrival_state, $traveller->destination, $traveller->destination_area ?? '')),
-                html_escape($traveller->arrival_airport),
-                $traveller->arrival_date ? x_date($traveller->arrival_date) : 'N/A',
-                (float) $traveller->original_bag_space . ' KG',
-                (float) $traveller->used_space . ' KG',
-                (float) $traveller->available_space . ' KG',
                 (int) $traveller->booking_count,
-                traveller_status_badge($traveller->status),
             );
         }
 
@@ -102,6 +95,7 @@ class Shipping extends MY_Controller
         $data['courier_options'] = shipping_courier_options();
         $data['current_admin_id'] = (int) $this->admin_details->id;
         $data['lock_staff_selection'] = ($this->admin_details->role ?? '') !== 'super_admin';
+        $data['is_super_admin'] = ($this->admin_details->role ?? '') === 'super_admin';
 
         $this->admin_header($pageTitle, $pageTitle);
         $this->load->view('admin/travellers/arrival_profile', $data);
@@ -164,7 +158,7 @@ class Shipping extends MY_Controller
                 'shipping_exists' => !empty($row->shipping_record_id),
                 'user' => trim($row->user_fullname),
                 'traveller' => trim($row->traveller_name),
-                'pickup_address' => $this->composeAddress($row->agent_address, $row->agent_locality, $row->agent_postcode),
+                'pickup_address' => trim((string) $row->traveller_pickup_address),
                 'dropoff_address' => $this->composeAddress($row->receiver_address, $row->receiver_locality, $row->receiver_postcode),
                 'pickup_country' => $this->inferPickupCountryFromRow($row),
                 'date_added' => x_datetime_full($row->date_added),
@@ -189,10 +183,10 @@ class Shipping extends MY_Controller
             'user' => $context->user_fullname ?: '',
             'user_phone' => $context->user_phone ?: '',
             'traveller' => $context->traveller_name ?: '',
-            'pickup_address' => $context->pickup_address ?: $this->composeAddress($context->agent_address, $context->agent_locality, $context->agent_postcode),
+            'pickup_address' => $context->pickup_address ?: trim((string) $context->traveller_pickup_address),
             'dropoff_address' => $context->dropoff_address ?: $this->composeAddress($context->receiver_address, $context->receiver_locality, $context->receiver_postcode),
             'pickup_country' => $context->pickup_country ?: $this->inferPickupCountryFromRow($context),
-            'courier' => $context->courier ?: 'Not Assigned',
+            'courier' => $context->courier ?: '',
             'staff_admin_id' => $context->staff_admin_id ? (int) $context->staff_admin_id : (int) $this->admin_details->id,
             'status' => shipping_status_normalize($context->status ?: 'Awaiting Collection'),
             'status_next_options' => $context->shipping_date_added
@@ -418,6 +412,9 @@ class Shipping extends MY_Controller
 
     private function inferPickupCountryFromRow($row)
     {
+        if (!empty($row->traveller_pickup_country)) {
+            return trim((string) $row->traveller_pickup_country);
+        }
         $haystack = strtolower(trim(implode(' ', array_filter(array(
             $row->agent_address ?? '',
             $row->agent_locality ?? '',

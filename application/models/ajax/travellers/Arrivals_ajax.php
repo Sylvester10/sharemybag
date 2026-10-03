@@ -5,19 +5,12 @@ class Arrivals_ajax extends CI_Model
 {
     private $column_order = array(
         null,
-        'travellers.travel_date',
+        'travellers.arrival_date',
         'travellers.fullname',
         'travellers.phone',
         'travellers.email',
-        'travellers.location',
         'travellers.destination',
-        'travellers.arrival_airport',
-        'travellers.arrival_date',
-        'travellers.original_bag_space',
-        'travellers.used_space',
-        'travellers.available_space',
         'booking_count',
-        'travellers.status',
     );
 
     private $column_search = array(
@@ -81,7 +74,7 @@ class Arrivals_ajax extends CI_Model
                 $this->db->order_by($this->column_order[$index], $direction);
             }
         } else {
-            $this->db->order_by('travellers.travel_date', 'desc');
+            $this->db->order_by('travellers.arrival_date', 'desc');
         }
 
         $length = isset($_POST['length']) ? (int) $_POST['length'] : 10;
