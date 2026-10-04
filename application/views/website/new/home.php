@@ -162,7 +162,6 @@
                                 <div class="smb-faq-header" id="heading1">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
-                                            <span class="smb-faq-number" aria-hidden="true">01</span>
                                             <span class="smb-faq-question-text">How does it work?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -181,7 +180,6 @@
                                 <div class="smb-faq-header" id="heading2">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
-                                            <span class="smb-faq-number" aria-hidden="true">02</span>
                                             <span class="smb-faq-question-text">How do I find a traveller?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -206,7 +204,6 @@
                                 <div class="smb-faq-header" id="heading3">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
-                                            <span class="smb-faq-number" aria-hidden="true">03</span>
                                             <span class="smb-faq-question-text">How much does it cost per kg?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -225,7 +222,6 @@
                                 <div class="smb-faq-header" id="heading4">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
-                                            <span class="smb-faq-number" aria-hidden="true">04</span>
                                             <span class="smb-faq-question-text">How much is the premium category?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -246,7 +242,6 @@
                                 <div class="smb-faq-header" id="heading5">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
-                                            <span class="smb-faq-number" aria-hidden="true">05</span>
                                             <span class="smb-faq-question-text">I don’t see travellers going to my preferred location</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -267,7 +262,6 @@
                                 <div class="smb-faq-header" id="heading6">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6" aria-expanded="false" aria-controls="collapse6">
-                                            <span class="smb-faq-number" aria-hidden="true">06</span>
                                             <span class="smb-faq-question-text">Can I drop my parcel at your office?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -288,7 +282,6 @@
                                 <div class="smb-faq-header" id="heading7">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7" aria-expanded="false" aria-controls="collapse7">
-                                            <span class="smb-faq-number" aria-hidden="true">07</span>
                                             <span class="smb-faq-question-text">How will my parcel get to the traveller?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -309,7 +302,6 @@
                                 <div class="smb-faq-header" id="heading8">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse8" aria-expanded="false" aria-controls="collapse8">
-                                            <span class="smb-faq-number" aria-hidden="true">08</span>
                                             <span class="smb-faq-question-text">Where will I drop my parcel?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -330,7 +322,6 @@
                                 <div class="smb-faq-header" id="heading9">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse9" aria-expanded="false" aria-controls="collapse9">
-                                            <span class="smb-faq-number" aria-hidden="true">09</span>
                                             <span class="smb-faq-question-text">Will i get the phone number of my traveller?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -351,7 +342,6 @@
                                 <div class="smb-faq-header" id="heading10">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse10" aria-expanded="false" aria-controls="collapse10">
-                                            <span class="smb-faq-number" aria-hidden="true">10</span>
                                             <span class="smb-faq-question-text">What’s the minimum kg I can send?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -372,7 +362,6 @@
                                 <div class="smb-faq-header" id="heading11">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse11" aria-expanded="false" aria-controls="collapse11">
-                                            <span class="smb-faq-number" aria-hidden="true">11</span>
                                             <span class="smb-faq-question-text">What’s the maximum kg I can send?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -393,7 +382,6 @@
                                 <div class="smb-faq-header" id="heading12">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse12" aria-expanded="false" aria-controls="collapse12">
-                                            <span class="smb-faq-number" aria-hidden="true">12</span>
                                             <span class="smb-faq-question-text">I don’t know the weight of my parcel</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -414,7 +402,6 @@
                                 <div class="smb-faq-header" id="heading13">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse13" aria-expanded="false" aria-controls="collapse13">
-                                            <span class="smb-faq-number" aria-hidden="true">13</span>
                                             <span class="smb-faq-question-text">When will my parcel get to Nigeria?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -435,7 +422,6 @@
                                 <div class="smb-faq-header" id="heading14">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse14" aria-expanded="false" aria-controls="collapse14">
-                                            <span class="smb-faq-number" aria-hidden="true">14</span>
                                             <span class="smb-faq-question-text">Can my parcel be collected the same day as the traveller’s arrival?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -456,7 +442,6 @@
                                 <div class="smb-faq-header" id="heading15">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse15" aria-expanded="false" aria-controls="collapse15">
-                                            <span class="smb-faq-number" aria-hidden="true">15</span>
                                             <span class="smb-faq-question-text">Where is my parcel?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -479,7 +464,6 @@
                                 <div class="smb-faq-header" id="heading16">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse16" aria-expanded="false" aria-controls="collapse16">
-                                            <span class="smb-faq-number" aria-hidden="true">16</span>
                                             <span class="smb-faq-question-text">Can I send parcels to other countries?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -500,7 +484,6 @@
                                 <div class="smb-faq-header" id="heading17">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse17" aria-expanded="false" aria-controls="collapse17">
-                                            <span class="smb-faq-number" aria-hidden="true">17</span>
                                             <span class="smb-faq-question-text">Can I pay in Naira?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -521,7 +504,6 @@
                                 <div class="smb-faq-header" id="heading18">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse18" aria-expanded="false" aria-controls="collapse18">
-                                            <span class="smb-faq-number" aria-hidden="true">18</span>
                                             <span class="smb-faq-question-text">What can I not send?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -549,7 +531,6 @@
                                 <div class="smb-faq-header" id="heading19">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse19" aria-expanded="false" aria-controls="collapse19">
-                                            <span class="smb-faq-number" aria-hidden="true">19</span>
                                             <span class="smb-faq-question-text">I hope the traveller is someone you trust?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -570,7 +551,6 @@
                                 <div class="smb-faq-header" id="heading20">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse20" aria-expanded="false" aria-controls="collapse20">
-                                            <span class="smb-faq-number" aria-hidden="true">20</span>
                                             <span class="smb-faq-question-text">Why do I need parcel protection?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -591,7 +571,6 @@
                                 <div class="smb-faq-header" id="heading21">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse21" aria-expanded="false" aria-controls="collapse21">
-                                            <span class="smb-faq-number" aria-hidden="true">21</span>
                                             <span class="smb-faq-question-text">How do you protect my parcel?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -612,7 +591,6 @@
                                 <div class="smb-faq-header" id="heading22">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse22" aria-expanded="false" aria-controls="collapse22">
-                                            <span class="smb-faq-number" aria-hidden="true">22</span>
                                             <span class="smb-faq-question-text">Can I cancel my purchase and get a refund?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -633,7 +611,6 @@
                                 <div class="smb-faq-header" id="heading23">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse23" aria-expanded="false" aria-controls="collapse23">
-                                            <span class="smb-faq-number" aria-hidden="true">23</span>
                                             <span class="smb-faq-question-text">My parcel cannot get to the traveller before the last drop off date, what are my options?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -654,7 +631,6 @@
                                 <div class="smb-faq-header" id="heading24">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse24" aria-expanded="false" aria-controls="collapse24">
-                                            <span class="smb-faq-number" aria-hidden="true">24</span>
                                             <span class="smb-faq-question-text">What if my parcel is lost during the traveller’s journey?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -675,7 +651,6 @@
                                 <div class="smb-faq-header" id="heading25">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse25" aria-expanded="false" aria-controls="collapse25">
-                                            <span class="smb-faq-number" aria-hidden="true">25</span>
                                             <span class="smb-faq-question-text">Will my parcel be safe?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -696,7 +671,6 @@
                                 <div class="smb-faq-header" id="heading26">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse26" aria-expanded="false" aria-controls="collapse26">
-                                            <span class="smb-faq-number" aria-hidden="true">26</span>
                                             <span class="smb-faq-question-text">How do I know if my parcel has been delivered?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -717,7 +691,6 @@
                                 <div class="smb-faq-header" id="heading27">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse27" aria-expanded="false" aria-controls="collapse27">
-                                            <span class="smb-faq-number" aria-hidden="true">27</span>
                                             <span class="smb-faq-question-text">Can I change the traveller after I’ve booked?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -738,7 +711,6 @@
                                 <div class="smb-faq-header" id="heading28">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse28" aria-expanded="false" aria-controls="collapse28">
-                                            <span class="smb-faq-number" aria-hidden="true">28</span>
                                             <span class="smb-faq-question-text">Can I send perishable goods?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -759,7 +731,6 @@
                                 <div class="smb-faq-header" id="heading29">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse29" aria-expanded="false" aria-controls="collapse29">
-                                            <span class="smb-faq-number" aria-hidden="true">29</span>
                                             <span class="smb-faq-question-text">How will I receive my parcel in Nigeria?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>
@@ -780,7 +751,6 @@
                                 <div class="smb-faq-header" id="heading30">
                                     <h3 class="smb-faq-question-heading">
                                         <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse30" aria-expanded="false" aria-controls="collapse30">
-                                            <span class="smb-faq-number" aria-hidden="true">30</span>
                                             <span class="smb-faq-question-text">Can I send documents through ShareMyBag?</span>
                                             <span class="smb-faq-toggle" aria-hidden="true"></span>
                                         </button>

@@ -238,7 +238,7 @@
                             <div class="smb-faq-item">
                                 <div class="smb-faq-header" id="heading1">
                                     <h3 class="smb-faq-question-heading">
-                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1"><span class="smb-faq-number" aria-hidden="true">1</span><span class="smb-faq-question-text">How does it work?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
+                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1"><span class="smb-faq-question-text">How does it work?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
                                     </h3>
                                 </div>
                                 <div id="collapse1" class="collapse" aria-labelledby="heading1" data-bs-parent="#accordionFaq">
@@ -253,7 +253,7 @@
                             <div class="smb-faq-item">
                                 <div class="smb-faq-header" id="heading2">
                                     <h3 class="smb-faq-question-heading">
-                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2"><span class="smb-faq-number" aria-hidden="true">2</span><span class="smb-faq-question-text">How do you ensure traveller’s security?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
+                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2"><span class="smb-faq-question-text">How do you ensure traveller’s security?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
                                     </h3>
                                 </div>
                                 <div id="collapse2" class="collapse" aria-labelledby="heading2" data-bs-parent="#accordionFaq">
@@ -278,7 +278,7 @@
                             <div class="smb-faq-item">
                                 <div class="smb-faq-header" id="heading3">
                                     <h3 class="smb-faq-question-heading">
-                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3"><span class="smb-faq-number" aria-hidden="true">3</span><span class="smb-faq-question-text">When the parcel gets to the UK, how do you collect it?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
+                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3"><span class="smb-faq-question-text">When the parcel gets to the UK, how do you collect it?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
                                     </h3>
                                 </div>
                                 <div id="collapse3" class="collapse" aria-labelledby="heading3" data-bs-parent="#accordionFaq">
@@ -293,7 +293,7 @@
                             <div class="smb-faq-item">
                                 <div class="smb-faq-header" id="heading4">
                                     <h3 class="smb-faq-question-heading">
-                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4"><span class="smb-faq-number" aria-hidden="true">4</span><span class="smb-faq-question-text">How do you pay?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
+                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4"><span class="smb-faq-question-text">How do you pay?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
                                     </h3>
                                 </div>
                                 <div id="collapse4" class="collapse" aria-labelledby="heading4" data-bs-parent="#accordionFaq">
@@ -312,7 +312,7 @@
                             <div class="smb-faq-item">
                                 <div class="smb-faq-header" id="heading5">
                                     <h3 class="smb-faq-question-heading">
-                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5"><span class="smb-faq-number" aria-hidden="true">5</span><span class="smb-faq-question-text">When do I expect to get paid?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
+                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5"><span class="smb-faq-question-text">When do I expect to get paid?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
                                     </h3>
                                 </div>
                                 <div id="collapse5" class="collapse" aria-labelledby="heading5" data-bs-parent="#accordionFaq">
@@ -327,7 +327,7 @@
                             <div class="smb-faq-item">
                                 <div class="smb-faq-header" id="heading6">
                                     <h3 class="smb-faq-question-heading">
-                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6" aria-expanded="false" aria-controls="collapse6"><span class="smb-faq-number" aria-hidden="true">6</span><span class="smb-faq-question-text">What do you expect from travellers?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
+                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6" aria-expanded="false" aria-controls="collapse6"><span class="smb-faq-question-text">What do you expect from travellers?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
                                     </h3>
                                 </div>
                                 <div id="collapse6" class="collapse" aria-labelledby="heading6" data-bs-parent="#accordionFaq">
@@ -345,7 +345,7 @@
                             <div class="smb-faq-item">
                                 <div class="smb-faq-header" id="heading7">
                                     <h3 class="smb-faq-question-heading">
-                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7" aria-expanded="false" aria-controls="collapse7"><span class="smb-faq-number" aria-hidden="true">7</span><span class="smb-faq-question-text">What kind of items will I be carrying to the UK?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
+                                        <button class="smb-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7" aria-expanded="false" aria-controls="collapse7"><span class="smb-faq-question-text">What kind of items will I be carrying to the UK?</span><span class="smb-faq-toggle" aria-hidden="true"></span></button>
                                     </h3>
                                 </div>
                                 <div id="collapse7" class="collapse" aria-labelledby="heading7" data-bs-parent="#accordionFaq">
