@@ -80,7 +80,10 @@
                     <div class="col-12 smb-traveller-form-intro">
                         <div class="contact-wrap">
                             <div class="section-title">
-                                <h2>Please fill the traveller's form, and an agent will contact you shortly.</h2>
+
+                                <p>Are you traveling soon?</p>
+                                <h2>Get paid for bringing back luggage for someone.</h2>
+                                <!-- <h2>Please fill the traveller's form, and an agent will contact you shortly.</h2> -->
                             </div>
                         </div>
                     </div>

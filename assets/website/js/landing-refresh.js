@@ -64,7 +64,6 @@ jQuery(function ($) {
     // Reuse the public Traveller form's existing Nice Select components.
     $('#select_destination, #pc_origin, #pc_destination, #pc_category').niceSelect('update');
 
-    var photos = hero.querySelectorAll('.smb-hero-photo');
     var dial = hero.querySelector('.smb-country-dial');
     var current = dial.querySelector('.smb-country-current');
     var next = dial.querySelector('.smb-country-next');
@@ -74,13 +73,10 @@ jQuery(function ($) {
     var timer = null;
     var transition = null;
 
-    function showSlide(index) {
-        // Keep the country and photograph paired, including a failed image load.
-        if (!photos[index].complete || !photos[index].naturalWidth) return;
+    function showCountry(index) {
         active = index;
         next.textContent = countries[active];
         dial.classList.add('is-changing');
-        photos.forEach(function (photo, i) { photo.classList.toggle('is-active', i === active); });
         transition = window.setTimeout(finishTransition, 650);
     }
 
@@ -100,14 +96,7 @@ jQuery(function ($) {
             return;
         }
         timer = window.setInterval(function () {
-            // Skip unavailable images without getting stuck on one destination.
-            for (var offset = 1; offset < photos.length; offset++) {
-                var index = (active + offset) % photos.length;
-                if (photos[index].complete && photos[index].naturalWidth) {
-                    showSlide(index);
-                    break;
-                }
-            }
+            showCountry((active + 1) % countries.length);
         }, 5000);
     }
 

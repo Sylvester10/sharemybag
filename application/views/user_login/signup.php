@@ -185,7 +185,6 @@
                                             'required' => true,
                                         )); ?>
                                         <div class="col-sm-12 mt-n2 mb-3">
-                                            <small class="text-muted">After verification, this number can be used to receive sign-in codes through WhatsApp or SMS.</small>
                                         </div>
                                         <div class="col-sm-12">
                                             <label for="password" class="mb-1">Country of Residence <span class="text-danger">*</span></label>
