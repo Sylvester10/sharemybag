@@ -120,176 +120,119 @@ jQuery(document).ready(function ($) {
         $('#status_msg').html('').hide();
     }
 
-    // Close search results when clicking the close button (using event delegation)
-    $(document).on('click', '.search-back-drop', function () {
-        $('body').removeClass('search-active');
-        $('#search-results').html(''); // Clear search results
-    });
-
-    //Search
+    // Public traveller search: keep results in the shared Bootstrap dialog.
     $('#search_form').submit(function (e) {
         e.preventDefault();
-        $('#search-spinner').removeClass('d-none');
-        $('#search-results').html('');
-        let val = $('#select_destination').val();
-        let url = $(this).attr('action');
-
-        if (val.trim() == '') {
-            $('#search-spinner').addClass('d-none');
+        var form = this;
+        var destination = $('#select_destination').val() || '';
+        var errors = window.smbFieldErrors;
+        errors.clear(form);
+        if (!destination.trim()) {
+            errors.show('select_destination', 'Please select where your parcel is going.');
+            errors.focusFirst(form);
             return;
         }
-
-        let form_data = appendCsrf($(this).serialize());
+        if ($('#submit').prop('disabled')) return;
         disableSubmitBtn();
+        $('#submit').attr('aria-busy', 'true');
+        $('#smb-search-label').addClass('d-none');
+        $('#search-spinner').removeClass('d-none');
 
         $.ajax({
-            url: url,
+            url: $(form).attr('action'),
             type: 'POST',
-            data: form_data,
-            contentType: 'application/x-www-form-urlencoded',
+            data: appendCsrf($(form).serialize()),
+            dataType: 'json',
             success: function (response) {
-                response = JSON.parse(response);
                 updateCsrf(response.csrf_hash);
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-
+                var body = $('#smb-traveller-results-body').empty();
+                $('#smb-traveller-results-title').text('Search Results').toggleClass('d-none', !response.status);
+                $('#search-results').attr('aria-label', response.status ? 'Search Results' : 'No traveller currently available');
+                if (response.status) $('#search-results').attr('aria-labelledby', 'smb-traveller-results-title');
+                else $('#search-results').removeAttr('aria-labelledby');
                 if (response.status) {
-                    let availableSpaceText =
-                        parseFloat(response.available_space) > 0
-                            ? `${response.available_space} kg`
-                            : `<span class="text-danger fw-bold">Bag Full</span>`;
-                    let currentAreaText = response.area
-                        ? `${response.current_state}, ${response.area}`
-                        : response.current_state;
-
-                    let finalDestinationText = response.destination_area
-                        ? `${response.arrival_state}, ${response.destination_area}`
-                        : response.arrival_state;
-
-                    let html_response = `
-                      <section id="section-1" class="bg-white rounded shadow-md">
-                        <span class="search-back-drop"></span>
-                        <div class="prohibited_items bg-white rounded shadow-md mt-3 p-4">
-                          <div class="prohibited-box">
-                            <div class="prohibited_icon wow fadeInUp animated" data-wow-delay=".2s">
-                              <img src="${base_url}assets/website/icons/calendar.png">
-                              <h4>Date</h4>
-                              <p>${response.travel_date}</p>
-                            </div>
-                            <div class="prohibited_icon wow fadeInUp animated" data-wow-delay=".4s">
-                              <img src="${base_url}assets/website/icons/location.png">
-                              <h4>Current Location</h4>
-                              <p>${currentAreaText}</p>
-                            </div>
-                            <div class="prohibited_icon wow fadeInUp animated" data-wow-delay=".6s">
-                              <img src="${base_url}assets/website/icons/destination.png">
-                              <h4>Final Destination</h4>
-                              <p>${finalDestinationText}</p>
-                            </div>
-                            <div class="prohibited_icon wow fadeInUp animated" data-wow-delay=".8s">
-                              <img src="${base_url}assets/website/icons/weight.png">
-                              <h4>Available space</h4>
-                              <p>${availableSpaceText}</p>
-                            </div>
-                          </div>
-                          <h6>
-                            <a href="${base_url}registration" class="login-btn primary wow fadeInUp animated" data-wow-delay=".15s" type="submit">
-                              Sign up to see all available travellers
-                            </a>
-                          </h6>
-                        </div>
-                      </section>`;
-
-                    $('body').addClass('search-active');
-                    $('#search-results').html(html_response);
+                    var grid = $('<div class="smb-traveller-details"></div>');
+                    var current = response.area ? response.current_state + ', ' + response.area : response.current_state;
+                    var arrival = response.destination_area ? response.arrival_state + ', ' + response.destination_area : response.arrival_state;
+                    [
+                        ['calendar.png', 'Date', response.travel_date],
+                        ['location.png', 'Current Location', current],
+                        ['destination.png', 'Final Destination', arrival],
+                        ['weight.png', 'Available space', parseFloat(response.available_space) > 0 ? response.available_space + ' kg' : 'Bag Full']
+                    ].forEach(function (detail) {
+                        var item = $('<div class="smb-traveller-detail"></div>');
+                        $('<img alt="">').attr('src', base_url + 'assets/website/icons/' + detail[0]).appendTo(item);
+                        $('<h6></h6>').text(detail[1]).appendTo(item);
+                        $('<p></p>').text(detail[2] || '—').appendTo(item);
+                        grid.append(item);
+                    });
+                    body.append(grid);
+                    $('<a class="smb-estimate-primary smb-traveller-cta"></a>').attr('href', base_url + 'registration').text('Sign up to see all available travellers').appendTo(body);
                 } else {
-                    // Handle case when response.status is false (e.g., no results found)
-                    var noResultsHtml = `
-                      <section id="section-1" class="bg-white rounded shadow-md">
-                        <span class="search-back-drop"></span>
-                        <div class="prohibited_items bg-white rounded shadow-md mt-3 p-4 text-center">
-                          <div class="prohibited_icon wow fadeInUp animated" data-wow-delay=".8s">
-                            <img src="${base_url}assets/website/icons/no-bag.png">
-                            <h5>No Traveller currently available</h5>
-                          </div>
-                          <h6>
-                            <a href="${base_url}registration" class="login-btn primary wow fadeInUp animated" data-wow-delay=".15s" type="submit">
-                              Sign up to join the wait list
-                            </a>
-                          </h6>
-                        </div>
-                      </section>`;
-
-                    $('body').addClass('search-active');
-                    $('#search-results').html(noResultsHtml);
+                    var empty = $('<div class="smb-traveller-empty"></div>');
+                    $('<img alt="">').attr('src', base_url + 'assets/website/icons/no-bag.png').appendTo(empty);
+                    $('<h6></h6>').text('No Traveller currently available').appendTo(empty);
+                    body.append(empty);
+                    $('<a class="smb-estimate-primary smb-traveller-cta"></a>').attr('href', base_url + 'registration').text('Sign up to join the wait list').appendTo(body);
                 }
+                $('#search-results').modal('show');
             },
-            error: function (error) {
-                $('#search-spinner').addClass('d-none');
+            error: function () {
+                errors.show('select_destination', 'We could not search right now. Please try again.');
+            },
+            complete: function () {
                 enableSubmitBtn();
-                $('#search-results').html(
-                    '<div class="alert alert-danger text-center mt-3 shadow-md">An error occurred while searching. Please try again.</div>'
-                );
-                $('body').addClass('search-active');
-            },
+                $('#submit').removeAttr('aria-busy');
+                $('#smb-search-label').removeClass('d-none');
+                $('#search-spinner').addClass('d-none');
+            }
         });
     });
 
-    // Traveller form
+    // Traveller request: retain the endpoint, upload and confirmation flow.
     $('#traveller_form').submit(function (e) {
         e.preventDefault();
+        var form = this;
+        if ($('#submit').prop('disabled')) return;
+        $('#status_msg').empty().hide();
+        if (window.smbValidateTraveller && !window.smbValidateTraveller()) return;
         $('#search-spinner').removeClass('d-none');
-
-        var form_data = new FormData(this);
-        form_data = appendCsrf(form_data);
-
+        $('#submit').attr({'aria-busy': 'true', 'aria-label': 'Submitting form'});
+        $('#smb-traveller-submit-label').addClass('d-none');
         disableSubmitBtn();
 
+        function showError(message) {
+            $('#status_msg').empty().append($('<p class="smb-traveller-request-error"></p>').text(message)).show();
+        }
         $.ajax({
             url: base_url + 'home/add_traveller_ajax',
             type: 'POST',
-            data: form_data,
+            data: appendCsrf(new FormData(form)),
             dataType: 'json',
             cache: false,
             contentType: false,
             processData: false,
             success: function (res) {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-
                 updateCsrf(res.csrf_hash);
-
                 if (res.status) {
+                    if (window.smbFieldErrors) window.smbFieldErrors.clear(form);
                     resetTravellerFormUi();
                     $('#travellerSuccessModal').modal('show');
-                } else {
-                    $('#status_msg')
-                        .html(
-                            '<div class="alert alert-danger text-center" style="color: #000">' +
-                                res.msg +
-                                '</div>'
-                        )
-                        .fadeIn('fast')
-                        .delay(5000)
-                        .fadeOut('slow');
+                } else if (!window.smbTravellerServerErrors || !window.smbTravellerServerErrors(res.errors)) {
+                    showError(res.msg || 'We could not submit your request. Please try again.');
                 }
             },
             error: function (xhr) {
-                $('#search-spinner').addClass('d-none');
-                enableSubmitBtn();
-
-                $('#status_msg')
-                    .html(
-                        '<div class="alert alert-danger text-center">' +
-                            (xhr.status === 403
-                                ? 'The form request was blocked. Please refresh the page and try again.'
-                                : 'Server error. Please try again.') +
-                            '</div>'
-                    )
-                    .fadeIn('fast')
-                    .delay(4000)
-                    .fadeOut('slow');
+                showError(xhr.status === 403
+                    ? 'The form request was blocked. Please refresh the page and try again.'
+                    : 'Server error. Please try again.');
             },
+            complete: function () {
+                $('#search-spinner').addClass('d-none');
+                $('#submit').removeAttr('aria-busy').attr('aria-label', 'Submit');
+                $('#smb-traveller-submit-label').removeClass('d-none');
+                enableSubmitBtn();
+            }
         });
     });
 
@@ -793,7 +736,12 @@ jQuery(document).ready(function ($) {
                 autoApply: true,
             },
             function (chosen_date) {
-                $('#travelDate').val(chosen_date.format('YYYY-MM-DD'));
+                if ($('#traveller_date_value').length) {
+                    $('#traveller_date_value').val(chosen_date.format('YYYY-MM-DD'));
+                    $('#travelDate').val(chosen_date.format('Do [of] MMMM YYYY')).trigger('change');
+                } else {
+                    $('#travelDate').val(chosen_date.format('YYYY-MM-DD'));
+                }
             }
         );
     }

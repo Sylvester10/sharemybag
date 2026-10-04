@@ -80,13 +80,13 @@ class MY_Controller extends CI_Controller
 	public function website_header($title, $data = [])
 	{
 		$data['title'] = $title;
-		return $this->load->view('website/layout/header', $data);
+		return $this->load->view('website/new/layout/header', $data);
 	}
 
 
 	public function website_footer()
 	{
-		return $this->load->view('website/layout/footer');
+		return $this->load->view('website/new/layout/footer');
 	}
 
 

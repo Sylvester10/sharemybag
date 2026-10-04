@@ -36,7 +36,7 @@ class Home extends MY_Controller
     {
         $data['schema'] = $this->get_schema();
         $this->website_header('Share My Bag', $data);
-        $this->load->view('website/home', $data);
+        $this->load->view('website/new/home', $data);
         $this->website_footer();
     }
 
@@ -133,8 +133,8 @@ class Home extends MY_Controller
     public function travellers()
     {
         $data['captcha_code'] = mt_rand(111111, 999999);
-        $this->website_header('Travellers');
-        $this->load->view('website/travellers', $data);
+        $this->website_header('Travellers', ['traveller_page' => true]);
+        $this->load->view('website/new/travellers', $data);
         $this->website_footer();
     }
 
@@ -175,6 +175,7 @@ class Home extends MY_Controller
             echo json_encode([
                 'status' => false,
                 'msg' => 'This route is not available right now.',
+                'errors' => ['destination' => 'This route is not available right now.'],
                 'title' => 'Route Unavailable',
                 'msg_timeout' => 6000,
                 'csrf_hash' => $this->security->get_csrf_hash()
@@ -186,6 +187,7 @@ class Home extends MY_Controller
             echo json_encode([
                 'status' => false,
                 'msg' => 'Choose different locations for origin and destination.',
+                'errors' => ['destination' => 'Choose different locations for origin and destination.'],
                 'title' => 'Route Error',
                 'msg_timeout' => 6000,
                 'csrf_hash' => $this->security->get_csrf_hash()
@@ -197,6 +199,7 @@ class Home extends MY_Controller
             echo json_encode([
                 'status' => false,
                 'msg' => first_validation_error('Please complete the traveller form and try again.'),
+                'errors' => $this->form_validation->error_array(),
                 'title' => 'Traveller Form Error',
                 'msg_timeout' => 6000,
                 'csrf_hash' => $this->security->get_csrf_hash()
@@ -208,6 +211,7 @@ class Home extends MY_Controller
             echo json_encode([
                 'status' => false,
                 'msg' => 'Upload your itinerary to continue.',
+                'errors' => ['itinerary_photo' => 'Upload your itinerary to continue.'],
                 'title' => 'Itinerary Required',
                 'msg_timeout' => 6000,
                 'csrf_hash' => $this->security->get_csrf_hash()
@@ -258,6 +262,7 @@ class Home extends MY_Controller
             echo json_encode([
                 'status' => false,
                 'msg' => normalize_user_message($this->upload->display_errors('', ''), 'We could not upload your itinerary. Please try again.'),
+                'errors' => ['itinerary_photo' => normalize_user_message($this->upload->display_errors('', ''), 'We could not upload your itinerary. Please try again.')],
                 'title' => 'Upload Error',
                 'msg_timeout' => 7000,
                 'csrf_hash' => $this->security->get_csrf_hash()
@@ -305,48 +310,48 @@ class Home extends MY_Controller
 
     public function waiver()
     {
-        $this->website_header('Liability Waiver');
-        $this->load->view('website/waiver');
+        $this->website_header('Liability Waiver', ['policy_page' => true]);
+        $this->load->view('website/new/waiver');
         $this->website_footer();
     }
 
 
     public function prohibited()
     {
-        $this->website_header('Prohibited Items');
-        $this->load->view('website/prohibited');
+        $this->website_header('Prohibited Items', ['policy_page' => true]);
+        $this->load->view('website/new/prohibited');
         $this->website_footer();
     }
 
 
     public function terms_of_use()
     {
-        $this->website_header('Terms of Use');
-        $this->load->view('website/terms_use');
+        $this->website_header('Terms of Use', ['policy_page' => true]);
+        $this->load->view('website/new/terms_use');
         $this->website_footer();
     }
 
 
     public function terms_conditions()
     {
-        $this->website_header('Terms & Conditions');
-        $this->load->view('website/terms_conditions');
+        $this->website_header('Terms & Conditions', ['policy_page' => true]);
+        $this->load->view('website/new/terms_conditions');
         $this->website_footer();
     }
 
 
     public function policy()
     {
-        $this->website_header('Privacy Policy');
-        $this->load->view('website/policy');
+        $this->website_header('Privacy Policy', ['policy_page' => true]);
+        $this->load->view('website/new/policy');
         $this->website_footer();
     }
 
 
     public function cookies()
     {
-        $this->website_header('Cookies');
-        $this->load->view('website/cookies');
+        $this->website_header('Cookies', ['policy_page' => true]);
+        $this->load->view('website/new/cookies');
         $this->website_footer();
     }
 
@@ -354,7 +359,7 @@ class Home extends MY_Controller
     public function success()
     {
         $this->website_header('Payment Successful');
-        $this->load->view('website/home');
+        $this->load->view('website/new/home');
         $this->website_footer();
     }
 }
