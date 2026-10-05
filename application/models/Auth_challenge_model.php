@@ -93,6 +93,30 @@ class Auth_challenge_model extends CI_Model
         ));
     }
 
+    /** Recheck account/challenge after external verification, under the same lock as admin resets. */
+    public function consumeLoginChallenge($challengeId, $userId)
+    {
+        $this->db->trans_begin();
+        $user = $this->db->query('SELECT * FROM users WHERE id = ? FOR UPDATE', array((int) $userId))->row();
+        $challenge = $this->db->query('SELECT * FROM auth_login_challenges WHERE id = ? FOR UPDATE', array((int) $challengeId))->row();
+        $phoneChannel = $challenge && in_array($challenge->delivery_channel, array('whatsapp', 'sms'), true);
+        $destination = $user ? ($phoneChannel ? ($user->verified_phone_e164 ?? '') : $user->email) : '';
+        if (!$user || !$challenge || (int) $challenge->user_id !== (int) $userId
+            || $challenge->purpose !== 'login' || $challenge->consumed_at !== null
+            || !in_array($challenge->delivery_channel, array('email', 'whatsapp', 'sms'), true)
+            || strtotime($challenge->expires_at) <= time() || (int) $user->account_status === 0
+            || !empty($user->deleted_at) || !$this->destinationMatches($challenge, $destination)
+            || ($phoneChannel && (empty($user->phone_signin_enabled) || empty($user->phone_verified_at)))) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        if (!$this->consume($challengeId) || !$this->db->trans_status()) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        return $this->db->trans_commit() ? $user : false;
+    }
+
     public function getPhoneOtpChannel()
     {
         $setting = $this->db->where('id', 1)->get('auth_settings')->row();

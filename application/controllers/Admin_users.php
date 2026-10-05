@@ -29,7 +29,7 @@ class Admin_Users extends MY_Controller
         $this->load->model('user_read_model');
         $this->load->model('booking_read_model');
         $this->load->model('shipping_read_model');
-        $this->admin_details = $this->common_model->get_admin_details($this->session->email);
+        $this->admin_details = $this->common_model->get_admin_details($this->session->admin_email ?? $this->session->email);
     }
 
 
@@ -231,8 +231,13 @@ class Admin_Users extends MY_Controller
         // validation rules
         $this->form_validation->set_rules('firstname', 'First Name', 'trim|min_length[2]|max_length[500]|required');
         $this->form_validation->set_rules('lastname', 'Last Name', 'trim|min_length[2]|max_length[500]|required');
-        $this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
-        $this->form_validation->set_rules('number', 'Mobile', 'trim|required');
+        if ($this->input->method() !== 'post') { show_error('Method not allowed.', 405); }
+        $clearPhone = $this->input->post('clear_phone', TRUE) === '1';
+        $user = $this->user_read_model->get_user_details_by_id($id);
+        if (!$clearPhone && (trim((string) $this->input->post('number', TRUE)) !== '' || !empty($user->number))) {
+            $this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
+            $this->form_validation->set_rules('number', 'Phone', 'trim|required|callback_valid_user_phone');
+        }
         $this->form_validation->set_rules(
             'email',
             'Email',
@@ -259,10 +264,35 @@ class Admin_Users extends MY_Controller
     }
 
 
+    public function valid_user_phone($number)
+    {
+        $phone = normalize_phone_number($this->input->post('country_code', TRUE), $number);
+        if (!preg_match('/^\+[1-9][0-9]{7,14}$/', $phone)) {
+            $this->form_validation->set_message('valid_user_phone', 'Enter a valid phone number.');
+            return false;
+        }
+        return true;
+    }
+
+    public function activity_history($id)
+    {
+        $this->check_data_exists($id, 'id', 'users', 'admin_users');
+        $this->load->model('user_activity_model');
+        $type = $this->input->get('type', TRUE) === 'signin' ? 'signin' : 'details';
+        $page = min(100000, max(1, (int) $this->input->get('page', TRUE)));
+        $data = $this->user_activity_model->history((int) $id, $type, $page);
+        $data['type'] = $type;
+        $data['user_id'] = (int) $id;
+        $this->output->set_header('Cache-Control: no-store');
+        $this->load->view('admin/users/activity_history', $data);
+    }
+
+
     public function verify_user($id)
     {
-        $this->admin_user_model->verify_user($id);
-        $this->session->set_flashdata('status_msg', 'User verified successfully.');
+        $ok = $this->admin_user_model->verify_user($id);
+        $this->session->set_flashdata($ok ? 'status_msg' : 'status_msg_error',
+            $ok ? 'User verified successfully.' : 'User data could not be updated.');
         redirect($this->agent->referrer());
     }
 
@@ -287,24 +317,27 @@ class Admin_Users extends MY_Controller
             return;
         }
 
-        $this->admin_user_model->unverify_user($id, $reason, $note);
-        $this->session->set_flashdata('status_msg', 'User unverified successfully.');
+        $ok = $this->admin_user_model->unverify_user($id, $reason, $note);
+        $this->session->set_flashdata($ok ? 'status_msg' : 'status_msg_error',
+            $ok ? 'User unverified successfully.' : 'User data could not be updated.');
         redirect($this->agent->referrer());
     }
 
 
     public function block_user($id)
     {
-        $this->admin_user_model->block_user($id);
-        $this->session->set_flashdata('status_msg', 'User blocked successfully.');
+        $ok = $this->admin_user_model->block_user($id);
+        $this->session->set_flashdata($ok ? 'status_msg' : 'status_msg_error',
+            $ok ? 'User blocked successfully.' : 'User data could not be updated.');
         redirect($this->agent->referrer());
     }
 
 
     public function unblock_user($id)
     {
-        $this->admin_user_model->unblock_user($id);
-        $this->session->set_flashdata('status_msg', 'User unblocked successfully.');
+        $ok = $this->admin_user_model->unblock_user($id);
+        $this->session->set_flashdata($ok ? 'status_msg' : 'status_msg_error',
+            $ok ? 'User unblocked successfully.' : 'User data could not be updated.');
         redirect($this->agent->referrer());
     }
 
@@ -344,8 +377,13 @@ class Admin_Users extends MY_Controller
             $login_data = array(
                 'email' => $email,
                 'user_loggedin' => TRUE,
+                'user_id' => (int) $id,
+                'user_impersonator_id' => (int) $this->admin_details->id,
             );
             $this->session->set_userdata($login_data);
+            $this->load->model('user_activity_model');
+            $this->user_activity_model->record($id, 'admin_access',
+                $this->user_activity_model->actor('admin', $this->admin_details->id));
             redirect('dashboard');
         } else {
             $this->session->set_flashdata('status_msg_error', 'Email not found!');

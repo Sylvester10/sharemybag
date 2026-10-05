@@ -81,8 +81,8 @@
                         <div class="contact-wrap">
                             <div class="section-title">
 
-                                <p>Are you traveling soon?</p>
-                                <h2>Get paid for bringing back luggage for someone.</h2>
+                                <p>Please fill the form and an agent will contact you shortly.</p>
+                                <h2>Traveller's Form</h2>
                                 <!-- <h2>Please fill the traveller's form, and an agent will contact you shortly.</h2> -->
                             </div>
                         </div>
@@ -100,12 +100,12 @@
                                     <input type="hidden" id="homepage_csrf_name" value="<?php echo html_escape($this->security->get_csrf_token_name()); ?>">
                                     <input type="hidden" id="homepage_csrf_hash" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
 
-                                    <div class="smb-sentence-form">
-                                        <div class="smb-sentence-row"><label for="traveller_fullname">My name is</label>
-                                            <div class="smb-sentence-field"><input class="form-control" type="text" id="traveller_fullname" name="fullname" placeholder="John Doe" required></div><span aria-hidden="true">.</span>
-                                        </div>
-                                        <div class="smb-sentence-row"><label for="traveller_location">I'm travelling from</label>
-                                            <div class="smb-sentence-field"><select class="nice-select form-control" id="traveller_location" name="location" required>
+                                    <section class="smb-traveller-field-section" aria-labelledby="smb-travel-details-title">
+                                        <h3 id="smb-travel-details-title">Travel details</h3>
+                                        <div class="smb-traveller-fields">
+                                        <div class="smb-standard-field">
+                                            <label for="traveller_location">Travelling from <span class="text-danger" aria-hidden="true">*</span></label>
+                                            <select class="nice-select form-control" id="traveller_location" name="location" required>
                                                     <option value="">Select</option>
                                                     <?php
                                                     $countries = countries();
@@ -114,8 +114,12 @@
                                                         <option value="<?php echo $country; ?>" data-flag="<?= html_escape($country_flags[$country]['flag'] ?? ''); ?>" <?php echo set_select('location', $country); ?>><?php echo $country; ?>
                                                         </option>
                                                     <?php } ?>
-                                                </select></div><label for="traveller_destination">to</label>
-                                            <div class="smb-sentence-field"><select class="nice-select form-control" id="traveller_destination" name="destination" required>
+                                                </select>
+                                            
+                                        </div>
+                                        <div class="smb-standard-field">
+                                            <label for="traveller_destination">Travelling to <span class="text-danger" aria-hidden="true">*</span></label>
+                                            <select class="nice-select form-control" id="traveller_destination" name="destination" required>
                                                     <option value="">Select</option>
                                                     <?php
                                                     $countries = countries();
@@ -124,45 +128,61 @@
                                                         <option value="<?php echo $country; ?>" data-flag="<?= html_escape($country_flags[$country]['flag'] ?? ''); ?>" <?php echo set_select('destination', $country); ?>><?php echo $country; ?>
                                                         </option>
                                                     <?php } ?>
-                                                </select></div><label for="travelDate">on the</label>
-                                            <div class="smb-sentence-field"><input type="text" id="travelDate" placeholder="Select date" readonly aria-required="true" value="<?= set_value('travel_date') ? html_escape(date('jS \o\f F Y', strtotime(set_value('travel_date')))) : ''; ?>"><input type="hidden" name="travel_date" id="traveller_date_value" value="<?= html_escape(set_value('travel_date')); ?>"></div><span aria-hidden="true">.</span>
+                                                </select>
                                         </div>
-                                        <div class="smb-sentence-row"><label for="traveller_available_space">With available bag space of</label>
-                                            <div class="smb-sentence-field"><select class="nice-select form-control" id="traveller_available_space" name="available_space" required>
+                                        <div class="smb-standard-field">
+                                            <label for="travelDate">Travel date <span class="text-danger" aria-hidden="true">*</span></label>
+                                            <input type="text" id="travelDate" placeholder="Select date" readonly aria-required="true" value="<?= set_value('travel_date') ? html_escape(date('jS \o\f F Y', strtotime(set_value('travel_date')))) : ''; ?>"><input type="hidden" name="travel_date" id="traveller_date_value" value="<?= html_escape(set_value('travel_date')); ?>">
+                                        </div>
+                                        <div class="smb-standard-field">
+                                            <label for="traveller_available_space">Available bag space (KG) <span class="text-danger" aria-hidden="true">*</span></label>
+                                            <select class="nice-select form-control" id="traveller_available_space" name="available_space" required>
                                                     <option value="">Select</option>
                                                     <?php for ($i = 1; $i <= 50; $i++) : ?>
                                                         <option value="<?= $i; ?>"><?= $i; ?> KG</option>
                                                     <?php endfor; ?>
-                                                </select></div><span aria-hidden="true">.</span>
+                                                </select>
                                         </div>
-                                        <div class="smb-sentence-row"><label for="traveller_email">My email is</label>
-                                            <div class="smb-sentence-field"><input class="form-control" type="email" id="traveller_email" name="email" placeholder="xyz@gmail.com" required></div><span aria-hidden="true">.</span>
+                                        </div>
+                                    </section>
+                                    <section class="smb-traveller-field-section" aria-labelledby="smb-traveller-information-title">
+                                        <h3 id="smb-traveller-information-title">Traveller information</h3>
+                                        <div class="smb-traveller-fields">
+                                        <div class="smb-standard-field">
+                                            <label for="traveller_fullname">Full name <span class="text-danger" aria-hidden="true">*</span></label>
+                                            <input class="form-control" type="text" id="traveller_fullname" name="fullname" placeholder="John Doe" required>
+                                        </div>
+                                        <div class="smb-standard-field">
+                                            <label for="traveller_email">Email address <span class="text-danger" aria-hidden="true">*</span></label>
+                                            <input class="form-control" type="email" id="traveller_email" name="email" placeholder="xyz@gmail.com" required>
                                         </div>
                                         <?php $this->load->view('partials/phone_input', array(
-                                            'wrapper_class' => 'smb-sentence-phone-row',
+                                            'wrapper_class' => 'smb-standard-field',
                                             'field_name' => 'phone',
                                             'country_code_name' => 'c_code1',
                                             'country_code_id' => 'country_code',
                                             'input_id' => 'traveller_phone',
                                             'country_code' => set_value('c_code1', '+44'),
                                             'local_number' => set_value('phone'),
-                                            'label' => 'My contact number is',
+                                            'label' => 'Contact number',
                                             'placeholder' => '7911123456',
                                             'required' => true,
                                         )); ?>
                                         <?php $this->load->view('partials/phone_input', array(
-                                            'wrapper_class' => 'smb-sentence-phone-row',
+                                            'wrapper_class' => 'smb-standard-field',
                                             'field_name' => 'alt_phone',
                                             'country_code_name' => 'c_code2',
                                             'country_code_id' => 'country_code2',
                                             'input_id' => 'traveller_alt_phone',
                                             'country_code' => set_value('c_code2', '+44'),
                                             'local_number' => set_value('alt_phone'),
-                                            'label' => 'My alternative number is (optional)',
+                                            'label' => 'Alternative number (optional)',
                                             'placeholder' => '7911123456',
                                             'required' => false,
                                         )); ?>
-                                    </div>
+
+                                        </div>
+                                    </section>
                                     <section class="smb-traveller-documents" aria-label="Itinerary and verification">
                                         <div class="smb-itinerary-row">
                                             <div class="smb-itinerary-fields">

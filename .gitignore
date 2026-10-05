@@ -49,3 +49,11 @@ PROJECT_REFERENCE.md
 
 # Generated PDF font metrics
 /vendor/dompdf/dompdf/lib/fonts/*.afm.json
+
+# Versioned account-history setup and regression test
+!/scripts/
+/scripts/*
+!/scripts/setup_user_activity.php
+!/tests/
+/tests/*
+!/tests/user_activity_history_test.php

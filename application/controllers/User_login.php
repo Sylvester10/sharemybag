@@ -84,7 +84,7 @@ class User_login extends MY_Controller
 				return;
 			}
 
-			$this->completeLogin($user);
+			$this->completeLogin($user, 'password');
 			auth_throttle_clear($login_throttle_key);
 			echo json_encode([
 				'status' => true,
@@ -232,9 +232,13 @@ class User_login extends MY_Controller
 			return;
 		}
 
-		$this->auth_challenge_model->consume($challenge->id);
+		$user = $this->auth_challenge_model->consumeLoginChallenge($challenge->id, $user->id);
+        if (!$user) {
+            echo json_encode(array('status' => false, 'msg' => 'This code is invalid or has expired. Request a new code and try again.', 'title' => 'Code Not Verified', 'csrf_hash' => $csrf_hash));
+            return;
+        }
 		auth_throttle_clear($key);
-		$this->completeLogin($user);
+		$this->completeLogin($user, $challenge->delivery_channel . '_code');
 		echo json_encode(array('status' => true, 'msg' => 'Sign-in successful.', 'title' => 'Welcome Back', 'csrf_hash' => $csrf_hash));
 	}
 
@@ -255,11 +259,20 @@ class User_login extends MY_Controller
 
 	public function logout()
 	{
-		$this->session->unset_userdata(['email', 'user_id', 'user_loggedin']);
+        if ($this->session->user_loggedin && $this->session->user_id) {
+            $this->load->model('user_activity_model');
+            $adminId = (int) $this->session->userdata('user_impersonator_id');
+            $actor = $this->user_activity_model->actor($adminId ? 'admin' : 'user', $adminId ?: $this->session->user_id);
+            if (!$this->user_activity_model->record($this->session->user_id, 'signed_out', $actor)) {
+                log_message('error', 'Could not record account sign-out activity.');
+            }
+        }
+        $this->session->unset_userdata(['email', 'user_id', 'user_loggedin', 'user_impersonator_id', 'phone_verification_candidate']);
+        $this->session->sess_regenerate(TRUE);
 		redirect(site_url('signin'));
 	}
 
-	private function completeLogin($user)
+	private function completeLogin($user, $method)
 	{
 		$this->session->sess_regenerate(TRUE);
 		$this->session->set_userdata(array(
@@ -267,7 +280,13 @@ class User_login extends MY_Controller
 			'user_id' => $user->id,
 			'user_loggedin' => true,
 		));
-		$this->common_model->update_last_login($user->id);
+        $this->session->unset_userdata('user_impersonator_id');
+        $this->common_model->update_last_login($user->id);
+        $this->load->model('user_activity_model');
+        if (!$this->user_activity_model->record($user->id, 'signed_in',
+            $this->user_activity_model->actor('user', $user->id), array(), $method)) {
+            log_message('error', 'Could not record account sign-in activity.');
+        }
 	}
 
 	private function accountCanSignIn($user, $csrfHash)

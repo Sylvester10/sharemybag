@@ -166,8 +166,7 @@ class Recover_password extends MY_Controller
 
     public function logout()
     {
-        $data = array('email', 'user_loggedin');
-        $this->session->unset_userdata($data);
-        redirect(site_url('user-login'));
+        // Keep legacy sign-out links on the shared, audited sign-out path.
+        redirect(site_url('user_login/logout'));
     }
 }

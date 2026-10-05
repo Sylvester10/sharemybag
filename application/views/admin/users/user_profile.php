@@ -1,3 +1,4 @@
+<?php $activityUserId = (int) $y->id; ?>
 <?php echo flash_message_success('status_msg'); ?>
 <?php echo flash_message_danger('status_msg_error'); ?>
 <?php echo custom_validation_errors(); ?>
@@ -9,43 +10,40 @@
 
 <div class="row">
 
-    <div class="col-md-4 col-sm-12 col-xs-12 profile_details admin-detail-card">
-        <div class="well profile_view">
-
-            <div class="col-xs-12 bottom tw-flex tw-items-center tw-mt-[-10px]">
-                <div class="profile-pic">
-                    <?php
-                    if ($y->selfie != NULL) { ?>
-                        <img class="img-circle img-responsive" src="<?php echo base_url('assets/selfie/' . $y->selfie); ?>" />
-                    <?php } else { ?>
-                        <img class="img-circle img-responsive" src="<?php echo user_avatar; ?>" />
-                    <?php } ?>
-                </div>
-                <div class="tw-ml-4">
-                    <p class="tw-text-[20px] tw-font-bold"><?php echo $y->firstname; ?> <?php echo $y->lastname; ?></p>
-                    <p class="tw-mt-[-15px]"><?php echo $y->email; ?> </p>
-                </div>
+    <div class="col-xs-12 profile_details admin-detail-card">
+        <div class="well profile_view admin-user-profile">
+            <div class="admin-user-profile__top">
+                <span class="admin-user-profile__registered">
+                    <i class="las la-calendar" aria-hidden="true"></i>
+                    Registered <?= html_escape(x_date($y->date_registered)) ?>
+                </span>
             </div>
-
-            <div class="col-xs-12 tw-mt-8">
-
-                <ul class="list-unstyled">
-                    <li> <b> Phone:</b> <span> <?php echo $y->number; ?> </span> </li>
-                    <li> <b>Country:</b> <span> <?php echo $y->country; ?> </span> </li>
-                    <li> <b>Address:</b> <span> <?php echo $y->address; ?> </span> </li>
-                    <li> <b>State:</b> <span> <?php echo $y->state; ?> </span> </li>
-                    <li> <b>Post Code:</b> <span> <?php echo $y->post_code; ?> </span> </li>
-                    <li> <b>Registered:</b> <span> <?php echo x_date($y->date_registered); ?> </span> </li>
-                </ul>
-                <p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable tw-mt-8" data-toggle="modal" data-target="#update<?= $y->id ?>"> <i class="las la-pen" style="color: blue"></i> &nbsp; Update Details </a></p>
-
+            <div class="admin-user-profile__layout">
+                <div class="admin-user-profile__identity">
+                    <img class="img-circle admin-user-profile__avatar"
+                        src="<?= html_escape($y->selfie ? base_url('assets/selfie/' . $y->selfie) : user_avatar) ?>"
+                        alt="<?= html_escape(trim($y->firstname . ' ' . $y->lastname)) ?>">
+                    <h2 class="admin-user-profile__name"><?= html_escape(trim($y->firstname . ' ' . $y->lastname)) ?></h2>
+                    <div class="admin-user-profile__actions">
+                        <button type="button" class="btn btn-default btn-sm btn-block action-btn" data-toggle="modal" data-target="#update<?= (int) $y->id ?>"><i class="las la-pen" aria-hidden="true"></i> &nbsp; Update Details</button>
+                        <button type="button" class="btn btn-default btn-sm btn-block action-btn" data-toggle="modal" data-target="#userActivityHistory"><i class="las la-history" aria-hidden="true"></i> &nbsp; Activity History</button>
+                    </div>
+                </div>
+                <dl class="admin-user-profile__details">
+                    <?php foreach (array('Phone' => $y->number, 'Email' => $y->email,
+                        'Country' => $y->country, 'Address' => $y->address,
+                        'City' => $y->state, 'Postal Code' => $y->post_code) as $label => $value): ?>
+                        <div class="admin-user-profile__field">
+                            <dt><?= html_escape($label) ?></dt>
+                            <dd><?= html_escape(trim((string) $value) !== '' ? $value : '—') ?></dd>
+                        </div>
+                    <?php endforeach; ?>
+                </dl>
             </div>
-
-
         </div>
     </div>
 
-    <div class="modal fade admin-form-modal admin-form-modal--wide" id="update<?= $y->id ?>" role="dialog" aria-modal="true" aria-labelledby="updateUserTitle<?= $y->id ?>">
+    <div class="modal fade admin-form-modal admin-form-modal--wide admin-user-details-modal" id="update<?= $y->id ?>" role="dialog" aria-modal="true" aria-labelledby="updateUserTitle<?= $y->id ?>">
         <div class="modal-dialog modal-lg admin-form-modal__dialog">
             <div class="modal-content modal-widths admin-form-modal__content">
                 <div class="modal-header ">
@@ -55,35 +53,34 @@
                     <h4 class="modal-title admin-form-modal__title" id="updateUserTitle<?= $y->id ?>">Update Details: <?= $y->firstname ?> </h4>
                 </div>
 
-                <?php echo form_open_multipart('admin_users/update_user_ajax/' . $y->id, 'id="user_update_form_' . (int) $y->id . '" class="admin-form-modal__form"'); ?>
+                <?php echo form_open_multipart('admin_users/update_user_ajax/' . $y->id, 'id="user_update_form_' . (int) $y->id . '" class="admin-form-modal__form" data-user-details-form'); ?>
 
                 <div class="modal-body admin-form-modal__body">
 
                     <div class="admin-form-modal__section">
-                        <div class="row admin-form-modal__grid">
-                            <div class="col-lg-6 mb-2">
+                        <div class="row admin-form-modal__grid admin-user-details-grid">
+                            <div class="col-sm-6 mb-2">
                                 <div class="form-group">
                                     <label>First Name *</label>
 
                                     <input type="text" name="firstname" value="<?php echo set_value('firstname', $y->firstname); ?>" class="form-controls" minlength="2" maxlength="500" required>
                                 </div>
                             </div>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-sm-6 mb-2">
                                 <div class="form-group">
                                     <label>Last Name *</label>
 
                                     <input type="text" name="lastname" value="<?php echo set_value('lastname', $y->lastname); ?>" class="form-controls" minlength="2" maxlength="500" required>
                                 </div>
                             </div>
-                            <div class="clearfix visible-lg-block"></div>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-sm-6 mb-2">
                                 <div class="form-group">
                                     <label>Email *</label>
 
                                     <input type="email" name="email" value="<?php echo set_value('email', $y->email); ?>" class="form-controls" required>
                                 </div>
                             </div>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-sm-6 mb-2">
                                 <div class="form-group">
                                     <?php $this->load->view('partials/phone_input', array(
                                         'wrapper_class' => '',
@@ -93,14 +90,16 @@
                                         'input_id' => 'userPhoneNumber',
                                         'value' => set_value('number', $y->number),
                                         'label' => 'Phone',
-                                        'required' => true,
+                                        'required' => !empty($y->number),
                                         'input_class' => 'form-controls smb-phone-input__number',
                                         'select_class' => 'form-controls smb-phone-input__country',
                                     )); ?>
+                                    <input type="hidden" name="clear_phone" value="0">
+                                    <button type="button" class="btn btn-link btn-sm text-danger" data-clear-phone>Clear phone number</button>
+                                    <p class="small text-muted" data-phone-reset-notice hidden>Phone number will be cleared when you click Update.</p>
                                 </div>
                             </div>
-                            <div class="clearfix visible-lg-block"></div>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-sm-6 mb-2">
                                 <div class="form-group">
                                     <label class="form-control-label">Country*</label>
                                     <select class="form-control" name="country" required>
@@ -113,22 +112,21 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-sm-6 mb-2">
                                 <div class="form-group">
                                     <label>Address *</label>
 
                                     <input type="text" name="address" value="<?php echo set_value('address', $y->address); ?>" class="form-controls" required>
                                 </div>
                             </div>
-                            <div class="clearfix visible-lg-block"></div>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-sm-6 mb-2">
                                 <div class="form-group">
                                     <label>City *</label>
 
                                     <input type="text" name="state" value="<?php echo set_value('state', $y->state); ?>" class="form-controls" required>
                                 </div>
                             </div>
-                            <div class="col-lg-6 mb-2">
+                            <div class="col-sm-6 mb-2">
                                 <div class="form-group">
                                     <label>Postal Code *</label>
 
@@ -300,3 +298,22 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 <?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/cancel_parcel'); ?>
 <?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/move_parcel'); ?>
+
+<div class="modal fade admin-form-modal admin-form-modal--wide" id="userActivityHistory" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="userActivityTitle" data-user-activity-modal data-history-url="<?= html_escape(site_url('admin_users/activity_history/' . $activityUserId)) ?>">
+    <div class="modal-dialog modal-lg admin-form-modal__dialog">
+        <div class="modal-content admin-form-modal__content">
+            <div class="modal-header">
+                <button type="button" class="btn btn-danger btn-sm modal_close_btn pull-right" data-dismiss="modal" aria-label="Close">&times;</button>
+                <h4 class="modal-title admin-form-modal__title" id="userActivityTitle">Activity History</h4>
+            </div>
+            <div class="modal-body admin-form-modal__body">
+                <ul class="nav nav-tabs" role="tablist" aria-label="Activity type">
+                    <li class="active" role="presentation"><a href="#" role="tab" aria-selected="true" data-activity-type="details">Details Changes</a></li>
+                    <li role="presentation"><a href="#" role="tab" aria-selected="false" data-activity-type="signin">Sign-in Activity</a></li>
+                </ul>
+                <div class="admin-form-modal__section" data-activity-body role="tabpanel" aria-live="polite"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="<?= base_url('assets/admin/custom/js/user_activity.js') ?>" defer></script>

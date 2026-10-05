@@ -36,7 +36,9 @@
             error.textContent = message;
             field.setAttribute('aria-describedby', ((field.getAttribute('aria-describedby') || '') + ' ' + error.id).trim());
             if (target !== field) target.setAttribute('aria-describedby', error.id);
-            target.insertAdjacentElement('afterend', error);
+            // Composite phone controls keep feedback outside their flex row.
+            var phoneGroup = field.closest('[data-smb-phone-input]');
+            (phoneGroup || target).insertAdjacentElement('afterend', error);
         },
         focusFirst: function (scope) {
             var field = scope.querySelector('select.is-invalid, input.is-invalid, button.is-invalid');

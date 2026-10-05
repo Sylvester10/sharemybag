@@ -9,7 +9,7 @@ class Admin_user_model extends \CI_Model
 	{
 		parent::__construct();
 		$this->load->model('user_read_model');
-		$this->admin_details = $this->common_model->get_admin_details($this->session->email);
+		$this->admin_details = $this->common_model->get_admin_details($this->session->admin_email ?? $this->session->email);
 	}
 
 
@@ -18,17 +18,20 @@ class Admin_user_model extends \CI_Model
 	{
 		$data['firstname'] = ucfirst($this->input->post('firstname', TRUE));
 		$data['lastname'] = ucfirst($this->input->post('lastname', TRUE));
-		$data['number'] = normalize_phone_number($this->input->post('country_code', TRUE), $this->input->post('number', TRUE));
+		$clearPhone = $this->input->post('clear_phone', TRUE) === '1';
+		$data['number'] = $clearPhone ? null : normalize_phone_number($this->input->post('country_code', TRUE), $this->input->post('number', TRUE));
 		$data['email'] = $this->input->post('email', TRUE);
 		$data['country'] = $this->input->post('country', TRUE);
 		$data['address'] = $this->input->post('address', TRUE);
 		$data['state'] = $this->input->post('state', TRUE);
 		$data['post_code'] = $this->input->post('post_code', TRUE);
 
-		$this->db->where('id', $id);
-		$this->db->update('users', $data);
-		$this->user_read_model->clearUserCountCaches();
-		return true;
+		$this->load->model('user_activity_model');
+		$ok = $this->user_activity_model->updateDetails($id, $data,
+			$this->user_activity_model->actor('admin', $this->admin_details->id),
+			$clearPhone ? 'phone_cleared' : 'details_updated');
+		if ($ok) { $this->user_read_model->clearUserCountCaches(); }
+		return $ok;
 	}
 
 
@@ -190,8 +193,7 @@ class Admin_user_model extends \CI_Model
 		if ($this->db->field_exists('verification_rejected_by', 'users')) {
 			$data['verification_rejected_by'] = null;
 		}
-		$this->db->where('id', $id);
-		$this->db->update('users', $data);
+		if (!$this->audit_account_update($id, $data)) { return false; }
 		$this->user_read_model->clearUserCountCaches();
 
 		$y = $this->user_read_model->get_user_details_by_id($id);
@@ -201,7 +203,7 @@ class Admin_user_model extends \CI_Model
 		//Send email to user
 		send_email_notification($this, $email, 'Identity Verification Successful', $data, 'user_document_verification_success_email');
 
-		return;
+		return true;
 	}
 
 
@@ -228,8 +230,7 @@ class Admin_user_model extends \CI_Model
 		if ($this->db->field_exists('verification_rejected_by', 'users')) {
 			$data['verification_rejected_by'] = $this->admin_details->id ?? null;
 		}
-		$this->db->where('id', $id);
-		$this->db->update('users', $data);
+		if (!$this->audit_account_update($id, $data)) { return false; }
 		$this->user_read_model->clearUserCountCaches();
 
 		$y = $this->user_read_model->get_user_details_by_id($id);
@@ -241,7 +242,7 @@ class Admin_user_model extends \CI_Model
 		//Send email to user
 		send_email_notification($this, $email, 'Identity Verification Unsuccessful', $data, 'user_document_verification_failed_email');
 
-		return;
+		return true;
 	}
 
 
@@ -250,10 +251,7 @@ class Admin_user_model extends \CI_Model
 		$data = array(
 			'account_status' => 0,
 		);
-		$this->db->where('id', $id);
-		$this->db->update('users', $data);
-
-		return;
+		return $this->audit_account_update($id, $data);
 	}
 
 
@@ -262,11 +260,16 @@ class Admin_user_model extends \CI_Model
 		$data = array(
 			'account_status' => 1,
 		);
-		$this->db->where('id', $id);
-		$this->db->update('users', $data);
-
-		return;
+		return $this->audit_account_update($id, $data);
 	}
+
+
+    private function audit_account_update($id, array $data)
+    {
+        $this->load->model('user_activity_model');
+        return $this->user_activity_model->updateDetails($id, $data,
+            $this->user_activity_model->actor('admin', $this->admin_details->id));
+    }
 
 
 	public function delete_user_photo($id)

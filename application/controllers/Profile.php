@@ -241,7 +241,7 @@ class Profile extends MY_Controller
 			return;
 		}
 
-		if (!$this->users_model->mark_phone_verified($userId, $phone)) {
+		if (!$this->users_model->mark_phone_verified($userId, $phone, $challenge->id)) {
 			echo json_encode(array('status' => false, 'msg' => 'We could not save the verified number. Please try again.', 'title' => 'Update Failed', 'csrf_hash' => $csrf_hash));
 			return;
 		}

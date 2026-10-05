@@ -106,7 +106,7 @@ class MY_Controller extends CI_Controller
 
 	public function admin_header($title, $inner_page_title)
 	{
-		$admin_details = $this->common_model->get_admin_details($this->session->email);
+		$admin_details = $this->common_model->get_admin_details($this->session->admin_email ?? $this->session->email);
 		$requested_data = array(
 			'is_requested',
 			'requested_page'

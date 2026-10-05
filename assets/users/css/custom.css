@@ -132,6 +132,24 @@ img.img-changed ~ .inside_button {
     border-radius: 1rem;
 }
 
+/* Circular camera frame applies only to onboarding selfie capture. */
+.kyc-selfie-capture #video-container {
+    width: min(100%, 340px);
+    aspect-ratio: 1;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #121d24;
+}
+.kyc-selfie-capture #video-preview,
+.kyc-selfie-capture #image-preview {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 50%;
+}
+
 .kyc-verification-page {
     padding-bottom: 30px;
 }
@@ -1155,8 +1173,9 @@ div#default_order_info {
 .phone-signin-notice {
     align-items: center;
     background: #fff8f4;
-    border: 1px solid #f6d7c5;
-    border-radius: 9px;
+    border: 1px solid #f36b24;
+    border-left-width: 5px;
+    border-radius: 7px;
     color: #3f2a20;
     display: flex;
     gap: 14px;
@@ -1188,7 +1207,6 @@ div#default_order_info {
 }
 .phone-signin-notice__link {
     align-items: center;
-    color: #c24c0f;
     display: inline-flex;
     font-size: 13px;
     font-weight: 700;
@@ -1198,7 +1216,7 @@ div#default_order_info {
 }
 .phone-signin-notice__link:hover,
 .phone-signin-notice__link:focus-visible {
-    color: #9c3908;
+    color: #f36b24;
     text-decoration: underline;
 }
 
@@ -2173,7 +2191,6 @@ table.dataTable thead > tr > th.sorting:before {
 
 .profile-phone-otp .otp-input:focus {
     border-color: #f36b24;
-    box-shadow: 0 0 0 3px rgba(243, 107, 36, 0.2);
 }
 
 .profile-phone-otp .otp-input-container.is-invalid .otp-input {
