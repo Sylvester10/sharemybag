@@ -282,61 +282,39 @@ class Users_model extends MY_Model
             $data['verification_rejected_by'] = null;
         }
 
-        $this->db->where('id', $user_id);
-        $this->db->update('users', $data);
-        $this->user_read_model->clearUserCountCaches();
-
-        return ($this->db->affected_rows() > 0) ? $user_id : false;
+        $this->load->model('user_activity_model');
+        $ok = $this->user_activity_model->updateDetails($user_id, $data,
+            $this->user_activity_model->actor('user', $user_id), 'identity_updated');
+        if ($ok) { $this->user_read_model->clearUserCountCaches(); }
+        return $ok ? $user_id : false;
     }
 
 
     public function update_profile_to_db($id)
     {
-        $phone = normalize_phone_number(
-            $this->input->post('country_code', TRUE),
-            $this->input->post('number', TRUE)
-        );
-        if (!preg_match('/^\+[1-9][0-9]{7,14}$/', $phone)) {
-            return false;
-        }
-
-        $current = $this->user_read_model->get_user_details_by_id($id);
-        if (!$current) {
-            return false;
-        }
-
-        $data = array(
-            'number'    => $phone,
-            'state'     => $this->input->post('state', TRUE),
+        $this->load->model('user_activity_model');
+        return $this->user_activity_model->updateDetails($id, array(
+            'state' => $this->input->post('state', TRUE),
             'post_code' => $this->input->post('post_code', TRUE),
-            'address'   => $this->input->post('address', TRUE),
-        );
-
-        if (normalize_phone_number('', (string) $current->number) !== $phone) {
-            if ($this->db->field_exists('verified_phone_e164', 'users')) {
-                $data['verified_phone_e164'] = null;
-            }
-            if ($this->db->field_exists('phone_verified_at', 'users')) {
-                $data['phone_verified_at'] = null;
-            }
-        }
-
-        $this->db->where('id', $id);
-        return $this->db->update('users', $data);
+            'address' => $this->input->post('address', TRUE),
+        ), $this->user_activity_model->actor('user', $id));
     }
 
-    public function mark_phone_verified($userId, $phone)
+    public function mark_phone_verified($userId, $phone, $challengeId = null)
     {
-        $this->db->trans_start();
-        $this->db->where('id', (int) $userId);
-        $this->db->update('users', array(
-            'number' => $phone,
-            'verified_phone_e164' => $phone,
-            'phone_verified_at' => date('Y-m-d H:i:s'),
-        ));
-        $this->db->trans_complete();
+        $this->load->model('user_activity_model');
+        return $this->user_activity_model->updateDetails($userId, array(
+            'number' => $phone, 'verified_phone_e164' => $phone,
+            'phone_verified_at' => date('Y-m-d H:i:s'), 'phone_signin_enabled' => 1,
+        ), $this->user_activity_model->actor('user', $userId), 'phone_verified', $challengeId);
+    }
 
-        return $this->db->trans_status();
+    public function set_phone_signin_enabled($userId, $enabled)
+    {
+        $this->load->model('user_activity_model');
+        return $this->user_activity_model->updateDetails($userId,
+            array('phone_signin_enabled' => $enabled ? 1 : 0),
+            $this->user_activity_model->actor('user', $userId), 'phone_signin_updated');
     }
 
 

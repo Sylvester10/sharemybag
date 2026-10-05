@@ -80,13 +80,13 @@ class MY_Controller extends CI_Controller
 	public function website_header($title, $data = [])
 	{
 		$data['title'] = $title;
-		return $this->load->view('website/layout/header', $data);
+		return $this->load->view('website/new/layout/header', $data);
 	}
 
 
 	public function website_footer()
 	{
-		return $this->load->view('website/layout/footer');
+		return $this->load->view('website/new/layout/footer');
 	}
 
 
@@ -106,7 +106,7 @@ class MY_Controller extends CI_Controller
 
 	public function admin_header($title, $inner_page_title)
 	{
-		$admin_details = $this->common_model->get_admin_details($this->session->email);
+		$admin_details = $this->common_model->get_admin_details($this->session->admin_email ?? $this->session->email);
 		$requested_data = array(
 			'is_requested',
 			'requested_page'

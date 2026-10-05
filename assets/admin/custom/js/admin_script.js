@@ -746,12 +746,13 @@ jQuery(document).ready(function ($) {
             'Search/filter arrivals:',
             function (d) {
                 d.destination = $('#arrivals_destination_filter').val();
+                d.lifecycle = $('#arrivals_lifecycle_filter').val();
             }
         )
             .order([1, 'desc'])
             .draw();
 
-        $('#arrivals_destination_filter').on('change', function () {
+        $('#arrivals_destination_filter, #arrivals_lifecycle_filter').on('change', function () {
             arrivalsTravellerTable.ajax.reload();
         });
     }
@@ -1384,6 +1385,415 @@ jQuery(document).ready(function ($) {
                         (res && res.msg) || 'Server error. Please try again.'
                     )
                     .removeClass('d-none');
+            },
+        });
+    });
+
+    /* ================================================================
+       CONTROLLED PARCEL CANCELLATION
+       Super Admin only. Errors remain inside the modal; reload happens
+       only after the server commits the cancellation and audit entry.
+    ================================================================ */
+    function setParcelInlineError(fieldSelector, errorSelector, isValid, message, showAll) {
+        var $field = $(fieldSelector);
+        var $error = $(errorSelector);
+        var shouldShow = !isValid && (showAll || $field.data('validation-touched'));
+
+        $field.attr('aria-invalid', isValid ? 'false' : 'true');
+        $field.closest('.admin-parcel-field').toggleClass('has-error', shouldShow);
+        $error.toggleClass('d-none', !shouldShow).text(shouldShow ? message : '');
+    }
+
+    function validateCancelParcel(showAll) {
+        var bookingId = parseInt($('#cancel_booking_id').val(), 10) || 0;
+        var reason = $.trim($('#cancellation_reason').val());
+        var refundStatus = String($('#cancel_refund_status').val() || '');
+        var refundReference = $.trim($('#cancel_refund_reference').val());
+        var refundAmount = refundStatus === 'not_required'
+            ? 0
+            : parseFloat($('#cancel_refund_amount').val());
+        var confirmed = $('#confirm_cancel_parcel').is(':checked');
+        var validStatuses = ['refunded', 'not_required'];
+        var reasonValid = reason.length >= 5 && reason.length <= 500;
+        var statusValid = validStatuses.indexOf(refundStatus) !== -1;
+        var amountValid = refundStatus === 'not_required' || (!isNaN(refundAmount) && refundAmount >= 0);
+        var referenceValid = refundStatus !== 'refunded' || refundReference.length > 0;
+
+        setParcelInlineError('#cancellation_reason', '#cancellation_reason_error', reasonValid, 'Enter a cancellation reason between 5 and 500 characters.', showAll);
+        setParcelInlineError('#cancel_refund_status', '#cancel_refund_status_error', statusValid, 'Select a valid refund status.', showAll);
+        setParcelInlineError('#cancel_refund_amount', '#cancel_refund_amount_error', amountValid, 'Enter a valid refund amount.', showAll);
+        setParcelInlineError('#cancel_refund_reference', '#cancel_refund_reference_error', referenceValid, 'Enter the manual refund reference.', showAll);
+        setParcelInlineError('#confirm_cancel_parcel', '#confirm_cancel_parcel_error', confirmed, 'Confirm that you want to cancel this parcel.', showAll);
+
+        return bookingId > 0 && reasonValid && statusValid && amountValid && referenceValid && confirmed;
+    }
+
+    function syncCancelParcelSubmitState() {
+        $('#confirmCancelParcel').prop('disabled', !validateCancelParcel(false));
+    }
+
+    $(document).on('click', '.open-cancel-parcel', function (event) {
+        event.preventDefault();
+
+        var $trigger = $(this);
+        var bookingId = parseInt($trigger.data('booking-id'), 10) || 0;
+        var reference = String($trigger.data('booking-reference') || ('#' + bookingId));
+        var amount = parseFloat($trigger.data('refund-amount'));
+        var currency = String($trigger.data('currency') || '').toUpperCase();
+
+        if (!bookingId) {
+            return;
+        }
+
+        $('#cancel_booking_id').val(bookingId);
+        $('#cancel_parcel_reference').text(reference);
+        $('#cancellation_reason').val('');
+        $('#cancel_refund_status').val('');
+        $('#cancel_refund_amount')
+            .val(isNaN(amount) ? '0.00' : amount.toFixed(2))
+            .prop('disabled', false);
+        $('#cancel_refund_currency').text(currency || 'Currency');
+        $('#cancel_refund_reference').val('');
+        $('#cancel_refund_reference_group').hide();
+        $('#confirm_cancel_parcel').prop('checked', false);
+        $('#cancelParcelModal').find('input, select, textarea').removeData('validation-touched').attr('aria-invalid', 'false');
+        $('#cancelParcelModal').find('.admin-parcel-field').removeClass('has-error');
+        $('#cancelParcelModal').find('.admin-form-field-error').addClass('d-none').text('');
+        $('#cancel_parcel_error').addClass('d-none').text('');
+        $('#confirmCancelParcel').prop('disabled', true).html('<i class="las la-times"></i> Cancel Parcel');
+
+        var $actionModal = $trigger.closest('.modal');
+        if ($actionModal.length) {
+            $actionModal.modal('hide');
+            setTimeout(function () {
+                $('#cancelParcelModal').modal('show');
+            }, 200);
+        } else {
+            $('#cancelParcelModal').modal('show');
+        }
+    });
+
+    $(document).on('change', '#cancel_refund_status', function () {
+        var status = $(this).val();
+        var requiresReference = status === 'refunded';
+        $('#cancel_refund_reference_group').toggle(requiresReference);
+        $('#cancel_refund_reference').prop('required', requiresReference);
+
+        if (status === 'not_required') {
+            $('#cancel_refund_amount').val('0.00').prop('disabled', true);
+            $('#cancel_refund_reference').val('');
+        } else {
+            $('#cancel_refund_amount').prop('disabled', false);
+        }
+        syncCancelParcelSubmitState();
+    });
+
+    $(document).on('input', '#cancellation_reason, #cancel_refund_amount, #cancel_refund_reference', syncCancelParcelSubmitState);
+    $(document).on('change', '#confirm_cancel_parcel', function () {
+        $(this).data('validation-touched', true);
+        syncCancelParcelSubmitState();
+    });
+    $(document).on('blur', '#cancellation_reason, #cancel_refund_amount, #cancel_refund_reference', function () {
+        $(this).data('validation-touched', true);
+        validateCancelParcel(false);
+    });
+
+    $(document).on('click', '#confirmCancelParcel', function () {
+        var bookingId = parseInt($('#cancel_booking_id').val(), 10) || 0;
+        var reason = $.trim($('#cancellation_reason').val());
+        var refundStatus = $('#cancel_refund_status').val();
+        var refundReference = $.trim($('#cancel_refund_reference').val());
+        var refundAmount = refundStatus === 'not_required'
+            ? 0
+            : parseFloat($('#cancel_refund_amount').val());
+        var confirmed = $('#confirm_cancel_parcel').is(':checked');
+        var $error = $('#cancel_parcel_error');
+
+        $error.addClass('d-none').text('');
+
+        if (!bookingId) {
+            $error.text('Could not detect the selected booking. Close the modal and try again.').removeClass('d-none');
+            return;
+        }
+        if (!validateCancelParcel(true)) {
+            return;
+        }
+
+        var $button = $(this)
+            .prop('disabled', true)
+            .html('<i class="las la-spinner la-spin"></i> Cancelling...');
+
+        $.ajax({
+            url: base_url + 'admin_bookings/cancel_parcel_ajax',
+            type: 'POST',
+            data: {
+                booking_id: bookingId,
+                cancellation_reason: reason,
+                refund_status: refundStatus,
+                refund_reference: refundReference,
+                refund_amount: refundAmount,
+                q2r_secure: getCsrfHash(),
+            },
+            success: function (response) {
+                var result = response;
+                if (typeof response !== 'object') {
+                    try {
+                        result = JSON.parse(response);
+                    } catch (e) {
+                        result = { status: false, msg: 'Invalid server response.' };
+                    }
+                }
+
+                updateCsrfHash(result.csrf_hash);
+
+                if (result.status) {
+                    sessionStorage.setItem('parcel_success_msg', result.msg || 'Parcel cancelled successfully.');
+                    $('#cancelParcelModal').modal('hide');
+                    location.reload();
+                    return;
+                }
+
+                $button.html('<i class="las la-times"></i> Cancel Parcel');
+                syncCancelParcelSubmitState();
+                $error.text(result.msg || 'Unable to cancel this parcel.').removeClass('d-none');
+            },
+            error: function (xhr) {
+                var result = null;
+                try {
+                    result = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    result = null;
+                }
+
+                if (result && result.csrf_hash) {
+                    updateCsrfHash(result.csrf_hash);
+                }
+
+                $button.html('<i class="las la-times"></i> Cancel Parcel');
+                syncCancelParcelSubmitState();
+                $error.text((result && result.msg) || 'Server error. Please try again.').removeClass('d-none');
+            },
+        });
+    });
+
+    /* ================================================================
+       CONTROLLED PARCEL MOVE
+       Loads eligible travellers from the server, then submits a confirmed
+       reassignment. Validation failures remain in the modal.
+    ================================================================ */
+    var moveParcelContextRequest = null;
+
+    function validateMoveParcel(showAll) {
+        var bookingId = parseInt($('#move_booking_id').val(), 10) || 0;
+        var hasTraveller = !!$('#move_target_traveller_id').val();
+        var reason = $.trim($('#move_parcel_reason').val());
+        var reasonValid = reason.length >= 5 && reason.length <= 500;
+        var confirmed = $('#confirm_move_parcel').is(':checked');
+
+        setParcelInlineError('#move_target_traveller_id', '#move_target_traveller_error', hasTraveller, 'Select a destination traveller.', showAll);
+        setParcelInlineError('#move_parcel_reason', '#move_parcel_reason_error', reasonValid, 'Enter a move reason between 5 and 500 characters.', showAll);
+        setParcelInlineError('#confirm_move_parcel', '#confirm_move_parcel_error', confirmed, 'Confirm that you want to move this parcel.', showAll);
+
+        return bookingId > 0 && hasTraveller && reasonValid && confirmed;
+    }
+
+    function syncMoveParcelSubmitState() {
+        $('#confirmMoveParcel').prop('disabled', !validateMoveParcel(false));
+    }
+
+    function showMoveParcelModal(bookingId, reference, successUrl) {
+        $('#move_booking_id').val(bookingId);
+        $('#moveParcelModal').data('success-url', successUrl || '');
+        $('#move_parcel_reference').text(reference || ('#' + bookingId));
+        $('#move_parcel_reason').val('');
+        $('#confirm_move_parcel').prop('checked', false);
+        $('#moveParcelModal').find('input, select, textarea').removeData('validation-touched').attr('aria-invalid', 'false');
+        $('#moveParcelModal').find('.admin-parcel-field').removeClass('has-error');
+        $('#moveParcelModal').find('.admin-form-field-error').addClass('d-none').text('');
+        $('#move_parcel_error').addClass('d-none').text('');
+        $('#move_parcel_context').html('<i class="las la-spinner la-spin"></i> Loading eligible travellers...');
+        $('#move_target_traveller_id')
+            .empty()
+            .append($('<option>').val('').text('Loading eligible travellers...'))
+            .prop('disabled', true);
+        $('#confirmMoveParcel').prop('disabled', true).html('<i class="las la-exchange-alt"></i> Move Parcel');
+        $('#moveParcelModal').modal('show');
+
+        if (moveParcelContextRequest) {
+            moveParcelContextRequest.abort();
+        }
+
+        moveParcelContextRequest = $.ajax({
+            url: base_url + 'admin_bookings/move_parcel_context_ajax/' + bookingId,
+            type: 'POST',
+            data: { q2r_secure: getCsrfHash() },
+            success: function (response) {
+                var result = response;
+                if (typeof response !== 'object') {
+                    try {
+                        result = JSON.parse(response);
+                    } catch (e) {
+                        result = { status: false, msg: 'Invalid server response.' };
+                    }
+                }
+
+                updateCsrfHash(result.csrf_hash);
+                if (!result.status || !result.context) {
+                    $('#move_parcel_context').html('<i class="las la-exclamation-circle"></i> Move unavailable');
+                    $('#move_parcel_error').text(result.msg || 'Unable to load eligible travellers.').removeClass('d-none');
+                    return;
+                }
+
+                var context = result.context;
+                var travellers = context.eligible_travellers || [];
+                var $select = $('#move_target_traveller_id').empty();
+                $('#move_parcel_context').text(
+                    'Current traveller: ' + context.current_traveller +
+                    ' | Route: ' + context.route +
+                    ' | Parcel: ' + parseFloat(context.parcel_size || 0).toFixed(2) + ' KG'
+                );
+
+                if (!travellers.length) {
+                    $select.append($('<option>').val('').text('No eligible travellers available')).prop('disabled', true);
+                    $('#move_parcel_error')
+                        .text('No approved traveller on this route currently has enough available space.')
+                        .removeClass('d-none');
+                    return;
+                }
+
+                $select.append($('<option>').val('').text('Select destination traveller'));
+                $.each(travellers, function (_, traveller) {
+                    var label = traveller.fullname +
+                        ' — ' + (traveller.travel_date_label || traveller.travel_date) +
+                        ' — ' + parseFloat(traveller.available_space || 0).toFixed(2) + ' KG available';
+                    $select.append($('<option>').val(traveller.id).text(label));
+                });
+                $select.prop('disabled', false);
+                syncMoveParcelSubmitState();
+            },
+            error: function (xhr, status) {
+                if (status === 'abort') {
+                    return;
+                }
+
+                var result = null;
+                try {
+                    result = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    result = null;
+                }
+                if (result && result.csrf_hash) {
+                    updateCsrfHash(result.csrf_hash);
+                }
+                $('#move_parcel_context').html('<i class="las la-exclamation-circle"></i> Move unavailable');
+                $('#move_parcel_error').text((result && result.msg) || 'Unable to load eligible travellers.').removeClass('d-none');
+            },
+            complete: function () {
+                moveParcelContextRequest = null;
+            },
+        });
+    }
+
+    $(document).on('click', '.open-move-parcel', function (event) {
+        event.preventDefault();
+        var $trigger = $(this);
+        var bookingId = parseInt($trigger.data('booking-id'), 10) || 0;
+        var reference = String($trigger.data('booking-reference') || ('#' + bookingId));
+        var successUrl = String($trigger.data('success-url') || '');
+        if (!bookingId) {
+            return;
+        }
+
+        var $actionModal = $trigger.closest('.modal');
+        if ($actionModal.length) {
+            $actionModal.modal('hide');
+            setTimeout(function () {
+                showMoveParcelModal(bookingId, reference, successUrl);
+            }, 200);
+        } else {
+            showMoveParcelModal(bookingId, reference, successUrl);
+        }
+    });
+
+    $(document).on('input', '#move_parcel_reason', syncMoveParcelSubmitState);
+    $(document).on('change', '#move_target_traveller_id, #confirm_move_parcel', function () {
+        $(this).data('validation-touched', true);
+        syncMoveParcelSubmitState();
+    });
+    $(document).on('blur', '#move_parcel_reason', function () {
+        $(this).data('validation-touched', true);
+        validateMoveParcel(false);
+    });
+
+    $(document).on('click', '#confirmMoveParcel', function () {
+        var bookingId = parseInt($('#move_booking_id').val(), 10) || 0;
+        var targetTravellerId = parseInt($('#move_target_traveller_id').val(), 10) || 0;
+        var reason = $.trim($('#move_parcel_reason').val());
+        var confirmed = $('#confirm_move_parcel').is(':checked');
+        var $error = $('#move_parcel_error');
+
+        $error.addClass('d-none').text('');
+        if (!bookingId) {
+            $error.text('Could not detect the selected booking. Close the modal and try again.').removeClass('d-none');
+            return;
+        }
+        if (!validateMoveParcel(true)) {
+            return;
+        }
+
+        var $button = $(this)
+            .prop('disabled', true)
+            .html('<i class="las la-spinner la-spin"></i> Moving...');
+
+        $.ajax({
+            url: base_url + 'admin_bookings/move_parcel_ajax',
+            type: 'POST',
+            data: {
+                booking_id: bookingId,
+                target_traveller_id: targetTravellerId,
+                move_reason: reason,
+                q2r_secure: getCsrfHash(),
+            },
+            success: function (response) {
+                var result = response;
+                if (typeof response !== 'object') {
+                    try {
+                        result = JSON.parse(response);
+                    } catch (e) {
+                        result = { status: false, msg: 'Invalid server response.' };
+                    }
+                }
+
+                updateCsrfHash(result.csrf_hash);
+                if (result.status) {
+                    sessionStorage.setItem('parcel_success_msg', result.msg || 'Parcel moved successfully.');
+                    $('#moveParcelModal').modal('hide');
+                    var successUrl = String($('#moveParcelModal').data('success-url') || '');
+                    if (successUrl) {
+                        window.location.href = successUrl;
+                    } else {
+                        location.reload();
+                    }
+                    return;
+                }
+
+                $button.html('<i class="las la-exchange-alt"></i> Move Parcel');
+                syncMoveParcelSubmitState();
+                $error.text(result.msg || 'Unable to move this parcel.').removeClass('d-none');
+            },
+            error: function (xhr) {
+                var result = null;
+                try {
+                    result = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    result = null;
+                }
+                if (result && result.csrf_hash) {
+                    updateCsrfHash(result.csrf_hash);
+                }
+                $button.html('<i class="las la-exchange-alt"></i> Move Parcel');
+                syncMoveParcelSubmitState();
+                $error.text((result && result.msg) || 'Server error. Please try again.').removeClass('d-none');
             },
         });
     });

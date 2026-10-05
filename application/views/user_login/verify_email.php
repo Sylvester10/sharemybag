@@ -20,12 +20,15 @@
     <!-- endbuild -->
 
     <!--custom css start-->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css?v=<?php echo filemtime(FCPATH . 'assets/login/css/custom.css'); ?>">
     <!--custom css end-->
+
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/auth-refresh.css?v=<?php echo filemtime(FCPATH . 'assets/login/css/auth-refresh.css'); ?>">
 
 </head>
 
-<body>
+<body class="smb-auth-page">
+    <?php $this->load->view('partials/sandbox_badge', array('sandbox_badge_fixed' => true)); ?>
 
     <!-- preloader start -->
     <div id="preloader" class="bg-light-subtle">
@@ -94,16 +97,14 @@
                                         <!--</div>-->
                                         
                                         <div class="col-sm-12 mb-3">
-                                            <label for="verificationCode" class="mb-1">Verification Code<span class="text-danger">*</span></label>
-                                            <div class="otp-input-container">
-                                                <input type="text" class="form-control otp-input" id="otp1" maxlength="1" autofocus>
-                                                <input type="text" class="form-control otp-input" id="otp2" maxlength="1">
-                                                <input type="text" class="form-control otp-input" id="otp3" maxlength="1">
-                                                <input type="text" class="form-control otp-input" id="otp4" maxlength="1">
-                                                <input type="text" class="form-control otp-input" id="otp5" maxlength="1">
-                                                <input type="text" class="form-control otp-input" id="otp6" maxlength="1">
-                                            </div>
-                                            <input type="hidden" name="verification_code" id="verificationCode" value="">
+                                            <label for="otp1" class="mb-1">Verification Code<span class="text-danger">*</span></label>
+                                            <?php $this->load->view('user_login/partials/otp_inputs', array(
+                                                'hidden_name' => 'verification_code',
+                                                'hidden_id' => 'verificationCode',
+                                                'input_id_prefix' => 'otp',
+                                                'group_label' => 'Email verification code',
+                                                'autofocus' => true,
+                                            )); ?>
                                         </div>
                                         
                                         
@@ -175,7 +176,7 @@
 
     <!-- custom scripts -->
     <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/my_functions.js'); ?>"></script>
-    <script src="<?php echo base_url(); ?>assets/login/js/login.js"></script>
+    <script src="<?php echo base_url(); ?>assets/login/js/login.js?v=<?php echo filemtime(FCPATH . 'assets/login/js/login.js'); ?>"></script>
     <script src="<?php echo base_url(); ?>assets/website/js/home.js?v=<?php echo filemtime(FCPATH . 'assets/website/js/home.js'); ?>"></script>
     
 

@@ -1,0 +1,250 @@
+/* Shared presentation only: form contracts and authentication states stay in the views. */
+.smb-auth-page {
+    background: #fff;
+    color: #121d24;
+}
+
+.smb-auth-page .sign-up-in-section {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    background: #fff !important;
+}
+
+.smb-auth-page .sign-up-in-section > .container {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+}
+
+.smb-auth-page .sign-up-in-section > .container > .row {
+    margin: 0;
+}
+
+.smb-auth-page .sign-up-in-section .col-lg-10 {
+    width: 100%;
+    padding: 0;
+}
+
+.smb-auth-page .pricing-content-wrap {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 15px;
+    background: #fff;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none !important;
+}
+
+.smb-auth-page .price-feature-col {
+    width: 100%;
+    min-width: 0;
+}
+
+.smb-auth-page .pricing-feature-info {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 20px);
+    min-height: calc(100svh - 20px);
+    padding: 44px !important;
+    border-radius: 24px;
+}
+
+.smb-auth-page .mask-overlay {
+    background: linear-gradient(160deg, rgba(243, 107, 36, 0.35), rgba(18, 29, 36, 0.35) 45%, rgba(18, 29, 36, 0.92));
+}
+
+.smb-auth-page .pricing-feature-info > a {
+    align-self: flex-start;
+    margin-bottom: 48px !important;
+}
+
+.smb-auth-page .customer-testimonial-wrap {
+    margin-top: auto;
+    padding-top: 80px;
+}
+
+.smb-auth-page .testimonial-tab-content {
+    margin-bottom: 0 !important;
+}
+
+.smb-auth-page blockquote {
+    font-size: clamp(17px, 1.4vw, 20px);
+    line-height: 1.6;
+    font-weight: 500;
+    margin-bottom: 24px;
+}
+
+.smb-auth-page .author-info span {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.smb-auth-page .pricing-action-info {
+    align-self: center;
+    justify-self: center;
+    max-width: 620px;
+    padding: 48px clamp(24px, 4vw, 60px) !important;
+    background: #fff !important;
+    border-radius: 24px;
+}
+
+.smb-auth-page .pricing-action-info h1 {
+    font-size: clamp(25px, 2.5vw, 34px);
+    line-height: 1.2;
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.smb-auth-page .pricing-action-info > p:not(.copyright) {
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.smb-auth-page .register-form {
+    margin-top: 28px !important;
+}
+
+.smb-auth-page .register-form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #121d24;
+}
+
+.smb-auth-page .register-form .form-control,
+.smb-auth-page .register-form .nice-select {
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid #eceeef;
+    border-radius: 10px;
+    background-color: #f7f8f9;
+    font-size: 14px;
+    color: #121d24;
+}
+
+.smb-auth-page .register-form .form-control::placeholder {
+    color: #7c858b;
+}
+
+.smb-auth-page .register-form .form-control:focus,
+.smb-auth-page .register-form .nice-select:focus {
+    border-color: #f36b24;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(243, 107, 36, 0.14);
+    background-color: #fff;
+}
+
+.smb-auth-page .register-form .nice-select {
+    width: 100%;
+    float: none;
+    line-height: 22px;
+    padding-right: 30px;
+}
+
+.smb-auth-page .register-form .nice-select .list {
+    width: 100%;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.smb-auth-page .input-group > .form-control:not(:last-child),
+.smb-auth-page .smb-phone-input__country,
+.smb-auth-page .smb-phone-input .nice-select.smb-phone-input__country {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.smb-auth-page .smb-phone-input .nice-select.smb-phone-input__country {
+    width: 90px;
+    height: 50px;
+    flex-shrink: 0;
+}
+
+.smb-auth-page .smb-phone-input__number {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.smb-auth-page .eyes {
+    align-self: stretch;
+    padding: 0 14px;
+    border: 1px solid #eceeef;
+    border-left: 0;
+    border-radius: 0 10px 10px 0;
+    background: #f7f8f9;
+    color: #747e84;
+}
+
+.smb-auth-page .main-btn {
+    height: 40px;
+    padding: 0 15px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+.smb-auth-page .pricing-action-info > .copyright {
+    margin-top: 30px !important;
+    margin-bottom: 0 !important;
+    font-size: 12px;
+}
+
+.smb-auth-page a:hover {
+    text-decoration: none;
+}
+
+.smb-auth-page a:focus-visible,
+.smb-auth-page button:focus-visible {
+    outline: 2px solid #f36b24;
+    outline-offset: 4px;
+}
+
+/* The expired-reset-link state has no two-panel content. */
+.smb-auth-page .pricing-content-wrap > .text-center {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 991px) {
+    .smb-auth-page .sign-up-in-section {
+        padding: 0;
+    }
+
+    .smb-auth-page .pricing-content-wrap {
+        grid-template-columns: minmax(0, 1fr);
+        max-width: none;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .smb-auth-page .pricing-feature-info {
+        display: none;
+    }
+
+    .smb-auth-page .pricing-action-info {
+        padding: 28px !important;
+    }
+
+    .smb-auth-page .pricing-action-info > a {
+        text-align: center;
+        margin-bottom: 28px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .smb-auth-page .sign-up-in-section {
+        padding: 0;
+    }
+
+    .smb-auth-page .pricing-action-info {
+        padding: 24px 12px !important;
+    }
+
+    .smb-auth-page #signup_form .col-6 {
+        width: 100%;
+    }
+}

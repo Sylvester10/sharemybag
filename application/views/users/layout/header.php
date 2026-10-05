@@ -157,6 +157,7 @@
 							</li>
 						</ul>
 
+						<?php $this->load->view('partials/sandbox_badge'); ?>
 						<div class="d-block d-lg-none py-4">
 							<h2 class="mb-0 fw-bolder fs-8"><?php echo $title; ?></h2>
 						</div>

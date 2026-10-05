@@ -132,6 +132,24 @@ img.img-changed ~ .inside_button {
     border-radius: 1rem;
 }
 
+/* Circular camera frame applies only to onboarding selfie capture. */
+.kyc-selfie-capture #video-container {
+    width: min(100%, 340px);
+    aspect-ratio: 1;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #121d24;
+}
+.kyc-selfie-capture #video-preview,
+.kyc-selfie-capture #image-preview {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 50%;
+}
+
 .kyc-verification-page {
     padding-bottom: 30px;
 }
@@ -377,12 +395,18 @@ img.img-changed ~ .inside_button {
 }
 
 @keyframes kyc-step-spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes kyc-step-enter {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1144,6 +1168,63 @@ div#default_order_info {
     gap: 12px;
     max-width: 720px;
     padding: 14px 16px;
+}
+
+.phone-signin-notice {
+    align-items: center;
+    background: #fff8f4;
+    border: 1px solid #f36b24;
+    border-left-width: 5px;
+    border-radius: 7px;
+    color: #3f2a20;
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+}
+
+.phone-signin-notice__icon {
+    align-items: center;
+    background: #f36b24;
+    border-radius: 50%;
+    color: #fff;
+    display: inline-flex;
+    flex: 0 0 36px;
+    height: 36px;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.phone-signin-notice__content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 13px;
+}
+.phone-signin-notice__content strong {
+    color: #020713;
+    font-size: 14px;
+}
+.phone-signin-notice__link {
+    align-items: center;
+    display: inline-flex;
+    font-size: 13px;
+    font-weight: 700;
+    gap: 5px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.phone-signin-notice__link:hover,
+.phone-signin-notice__link:focus-visible {
+    color: #f36b24;
+    text-decoration: underline;
+}
+
+@media (max-width: 575px) {
+    .phone-signin-notice {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
 }
 
 .parcel-guarantee-notice__icon {
@@ -2087,20 +2168,161 @@ table.dataTable thead > tr > th.sorting:before {
     bottom: 0 !important;
 }
 /* Authentication and verified contact states */
-.auth-profile-code-input {
-    min-height: 52px;
-    font-size: 1.35rem;
-    font-weight: 600;
-    letter-spacing: 0.35rem;
-    text-align: center;
+.profile-phone-otp .otp-input-container {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    margin: 0 auto 1rem;
+    max-width: 420px;
 }
 
-#phoneVerificationState .badge {
-    display: inline-flex;
+.profile-phone-otp .otp-input {
+    border: 1px solid #ced4da;
+    border-radius: 7px;
+    font-size: 24px;
+    font-weight: 600;
+    height: 52px;
+    margin: 0;
+    min-width: 0;
+    padding: 0 0.25rem;
+    text-align: center;
+    width: 100%;
+}
+
+.profile-phone-otp .otp-input:focus {
+    border-color: #f36b24;
+}
+
+.profile-phone-otp .otp-input-container.is-invalid .otp-input {
+    border-color: #dc3545;
+}
+
+@media (max-width: 480px) {
+    .profile-phone-otp .otp-input-container {
+        gap: 6px;
+    }
+    .profile-phone-otp .otp-input {
+        font-size: 20px;
+        height: 46px;
+        padding: 0;
+    }
+}
+
+.profile-phone-input-group .smb-phone-input__number {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.profile-phone-verify-button,
+.profile-phone-verified {
     align-items: center;
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 50px;
+    justify-content: center;
+    min-height: 50px;
+}
+
+.profile-phone-verify-button {
+    font-size: 12px;
+    padding: 0 12px;
+    white-space: nowrap;
+    max-width: 160px;
+    overflow: hidden;
+    transition:
+        max-width 0.22s ease,
+        opacity 0.22s ease,
+        padding 0.22s ease,
+        border-width 0.22s ease;
+}
+
+.profile-phone-signin:not(.is-active) .profile-phone-verify-button {
+    max-width: 0;
+    opacity: 0;
+    padding: 0;
+    border-width: 0;
+    pointer-events: none;
+}
+
+.profile-phone-signin-toggle {
+    align-items: center;
+    cursor: pointer;
+    display: inline-flex;
+    gap: 8px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.profile-phone-signin-toggle input {
+    opacity: 0;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+}
+
+.profile-phone-signin-track {
+    background: #adb5bd;
+    border-radius: 999px;
+    display: inline-block;
+    flex: 0 0 auto;
+    height: 22px;
+    position: relative;
+    transition: background 0.2s ease;
+    width: 38px;
+}
+
+.profile-phone-signin-track::after {
+    background: #fff;
+    border-radius: 50%;
+    content: '';
+    height: 16px;
+    left: 3px;
+    position: absolute;
+    top: 3px;
+    transition: transform 0.2s ease;
+    width: 16px;
+}
+
+.profile-phone-signin-toggle input:checked + .profile-phone-signin-track {
+    background: #198754;
+}
+.profile-phone-signin-toggle
+    input:checked
+    + .profile-phone-signin-track::after {
+    transform: translateX(16px);
+}
+.profile-phone-signin-toggle input:focus-visible + .profile-phone-signin-track {
+    outline: 3px solid rgba(13, 110, 253, 0.4);
+    outline-offset: 2px;
+}
+.profile-phone-signin-toggle input:disabled + .profile-phone-signin-track {
+    opacity: 0.6;
+}
+
+.profile-phone-verify-button.is-loading .profile-phone-verify-label {
+    display: none;
+}
+
+.profile-phone-verified {
+    min-width: 50px;
+}
+
+@media (max-width: 575px) {
+    .profile-phone-verify-button {
+        font-size: 11px;
+        line-height: 1.15;
+        max-width: 82px;
+        padding: 0 7px;
+        white-space: normal;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .profile-phone-signin-track,
+    .profile-phone-signin-track::after,
+    .profile-phone-verify-button {
+        transition: none;
+    }
     #phoneVerificationModal.fade .modal-dialog {
         transition: none;
     }

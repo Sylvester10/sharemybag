@@ -20,12 +20,15 @@
     <!-- endbuild -->
 
     <!--custom css start-->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css?v=<?php echo filemtime(FCPATH . 'assets/login/css/custom.css'); ?>">
     <!--custom css end-->
+
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/auth-refresh.css?v=<?php echo filemtime(FCPATH . 'assets/login/css/auth-refresh.css'); ?>">
 
 </head>
 
-<body>
+<body class="smb-auth-page">
+    <?php $this->load->view('partials/sandbox_badge', array('sandbox_badge_fixed' => true)); ?>
 
     <!-- preloader start -->
     <div id="preloader" class="bg-light-subtle">
@@ -192,8 +195,8 @@
     <!--endbuild-->
 
     <!-- custom scripts -->
-    <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js"></script>
-    <script src="<?php echo base_url(); ?>assets/website/js/home.js"></script>
+    <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/my_functions.js'); ?>"></script>
+    <script src="<?php echo base_url(); ?>assets/website/js/home.js?v=<?php echo filemtime(FCPATH . 'assets/website/js/home.js'); ?>"></script>
 
     <!-- pass base_url to js -->
     <script type="text/javascript">

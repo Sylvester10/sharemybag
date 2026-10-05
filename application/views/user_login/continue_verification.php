@@ -11,9 +11,12 @@
     <title> Continue Verification - <?php echo business_name; ?></title>
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/main.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/auth-refresh.css?v=<?php echo filemtime(FCPATH . 'assets/login/css/auth-refresh.css'); ?>">
+
 </head>
 
-<body>
+<body class="smb-auth-page">
+    <?php $this->load->view('partials/sandbox_badge', array('sandbox_badge_fixed' => true)); ?>
     <div id="preloader" class="bg-light-subtle">
         <div class="preloader-wrap">
             <div class="loading-bar"></div>

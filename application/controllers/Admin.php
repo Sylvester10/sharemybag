@@ -27,6 +27,7 @@ class Admin extends MY_Controller
 		$this->load->model('user_read_model');
 		$this->load->model('users_model');
 		$this->load->model('booking_read_model');
+		$this->load->model('auth_challenge_model');
 		$this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
 	}
 
@@ -63,6 +64,34 @@ class Admin extends MY_Controller
 			->set_content_type('text/plain')
 			->set_output("Offline booking backfill completed. Updated {$updated} booking(s).");
 	}
+
+	public function authentication_settings()
+	{
+		$this->admin_role_restricted(['super_admin']);
+		$this->admin_header('Authentication', 'Authentication Settings');
+		$data['phone_otp_channel'] = $this->auth_challenge_model->getPhoneOtpChannel();
+		$this->load->view('admin/settings/authentication', $data);
+		$this->admin_footer();
+	}
+
+	public function update_authentication_settings()
+	{
+		$this->admin_role_restricted(['super_admin']);
+		$this->form_validation->set_rules('phone_otp_channel', 'Phone OTP channel', 'trim|required|in_list[whatsapp,sms]');
+
+		if (!$this->form_validation->run()) {
+			$this->session->set_flashdata('status_msg_error', validation_errors());
+			redirect('admin/authentication_settings');
+		}
+
+		$this->auth_challenge_model->updatePhoneOtpChannel(
+			$this->input->post('phone_otp_channel', true),
+			$this->admin_details->id
+		);
+		$this->session->set_flashdata('status_msg', 'Authentication settings updated successfully.');
+		redirect('admin/authentication_settings');
+	}
+
 
 	/* ====== Profile ====== */
 	public function profile($error = array('error' => ''))

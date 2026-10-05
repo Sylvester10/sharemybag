@@ -50,9 +50,12 @@
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/custom.css">
     <!--custom css end-->
 
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/login/css/auth-refresh.css?v=<?php echo filemtime(FCPATH . 'assets/login/css/auth-refresh.css'); ?>">
+
 </head>
 
-<body>
+<body class="smb-auth-page">
+    <?php $this->load->view('partials/sandbox_badge', array('sandbox_badge_fixed' => true)); ?>
 
     <!-- preloader start -->
     <div id="preloader" class="bg-light-subtle">

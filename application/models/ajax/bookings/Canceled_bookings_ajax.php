@@ -96,17 +96,11 @@ class Canceled_bookings_ajax extends CI_Model
     }
 
 
-    public function actions($booking)
+    public function actions($booking, $isSuperAdmin = false)
     {
-        if (payment_status_normalize($booking->payment_status) != 'completed') {
-			$booking_action = '<p><a type="button" href="' . base_url('admin_bookings/confirm_booking/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-check" style="color: green"></i> &nbsp; Confirm Booking </a></p>';
-		} else {
-			$booking_action = '<p><a type="button" href="' . base_url('admin_bookings/cancel_booking/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Cancel Booking </a></p>';
-		};
+		$booking_action = '<p><a type="button" href="' . base_url('admin_bookings/view_booking/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-eye" style="color: green"></i> &nbsp; View Booking </a></p>';
 
-		return $booking_action . '
-		
-		<p><a type="button" href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#delete' . $booking->id . '"> <i class="las la-trash" style="color: red"></i> &nbsp; Delete </a></p>';
+		return $booking_action;
     }
 
 
@@ -116,7 +110,7 @@ class Canceled_bookings_ajax extends CI_Model
     }
 
 
-    public function modal_options($booking)
+    public function modal_options($booking, $isSuperAdmin = false)
     {
         return '<div class="modal fade" id="options' . $booking->id . '" role="dialog">
 			<div class="modal-dialog">
@@ -128,7 +122,7 @@ class Canceled_bookings_ajax extends CI_Model
 						<h4 class="modal-title">Actions: ' . $booking->agent_name . '</h4>
 					</div><!--/.modal-header-->
 					<div class="modal-body">'
-            . $this->actions($booking) .
+            . $this->actions($booking, $isSuperAdmin) .
             '</div>
 				</div>
 			</div>
@@ -136,10 +130,8 @@ class Canceled_bookings_ajax extends CI_Model
     }
 
 
-    public function modals($booking)
+    public function modals($booking, $isSuperAdmin = false)
     {
-        $modal_delete_confirm = modal_delete_confirm($booking->id, $booking->agent_name, 'bookings', 'admin_bookings/delete_booking');
-        return $this->modal_options($booking) .
-            $modal_delete_confirm;
+        return $this->modal_options($booking, $isSuperAdmin);
     }
 }

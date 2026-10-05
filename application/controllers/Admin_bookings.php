@@ -13,6 +13,8 @@ Date Created: 10th May, 2023
 UPDATED:
   - add_parcel_ajax()   : Add a parcel to a completed booking. Recalculates totals, commission, traveller space. Sends email to traveller.
   - remove_parcel_ajax(): Remove a parcel from a completed booking. Recalculates totals, commission, traveller space. Sends email to traveller.
+  - cancel_parcel_ajax(): Controlled Super Admin cancellation with refund tracking and an audit record.
+  - move_parcel_ajax()  : Move an unshipped parcel between eligible travellers with a complete audit trail.
   - Role restrictions added to finances-adjacent views (super_admin only).
 */
 
@@ -42,6 +44,7 @@ class Admin_bookings extends MY_Controller
         $this->load->model('traveller_read_model');
         $this->load->model('finance_read_model');
         $this->load->model('shipping_read_model');
+        $this->load->model('booking_action_log_model');
         $this->load->library('booking_presenter');
         $this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
     }
@@ -53,7 +56,9 @@ class Admin_bookings extends MY_Controller
     {
         $inner_page_title = 'All Bookings (' . $this->booking_read_model->count_all_bookings() . ')';
         $this->admin_header('Admin', $inner_page_title);
-        $this->load->view('admin/bookings/all_bookings');
+        $this->load->view('admin/bookings/all_bookings', array(
+            'is_super_admin' => $this->get_admin_role() === 'super_admin',
+        ));
         $this->admin_footer();
     }
 
@@ -62,6 +67,7 @@ class Admin_bookings extends MY_Controller
     {
         $this->load->model('ajax/bookings/bookings_ajax', 'current_model');
         $list = $this->current_model->get_records();
+        $isSuperAdmin = $this->get_admin_role() === 'super_admin';
         $data = array();
         foreach ($list as $y) {
             $traveller_destination = $y->traveller_destination ?: '';
@@ -104,7 +110,7 @@ class Admin_bookings extends MY_Controller
 
             $row = array();
             $row[] = checkbox_bulk_action($y->id);
-            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y);
+            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y, $isSuperAdmin);
             $row[] = x_datetime_full($y->date_added) . $new_tag;
             $row[] = $y->need_help;
             $row[] = $traveller_details;
@@ -133,7 +139,9 @@ class Admin_bookings extends MY_Controller
     {
         $inner_page_title = 'Completed Bookings (' . $this->booking_read_model->count_completed_bookings() . ')';
         $this->admin_header('Admin', $inner_page_title);
-        $this->load->view('admin/bookings/completed_bookings');
+        $this->load->view('admin/bookings/completed_bookings', array(
+            'is_super_admin' => $this->get_admin_role() === 'super_admin',
+        ));
         $this->admin_footer();
     }
 
@@ -142,6 +150,7 @@ class Admin_bookings extends MY_Controller
     {
         $this->load->model('ajax/bookings/completed_bookings_ajax', 'current_model');
         $list = $this->current_model->get_records();
+        $isSuperAdmin = $this->get_admin_role() === 'super_admin';
         $data = array();
         foreach ($list as $y) {
             $traveller_destination = $y->traveller_destination ?: '';
@@ -174,10 +183,15 @@ class Admin_bookings extends MY_Controller
             if (in_array($admin_role, ['super_admin', 'customer_support'])) {
                 $parcel_actions_html .= '<div class="mt-1">'
                     . '<button type="button" class="btn btn-xs btn-success me-1" onclick="openAddParcelModal(' . $y->id . ')">'
-                    . '<i class="las la-plus"></i> Add Parcel</button>'
+                    . '<i class="las la-plus"></i> Add Parcel</button>';
+            }
+            if ($isSuperAdmin) {
+                $parcel_actions_html .= ($parcel_actions_html === '' ? '<div class="mt-1">' : '')
                     . '<button type="button" class="btn btn-xs btn-danger" onclick="openRemoveParcelModal(' . $y->id . ', \'' . htmlspecialchars(addslashes($y->items), ENT_QUOTES, 'UTF-8') . '\')">'
-                    . '<i class="las la-minus"></i> Remove Parcel</button>'
-                    . '</div>';
+                    . '<i class="las la-minus"></i> Remove Parcel</button>';
+            }
+            if ($parcel_actions_html !== '') {
+                $parcel_actions_html .= '</div>';
             }
             list($item_details, $metrics) = $this->booking_presenter->render_item_table($y->items, $y->currency, $parcel_actions_html);
 
@@ -192,7 +206,7 @@ class Admin_bookings extends MY_Controller
 
             $row = array();
             $row[] = checkbox_bulk_action($y->id);
-            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y);
+            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y, $isSuperAdmin);
             $row[] = x_datetime_full($y->date_added) . $new_tag;
             $row[] = $y->need_help;
             $row[] = $traveller_details;
@@ -221,7 +235,9 @@ class Admin_bookings extends MY_Controller
     {
         $inner_page_title = 'Canceled Bookings (' . $this->booking_read_model->count_canceled_bookings() . ')';
         $this->admin_header('Admin', $inner_page_title);
-        $this->load->view('admin/bookings/canceled_bookings');
+        $this->load->view('admin/bookings/canceled_bookings', array(
+            'is_super_admin' => $this->get_admin_role() === 'super_admin',
+        ));
         $this->admin_footer();
     }
 
@@ -229,6 +245,7 @@ class Admin_bookings extends MY_Controller
     {
         $this->load->model('ajax/bookings/canceled_bookings_ajax', 'current_model');
         $list = $this->current_model->get_records();
+        $isSuperAdmin = $this->get_admin_role() === 'super_admin';
         $data = array();
         foreach ($list as $y) {
             $traveller_destination = $y->traveller_destination ?: '';
@@ -264,7 +281,7 @@ class Admin_bookings extends MY_Controller
 
             $row = array();
             $row[] = checkbox_bulk_action($y->id);
-            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y);
+            $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y, $isSuperAdmin);
             $row[] = x_datetime_full($y->date_added);
             $row[] = $traveller_details;
             $row[] = $commission;
@@ -313,7 +330,7 @@ class Admin_bookings extends MY_Controller
     /* REMOVE PARCEL FROM EXISTING BOOKING */
     public function remove_parcel_ajax()
     {
-        $this->admin_role_restricted(['super_admin', 'customer_support']);
+        $this->admin_role_restricted(['super_admin']);
 
         $booking_id = (int) $this->input->post('booking_id');
         $item_index = (int) $this->input->post('item_index'); // 0-based index
@@ -326,6 +343,106 @@ class Admin_bookings extends MY_Controller
 
         $result = $this->bookings_model->remove_parcel($booking_id, $item_index, $notes);
         $this->parcel_response(!empty($result['status']), $result['msg'] ?? 'Unable to remove parcel.', $result);
+    }
+
+
+    /* CONTROLLED CANCELLATION OF A COMPLETED PARCEL BOOKING */
+    public function cancel_parcel_ajax()
+    {
+        $this->admin_role_restricted(array('super_admin'));
+
+        if (strtolower($this->input->method()) !== 'post') {
+            $this->parcel_response(false, 'Invalid request method.');
+            return;
+        }
+
+        $bookingId = (int) $this->input->post('booking_id', true);
+        $reason = trim((string) $this->input->post('cancellation_reason', true));
+        $refundStatus = strtolower(trim((string) $this->input->post('refund_status', true)));
+        $refundReference = trim((string) $this->input->post('refund_reference', true));
+        $refundAmount = trim((string) $this->input->post('refund_amount', true));
+
+        if ($bookingId <= 0) {
+            $this->parcel_response(false, 'Invalid booking.');
+            return;
+        }
+        if (strlen($reason) < 5 || strlen($reason) > 500) {
+            $this->parcel_response(false, 'Enter a cancellation reason between 5 and 500 characters.');
+            return;
+        }
+        if (!in_array($refundStatus, array('refunded', 'not_required'), true)) {
+            $this->parcel_response(false, 'Select a valid refund status.');
+            return;
+        }
+        if ($refundAmount === '' || !is_numeric($refundAmount) || (float) $refundAmount < 0) {
+            $this->parcel_response(false, 'Enter a valid refund amount.');
+            return;
+        }
+        if ($refundStatus === 'refunded' && $refundReference === '') {
+            $this->parcel_response(false, 'Enter the manual refund reference.');
+            return;
+        }
+        if (strlen($refundReference) > 191) {
+            $this->parcel_response(false, 'The refund reference is too long.');
+            return;
+        }
+
+        $result = $this->bookings_model->cancel_parcel($bookingId, (int) $this->admin_details->id, array(
+            'reason' => $reason,
+            'refund_status' => $refundStatus,
+            'refund_reference' => $refundReference,
+            'refund_amount' => $refundAmount,
+        ));
+
+        $this->parcel_response(!empty($result['status']), $result['msg'] ?? 'Unable to cancel parcel.', $result);
+    }
+
+
+    /* LOAD ELIGIBLE DESTINATION TRAVELLERS FOR A PARCEL MOVE */
+    public function move_parcel_context_ajax($bookingId)
+    {
+        $this->admin_role_restricted(array('super_admin'));
+
+        if (strtolower($this->input->method()) !== 'post') {
+            $this->parcel_response(false, 'Invalid request method.');
+            return;
+        }
+
+        $result = $this->bookings_model->get_move_parcel_context((int) $bookingId);
+        $this->parcel_response(!empty($result['status']), $result['msg'] ?? 'Unable to load eligible travellers.', $result);
+    }
+
+
+    /* MOVE A COMPLETED, UNSHIPPED PARCEL TO ANOTHER TRAVELLER */
+    public function move_parcel_ajax()
+    {
+        $this->admin_role_restricted(array('super_admin'));
+
+        if (strtolower($this->input->method()) !== 'post') {
+            $this->parcel_response(false, 'Invalid request method.');
+            return;
+        }
+
+        $bookingId = (int) $this->input->post('booking_id', true);
+        $targetTravellerId = (int) $this->input->post('target_traveller_id', true);
+        $reason = trim((string) $this->input->post('move_reason', true));
+
+        if ($bookingId <= 0 || $targetTravellerId <= 0) {
+            $this->parcel_response(false, 'Select a valid booking and destination traveller.');
+            return;
+        }
+        if (strlen($reason) < 5 || strlen($reason) > 500) {
+            $this->parcel_response(false, 'Enter a move reason between 5 and 500 characters.');
+            return;
+        }
+
+        $result = $this->bookings_model->move_parcel(
+            $bookingId,
+            $targetTravellerId,
+            (int) $this->admin_details->id,
+            $reason
+        );
+        $this->parcel_response(!empty($result['status']), $result['msg'] ?? 'Unable to move parcel.', $result);
     }
 
 
@@ -345,6 +462,7 @@ class Admin_bookings extends MY_Controller
         $page_title = 'Booking Info: ' . $booking_reference;
         $this->admin_header($page_title, $page_title);
         $data['y'] = $bookings_details;
+        $data['booking_action_logs'] = $this->booking_action_log_model->getByBookingId((int) $id);
         $this->load->view('admin/bookings/view_booking', $data);
         $this->admin_footer();
     }
@@ -393,6 +511,17 @@ class Admin_bookings extends MY_Controller
 
     public function confirm_booking($id)
     {
+        $booking = $this->booking_read_model->get_booking_details_by_id((int) $id);
+        if (!$booking) {
+            show_404();
+            return;
+        }
+        if (payment_status_normalize($booking->payment_status) === 'canceled') {
+            $this->session->set_flashdata('status_msg_error', 'Cancelled parcels cannot be reconfirmed because their refund and audit history must be retained.');
+            redirect($this->agent->referrer());
+            return;
+        }
+
         $this->bookings_model->confirm_booking($id);
         $this->session->set_flashdata('status_msg', 'Booking Confirmed Successfully.');
         redirect($this->agent->referrer());
@@ -401,22 +530,22 @@ class Admin_bookings extends MY_Controller
 
     public function cancel_booking($id)
     {
-        if ($this->bookings_model->cancel_booking($id)) {
-            $this->session->set_flashdata('status_msg', 'Booking Cancelled and Bag Space Reverted.');
-        }
+        $this->admin_role_restricted(['super_admin']);
 
+        // Direct URL cancellation is intentionally disabled. A cancellation
+        // must include its reason and refund record through the controlled modal.
+        $this->session->set_flashdata('status_msg_error', 'Use the Cancel Parcel action so the reason and refund details are recorded.');
         redirect($this->agent->referrer());
     }
 
 
     public function delete_booking($id)
     {
-        $this->check_data_exists($id, 'id', 'bookings', 'admin');
-        if ($this->bookings_model->delete_booking($id)) {
-            $this->session->set_flashdata('status_msg', 'Booking data deleted successfully.');
-        } else {
-            $this->session->set_flashdata('status_msg_error', 'Booking deletion failed.');
-        }
+        $this->admin_role_restricted(['super_admin']);
+
+        // Booking deletion is retired. Retaining the booking and its audit
+        // trail is required for finance, shipping and customer history.
+        $this->session->set_flashdata('status_msg_error', 'Booking deletion is disabled. Use Cancel Parcel instead.');
         redirect($this->agent->referrer());
     }
 
@@ -432,8 +561,28 @@ class Admin_bookings extends MY_Controller
 
     public function bulk_actions_booking()
     {
+        $bulk_action_type = $this->input->post('bulk_action_type', TRUE);
+        if (in_array($bulk_action_type, array('cancel', 'delete'), true)) {
+            $this->admin_role_restricted(array('super_admin'));
+        }
+
+        if (in_array($bulk_action_type, array('cancel', 'delete'), true)) {
+            $this->session->set_flashdata('status_msg_error', 'Parcels must be cancelled individually so each reason and refund record is captured.');
+            redirect($this->agent->referrer());
+            return;
+        }
+
         $this->form_validation->set_rules('check_bulk_action', 'Bulk Select', 'trim');
         $selected_rows = $this->input->post('check_bulk_action', TRUE);
+
+        if ($bulk_action_type === 'confirm' && is_array($selected_rows) && $this->get_admin_role() !== 'super_admin') {
+            foreach ($selected_rows as $bookingId) {
+                $booking = $this->booking_read_model->get_booking_details_by_id((int) $bookingId);
+                if ($booking && payment_status_normalize($booking->payment_status) === 'canceled') {
+                    $this->admin_role_restricted(array('super_admin'));
+                }
+            }
+        }
 
         // Check if selected_rows is an array before counting
         if (is_array($selected_rows)) {

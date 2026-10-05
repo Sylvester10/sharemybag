@@ -13,14 +13,14 @@
                 <h5>Here’s what you need to do next:</h5>
 
                 <div class="the_list mt-3">
-                    <div class="list-item">
-                        <i class="ti ti-brand-chrome fs-4 text-primary flex-shrink-0"></i>
-                        <span class="list-text">You can also find your traveller's details by clicking on the history button on your profile</span>
-                    </div>
 
                     <div class="list-item">
                         <i class="ti ti-brand-chrome fs-4 text-primary flex-shrink-0"></i>
                         <span class="list-text">Check your email for the traveller’s drop off address</span>
+                    </div>
+                    <div class="list-item">
+                        <i class="ti ti-brand-chrome fs-4 text-primary flex-shrink-0"></i>
+                        <span class="list-text">You can also find your traveller's details by clicking on the history button on your profile</span>
                     </div>
 
                     <div class="list-item">
@@ -52,7 +52,7 @@
                                 Need help with this parcel?
                             </a>
                         </div>
-                    <?php }
+                <?php }
                 } ?>
 
                 <h4 class="card-title fs-5 mt-3 mb-10" style="color: red;"> There is no refund or transfer of service to another traveler </h4>

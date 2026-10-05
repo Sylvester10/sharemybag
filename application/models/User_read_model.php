@@ -48,6 +48,44 @@ class User_read_model extends \MY_Model
         return $this->db->get($this->table)->row();
     }
 
+    public function get_user_by_verified_phone($phone)
+    {
+        if (!$this->db->field_exists('verified_phone_e164', $this->table)
+            || !$this->db->field_exists('phone_signin_enabled', $this->table)) {
+            return null;
+        }
+
+        $this->db->where('verified_phone_e164', $phone);
+        $this->db->where('phone_verified_at IS NOT NULL', null, false);
+        $this->db->where('phone_signin_enabled', 1);
+        $this->applyNotDeleted();
+        return $this->db->get($this->table)->row();
+    }
+
+    public function get_login_user($identifier)
+    {
+        $identifier = trim((string) $identifier);
+
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            return $this->get_user_details(strtolower($identifier));
+        }
+
+        $phone = normalize_phone_number('', $identifier);
+        return strpos($phone, '+') === 0 ? $this->get_user_by_verified_phone($phone) : null;
+    }
+
+    public function verified_phone_belongs_to_another_user($phone, $userId)
+    {
+        if (!$this->db->field_exists('verified_phone_e164', $this->table)) {
+            return false;
+        }
+
+        $this->db->where('verified_phone_e164', $phone);
+        $this->db->where('id !=', (int) $userId);
+        $this->applyNotDeleted();
+        return $this->db->count_all_results($this->table) > 0;
+    }
+
     public function get_approved_users()
     {
         $this->db->where('is_verified', VERIFY_APPROVED);

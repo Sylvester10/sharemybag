@@ -76,6 +76,7 @@ class Recover_password extends MY_Controller
                 $res = [
                     'status' => false,
                     'msg' => 'Enter the email address linked to your account.',
+                    'field' => 'email',
                     'title' => 'Email Not Found',
                     'msg_timeout' => 7000,
                     'csrf_hash' => $csrf_hash
@@ -88,6 +89,7 @@ class Recover_password extends MY_Controller
             $res = [
                 'status' => false,
                 'msg' => first_validation_error('Enter a valid email address to continue.'),
+                'field' => 'email',
                 'title' => 'Reset Error',
                 'msg_timeout' => 6000,
                 'csrf_hash' => $csrf_hash
@@ -150,13 +152,13 @@ class Recover_password extends MY_Controller
             } else {
                 //user supplied wrong password
                 auth_throttle_hit($reset_throttle_key, self::RESET_RATE_LIMIT_MAX, self::RESET_RATE_LIMIT_WINDOW);
-                $res = ['status' => false, 'msg' => 'Enter the correct reset code and try again.', 'title' => 'Reset Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
+                $res = ['status' => false, 'msg' => 'Enter the correct reset code and try again.', 'field' => 'pass_reset_code', 'title' => 'Reset Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
                 echo json_encode($res);
                 die;
             }
         } else { //form validation is not successful
             auth_throttle_hit($reset_throttle_key, self::RESET_RATE_LIMIT_MAX, self::RESET_RATE_LIMIT_WINDOW);
-            $res = ['status' => false, 'msg' => first_validation_error('Please complete the password reset form.'), 'title' => 'Reset Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
+            $res = ['status' => false, 'msg' => first_validation_error('Please complete the password reset form.'), 'field' => array_key_first($this->form_validation->error_array()), 'title' => 'Reset Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             echo json_encode($res);
         }
     }
@@ -164,8 +166,7 @@ class Recover_password extends MY_Controller
 
     public function logout()
     {
-        $data = array('email', 'user_loggedin');
-        $this->session->unset_userdata($data);
-        redirect(site_url('user-login'));
+        // Keep legacy sign-out links on the shared, audited sign-out path.
+        redirect(site_url('user_login/logout'));
     }
 }

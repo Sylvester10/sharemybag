@@ -8,8 +8,8 @@
 	border-bottom-right-radius: 0;
 	border-top-right-radius: 0;
 	flex: 0 0 118px;
-	max-width: 126px;
-	min-width: 108px;
+	max-width: 90px;
+	min-width: 70px;
 	padding-left: 12px;
 	padding-right: 22px;
 	text-align: center;
@@ -67,6 +67,6 @@
 
 	.smb-phone-input__country {
 		flex-basis: 108px;
-		max-width: 118px;
+		max-width: 80px;
 	}
 }

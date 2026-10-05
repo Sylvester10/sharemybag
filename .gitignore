@@ -39,3 +39,21 @@ pet-runs
 _ide_helper.php
 generate_ide_helper.php
 PROJECT_REFERENCE.md
+
+# Local build verification and implementation evidence (not production runtime)
+/BUILD_VERIFICATION.json
+/docs/twilio-verify.env.example
+/evidence/
+/scripts/
+/tests/
+
+# Generated PDF font metrics
+/vendor/dompdf/dompdf/lib/fonts/*.afm.json
+
+# Versioned account-history setup and regression test
+!/scripts/
+/scripts/*
+!/scripts/setup_user_activity.php
+!/tests/
+/tests/*
+!/tests/user_activity_history_test.php

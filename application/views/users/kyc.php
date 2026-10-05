@@ -162,7 +162,7 @@ $selfie_holder_id = $is_nigeria ? 'selfie_holder' : 'selfie_holder2';
             </div>
         </div>
 
-        <div class="modal fade show" id="capture-video" tabindex="-1" aria-labelledby="vertical-center-modal" aria-modal="true" role="dialog">
+        <div class="modal fade show kyc-selfie-capture" id="capture-video" tabindex="-1" aria-labelledby="vertical-center-modal" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header d-flex align-items-center">
