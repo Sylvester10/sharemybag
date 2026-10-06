@@ -99,7 +99,7 @@ jQuery(function ($) {
         }
         timer = window.setInterval(function () {
             showCountry((active + 1) % countries.length);
-        }, 5000);
+        }, 4000);
     }
 
     document.addEventListener('visibilitychange', schedule);
