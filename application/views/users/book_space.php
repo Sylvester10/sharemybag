@@ -46,7 +46,7 @@
 
                 <div class="card-body">
 
-                    <?php
+                    <!-- <?php
                     if ($traveller_details->additional_info === NULL) {
 
                         echo '';
@@ -62,7 +62,7 @@
                             </div>
                         </div>';
                     }
-                    ?>
+                    ?> -->
 
                     <form action="<?= base_url('user_bookings/add_booking_ajax') ?>" class="form-wizard-ajax booking-wizard-form mt-2" id="booking_form" key="<?= $traveller_details->id ?>" method="POST" enctype="multipart/form-data" target="_blank">
 
