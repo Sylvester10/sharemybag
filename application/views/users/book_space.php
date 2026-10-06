@@ -529,6 +529,7 @@
 
         <span class="d-none" id="holdThisInfo"
             currency="<?= $currency ?>"
+            vat_rate="<?= booking_vat_rate() ?>"
             pound_sign="&pound;"
             dollar_sign="$"
             naira_sign="&#8358;"

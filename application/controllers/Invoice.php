@@ -102,7 +102,8 @@ class Invoice extends MY_Controller
         $storedVat = (float) $booking->vat;
         $baseTotal = max(0, (float) $booking->total_amount - $storedVat);
         $shareMyBagCommission = booking_platform_commission_amount($baseTotal, $travellerPayout, $serviceCharge, $insurance);
-        $vat = booking_vat_amount($paymentMethod, $shareMyBagCommission, $serviceCharge);
+        // A paid invoice must reflect the VAT recorded at booking time, not today's rate.
+        $vat = $storedVat;
         $travellerRate = $selectedSpace > 0 ? $travellerPayout / $selectedSpace : 0;
         $commissionRate = $selectedSpace > 0 ? $shareMyBagCommission / $selectedSpace : 0;
         $platformChargeTotal = $shareMyBagCommission + $serviceCharge;
@@ -138,7 +139,7 @@ class Invoice extends MY_Controller
             'vat_total' => $vat,
             'insurance_total' => $insurance,
             'platform_charge_total' => $platformChargeTotal,
-            'vat_applies' => booking_payment_requires_vat($paymentMethod),
+            'vat_applies' => $storedVat > 0,
             'weight_label' => rtrim(rtrim(number_format($selectedSpace, 2), '0'), '.') . ' kg',
         );
     }

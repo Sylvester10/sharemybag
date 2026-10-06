@@ -2357,13 +2357,14 @@ function payment_method_normalize($method)
 
 function booking_vat_rate()
 {
-	return 0.075;
+	// Temporarily suspend VAT on new bookings. Restore 0.075 when approved.
+	return 0.0;
 }
 
 
 function booking_payment_requires_vat($payment_method)
 {
-	return payment_method_normalize($payment_method) === 'paystack';
+	return booking_vat_rate() > 0 && payment_method_normalize($payment_method) === 'paystack';
 }
 
 
