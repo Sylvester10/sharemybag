@@ -177,11 +177,7 @@
 										</a>
 									</li>
 
-									<li>
-										<a href="<?php echo base_url('admin/authentication_settings'); ?>">
-											<i class="las la-shield-alt"></i> Authentication
-										</a>
-									</li>
+
 
 									<!-- Admin Accounts — super_admin only -->
 									<li>

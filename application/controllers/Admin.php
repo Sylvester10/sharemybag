@@ -65,31 +65,17 @@ class Admin extends MY_Controller
 			->set_output("Offline booking backfill completed. Updated {$updated} booking(s).");
 	}
 
+	// Retired global selector: delivery is now chosen in each user's profile.
 	public function authentication_settings()
 	{
 		$this->admin_role_restricted(['super_admin']);
-		$this->admin_header('Authentication', 'Authentication Settings');
-		$data['phone_otp_channel'] = $this->auth_challenge_model->getPhoneOtpChannel();
-		$this->load->view('admin/settings/authentication', $data);
-		$this->admin_footer();
+		redirect('admin');
 	}
 
 	public function update_authentication_settings()
 	{
 		$this->admin_role_restricted(['super_admin']);
-		$this->form_validation->set_rules('phone_otp_channel', 'Phone OTP channel', 'trim|required|in_list[whatsapp,sms]');
-
-		if (!$this->form_validation->run()) {
-			$this->session->set_flashdata('status_msg_error', validation_errors());
-			redirect('admin/authentication_settings');
-		}
-
-		$this->auth_challenge_model->updatePhoneOtpChannel(
-			$this->input->post('phone_otp_channel', true),
-			$this->admin_details->id
-		);
-		$this->session->set_flashdata('status_msg', 'Authentication settings updated successfully.');
-		redirect('admin/authentication_settings');
+		show_error('Phone code delivery is managed in the user profile.', 410);
 	}
 
 

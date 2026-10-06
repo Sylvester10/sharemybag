@@ -70,7 +70,7 @@ phase5_contains($loginView, 'Use Password Instead', 'Login must offer the passwo
 phase5_contains($loginView, 'data-passwordless-code-panel', 'OTP entry must replace the form without a page reload.');
 phase5_contains($loginJs, 'slideDown(200', 'Password mode should reveal the password field with the approved slide transition.');
 phase5_contains($profileView, 'phone_verification_control', 'Profile must expose phone verification in the input group.');
-phase5_contains($profilePhoneControl, 'Verify Number', 'Unverified profile phones must show a verification action.');
+phase5_contains($profilePhoneControl, 'Verify Phone Number', 'Unverified profile phones must show a verification action.');
 phase5_contains($profileView, "'input_id_prefix' => 'phoneVerificationOtp'", 'Profile verification must use the shared six-box OTP control.');
 phase5_contains($profileView, 'phoneVerificationModal', 'Profile verification must use the approved modal.');
 phase5_contains($adminController, 'authentication_settings', 'Super admin must be able to choose WhatsApp or SMS.');

@@ -111,8 +111,11 @@
 
                             <div class="card !tw-bg-[#020713]">
                                 <div class="card-body">
-                                    <p class="text-white text-center mb-0 fs-3">
+                                    <p class="text-white mb-0 fs-2">
                                         If you don’t know the exact weight of your item, you should book an underestimated weight. You can pay the difference once the traveller confirms the weight.
+                                    </p>
+                                    <p id="weight-rounding-notice" class="text-white mb-0 mt-3 pt-3 fs-2 border-top d-none" aria-live="polite" aria-hidden="true">
+                                        To keep things simple, if your parcel weighs 0.2 kg or more above the weight you paid for, ShareMyBag will round the weight up to the next whole kilogram. Any additional amount due will be communicated to you before processing.
                                     </p>
                                 </div>
                             </div>

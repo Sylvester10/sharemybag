@@ -17,16 +17,15 @@ require $root . '/vendor/autoload.php';
 Dotenv\Dotenv::createImmutable($root)->safeLoad();
 if (($_ENV['APP_ENV'] ?? '') !== 'development') { throw new RuntimeException('Local development only.'); }
 require BASEPATH . 'database/DB.php';
-$db = DB(array('dbdriver' => 'mysqli', 'hostname' => $_ENV['DB_HOSTNAME_LOCAL'],
+$db = DB(array('dbdriver' => 'mysqli', 'hostname' => '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock',
     'username' => $_ENV['DB_USERNAME_LOCAL'], 'password' => $_ENV['DB_PASSWORD_LOCAL'],
     'database' => $_ENV['DB_DATABASE_LOCAL'], 'port' => (int) ($_ENV['DB_PORT_LOCAL'] ?? 3306),
-    'socket' => '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock',
     'db_debug' => false, 'char_set' => 'utf8mb4', 'dbcollat' => 'utf8mb4_general_ci'), true);
 function check_activity($value, $message) {
     if (!$value) { throw new RuntimeException('FAIL: ' . $message); }
 }
 check_activity((bool) $db->conn_id, 'Local database connection.');
-$db->query('CREATE TEMPORARY TABLE users (id INT PRIMARY KEY, firstname VARCHAR(100), lastname VARCHAR(100), email VARCHAR(255), number VARCHAR(50), verified_phone_e164 VARCHAR(20), phone_verified_at DATETIME, phone_signin_enabled TINYINT DEFAULT 0, email_verified_at DATETIME, address VARCHAR(500), state VARCHAR(100), post_code VARCHAR(20), country VARCHAR(100), account_status INT DEFAULT 1, is_verified INT DEFAULT 2, UNIQUE KEY verified_phone (verified_phone_e164)) ENGINE=InnoDB');
+$db->query('CREATE TEMPORARY TABLE users (id INT PRIMARY KEY, firstname VARCHAR(100), lastname VARCHAR(100), email VARCHAR(255), number VARCHAR(50), verified_phone_e164 VARCHAR(20), phone_verified_at DATETIME, phone_signin_enabled TINYINT DEFAULT 0, phone_otp_channel VARCHAR(8) DEFAULT \'sms\', email_verified_at DATETIME, address VARCHAR(500), state VARCHAR(100), post_code VARCHAR(20), country VARCHAR(100), account_status INT DEFAULT 1, is_verified INT DEFAULT 2, UNIQUE KEY verified_phone (verified_phone_e164)) ENGINE=InnoDB');
 $db->query('CREATE TEMPORARY TABLE auth_login_challenges (id INT PRIMARY KEY, user_id INT, purpose VARCHAR(30), delivery_channel VARCHAR(20), session_hash VARCHAR(64), destination_hash VARCHAR(64), consumed_at DATETIME NULL, expires_at DATETIME) ENGINE=InnoDB');
 $db->query('CREATE TEMPORARY TABLE user_activity_logs (id BIGINT AUTO_INCREMENT PRIMARY KEY, user_id INT, actor_type VARCHAR(10), actor_id INT, actor_name VARCHAR(255) NOT NULL, event VARCHAR(40), method VARCHAR(30), changes LONGTEXT, date_added DATETIME) ENGINE=InnoDB');
 require $root . '/application/models/User_activity_model.php';

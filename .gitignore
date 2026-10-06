@@ -57,3 +57,6 @@ PROJECT_REFERENCE.md
 !/tests/
 /tests/*
 !/tests/user_activity_history_test.php
+
+!/scripts/setup_phone_code_channel.php
+!/tests/phone_code_channel_test.php

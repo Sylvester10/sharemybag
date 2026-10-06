@@ -17,12 +17,32 @@ class Booking_read_model extends \MY_Model
         return $this->dataById($id);
     }
 
-    public function get_bookings_by_user_id($userId)
+    public function get_bookings_by_user_id($userId, $activeOnly = false)
     {
         $this->db->order_by('date_added', 'desc');
         $this->db->where('user_id', $userId);
         $this->applyNotDeleted();
+        if ($activeOnly) { $this->applyActiveBookings(); }
         return $this->db->get($this->table)->result();
+    }
+
+    public function count_active_bookings_by_user_id($userId)
+    {
+        $this->db->where('user_id', (int) $userId);
+        $this->applyNotDeleted();
+        $this->applyActiveBookings();
+        return (int) $this->db->count_all_results($this->table);
+    }
+
+    private function applyActiveBookings()
+    {
+        // Match legacy payment aliases; completed payment is not completed delivery.
+        $this->db->where("LOWER(TRIM(COALESCE(payment_status, ''))) IN ('completed', 'complete', 'success', 'paid')", null, false);
+        $this->db->where("LOWER(TRIM(COALESCE(delivery_status, ''))) NOT IN ('completed', 'delivered', 'cancelled', 'canceled')", null, false);
+        $this->db->where("LOWER(TRIM(COALESCE(status, ''))) NOT IN ('declined', 'booking declined', 'cancelled', 'canceled')", null, false);
+        if ($this->db->field_exists('cancelled_at', $this->table)) {
+            $this->db->where('cancelled_at IS NULL', null, false);
+        }
     }
 
     public function count_bookings_by_user_id($userId)

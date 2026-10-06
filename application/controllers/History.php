@@ -21,9 +21,11 @@ class History extends MY_Controller
 
     public function index()
     {
-        $this->dashboard_header('History');
+        $activeOnly = $this->input->get('filter', true) === 'active';
+        $this->dashboard_header($activeOnly ? 'Active Bookings' : 'History');
         $user_id = $this->user_details->id;
-        $data['booking'] = $this->booking_read_model->get_bookings_by_user_id($user_id);
+        $data['active_only'] = $activeOnly;
+        $data['booking'] = $this->booking_read_model->get_bookings_by_user_id($user_id, $activeOnly);
         $data['user_country'] = $this->user_details->country;
         $this->load->view('users/history', $data);
         $this->dashboard_footer();

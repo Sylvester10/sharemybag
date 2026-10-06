@@ -305,15 +305,18 @@ class Users_model extends MY_Model
         $this->load->model('user_activity_model');
         return $this->user_activity_model->updateDetails($userId, array(
             'number' => $phone, 'verified_phone_e164' => $phone,
-            'phone_verified_at' => date('Y-m-d H:i:s'), 'phone_signin_enabled' => 1,
+            'phone_verified_at' => date('Y-m-d H:i:s'), 'phone_signin_enabled' => 0,
         ), $this->user_activity_model->actor('user', $userId), 'phone_verified', $challengeId);
     }
 
-    public function set_phone_signin_enabled($userId, $enabled)
+    public function set_phone_signin_enabled($userId, $enabled, $channel = null)
     {
+        if ($channel !== null && !in_array($channel, array('sms', 'whatsapp'), true)) { return false; }
         $this->load->model('user_activity_model');
+        $data = array('phone_signin_enabled' => $enabled ? 1 : 0);
+        if ($channel !== null) { $data['phone_otp_channel'] = $channel; }
         return $this->user_activity_model->updateDetails($userId,
-            array('phone_signin_enabled' => $enabled ? 1 : 0),
+            $data,
             $this->user_activity_model->actor('user', $userId), 'phone_signin_updated');
     }
 

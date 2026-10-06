@@ -389,7 +389,7 @@ echo form_open_multipart('admin_travellers/update_traveller_ajax/' . $y->id, 'id
                 <select multiple class="form-control selectpicker" name="unwanted_items[]">
                     <?php
                     $selected_items = explode(', ', $y->unwanted_items ?? '');
-                    $all_items = ['Medication', 'Fish', 'Tobacco', 'Oil', 'Cream', 'Food Items', 'Fresh Items', 'Frozen Items'];
+                    $all_items = ['Medication', 'Fish', 'Tobacco', 'Oil', 'Cream', 'Food Items', 'Fresh Items', 'Frozen Items', 'No Bulky Items', 'Clothes Only'];
                     foreach ($all_items as $item) { ?>
                         <option value="<?php echo $item; ?>" <?php echo in_array($item, $selected_items) ? 'selected' : ''; ?>>
                             <?php echo $item; ?>

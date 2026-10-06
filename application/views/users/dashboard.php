@@ -6,7 +6,7 @@
                 <strong>Enable phone sign-in</strong>
                 <span><?php echo !empty($phone_is_verified) ? 'Turn it on in your profile for faster sign-in.' : 'Verify your number in your profile for faster sign-in.'; ?></span>
             </div>
-            <a class="phone-signin-notice__link" href="<?php echo base_url('profile'); ?>#profilePhoneSignIn">
+            <a class="phone-signin-notice__link" href="<?php echo base_url('profile'); ?>#pills-security">
                 Set up phone sign-in <i class="ti ti-arrow-right" aria-hidden="true"></i>
             </a>
         </div>
@@ -170,15 +170,15 @@
 
                 <div class="col-md-6">
                     <!-- earnings card -->
-                    <a href="<?php echo base_url('history'); ?>">
+                    <a href="<?php echo base_url('history?filter=active'); ?>">
                         <div class="card text-bg-primary">
                             <div class="card-body p-4">
                                 <span>
                                     <i class="ti ti-briefcase fs-8"></i>
                                 </span>
-                                <h4 class="card-title text-white mt-3 mb-0"><?= $total_bookings ?></h4>
+                                <h4 class="card-title text-white mt-3 mb-0"><?= $active_bookings ?></h4>
                                 <p class="card-text text-white opacity-75 fs-3 fw-normal">
-                                    Total Bookings
+                                    Active Bookings
                                 </p>
                             </div>
                         </div>
@@ -211,15 +211,15 @@
 
                     <div class="swiper-slide">
                         <!-- earnings card -->
-                        <a href="<?php echo base_url('history'); ?>">
+                        <a href="<?php echo base_url('history?filter=active'); ?>">
                             <div class="card text-bg-primary">
                                 <div class="card-body p-4">
                                     <span>
                                         <i class="ti ti-briefcase fs-8"></i>
                                     </span>
-                                    <h4 class="card-title text-white mt-3 mb-0"><?= $total_bookings ?></h4>
+                                    <h4 class="card-title text-white mt-3 mb-0"><?= $active_bookings ?></h4>
                                     <p class="card-text text-white opacity-75 fs-3 fw-normal">
-                                        Total Bookings
+                                        Active Bookings
                                     </p>
                                 </div>
                             </div>

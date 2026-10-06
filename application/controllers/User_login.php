@@ -157,7 +157,7 @@ class User_login extends MY_Controller
 			$channel = 'email';
 			$destination = $user->email;
 		} else {
-			$channel = $this->auth_challenge_model->getPhoneOtpChannel();
+			$channel = $this->auth_challenge_model->getPhoneOtpChannel($user);
 			$this->load->library('twilio_verify_service');
 			$result = $this->twilio_verify_service->sendCode($user->verified_phone_e164, $channel);
 			if (empty($result['success'])) {

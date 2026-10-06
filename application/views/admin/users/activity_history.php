@@ -8,6 +8,7 @@ $methods = array('password' => 'Password', 'email_code' => 'Email code',
 $format = function ($field, $value) {
     if ($value === null || $value === '') { return '—'; }
     if ($field === 'phone_signin_enabled') { return (int) $value ? 'Enabled' : 'Disabled'; }
+    if ($field === 'phone_otp_channel') { return $value === 'whatsapp' ? 'WhatsApp' : 'SMS'; }
     if ($field === 'is_verified') { return array(0 => 'Unverified', 1 => 'Pending', 2 => 'Approved')[(int) $value] ?? (string) $value; }
     if ($field === 'account_status') { return (int) $value ? 'Active' : 'Blocked'; }
     return (string) $value;

@@ -10,6 +10,7 @@ class User_activity_model extends CI_Model
         'address' => 'Address', 'state' => 'City', 'post_code' => 'Postal code',
         'email_verified_at' => 'Email verified at', 'verified_phone_e164' => 'Verified phone',
         'phone_verified_at' => 'Phone verified at', 'phone_signin_enabled' => 'Phone sign-in',
+        'phone_otp_channel' => 'Phone code delivery',
         'is_verified' => 'Identity verification', 'account_status' => 'Account status',
         'id_type' => 'ID type', 'platform' => 'Platform', 'socials' => 'Social profile',
         'selfie' => 'Selfie', 'id_card' => 'Identity document', 'utility' => 'Address document',
@@ -61,11 +62,18 @@ class User_activity_model extends CI_Model
             $challenge = $this->db->query('SELECT * FROM auth_login_challenges WHERE id = ? FOR UPDATE', array((int) $challengeId))->row();
             if (!empty($before->phone_verified_at) || !$challenge
                 || (int) $challenge->user_id !== (int) $userId || $challenge->purpose !== 'profile_phone'
+                || !in_array($challenge->delivery_channel, array('whatsapp', 'sms'), true)
                 || $challenge->consumed_at !== null || strtotime($challenge->expires_at) <= time()
                 || !hash_equals($challenge->destination_hash, hash('sha256', strtolower((string) $data['number'])))) {
                 $this->db->trans_rollback();
                 return false;
             }
+            // Persist the method used by this verified challenge, never a later client value.
+            $data['phone_otp_channel'] = $challenge->delivery_channel;
+        }
+        if (isset($data['phone_otp_channel']) && !in_array($data['phone_otp_channel'], array('whatsapp', 'sms'), true)) {
+            $this->db->trans_rollback();
+            return false;
         }
         if ($event === 'phone_signin_updated' && !empty($data['phone_signin_enabled'])
             && (empty($before->phone_verified_at) || empty($before->verified_phone_e164))) {
@@ -95,10 +103,10 @@ class User_activity_model extends CI_Model
             return true;
         }
         $ok = $this->db->where('id', (int) $userId)->update('users', $data);
-        if ($phoneReset || $emailChanged || (isset($changes['phone_signin_enabled']) && empty($data['phone_signin_enabled']))) {
+        if ($phoneReset || $emailChanged || isset($changes['phone_otp_channel']) || (isset($changes['phone_signin_enabled']) && empty($data['phone_signin_enabled']))) {
             if ($this->db->table_exists('auth_login_challenges')) {
                 $channels = array();
-                if ($phoneReset || isset($changes['phone_signin_enabled'])) { $channels = array('sms', 'whatsapp'); }
+                if ($phoneReset || isset($changes['phone_signin_enabled']) || isset($changes['phone_otp_channel'])) { $channels = array('sms', 'whatsapp'); }
                 if ($emailChanged) { $channels[] = 'email'; }
                 $ok = $this->db->where('user_id', (int) $userId)->where_in('delivery_channel', $channels)
                     ->where('consumed_at IS NULL', null, false)

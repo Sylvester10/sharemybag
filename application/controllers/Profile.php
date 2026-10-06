@@ -100,9 +100,11 @@ class Profile extends MY_Controller
 
     public function set_phone_signin_ajax()
     {
+        if ($this->input->method() !== 'post') { show_error('Method not allowed.', 405); }
         $csrf_hash = $this->security->get_csrf_hash();
         $enabled = (string) $this->input->post('enabled', true);
-        if ($enabled !== '0' && $enabled !== '1') {
+        $channel = (string) $this->input->post('phone_otp_channel', true);
+        if (($enabled !== '0' && $enabled !== '1') || !in_array($channel, array('whatsapp', 'sms'), true)) {
             echo json_encode(array('status' => false, 'msg' => 'Choose a valid phone sign-in setting.', 'csrf_hash' => $csrf_hash));
             return;
         }
@@ -113,7 +115,7 @@ class Profile extends MY_Controller
             return;
         }
 
-        if (!$this->users_model->set_phone_signin_enabled($user->id, $enabled === '1')) {
+        if (!$this->users_model->set_phone_signin_enabled($user->id, $enabled === '1', $channel)) {
             echo json_encode(array('status' => false, 'msg' => 'We could not update phone sign-in. Please try again.', 'csrf_hash' => $csrf_hash));
             return;
         }
@@ -121,13 +123,15 @@ class Profile extends MY_Controller
         echo json_encode(array(
             'status' => true,
             'enabled' => $enabled === '1',
-            'msg' => $enabled === '1' ? 'Phone sign-in enabled.' : 'Phone sign-in disabled.',
+            'phone_otp_channel' => $channel,
+            'msg' => 'Sign-in method updated.',
             'csrf_hash' => $csrf_hash,
         ));
     }
 
 	public function request_phone_verification_ajax()
 	{
+		if ($this->input->method() !== 'post') { show_error('Method not allowed.', 405); }
 		$csrf_hash = $this->security->get_csrf_hash();
 		$this->form_validation->set_rules('country_code', 'Country code', 'trim|required');
 		$this->form_validation->set_rules('number', 'Phone number', 'trim|required');
@@ -165,7 +169,7 @@ class Profile extends MY_Controller
 		}
 		auth_throttle_hit($key, 3, 900);
 
-		$channel = $this->auth_challenge_model->getPhoneOtpChannel();
+		$channel = $this->auth_challenge_model->getPhoneOtpChannel($currentUser);
 		$this->load->library('twilio_verify_service');
 		$result = $this->twilio_verify_service->sendCode($phone, $channel);
 		if (empty($result['success'])) {
@@ -194,6 +198,7 @@ class Profile extends MY_Controller
 
 	public function verify_phone_ajax()
 	{
+		if ($this->input->method() !== 'post') { show_error('Method not allowed.', 405); }
 		$csrf_hash = $this->security->get_csrf_hash();
 		$token = trim((string) $this->input->post('challenge_token', true));
 		$code = trim((string) $this->input->post('code', true));
@@ -249,6 +254,8 @@ class Profile extends MY_Controller
 		$this->auth_challenge_model->consume($challenge->id);
 		auth_throttle_clear($key);
 		$this->session->unset_userdata('phone_verification_candidate');
-		echo json_encode(array('status' => true, 'msg' => 'Your phone number is now verified.', 'title' => 'Phone Verified', 'csrf_hash' => $csrf_hash));
+		$verifiedParts = split_phone_number($phone);
+		echo json_encode(array('status' => true, 'msg' => 'Your phone number is now verified.', 'title' => 'Phone Verified',
+            'country_code' => $verifiedParts['country_code'], 'local_number' => $verifiedParts['local_number'], 'csrf_hash' => $csrf_hash));
 	}
 }
