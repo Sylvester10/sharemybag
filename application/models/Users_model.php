@@ -344,8 +344,8 @@ class Users_model extends MY_Model
         $traveller_commission = (float) $this->input->post('traveller_commission', TRUE);
         $payment_method = payment_method_normalize($this->input->post('payment_method', TRUE));
 
-        // Use the server-validated client summary as the VAT-exclusive booking base,
-        // then apply the Paystack-only VAT rule here so storage stays authoritative.
+        // Use the server-validated client summary as the VAT-exclusive booking base.
+        // The shared pricing helper applies the current VAT rate (suspended for now).
         $selected_space = isset($calculations->selectedSpace) ? (float) $calculations->selectedSpace : 0;
         $selected_price = isset($calculations->selectedPrice) ? (float) $calculations->selectedPrice : 0;
         $sub_total = isset($calculations->subTotal) ? (float) $calculations->subTotal : 0;

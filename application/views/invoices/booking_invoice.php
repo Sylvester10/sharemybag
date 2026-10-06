@@ -174,7 +174,7 @@
                                     <?php if ($vat_applies) { ?>
                                         <li>VAT is charged in accordance with regulations by the Federal Inland Revenue Service (FIRS) on platform fees only.</li>
                                     <?php } else { ?>
-                                        <li>No VAT was applied to this booking because the selected payment method does not attract platform VAT.</li>
+                                        <li>No platform VAT was added to this booking.</li>
                                     <?php } ?>
                                 </ul>
                             </td>

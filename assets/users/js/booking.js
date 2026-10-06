@@ -1188,7 +1188,8 @@ function calculateBooking() {
     baseTotal - travellerCommission - serviceCharge - insurance
   );
   let vatBase = platformCommission + serviceCharge;
-  let vat = paymentMethod === 'paystack' ? (7.5 / 100) * vatBase : 0;
+  let vatRate = Number($('#holdThisInfo').attr('vat_rate')) || 0;
+  let vat = paymentMethod === 'paystack' ? vatRate * vatBase : 0;
   let totalAmount = baseTotal + vat;
   let calculatedValues = {
     initialAvailableSpace: initialAvailableSpace,
