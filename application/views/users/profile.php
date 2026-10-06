@@ -81,14 +81,9 @@
 
                                     <?php $phone_is_verified = !empty($user_details->phone_verified_at) && !empty($user_details->verified_phone_e164); ?>
                                     <?php $phone_signin_enabled = $phone_is_verified && !empty($user_details->phone_signin_enabled); ?>
-                                    <div class="col-lg-6 mb-3 profile-phone-signin<?php echo $phone_signin_enabled ? ' is-active' : ''; ?>" id="profilePhoneSignIn">
+                                    <div class="col-lg-6 mb-3 profile-phone-signin<?php echo !empty($user_details->number) ? ' has-number' : ''; ?>" id="profilePhoneSignIn">
                                         <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
                                             <label class="form-label mb-0" for="profilePhoneNumber">Phone Number <span class="text-danger">*</span></label>
-                                            <label class="profile-phone-signin-toggle mb-0" for="phoneSignInToggle">
-                                                <span>Enable phone sign-in</span>
-                                                <input type="checkbox" id="phoneSignInToggle" role="switch" aria-label="Enable phone sign-in" data-verified="<?php echo $phone_is_verified ? '1' : '0'; ?>" <?php echo $phone_signin_enabled ? 'checked' : ''; ?>>
-                                                <span class="profile-phone-signin-track" aria-hidden="true"></span>
-                                            </label>
                                         </div>
                                     <?php $this->load->view('partials/phone_input', array(
                                         'wrapper_class' => '',
@@ -154,29 +149,20 @@
                     </div>
                 </div>
                 <div class="tab-pane fade" id="pills-security" role="tabpanel" aria-labelledby="pills-security-tab" tabindex="0">
-                    <div class="row">
-                        <div class="col-lg-6">
-
-                            <p class="text-muted mb-4">Set a new password for this account. The old password is replaced immediately after a successful update.</p>
-
-                            <form action="<?= base_url('profile/change_password/' . $user_details->id) ?>" class="form-ajax" method="POST" enctype="multipart/form-data" target="_blank" redirect="<?= base_url('profile') ?>">
-
-                                <div class="mb-3">
-                                    <label for="exampleInputPassword2" class="form-label">New Password</label>
-                                    <input type="password" class="form-control required" name="password" id="exampleInputPassword2" />
-                                </div>
-                                <div>
-                                    <label for="exampleInputPassword3" class="form-label">Confirm Password</label>
-                                    <input type="password" class="form-control required" name="confirm_password" id="exampleInputPassword3" />
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center justify-content-start mt-4 gap-6">
-                                        <button class="btn btn-primary">Submit</button>
-                                    </div>
-                                </div>
-
-                            </form>
-
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <button type="button" class="profile-security-card" data-bs-toggle="modal" data-bs-target="#profilePasswordModal">
+                                <span class="profile-security-card__icon"><i class="ti ti-lock" aria-hidden="true"></i></span>
+                                <span class="profile-security-card__text"><strong>Change Password</strong><span>Update your account password.</span></span>
+                                <i class="ti ti-chevron-right" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="profile-security-card" id="profileSignInCodesCard" data-bs-toggle="modal" data-bs-target="#profileSignInCodesModal">
+                                <span class="profile-security-card__icon"><i class="ti ti-key" aria-hidden="true"></i></span>
+                                <span class="profile-security-card__text"><strong>Sign-in Codes</strong><span>Choose how you receive sign-in codes.</span></span>
+                                <i class="ti ti-chevron-right" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -209,6 +195,59 @@
                     <div id="phoneVerificationModalStatus" class="mt-3" aria-live="polite"></div>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="profilePasswordModal" tabindex="-1" aria-labelledby="profilePasswordModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profilePasswordModalTitle">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="<?= base_url('profile/change_password/' . $user_details->id) ?>" class="form-ajax" method="post" redirect="<?= base_url('profile') ?>">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="profileNewPassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control required" name="password" id="profileNewPassword" autocomplete="new-password" required minlength="6">
+                    </div>
+                    <div>
+                        <label for="profileConfirmPassword" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control required" name="confirm_password" id="profileConfirmPassword" autocomplete="new-password" required minlength="6">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php $signin_method = $phone_signin_enabled ? (($user_details->phone_otp_channel ?? 'sms') === 'whatsapp' ? 'whatsapp' : 'sms') : 'email'; ?>
+<div class="modal fade" id="profileSignInCodesModal" tabindex="-1" aria-labelledby="profileSignInCodesModalTitle" aria-hidden="true" data-verified="<?= $phone_is_verified ? '1' : '0' ?>" data-method="<?= $signin_method ?>">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileSignInCodesModalTitle">Sign-in Codes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-code-methods" role="group" aria-label="Receive sign-in codes via">
+                    <?php foreach (array('email' => 'Email', 'whatsapp' => 'WhatsApp', 'sms' => 'SMS') as $method => $label): ?>
+                        <label class="profile-code-method" for="profileCodeMethod-<?= $method ?>">
+                            <span><?= $label ?></span>
+                            <span class="profile-phone-signin-toggle">
+                                <input type="checkbox" role="switch" class="profile-code-method-switch" id="profileCodeMethod-<?= $method ?>" data-method="<?= $method ?>" aria-label="<?= $label ?>" <?= $signin_method === $method ? 'checked' : '' ?> <?= $method !== 'email' && !$phone_is_verified ? 'disabled' : '' ?>>
+                                <span class="profile-phone-signin-track" aria-hidden="true"></span>
+                            </span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+                <p id="profileCodeMethodsVerifyNotice" class="fs-3 text-muted mt-3 mb-0<?= $phone_is_verified ? ' d-none' : '' ?>">Verify your phone number in <button type="button" class="profile-account-link" id="profileVerifyPhoneLink">Account</button> to use WhatsApp or SMS.</p>
+                <div id="profileCodeMethodStatus" class="fs-3 text-center mt-3" role="status" aria-live="polite"></div>
+            </div>
         </div>
     </div>
 </div>

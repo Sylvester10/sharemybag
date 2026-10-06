@@ -117,20 +117,9 @@ class Auth_challenge_model extends CI_Model
         return $this->db->trans_commit() ? $user : false;
     }
 
-    public function getPhoneOtpChannel()
+    public function getPhoneOtpChannel($user)
     {
-        $setting = $this->db->where('id', 1)->get('auth_settings')->row();
-        return $setting && strtolower((string) $setting->phone_otp_channel) === 'sms' ? 'sms' : 'whatsapp';
-    }
-
-    public function updatePhoneOtpChannel($channel, $adminId)
-    {
-        $channel = strtolower((string) $channel) === 'sms' ? 'sms' : 'whatsapp';
-        return $this->db->replace('auth_settings', array(
-            'id' => 1,
-            'phone_otp_channel' => $channel,
-            'updated_by' => (int) $adminId,
-        ));
+        return ($user->phone_otp_channel ?? 'sms') === 'whatsapp' ? 'whatsapp' : 'sms';
     }
 
     private function currentSessionHash()

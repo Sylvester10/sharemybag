@@ -7,61 +7,101 @@
         return;
     }
 
-    var $phoneSignIn = $('#profilePhoneSignIn');
-    var $phoneSignInToggle = $('#phoneSignInToggle');
+    var $phoneField = $('#profilePhoneSignIn');
+    var $phoneInput = $('#profilePhoneNumber');
+    var $methodModal = $('#profileSignInCodesModal');
+    var $methodSwitches = $methodModal.find('.profile-code-method-switch');
+    var savedMethod = $methodModal.attr('data-method') || 'email';
+    var phoneVerified = $methodModal.attr('data-verified') === '1';
+    var savingMethod = false;
+    var verifyingCode = false;
+    var requestingCode = false;
+    var verificationModalOpen = false;
 
-    $phoneSignInToggle.on('change', function () {
-        var enabled = this.checked;
-        $phoneSignIn.toggleClass('is-active', enabled);
+    function updatePhoneAction() {
+        var hasNumber = /[0-9]/.test($phoneInput.val() || '');
+        $phoneField.toggleClass('has-number', hasNumber);
+        $requestButton.prop('disabled', !hasNumber || requestingCode || verifyingCode);
+    }
+    $phoneInput.on('input change', updatePhoneAction);
+    updatePhoneAction();
 
-        if ($phoneSignInToggle.attr('data-verified') !== '1') {
-            if (enabled) $('#profilePhoneNumber').trigger('focus');
-            return;
-        }
-
-        $phoneSignInToggle.prop('disabled', true);
+    function renderMethod(method) {
+        $methodSwitches.each(function () {
+            var selected = $(this).attr('data-method') === method;
+            this.checked = selected;
+            this.disabled = savingMethod || ($(this).attr('data-method') !== 'email' && !phoneVerified);
+            $(this).closest('.profile-code-method').toggleClass('is-selected', selected)
+                .toggleClass('is-unavailable', $(this).attr('data-method') !== 'email' && !phoneVerified);
+        });
+    }
+    renderMethod(savedMethod);
+    if (window.location.hash === '#pills-security' && window.bootstrap) {
+        window.bootstrap.Tab.getOrCreateInstance(document.getElementById('pills-security-tab')).show();
+    }
+    $methodSwitches.on('change', function () {
+        var selectedMethod = $(this).attr('data-method');
+        if (!this.checked || savingMethod) { renderMethod(savedMethod); return; }
+        if (selectedMethod !== 'email' && !phoneVerified) { renderMethod(savedMethod); return; }
+        savingMethod = true;
+        renderMethod(selectedMethod);
+        var $status = $('#profileCodeMethodStatus');
+        $status.text('Saving…');
         var formData = new FormData();
-        formData.append('enabled', enabled ? '1' : '0');
+        formData.append('enabled', selectedMethod === 'email' ? '0' : '1');
+        formData.append('phone_otp_channel', selectedMethod === 'email' ? 'sms' : selectedMethod);
         appendGlobalCsrfToFormData(formData);
         $.ajax({
             url: base_url + 'profile/set_phone_signin_ajax',
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            processData: false,
-            contentType: false,
+            type: 'POST', data: formData, dataType: 'json', processData: false, contentType: false,
             success: function (res) {
                 updateGlobalCsrfHash(res.csrf_hash);
-                if (!res.status) {
-                    $phoneSignInToggle.prop('checked', !enabled);
-                    $phoneSignIn.toggleClass('is-active', !enabled);
-                    toastr.error(res.msg || 'Could not update phone sign-in.');
-                    return;
-                }
-                toastr.success(res.msg);
+                if (!res.status) { toastr.error(res.msg || 'Could not save your sign-in method.'); return; }
+                savedMethod = res.enabled ? res.phone_otp_channel : 'email';
+                $methodModal.attr('data-method', savedMethod);
+                toastr.success('Sign-in method updated.');
             },
             error: function (xhr) {
-                var error = getAjaxErrorMessage(xhr, 'Could not update phone sign-in. Please try again.');
-                $phoneSignInToggle.prop('checked', !enabled);
-                $phoneSignIn.toggleClass('is-active', !enabled);
-                toastr.error(error.message);
+                toastr.error(getAjaxErrorMessage(xhr, 'Could not save your sign-in method. Please try again.').message);
             },
             complete: function () {
-                $phoneSignInToggle.prop('disabled', false);
+                savingMethod = false;
+                renderMethod(savedMethod);
+                $status.empty();
             },
         });
+    });
+    $methodModal.on('hidden.bs.modal', function () { renderMethod(savedMethod); });
+    $('#profileVerifyPhoneLink').on('click', function () {
+        var el = $methodModal[0];
+        el.addEventListener('hidden.bs.modal', function focusPhone() {
+            el.removeEventListener('hidden.bs.modal', focusPhone);
+            window.bootstrap.Tab.getOrCreateInstance(document.getElementById('pills-account-tab')).show();
+            $phoneInput.trigger('focus');
+        });
+        window.bootstrap.Modal.getOrCreateInstance(el).hide();
     });
 
     var modalElement = document.getElementById('phoneVerificationModal');
     var modal = modalElement && window.bootstrap ? window.bootstrap.Modal.getOrCreateInstance(modalElement) : null;
-    var verificationModalOpen = false;
+
+    function releasePhoneInput() {
+        if (!phoneVerified && !requestingCode && !verifyingCode && !verificationModalOpen) {
+            $phoneInput.prop('readOnly', false);
+            $('#profileCountryCode').prop('disabled', false);
+            $('#phoneVerificationChallengeToken').val('');
+            resetCode();
+        }
+    }
     if (modalElement) {
         modalElement.addEventListener('hidden.bs.modal', function () {
             verificationModalOpen = false;
-            $phoneSignInToggle.prop('disabled', false);
+            releasePhoneInput();
         });
     }
-    var verifyingCode = false;
+    $('#profilePasswordModal').on('hidden.bs.modal', function () {
+        $(this).find('input[type="password"]').val('');
+    });
 
     function resetCode() {
         var $group = $verifyForm.find('.otp-input-container');
@@ -83,8 +123,10 @@
         formData.append('number', $('#profilePhoneNumber').val() || '');
         appendGlobalCsrfToFormData(formData);
 
+        requestingCode = true;
+        $phoneInput.prop('readOnly', true);
+        $('#profileCountryCode').prop('disabled', true);
         $requestButton.prop('disabled', true).addClass('is-loading').attr('aria-busy', 'true');
-        $phoneSignInToggle.prop('disabled', true);
         $spinner.removeClass('d-none');
 
         $.ajax({
@@ -117,8 +159,10 @@
                 showVerificationError(error.message);
             },
             complete: function () {
-                $requestButton.prop('disabled', false).removeClass('is-loading').removeAttr('aria-busy');
-                if (!verificationModalOpen) $phoneSignInToggle.prop('disabled', false);
+                requestingCode = false;
+                updatePhoneAction();
+                releasePhoneInput();
+                $requestButton.removeClass('is-loading').removeAttr('aria-busy');
                 $spinner.addClass('d-none');
             },
         });
@@ -165,10 +209,14 @@
                         '<i class="ti ti-circle-check text-white" aria-hidden="true"></i>' +
                     '</span>'
                 );
-                $('#profilePhoneNumber').prop('readOnly', true);
+                if (res.local_number) $phoneInput.val(res.local_number);
+                if (res.country_code) $('#profileCountryCode').val(res.country_code).trigger('change');
+                $phoneInput.prop('readOnly', true);
                 $('#profileCountryCode').prop('disabled', true);
-                $phoneSignInToggle.attr('data-verified', '1').prop('checked', true);
-                $phoneSignIn.addClass('is-active');
+                phoneVerified = true;
+                $methodModal.attr('data-verified', '1');
+                $('#profileCodeMethodsVerifyNotice').addClass('d-none');
+                renderMethod(savedMethod);
                 if ($('[name="address"]').val().trim() && $('[name="state"]').val().trim() && $('[name="post_code"]').val().trim()) {
                     $('#profileSubmitAction').addClass('d-none');
                     $('#profileSupportNotice').removeClass('d-none');
@@ -185,6 +233,8 @@
             },
             complete: function () {
                 verifyingCode = false;
+                releasePhoneInput();
+                updatePhoneAction();
                 $group.removeAttr('aria-busy');
             },
         });

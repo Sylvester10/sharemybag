@@ -2,10 +2,13 @@
 
     <div class="traveller-search-panel overflow-hidden">
         <div class="card-body p-4">
-            <h4 class="mb-2 text-white">Booking History</h4>
+            <h4 class="mb-2 text-white"><?= !empty($active_only) ? 'Active Bookings' : 'Booking History' ?></h4>
             <p class="text-white mb-1 fs-3">
-                View your complete booking history and details.
+                <?= !empty($active_only) ? 'View your active bookings and details.' : 'View your complete booking history and details.' ?>
             </p>
+            <?php if (!empty($active_only)): ?>
+                <a href="<?= base_url('history') ?>" class="text-white fs-3">View all bookings <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+            <?php endif; ?>
         </div>
     </div>
 

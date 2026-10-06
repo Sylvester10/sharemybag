@@ -614,7 +614,7 @@ jQuery(document).ready(function ($) {
 
                     $codeForm.find('[data-challenge-token]').val(res.challenge_token || '');
                     $codeForm.find('[data-code-destination]').text(
-                        'Code sent via ' + (res.delivery_channel || 'your selected channel') + ' to ' + (res.destination_hint || 'your registered contact') + '.'
+                        'Code sent to ' + (res.destination_hint || 'your registered contact') + '.'
                     );
                     $loginForm.addClass('d-none');
                     $codeForm.removeClass('d-none');
@@ -664,7 +664,7 @@ jQuery(document).ready(function ($) {
 
 					$codeForm.find('[data-challenge-token]').val(res.challenge_token || '');
 					$codeForm.find('[data-code-destination]').text(
-						'Code sent via ' + (res.delivery_channel || 'your selected channel') + ' to ' + (res.destination_hint || 'your registered contact') + '.'
+						'Code sent to ' + (res.destination_hint || 'your registered contact') + '.'
 					);
 					resetPasswordlessCode();
 					showPasswordlessResendSent(res.resend_after || 30);

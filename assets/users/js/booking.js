@@ -318,7 +318,42 @@ jQuery(document).ready(function ($) {
 
     // Update the unit in the summary panel
     $('#total-unit').text(unit);
+    updateWeightRoundingNotice();
   }
+
+  function updateWeightRoundingNotice(animate = true) {
+    const showNotice = $('#select2').val() !== '' && $('#select2').attr('data-unit') === 'KG';
+    const notice = $('#weight-rounding-notice');
+
+    if (notice.data('expanded') === showNotice) {
+      return;
+    }
+
+    notice.data('expanded', showNotice).stop(true, true);
+    notice.attr('aria-hidden', showNotice ? 'false' : 'true');
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = animate && !reduceMotion ? 240 : 0;
+
+    if (showNotice) {
+      notice.removeClass('d-none');
+      if (duration) {
+        notice.hide().slideDown(duration);
+      } else {
+        notice.show();
+      }
+    } else if (duration) {
+      notice.slideUp(duration, function () {
+        notice.addClass('d-none').css('display', '');
+      });
+    } else {
+      notice.addClass('d-none').css('display', '');
+    }
+  }
+
+  $('#select2').on('change', function () {
+    updateWeightRoundingNotice();
+  });
 
   // --- NEW: Event listener for category change ---
   $('#select1').change(function () {
@@ -339,6 +374,7 @@ jQuery(document).ready(function ($) {
   updateBooking();
   updateitems();
   updateCategoryAdvisory();
+  updateWeightRoundingNotice(false);
 
   $('#item-list')
     .children('.select_item')
