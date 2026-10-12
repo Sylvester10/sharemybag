@@ -1,20 +1,17 @@
-<?php $email_title = 'Document Submitted';
+<?php $email_template = basename(__FILE__, '.php'); $email_title = 'Document Submitted';
 include 'email_header.php'; ?>
 
-<div class="success-banner">
-    <span class="banner-icon"><img src="<?php echo production_url('assets/general/penfing.png'); ?>" width="50" height="50" alt="<?= business ?>"></span>
-    <p class="banner-title-green">Verification in progress</p>
-</div>
+<?= email_image_card('documents_under_review') ?>
 
-<p class="greeting">Hi <?= $firstname ?>,</p>
+<p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi <?= $firstname ?>,</p>
 
-<p>Thank you for submitting your <span class="id-badge"><?= $id_type ?></span> for verification.</p>
+<p style="<?= email_style('paragraph') ?>">Thank you for submitting your <span class="id-badge" style="<?= email_style('id-badge') ?>"><?= $id_type ?></span> for verification.</p>
 
-<p>Our compliance team is currently reviewing your documents. You'll receive a notification soon on your verification status update.</p>
+<p style="<?= email_style('paragraph') ?>">Our compliance team is currently reviewing your documents. You'll receive a notification soon on your verification status update.</p>
 
-<p>We appreciate your patience. If you have any questions or need assistance in the meantime, don't hesitate to reach out — we're always here to help.</p>
+<p style="<?= email_style('paragraph') ?>">We appreciate your patience. If you have any questions or need assistance in the meantime, don't hesitate to reach out — we're always here to help.</p>
 
-<hr class="divider">
-<p class="sign-off">Thank you for choosing <?= business ?>.<br><strong>The <?= business ?> Team</strong></p>
+<hr class="divider" style="<?= email_style('divider') ?>">
+<p class="sign-off" style="<?= email_style('paragraph') . email_style('sign-off') ?>">Thank you for choosing <?= business ?>.<br><strong>The <?= business ?> Team</strong></p>
 
 <?php include 'email_footer.php'; ?>

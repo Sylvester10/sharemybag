@@ -6,29 +6,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 function email_call2action_red($url, $caption)
 {
-	return '<table>
-					<tr>
-						<td style="background-color: #cc0821; border-color: #cc0821; border: 2px solid #cc0821; padding: 10px; text-align: center;">
-							<a style="display: block; color: #ffffff; font-size: 17px; text-decoration: none; font-size: 18px;" href="' . $url . '">'
-		. $caption . ' &raquo;
-							</a>
-						</td>
-					</tr>
-				</table>';
+    require_once APPPATH . 'helpers/email_design_helper.php';
+    return email_button($url, $caption . ' »');
 }
-
 
 function email_call2action_blue($url, $caption)
 {
-	return '<table>
-					<tr>
-						<td style="background-color: #0e67bf; border-color: #0e67bf; border: 2px solid #0e67bf; padding: 10px; text-align: center;">
-							<a style="display: block; color: #ffffff; font-size: 17px; text-decoration: none; text-transform: capitalize;" href="' . $url . '">'
-		. $caption .
-		'</a>
-						</td>
-					</tr>
-				</table>';
+    require_once APPPATH . 'helpers/email_design_helper.php';
+    return email_button($url, $caption);
 }
 
 

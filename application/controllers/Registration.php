@@ -213,10 +213,23 @@ class Registration extends MY_Controller
             $password = password_hash($this->input->post('password', TRUE), PASSWORD_DEFAULT);
 
             if (hash_equals((string) $pending_user->verification_code, (string) $verification_code)) {
-                // Update user password, mark as verified, and set a new verification code
-                $this->users_model->update_user_verification($pending_user->id, $password);
+                // Complete signup once, even if another request has the same pending snapshot.
+                $completed = $this->users_model->update_user_verification(
+                    $pending_user->id, $password, $verification_code, $resume_token
+                );
+                if (!$completed) {
+                    echo json_encode(['status' => false, 'msg' => 'This verification could not be completed. Sign in if you have already verified, or request a new code and try again.', 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash]);
+                    return;
+                }
                 auth_throttle_clear($verify_throttle_key);
                 $this->users_model->clear_verification_security_state($pending_user->id);
+
+                if (!send_email_notification($this, $pending_user->email, 'Welcome to ' . business, array(
+                    'firstname' => $pending_user->firstname,
+                ), 'user_welcome_email')) {
+                    // Welcome delivery is best effort; a verified account stays verified.
+                    log_message('error', 'Welcome email delivery failed for verified user ID ' . (int) $pending_user->id);
+                }
 
                 $res = ['status' => true, 'msg' => 'Your email has been verified successfully.', 'title' => 'Verification Complete', 'msg_timeout' => 5000, 'csrf_hash' => $csrf_hash];
             } else {

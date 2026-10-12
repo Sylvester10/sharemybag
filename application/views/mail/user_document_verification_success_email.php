@@ -1,37 +1,33 @@
-<?php $email_title = 'Verification Successful';
+<?php $email_template = basename(__FILE__, '.php'); $email_title = 'Verification Successful';
 include 'email_header.php'; ?>
 
-<div class="success-banner">
-    <span class="banner-icon"><img src="<?php echo production_url('assets/general/approve.png'); ?>" width="50" height="50" alt="<?= business ?>"></span>
-    <p class="banner-title-green">Identity Verification Successful!</p>
-</div>
+<?= email_image_card('identity_verification_successful') ?>
 
-<p class="greeting">Hi <?= $firstname ?>,</p>
+<p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi <?= $firstname ?>,</p>
 
-<p>You now have full access to everything <?= business ?> has to offer:</p>
+<p style="<?= email_style('paragraph') ?>">Your identity verification was successful.</p>
 
-<table class="features" cellpadding="0" cellspacing="0">
+<p style="<?= email_style('paragraph') ?>">You now have full access to everything <?= business ?> has to offer:</p>
+
+<table class="features" cellpadding="0" cellspacing="0" style="<?= email_style('features') ?>">
     <tr>
-        <td class="feature-item">
-            <span class="feature-icon">🔍</span>
-            <span class="feature-text">Find Travellers</span>
+        <td class="feature-item" style="<?= email_style('table-cell') . email_style('feature-item') ?>">
+            <span class="feature-text" style="<?= email_style('feature-text') ?>">Find Travellers</span>
         </td>
-        <td class="feature-item" style="border-left:none;">
-            <span class="feature-icon">🧳</span>
-            <span class="feature-text">Buy Luggage Space</span>
+        <td class="feature-item" style="<?= email_style('table-cell') . email_style('feature-item') ?>border-left:none;">
+            <span class="feature-text" style="<?= email_style('feature-text') ?>">Buy Luggage Space</span>
         </td>
-        <td class="feature-item" style="border-left:none;">
-            <span class="feature-icon">📦</span>
-            <span class="feature-text">Send Parcels</span>
+        <td class="feature-item" style="<?= email_style('table-cell') . email_style('feature-item') ?>border-left:none;">
+            <span class="feature-text" style="<?= email_style('feature-text') ?>">Send Parcels</span>
         </td>
     </tr>
 </table>
 
-<div class="btn-wrap">
-    <a href="<?php echo base_url('home/search'); ?>" class="btn">Find a Traveller</a>
+<div class="btn-wrap" style="<?= email_style('btn-wrap') ?>">
+    <?= email_button(base_url('home/search'), 'Find a Traveller') ?>
 </div>
 
-<hr class="divider">
-<p class="sign-off">Welcome aboard,<br><strong>The <?= business ?> Team</strong></p>
+<hr class="divider" style="<?= email_style('divider') ?>">
+<p class="sign-off" style="<?= email_style('paragraph') . email_style('sign-off') ?>">Welcome aboard,<br><strong>The <?= business ?> Team</strong></p>
 
 <?php include 'email_footer.php'; ?>

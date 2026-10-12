@@ -1,13 +1,12 @@
-<?php $email_title = 'New Traveller Registration';
+<?php $email_template = basename(__FILE__, '.php'); $email_title = 'New Traveller Registration';
 include 'email_header.php'; ?>
 
-<div style="text-align:center;">
-    <div class="alert-badge"><span class="alert-dot"></span> New Traveller</div>
-    <p class="greeting">Hi Admin,</p>
-    <p><strong><?= $fullname; ?></strong> has just signed up as a new traveller. Please log in to your admin dashboard to review their details and approve their account.</p>
+<div style="<?= email_style('') ?>">
+    <p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi Admin,</p>
+    <p style="<?= email_style('paragraph') ?>"><strong><?= $fullname; ?></strong> has just signed up as a new traveller. Please log in to your admin dashboard to review their details and approve their account.</p>
 
-    <div class="btn-wrap">
-        <a href="https://sharemybag.co.uk/admin" class="btn">Review &amp; Approve</a>
+    <div class="btn-wrap" style="<?= email_style('btn-wrap') ?>">
+        <?= email_button('https://sharemybag.co.uk/admin', 'Review & Approve') ?>
     </div>
 </div>
 

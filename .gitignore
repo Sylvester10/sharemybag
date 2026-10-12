@@ -60,3 +60,11 @@ PROJECT_REFERENCE.md
 
 !/scripts/setup_phone_code_channel.php
 !/tests/phone_code_channel_test.php
+!/tests/email_design_test.php
+!/tests/signup_welcome_test.php
+!/tests/support/
+/tests/support/*
+!/tests/support/email_render.php
+!/tests/fixtures/
+/tests/fixtures/*
+!/tests/fixtures/email_copy.json
