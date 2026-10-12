@@ -6,8 +6,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 // Suggested size: 1200 × 480px. Images fill the card width without cropping.
 // Leave a URL empty to show a blank image placeholder in that email.
 return array(
-    'documents_under_review' => 'assets/general/pending.png',
-    'identity_verification_successful' => 'assets/general/approve.png',
-    'identity_verification_unsuccessful' => 'assets/general/reject.png',
+    'documents_under_review' => 'assets/general/pending3.png',
+    'identity_verification_successful' => 'assets/general/approve3.png',
+    'identity_verification_unsuccessful' => 'assets/general/reject3.png',
     'traveller_approved' => 'assets/general/traveler_success.jpg',
 );

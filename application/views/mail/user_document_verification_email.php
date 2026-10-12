@@ -7,7 +7,7 @@ include 'email_header.php'; ?>
 
 <p style="<?= email_style('paragraph') ?>">Thank you for submitting your <span class="id-badge" style="<?= email_style('id-badge') ?>"><?= $id_type ?></span> for verification.</p>
 
-<p style="<?= email_style('paragraph') ?>">Our compliance team is currently reviewing your documents. You'll receive a notification soon on your verification status update.</p>
+<p style="<?= email_style('paragraph') ?>">Our compliance team is currently reviewing your documents. You'll receive a notification as soon on your verification status update.</p>
 
 <p style="<?= email_style('paragraph') ?>">We appreciate your patience. If you have any questions or need assistance in the meantime, don't hesitate to reach out — we're always here to help.</p>
 
