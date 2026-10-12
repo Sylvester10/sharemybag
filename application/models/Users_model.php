@@ -149,8 +149,11 @@ class Users_model extends MY_Model
     }
 
 
-    public function update_user_verification($user_id, $password)
+    public function update_user_verification($user_id, $password, $verification_code, $resume_token)
     {
+        if ((string) $verification_code === '' || (string) $resume_token === '') {
+            return false;
+        }
         $data = [
             'password' => $password,
             'verification_code' => NULL // Clear old code after verification
@@ -173,8 +176,25 @@ class Users_model extends MY_Model
         if ($this->db->field_exists('signup_resume_expires_at', 'users')) {
             $data['signup_resume_expires_at'] = null;
         }
+        // Atomically consume this pending signup. Only the winning request may send welcome.
         $this->db->where('id', $user_id);
-        $this->db->update('users', $data);
+        $this->db->where('verification_code', $verification_code);
+        $this->db->where('signup_resume_token', $resume_token);
+        $this->db->where('deleted_at IS NULL', null, false);
+        $this->db->group_start()->where('password IS NULL', null, false)->or_where('password', '')->group_end();
+        if ($this->db->field_exists('verification_code_expires_at', 'users')) {
+            $this->db->group_start()->where('verification_code_expires_at IS NULL', null, false)
+                ->or_where('verification_code_expires_at >', date('Y-m-d H:i:s'))->group_end();
+        }
+        if ($this->db->field_exists('signup_resume_expires_at', 'users')) {
+            $this->db->where('signup_resume_expires_at >', date('Y-m-d H:i:s'));
+        }
+        if ($this->db->field_exists('verification_locked_until', 'users')) {
+            $this->db->group_start()->where('verification_locked_until IS NULL', null, false)
+                ->or_where('verification_locked_until <=', date('Y-m-d H:i:s'))->group_end();
+        }
+        $updated = $this->db->update('users', $data);
+        return $updated && $this->db->affected_rows() === 1;
     }
 
 

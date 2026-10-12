@@ -222,13 +222,12 @@
             <div class="modal-dialog modal-dialog-centered traveller-success-modal" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="travellerSuccessModalLabel">Traveller Request Sent</h4>
                         <button type="button" class="smb-estimate-close" data-bs-dismiss="modal" aria-label="Close"><i class="las la-times" aria-hidden="true"></i></button>
                     </div>
                     <div class="modal-body">
                         <div class="traveller-success-modal__hero">
-                            <span class="traveller-success-modal__icon"><i class="las la-check-circle"></i></span>
-                            <h5>Thank you for submitting your details.</h5>
+                            <dotlottie-wc class="traveller-success-animation" src="https://lottie.host/3f6b6bf3-6917-4f30-b234-da901f7c8f40/yFd7ZAKz3H.lottie" aria-hidden="true"></dotlottie-wc>
+                            <h5 id="travellerSuccessModalLabel">Thank you for submitting your details.</h5>
                             <p>One of our agents will contact you shortly.</p>
                         </div>
 
@@ -244,6 +243,7 @@
             </div>
         </div>
 
+        <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.14/dist/dotlottie-wc.js" type="module"></script>
 
         <div class="smb-faq-section">
             <div class="container">

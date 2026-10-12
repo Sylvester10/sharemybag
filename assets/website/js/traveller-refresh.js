@@ -1,6 +1,17 @@
 // Presentation and inline feedback for the updated public Traveller form.
 (function ($) {
     'use strict';
+    // Start a fresh success animation when the confirmation becomes visible.
+    $('#travellerSuccessModal').on('shown.bs.modal', function () {
+        var animation = this.querySelector('.traveller-success-animation');
+        if (!animation) return;
+        var fresh = animation.cloneNode(true);
+        fresh.removeAttribute('autoplay');
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            fresh.setAttribute('autoplay', '');
+        }
+        animation.replaceWith(fresh);
+    });
     var safetyDeck = document.querySelector('.smb-safety-deck');
     if (safetyDeck) {
         var cards = Array.from(safetyDeck.querySelectorAll('.smb-safety-card'));
