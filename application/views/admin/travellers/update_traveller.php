@@ -1,4 +1,5 @@
 <div class="new-item admin-page-actions">
+    <a class="btn btn-default btn-sm button-adjust admin-back-btn" data-traveller-back href="<?php echo base_url('admin_travellers'); ?>"><i class="las la-arrow-left"></i> Back</a>
     <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_travellers'); ?>"><i class="las la-suitcase-rolling"></i> Available Travellers</a>
     <a class="btn btn-default btn-sm button-adjust" href="<?php echo base_url('admin_travellers/pending_travellers'); ?>">
         <i class="las la-history"></i> Pending Travellers

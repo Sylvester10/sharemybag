@@ -1,6 +1,31 @@
 jQuery(document).ready(function ($) {
     ('use strict');
 
+    $(document).on('click', 'a[data-traveller-back]', function (event) {
+        if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+            return;
+        }
+
+        if (window.history.length > 1) {
+            event.preventDefault();
+            window.history.back();
+            return;
+        }
+
+        // A newly opened tab may still have a same-site source page.
+        if (document.referrer) {
+            try {
+                var source = new URL(document.referrer);
+                if (source.origin === window.location.origin && source.href !== window.location.href) {
+                    event.preventDefault();
+                    window.location.assign(source.href);
+                }
+            } catch (error) {
+                // Keep the link's fallback when the source URL is unavailable.
+            }
+        }
+    });
+
     let csrfHash = $('#csrf_hash').val();
 
     function getCsrfHash() {

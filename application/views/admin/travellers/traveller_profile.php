@@ -5,8 +5,8 @@
         Traveller</a>
     <a class="btn btn-primary btn-sm button-adjust" href="#" data-toggle="modal" data-target="#addTravellerBagSpaceModal"><i class="las la-plus"></i> Add Bag Space</a>
     <a class="btn btn-danger btn-sm button-adjust" href="#" data-toggle="modal" data-target="#removeTravellerBagSpaceModal"><i class="las la-minus"></i> Remove Bag Space</a>
-    <a class="btn btn-default btn-sm button-adjust admin-back-btn" href="<?php echo base_url($is_arrival_profile ? 'shipping/arrivals' : 'admin_travellers'); ?>"><i
-            class="las la-arrow-left"></i> <?php echo $is_arrival_profile ? 'Back to Arrivals' : 'Back to Travellers'; ?></a>
+    <a class="btn btn-default btn-sm button-adjust admin-back-btn" data-traveller-back href="<?php echo base_url($is_arrival_profile ? 'shipping/arrivals' : 'admin_travellers'); ?>"><i
+            class="las la-arrow-left"></i> Back</a>
 </div>
 
 <input type="hidden" id="csrf_hash" value="<?php echo html_escape($this->security->get_csrf_hash()); ?>" />
