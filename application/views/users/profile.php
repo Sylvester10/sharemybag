@@ -225,8 +225,8 @@
     </div>
 </div>
 
-<?php $signin_method = $phone_signin_enabled ? (($user_details->phone_otp_channel ?? 'sms') === 'whatsapp' ? 'whatsapp' : 'sms') : 'email'; ?>
-<div class="modal fade" id="profileSignInCodesModal" tabindex="-1" aria-labelledby="profileSignInCodesModalTitle" aria-hidden="true" data-verified="<?= $phone_is_verified ? '1' : '0' ?>" data-method="<?= $signin_method ?>">
+<?php $signin_methods = signin_code_enabled_methods($user_details); ?>
+<div class="modal fade" id="profileSignInCodesModal" tabindex="-1" aria-labelledby="profileSignInCodesModalTitle" aria-hidden="true" data-verified="<?= $phone_is_verified ? '1' : '0' ?>" data-methods="<?= html_escape(json_encode($signin_methods)) ?>">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -239,7 +239,7 @@
                         <label class="profile-code-method" for="profileCodeMethod-<?= $method ?>">
                             <span><?= $label ?></span>
                             <span class="profile-phone-signin-toggle">
-                                <input type="checkbox" role="switch" class="profile-code-method-switch" id="profileCodeMethod-<?= $method ?>" data-method="<?= $method ?>" aria-label="<?= $label ?>" <?= $signin_method === $method ? 'checked' : '' ?> <?= $method !== 'email' && !$phone_is_verified ? 'disabled' : '' ?>>
+                                <input type="checkbox" role="switch" class="profile-code-method-switch" id="profileCodeMethod-<?= $method ?>" data-method="<?= $method ?>" aria-label="<?= $label ?>" <?= in_array($method, $signin_methods, true) ? 'checked' : '' ?> <?= $method !== 'email' && !$phone_is_verified ? 'disabled' : '' ?>>
                                 <span class="profile-phone-signin-track" aria-hidden="true"></span>
                             </span>
                         </label>

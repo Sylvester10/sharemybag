@@ -1,5 +1,6 @@
 <?php
 defined('BASEPATH') or exit('Direct access to script not allowed');
+require_once APPPATH . 'helpers/signin_code_helper.php';
 
 
 class Users_model extends MY_Model
@@ -329,15 +330,21 @@ class Users_model extends MY_Model
         ), $this->user_activity_model->actor('user', $userId), 'phone_verified', $challengeId);
     }
 
+    public function set_signin_code_methods($userId, $methods)
+    {
+        $mask = signin_code_methods_mask($methods);
+        if ($mask === null) { return false; }
+        $this->load->model('user_activity_model');
+        return $this->user_activity_model->updateDetails($userId,
+            array('signin_code_methods' => $mask),
+            $this->user_activity_model->actor('user', $userId), 'signin_methods_updated');
+    }
+
     public function set_phone_signin_enabled($userId, $enabled, $channel = null)
     {
         if ($channel !== null && !in_array($channel, array('sms', 'whatsapp'), true)) { return false; }
-        $this->load->model('user_activity_model');
-        $data = array('phone_signin_enabled' => $enabled ? 1 : 0);
-        if ($channel !== null) { $data['phone_otp_channel'] = $channel; }
-        return $this->user_activity_model->updateDetails($userId,
-            $data,
-            $this->user_activity_model->actor('user', $userId), 'phone_signin_updated');
+        $channel = $channel ?? 'sms';
+        return $this->set_signin_code_methods($userId, $enabled ? array('email', $channel) : array('email'));
     }
 
 

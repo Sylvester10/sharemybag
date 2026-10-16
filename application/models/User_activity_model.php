@@ -1,5 +1,6 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+require_once APPPATH . 'helpers/signin_code_helper.php';
 
 /** Account history is append-only. Sensitive credentials never enter snapshots. */
 class User_activity_model extends CI_Model
@@ -10,7 +11,7 @@ class User_activity_model extends CI_Model
         'address' => 'Address', 'state' => 'City', 'post_code' => 'Postal code',
         'email_verified_at' => 'Email verified at', 'verified_phone_e164' => 'Verified phone',
         'phone_verified_at' => 'Phone verified at', 'phone_signin_enabled' => 'Phone sign-in',
-        'phone_otp_channel' => 'Phone code delivery',
+        'phone_otp_channel' => 'Phone code delivery', 'signin_code_methods' => 'Sign-in code methods',
         'is_verified' => 'Identity verification', 'account_status' => 'Account status',
         'id_type' => 'ID type', 'platform' => 'Platform', 'socials' => 'Social profile',
         'selfie' => 'Selfie', 'id_card' => 'Identity document', 'utility' => 'Address document',
@@ -80,6 +81,19 @@ class User_activity_model extends CI_Model
             $this->db->trans_rollback();
             return false;
         }
+        if (array_key_exists('signin_code_methods', $data)) {
+            $mask = (int) $data['signin_code_methods'];
+            if (!in_array($mask, array(1, 2, 3, 4, 5, 6), true)
+                || (($mask & 6) && (empty($before->phone_verified_at) || empty($before->verified_phone_e164)))) {
+                $this->db->trans_rollback();
+                return false;
+            }
+            $data['phone_signin_enabled'] = ($mask & 6) ? 1 : 0;
+            if ($mask & 6) {
+                $preferred = ($before->phone_otp_channel ?? 'sms') === 'whatsapp' ? 2 : 4;
+                $data['phone_otp_channel'] = ($mask & $preferred) ? ($preferred === 2 ? 'whatsapp' : 'sms') : (($mask & 4) ? 'sms' : 'whatsapp');
+            }
+        }
         $data = array_intersect_key($data, self::FIELDS);
         $phoneChanged = array_key_exists('number', $data) && (string) $data['number'] !== (string) $before->number;
         $emailChanged = array_key_exists('email', $data) && strtolower((string) $data['email']) !== strtolower((string) $before->email);
@@ -88,6 +102,7 @@ class User_activity_model extends CI_Model
             $data['verified_phone_e164'] = null;
             $data['phone_verified_at'] = null;
             $data['phone_signin_enabled'] = 0;
+            $data['signin_code_methods'] = 1;
         }
         if ($emailChanged && property_exists($before, 'email_verified_at')) {
             $data['email_verified_at'] = null;
@@ -103,14 +118,27 @@ class User_activity_model extends CI_Model
             return true;
         }
         $ok = $this->db->where('id', (int) $userId)->update('users', $data);
-        if ($phoneReset || $emailChanged || isset($changes['phone_otp_channel']) || (isset($changes['phone_signin_enabled']) && empty($data['phone_signin_enabled']))) {
-            if ($this->db->table_exists('auth_login_challenges')) {
-                $channels = array();
-                if ($phoneReset || isset($changes['phone_signin_enabled']) || isset($changes['phone_otp_channel'])) { $channels = array('sms', 'whatsapp'); }
-                if ($emailChanged) { $channels[] = 'email'; }
+        if ($this->db->table_exists('auth_login_challenges')) {
+            $channels = array();
+            // Resets invalidate ownership challenges too; preference changes only revoke removed login methods.
+            if ($phoneReset || (!isset($changes['signin_code_methods'])
+                && (isset($changes['phone_otp_channel']) || (isset($changes['phone_signin_enabled']) && empty($data['phone_signin_enabled']))))) {
+                $channels = array('sms', 'whatsapp');
+            }
+            if ($emailChanged) { $channels[] = 'email'; }
+            if ($channels) {
                 $ok = $this->db->where('user_id', (int) $userId)->where_in('delivery_channel', $channels)
                     ->where('consumed_at IS NULL', null, false)
                     ->update('auth_login_challenges', array('consumed_at' => date('Y-m-d H:i:s'))) && $ok;
+            }
+            if (isset($changes['signin_code_methods'])) {
+                $afterMethods = signin_code_enabled_methods((object) array('signin_code_methods' => $data['signin_code_methods']));
+                $removed = array_diff(signin_code_enabled_methods($before), $afterMethods);
+                if ($removed) {
+                    $ok = $this->db->where('user_id', (int) $userId)->where('purpose', 'login')
+                        ->where_in('delivery_channel', array_values($removed))->where('consumed_at IS NULL', null, false)
+                        ->update('auth_login_challenges', array('consumed_at' => date('Y-m-d H:i:s'))) && $ok;
+                }
             }
         }
         if ($event === 'phone_verified') {

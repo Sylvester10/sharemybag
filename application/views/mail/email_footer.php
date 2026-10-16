@@ -2,7 +2,7 @@
                 </tr>
                 <tr>
                     <td class="email-footer" align="center" style="padding:28px 28px 4px;text-align:center;font-size:12px;line-height:1.8;color:#756e67;<?= email_style() ?>">
-                        <p style="margin:0 0 18px;font-size:12px;line-height:1.8;<?= email_style() ?>">Contact us at <a href="mailto:<?= htmlspecialchars(business_contact_email, ENT_QUOTES, 'UTF-8') ?>" style="color:#f36b24;text-decoration:none;<?= email_style() ?>"><?= htmlspecialchars(business_contact_email, ENT_QUOTES, 'UTF-8') ?></a></p>
+                        <!-- <p style="margin:0 0 18px;font-size:12px;line-height:1.8;<?= email_style() ?>">Contact us at <a href="mailto:<?= htmlspecialchars(business_contact_email, ENT_QUOTES, 'UTF-8') ?>" style="color:#f36b24;text-decoration:none;<?= email_style() ?>"><?= htmlspecialchars(business_contact_email, ENT_QUOTES, 'UTF-8') ?></a></p> -->
                         <p style="margin:0 0 16px;font-size:12px;line-height:1.8;<?= email_style() ?>">
                             <a class="email-footer-link" href="<?= production_url('privacy-policy') ?>" style="color:#625b54;text-decoration:none;<?= email_style() ?>">Privacy Policy</a>
                             &nbsp;·&nbsp;

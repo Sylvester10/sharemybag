@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 $events = array('details_updated' => 'Details updated', 'phone_cleared' => 'Phone cleared',
-    'phone_verified' => 'Phone verified', 'phone_signin_updated' => 'Phone sign-in updated',
+    'phone_verified' => 'Phone verified', 'signin_methods_updated' => 'Sign-in methods updated', 'phone_signin_updated' => 'Phone sign-in updated',
     'identity_updated' => 'Identity details updated', 'signed_in' => 'Signed in',
     'signed_out' => 'Signed out', 'admin_access' => 'Admin accessed account');
 $methods = array('password' => 'Password', 'email_code' => 'Email code',
@@ -8,6 +8,11 @@ $methods = array('password' => 'Password', 'email_code' => 'Email code',
 $format = function ($field, $value) {
     if ($value === null || $value === '') { return '—'; }
     if ($field === 'phone_signin_enabled') { return (int) $value ? 'Enabled' : 'Disabled'; }
+    if ($field === 'signin_code_methods') {
+        $labels = array();
+        foreach (array(1 => 'Email', 2 => 'WhatsApp', 4 => 'SMS') as $bit => $label) { if (((int) $value & $bit) !== 0) { $labels[] = $label; } }
+        return implode(', ', $labels);
+    }
     if ($field === 'phone_otp_channel') { return $value === 'whatsapp' ? 'WhatsApp' : 'SMS'; }
     if ($field === 'is_verified') { return array(0 => 'Unverified', 1 => 'Pending', 2 => 'Approved')[(int) $value] ?? (string) $value; }
     if ($field === 'account_status') { return (int) $value ? 'Active' : 'Blocked'; }

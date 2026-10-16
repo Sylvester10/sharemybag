@@ -180,14 +180,14 @@
                                         <div class="col-sm-12 mb-3" data-login-email-panel>
                                             <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
                                                 <label for="login_email" class="mb-0">Email <span class="text-danger">*</span></label>
-                                                <button type="button" class="btn btn-link p-0 text-decoration-none copyright text-nowrap" data-login-identifier-toggle>Use phone number instead</button>
+                                                <button type="button" class="btn btn-link p-0 text-decoration-none copyright text-nowrap" data-login-identifier-toggle style="font-size: 12px;">Use phone number instead</button>
                                             </div>
                                             <input type="email" class="form-control" name="email" id="login_email" autocomplete="username" required>
                                         </div>
                                         <div class="col-sm-12 d-none mb-3" data-login-phone-panel>
                                             <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
                                                 <label for="login_phone_number" class="mb-0">Phone Number <span class="text-danger">*</span></label>
-                                                <button type="button" class="btn btn-link p-0 text-decoration-none copyright text-nowrap" data-login-identifier-toggle>Use email instead</button>
+                                                <button type="button" class="btn btn-link p-0 text-decoration-none copyright text-nowrap" data-login-identifier-toggle style="font-size: 12px;">Use email instead</button>
                                             </div>
                                             <?php $this->load->view('partials/phone_input', array(
                                                 'wrapper_class' => '',
@@ -213,7 +213,7 @@
                                         </div>
                                         <div class="col-sm-12">
                                             <div class="d-flex justify-content-end mb-2">
-                                                <button type="button" class="btn btn-link p-0 text-decoration-none copyright" data-password-mode-toggle>Use Password Instead</button>
+                                                <button type="button" class="btn btn-link p-0 text-decoration-none copyright" data-password-mode-toggle style="font-size: 12px;">Use Password Instead</button>
                                             </div>
                                         </div>
 
