@@ -98,6 +98,24 @@ class Profile extends MY_Controller
         }
     }
 
+    public function set_signin_code_methods_ajax()
+    {
+        if ($this->input->method() !== 'post') { show_error('Method not allowed.', 405); }
+        $csrf_hash = $this->security->get_csrf_hash();
+        $methods = $this->input->post('methods', true);
+        if (signin_code_methods_mask($methods) === null) {
+            echo json_encode(array('status' => false, 'msg' => 'Could not save your sign-in settings.', 'csrf_hash' => $csrf_hash));
+            return;
+        }
+        $userId = (int) $this->session->user_id;
+        if (!$this->users_model->set_signin_code_methods($userId, $methods)) {
+            echo json_encode(array('status' => false, 'msg' => 'Could not save your sign-in settings. Verify your phone number to use phone codes.', 'csrf_hash' => $csrf_hash));
+            return;
+        }
+        echo json_encode(array('status' => true, 'methods' => array_values($methods),
+            'msg' => 'Sign-in settings updated.', 'csrf_hash' => $csrf_hash));
+    }
+
     public function set_phone_signin_ajax()
     {
         if ($this->input->method() !== 'post') { show_error('Method not allowed.', 405); }

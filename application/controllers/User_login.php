@@ -137,6 +137,10 @@ class User_login extends MY_Controller
         }
 
         if ($isEmail) {
+            if (!signin_code_method_enabled($user, 'email')) {
+                $this->sendUnavailableChallengeResponse($csrf_hash);
+                return;
+            }
             $code = generate_verification_code();
             $token = $this->auth_challenge_model->createChallenge($user->id, 'login', 'email', strtolower($user->email), $code);
             if (!$token) {
@@ -157,7 +161,12 @@ class User_login extends MY_Controller
             $channel = 'email';
             $destination = $user->email;
         } else {
-            $channel = $this->auth_challenge_model->getPhoneOtpChannel($user);
+            $channel = (string) $this->input->post('delivery_channel', true);
+            if ($channel === '') { $channel = $this->auth_challenge_model->getPhoneOtpChannel($user); }
+            if (!signin_code_method_enabled($user, $channel) || $channel === 'email') {
+                $this->sendUnavailableChallengeResponse($csrf_hash);
+                return;
+            }
             $this->load->library('twilio_verify_service');
             $result = $this->twilio_verify_service->sendCode($user->verified_phone_e164, $channel);
             if (empty($result['success'])) {
@@ -213,7 +222,7 @@ class User_login extends MY_Controller
 
         if (
             $challenge && $user
-            && ($challenge->delivery_channel === 'email' || !empty($user->phone_signin_enabled))
+            && signin_code_method_enabled($user, $challenge->delivery_channel)
             && $this->auth_challenge_model->destinationMatches($challenge, $destination)
         ) {
             if ($challenge->delivery_channel === 'email') {

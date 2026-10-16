@@ -68,3 +68,6 @@ PROJECT_REFERENCE.md
 !/tests/fixtures/
 /tests/fixtures/*
 !/tests/fixtures/email_copy.json
+
+!/scripts/setup_signin_code_methods.php
+!/tests/signin_code_methods_test.php

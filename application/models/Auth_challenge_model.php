@@ -1,5 +1,6 @@
 <?php
 defined('BASEPATH') or exit('Direct access to script not allowed');
+require_once APPPATH . 'helpers/signin_code_helper.php';
 
 class Auth_challenge_model extends CI_Model
 {
@@ -103,7 +104,7 @@ class Auth_challenge_model extends CI_Model
         $destination = $user ? ($phoneChannel ? ($user->verified_phone_e164 ?? '') : $user->email) : '';
         if (!$user || !$challenge || (int) $challenge->user_id !== (int) $userId
             || $challenge->purpose !== 'login' || $challenge->consumed_at !== null
-            || !in_array($challenge->delivery_channel, array('email', 'whatsapp', 'sms'), true)
+            || !signin_code_method_enabled($user, $challenge->delivery_channel)
             || strtotime($challenge->expires_at) <= time() || (int) $user->account_status === 0
             || !empty($user->deleted_at) || !$this->destinationMatches($challenge, $destination)
             || ($phoneChannel && (empty($user->phone_signin_enabled) || empty($user->phone_verified_at)))) {
@@ -119,7 +120,12 @@ class Auth_challenge_model extends CI_Model
 
     public function getPhoneOtpChannel($user)
     {
-        return ($user->phone_otp_channel ?? 'sms') === 'whatsapp' ? 'whatsapp' : 'sms';
+        $preferred = ($user->phone_otp_channel ?? 'sms') === 'whatsapp' ? 'whatsapp' : 'sms';
+        foreach (array($preferred, $preferred === 'sms' ? 'whatsapp' : 'sms') as $channel) {
+            if (signin_code_method_enabled($user, $channel)) { return $channel; }
+        }
+        // Phone ownership verification is independent of enabled sign-in methods.
+        return $preferred;
     }
 
     private function currentSessionHash()

@@ -11,7 +11,7 @@
     var $phoneInput = $('#profilePhoneNumber');
     var $methodModal = $('#profileSignInCodesModal');
     var $methodSwitches = $methodModal.find('.profile-code-method-switch');
-    var savedMethod = $methodModal.attr('data-method') || 'email';
+    var savedMethods = JSON.parse($methodModal.attr('data-methods') || '["email"]');
     var phoneVerified = $methodModal.attr('data-verified') === '1';
     var savingMethod = false;
     var verifyingCode = false;
@@ -26,39 +26,41 @@
     $phoneInput.on('input change', updatePhoneAction);
     updatePhoneAction();
 
-    function renderMethod(method) {
+    function renderMethods(methods) {
         $methodSwitches.each(function () {
-            var selected = $(this).attr('data-method') === method;
+            var selected = methods.indexOf($(this).attr('data-method')) !== -1;
             this.checked = selected;
-            this.disabled = savingMethod || ($(this).attr('data-method') !== 'email' && !phoneVerified);
+            this.disabled = savingMethod || (!selected && methods.length === 2) || (methods.length === 1 && selected)
+                || ($(this).attr('data-method') !== 'email' && !phoneVerified);
             $(this).closest('.profile-code-method').toggleClass('is-selected', selected)
                 .toggleClass('is-unavailable', $(this).attr('data-method') !== 'email' && !phoneVerified);
         });
     }
-    renderMethod(savedMethod);
+    renderMethods(savedMethods);
     if (window.location.hash === '#pills-security' && window.bootstrap) {
         window.bootstrap.Tab.getOrCreateInstance(document.getElementById('pills-security-tab')).show();
     }
     $methodSwitches.on('change', function () {
         var selectedMethod = $(this).attr('data-method');
-        if (!this.checked || savingMethod) { renderMethod(savedMethod); return; }
-        if (selectedMethod !== 'email' && !phoneVerified) { renderMethod(savedMethod); return; }
+        if (savingMethod || (selectedMethod !== 'email' && !phoneVerified)) { renderMethods(savedMethods); return; }
+        var nextMethods = savedMethods.filter(function (method) { return method !== selectedMethod; });
+        if (this.checked) nextMethods.push(selectedMethod);
+        if (nextMethods.length < 1 || nextMethods.length > 2) { renderMethods(savedMethods); return; }
         savingMethod = true;
-        renderMethod(selectedMethod);
+        renderMethods(nextMethods);
         var $status = $('#profileCodeMethodStatus');
         $status.text('Saving…');
         var formData = new FormData();
-        formData.append('enabled', selectedMethod === 'email' ? '0' : '1');
-        formData.append('phone_otp_channel', selectedMethod === 'email' ? 'sms' : selectedMethod);
+        nextMethods.forEach(function (method) { formData.append('methods[]', method); });
         appendGlobalCsrfToFormData(formData);
         $.ajax({
-            url: base_url + 'profile/set_phone_signin_ajax',
+            url: base_url + 'profile/set_signin_code_methods_ajax',
             type: 'POST', data: formData, dataType: 'json', processData: false, contentType: false,
             success: function (res) {
                 updateGlobalCsrfHash(res.csrf_hash);
                 if (!res.status) { toastr.error(res.msg || 'Could not save your sign-in method.'); return; }
-                savedMethod = res.enabled ? res.phone_otp_channel : 'email';
-                $methodModal.attr('data-method', savedMethod);
+                savedMethods = res.methods;
+                $methodModal.attr('data-methods', JSON.stringify(savedMethods));
                 toastr.success('Sign-in method updated.');
             },
             error: function (xhr) {
@@ -66,12 +68,12 @@
             },
             complete: function () {
                 savingMethod = false;
-                renderMethod(savedMethod);
+                renderMethods(savedMethods);
                 $status.empty();
             },
         });
     });
-    $methodModal.on('hidden.bs.modal', function () { renderMethod(savedMethod); });
+    $methodModal.on('hidden.bs.modal', function () { renderMethods(savedMethods); });
     $('#profileVerifyPhoneLink').on('click', function () {
         var el = $methodModal[0];
         el.addEventListener('hidden.bs.modal', function focusPhone() {
@@ -216,7 +218,7 @@
                 phoneVerified = true;
                 $methodModal.attr('data-verified', '1');
                 $('#profileCodeMethodsVerifyNotice').addClass('d-none');
-                renderMethod(savedMethod);
+                renderMethods(savedMethods);
                 if ($('[name="address"]').val().trim() && $('[name="state"]').val().trim() && $('[name="post_code"]').val().trim()) {
                     $('#profileSubmitAction').addClass('d-none');
                     $('#profileSupportNotice').removeClass('d-none');
