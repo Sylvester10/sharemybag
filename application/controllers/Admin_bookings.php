@@ -76,7 +76,7 @@ class Admin_bookings extends MY_Controller
             $traveller_details = '<i class="las la-user"></i> ' . $y->traveller_name . '<br />
 							<i class="las la-phone"></i> ' . $y->traveller_contact . '<br />
 							<i class="las la-map-marker-alt"></i> ' . $y->traveller_drop_address1 . '<br />
-							<i class="las la-calendar"></i> ' . x_date($y->traveller_drop_date1) . '<br />
+							<i class="las la-calendar"></i> ' . $this->booking_presenter->format_date($y->traveller_departure_date) . '<br />
 							<i class="las la-plane-arrival"></i> ' . $y->traveller_arrival_state . ', ' . $traveller_destination;
 
             $user_details = $y->payment_method == 'offline'
@@ -158,7 +158,7 @@ class Admin_bookings extends MY_Controller
             $traveller_details = '<i class="las la-user"></i> ' . $y->traveller_name . '<br />
 							<i class="las la-phone"></i> ' . $y->traveller_contact . '<br />
 							<i class="las la-map-marker-alt"></i> ' . $y->traveller_drop_address1 . '<br />
-							<i class="las la-calendar"></i> ' . x_date($y->traveller_drop_date1) . '<br />
+							<i class="las la-calendar"></i> ' . $this->booking_presenter->format_date($y->traveller_departure_date) . '<br />
 							<i class="las la-plane-arrival"></i> ' . $y->traveller_arrival_state . ', ' . $traveller_destination;
 
             $user_details = $y->payment_method == 'offline'
@@ -253,7 +253,7 @@ class Admin_bookings extends MY_Controller
             $traveller_details = '<i class="las la-user"></i> ' . $y->traveller_name . '<br />
 							<i class="las la-phone"></i> ' . $y->traveller_contact . '<br />
 							<i class="las la-map-marker-alt"></i> ' . $y->traveller_drop_address1 . '<br />
-							<i class="las la-calendar"></i> ' . x_date($y->traveller_drop_date1) . '<br />
+							<i class="las la-calendar"></i> ' . $this->booking_presenter->format_date($y->traveller_departure_date) . '<br />
 							<i class="las la-plane-arrival"></i> ' . $y->traveller_arrival_state . ', ' . $traveller_destination;
 
             $user_details = $y->payment_method == 'offline'
