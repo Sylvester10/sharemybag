@@ -3,6 +3,23 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Booking_presenter
 {
+    public function format_date($date)
+    {
+        $date = trim((string) $date);
+        if ($date === '') {
+            return 'Not available';
+        }
+
+        $parts = date_parse($date);
+        if ($parts['error_count'] > 0 || $parts['warning_count'] > 0 ||
+            !checkdate((int) $parts['month'], (int) $parts['day'], (int) $parts['year']) ||
+            strtotime($date) === false) {
+            return 'Not available';
+        }
+
+        return x_date($date);
+    }
+
     public function decode_items($items_json)
     {
         $items = json_decode($items_json);
