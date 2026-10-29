@@ -100,7 +100,7 @@ class Admin_users_model_ajax extends CI_Model
 
         return '<p><a type="button" href="' . base_url('admin_users/user_login_admin/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable" target="_blank"> <i class="las la-sign-in-alt text-success"></i> Login as Super User </a></p>
 
-		' . $verify_action . '
+		' . $verify_action . registration_email_action($y) . '
 
 		<p><a type="button" href="' . base_url('admin_users/user_profile/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-user" style="color: green"></i> &nbsp; View Profile </a></p>
 

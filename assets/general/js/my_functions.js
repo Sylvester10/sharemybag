@@ -438,6 +438,10 @@ function submitInlineAjax(form, opts) {
 			}
 
 			if (res && res.status) {
+				if (typeof opts.onSuccess === 'function' && opts.onSuccess(res) === false) {
+					hideLoading();
+					return;
+				}
 				renderAlert("success", res.msg || "Success");
 
 				if (resetOnSuccess) {

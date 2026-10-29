@@ -2,8 +2,9 @@
 $events = array('details_updated' => 'Details updated', 'phone_cleared' => 'Phone cleared',
     'phone_verified' => 'Phone verified', 'signin_methods_updated' => 'Sign-in methods updated', 'phone_signin_updated' => 'Phone sign-in updated',
     'identity_updated' => 'Identity details updated', 'signed_in' => 'Signed in',
-    'signed_out' => 'Signed out', 'admin_access' => 'Admin accessed account');
-$methods = array('password' => 'Password', 'email_code' => 'Email code',
+    'signed_out' => 'Signed out', 'admin_access' => 'Admin accessed account',
+    'registration_email_sent'=>'Registration email sent', 'registration_email_failed'=>'Registration email failed');
+$methods = array('registration'=>'Registration', 'password' => 'Password', 'email_code' => 'Email code',
     'whatsapp_code' => 'WhatsApp code', 'sms_code' => 'SMS code');
 $format = function ($field, $value) {
     if ($value === null || $value === '') { return '—'; }

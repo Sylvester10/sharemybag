@@ -38,3 +38,4 @@ $this->load->view('admin/partials/datatable_shell', array(
 ?>
 
 <?php echo form_close(); ?>
+<script src="<?= base_url('assets/admin/custom/js/registration_recovery.js') ?>" defer></script>

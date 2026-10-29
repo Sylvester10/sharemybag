@@ -62,6 +62,8 @@ PROJECT_REFERENCE.md
 !/tests/phone_code_channel_test.php
 !/tests/email_design_test.php
 !/tests/signup_welcome_test.php
+!/tests/registration_recovery_test.php
+!/tests/registration_recovery_email_test.php
 !/tests/support/
 /tests/support/*
 !/tests/support/email_render.php

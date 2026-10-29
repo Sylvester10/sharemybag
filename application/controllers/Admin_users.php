@@ -26,6 +26,7 @@ class Admin_Users extends MY_Controller
         $this->admin_role_restricted(['super_admin', 'customer_support']);
 
         $this->load->model('admin_user_model');
+        $this->load->model('users_model');
         $this->load->model('user_read_model');
         $this->load->model('booking_read_model');
         $this->load->model('shipping_read_model');
@@ -219,10 +220,26 @@ class Admin_Users extends MY_Controller
         }
         $data['total_bookings'] = count($data['bookings']);
         $data['is_super_admin'] = $this->get_admin_role() === 'super_admin';
+        $data['last_registration_email'] = $this->users_model->last_registration_email($id);
         $this->load->view('admin/users/user_profile', $data);
         $this->admin_footer();
     }
 
+
+    public function send_registration_email($id)
+    {
+        $csrf = $this->security->get_csrf_hash();
+        if ($this->input->method() !== 'post') {
+            echo json_encode(['status'=>false, 'msg'=>'Submit the form to send a registration email.', 'csrf_hash'=>$csrf]);
+            return;
+        }
+        $this->admin_role_restricted(['super_admin', 'customer_support']);
+        $this->load->model('user_activity_model');
+        $actor = $this->user_activity_model->actor('admin', $this->admin_details->id);
+        $result = $this->users_model->send_registration_continuation((int) $id, $actor);
+        $result['csrf_hash'] = $csrf;
+        echo json_encode($result);
+    }
 
     public function update_user_ajax($id)
     {

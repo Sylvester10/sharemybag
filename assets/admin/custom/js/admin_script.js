@@ -29,7 +29,7 @@ jQuery(document).ready(function ($) {
     let csrfHash = $('#csrf_hash').val();
 
     function getCsrfHash() {
-        return csrfHash;
+        return $('#csrf_hash').val() || csrfHash;
     }
 
     function updateCsrfHash(newHash) {

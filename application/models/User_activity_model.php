@@ -107,6 +107,12 @@ class User_activity_model extends CI_Model
         if ($emailChanged && property_exists($before, 'email_verified_at')) {
             $data['email_verified_at'] = null;
         }
+        if ($emailChanged) {
+            // An old mailbox must never retain credentials for the replacement address.
+            foreach (array('verification_code', 'verification_code_expires_at', 'signup_resume_token', 'signup_resume_expires_at') as $field) {
+                if (property_exists($before, $field)) { $data[$field] = null; }
+            }
+        }
         $changes = array();
         foreach ($data as $field => $value) {
             if ((string) ($before->$field ?? '') !== (string) $value) {

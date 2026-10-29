@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') or exit('Direct access to script not allowed');
 require_once APPPATH . 'helpers/signin_code_helper.php';
+require_once APPPATH . 'helpers/registration_helper.php';
 
 
 class Users_model extends MY_Model
@@ -71,13 +72,12 @@ class Users_model extends MY_Model
 
     public function add_new_user()
     {
-        $verification_code = generate_verification_code();
         $pass_reset_code = generate_verification_code();
         $ref_num = mt_rand(11111, 99999);
         $firstname = trim($this->input->post('firstname', TRUE));
         $username = strtolower($firstname) . $ref_num;
 
-        $email = trim($this->input->post('email', TRUE));
+        $email = strtolower(trim($this->input->post('email', TRUE)));
         $number = normalize_phone_number(
             $this->input->post('country_code', TRUE),
             $this->input->post('phone', TRUE)
@@ -93,14 +93,14 @@ class Users_model extends MY_Model
             'country'           => trim($this->input->post('country', TRUE)),
             'username'          => $username,
             'referral_link'     => $referral_link,
-            'verification_code' => $verification_code,
+            'verification_code' => null,
             'pass_reset_code'   => $pass_reset_code,
             'account_status'    => 1, // Set to 1 explicitly
             'is_verified'       => VERIFY_NONE,
         );
 
         if ($this->db->field_exists('verification_code_expires_at', 'users')) {
-            $data['verification_code_expires_at'] = date('Y-m-d H:i:s', time() + 900);
+            $data['verification_code_expires_at'] = null;
         }
         if ($this->db->field_exists('verification_attempts', 'users')) {
             $data['verification_attempts'] = 0;
@@ -109,11 +109,9 @@ class Users_model extends MY_Model
             $data['verification_locked_until'] = null;
         }
 
-        $this->db->insert('users', $data);
+        if (!$this->db->insert('users', $data)) { return false; }
         $user_id = $this->db->insert_id();
         $this->user_read_model->clearUserCountCaches();
-
-        send_email_notification($this, $email, 'Email Address Verification', $data, 'user_code_verification_email');
 
         return $user_id;
     }
@@ -137,9 +135,7 @@ class Users_model extends MY_Model
         ];
 
         // Send email to User
-        send_email_notification($this, $email, 'Email Address Verification', $data, 'user_code_verification_email');
-
-        return true;
+        return send_email_notification($this, $email, 'Email Address Verification', $data, 'user_code_verification_email');
     }
 
 
@@ -150,7 +146,7 @@ class Users_model extends MY_Model
     }
 
 
-    public function update_user_verification($user_id, $password, $verification_code, $resume_token)
+    public function update_user_verification($user_id, $password, $verification_code, $resume_token, $email = null)
     {
         if ((string) $verification_code === '' || (string) $resume_token === '') {
             return false;
@@ -182,6 +178,8 @@ class Users_model extends MY_Model
         $this->db->where('verification_code', $verification_code);
         $this->db->where('signup_resume_token', $resume_token);
         $this->db->where('deleted_at IS NULL', null, false);
+        $this->db->where('account_status', 1);
+        if ($email !== null) { $this->db->where('email', $email); }
         $this->db->group_start()->where('password IS NULL', null, false)->or_where('password', '')->group_end();
         if ($this->db->field_exists('verification_code_expires_at', 'users')) {
             $this->db->group_start()->where('verification_code_expires_at IS NULL', null, false)
@@ -235,45 +233,146 @@ class Users_model extends MY_Model
         }
     }
 
-    public function issue_signup_resume_token($user_id, $ttl_seconds = 3600)
+    public function issue_signup_resume_token($user_id, $ttl_seconds = 86400)
     {
         if (!$this->db->field_exists('signup_resume_token', 'users') || !$this->db->field_exists('signup_resume_expires_at', 'users')) {
             return null;
         }
 
-        $token = bin2hex(random_bytes(32));
-        $this->db->where('id', $user_id);
-        $this->db->update('users', [
+        $user = $this->user_read_model->get_user_details_by_id($user_id);
+        if (!registration_can_resume($user)) { return null; }
+        $token = !empty($user->signup_resume_token) && strtotime((string) $user->signup_resume_expires_at) > time()
+            ? $user->signup_resume_token : bin2hex(random_bytes(32));
+        $this->pending_signup_where($user_id);
+        $this->db->where('signup_resume_token', $user->signup_resume_token);
+        $ok = $this->db->update('users', [
             'signup_resume_token' => $token,
             'signup_resume_expires_at' => date('Y-m-d H:i:s', time() + $ttl_seconds),
         ]);
+        // A concurrent request may have already issued a different token. Return persisted truth.
+        $current = $this->user_read_model->get_user_details_by_id($user_id);
+        return $ok && registration_can_resume($current) ? $current->signup_resume_token : null;
+    }
 
-        return $token;
+    private function pending_signup_where($user_id)
+    {
+        $this->db->where('id', (int) $user_id)->where('account_status', 1)
+            ->where('deleted_at IS NULL', null, false)
+            ->group_start()->where('password IS NULL', null, false)->or_where('password', '')->group_end();
+    }
+
+    public function get_signup_resume_user($token)
+    {
+        if (!is_string($token) || !preg_match('/^[a-f0-9]{64}$/D', $token)) { return null; }
+        $user = $this->user_read_model->get_user_by_signup_resume_token($token);
+        return registration_can_resume($user) && strtotime((string) $user->signup_resume_expires_at) > time() ? $user : null;
+    }
+
+    /** Claim issuance before SMTP so concurrent requests cannot send competing codes. */
+    public function send_signup_verification_code($user_id, $token)
+    {
+        $failure = ['status'=>false, 'msg'=>'Your details are saved, but we could not send a verification code. Please try again.'];
+        $user = $this->get_signup_resume_user($token);
+        if (!$user || (int) $user->id !== (int) $user_id) { return $failure; }
+        foreach (['verification_code_expires_at', 'verification_attempts', 'verification_locked_until'] as $field) {
+            if (!$this->db->field_exists($field, 'users')) { return $failure; }
+        }
+        if (!empty($user->verification_locked_until) && strtotime($user->verification_locked_until) > time()) {
+            return ['status'=>false, 'msg'=>'Too many incorrect verification attempts. Please try again after the verification lock expires.'];
+        }
+        $keys = ['registration-code:user:' . (int) $user_id => 3, 'registration-code:ip:' . get_user_ip() => 15];
+        foreach ($keys as $key=>$max) {
+            $limit = auth_throttle_check($key, $max, 900);
+            if (!$limit['allowed']) { return ['status'=>false, 'msg'=>auth_throttle_message($limit['retry_after'], 'verification code request')]; }
+        }
+        $now = time();
+        $code = generate_verification_code();
+        $this->pending_signup_where($user_id);
+        $this->db->where('email', $user->email)->where('signup_resume_token', $token)
+            ->where('signup_resume_expires_at >', date('Y-m-d H:i:s', $now))
+            ->group_start()->where('verification_locked_until IS NULL', null, false)->or_where('verification_locked_until <=', date('Y-m-d H:i:s', $now))->group_end()
+            ->group_start()->where('verification_code_expires_at IS NULL', null, false)->or_where('verification_code_expires_at <=', date('Y-m-d H:i:s', $now + 870))->group_end();
+        $claimed = $this->db->update('users', ['verification_code'=>$code,
+            'verification_code_expires_at'=>date('Y-m-d H:i:s', $now + 900), 'verification_attempts'=>0, 'verification_locked_until'=>null]);
+        if (!$claimed || $this->db->affected_rows() !== 1) {
+            return ['status'=>false, 'msg'=>'Please wait 30 seconds before requesting another code.'];
+        }
+        foreach ($keys as $key=>$max) { auth_throttle_hit($key, $max, 900); }
+        if (!send_email_notification($this, $user->email, 'Email Address Verification',
+            ['firstname'=>$user->firstname, 'verification_code'=>$code,
+             'resume_link'=>production_url('verify-email/' . rawurlencode($token))], 'user_code_verification_email')) {
+            $this->db->where('id', (int) $user_id)->where('verification_code', $code)
+                ->update('users', ['verification_code'=>null, 'verification_code_expires_at'=>null]);
+            log_message('error', 'Registration verification email failed for user ID ' . (int) $user_id);
+            return $failure;
+        }
+        return ['status'=>true, 'msg'=>'A verification code has been sent to your email.', 'cooldown_seconds'=>30];
+    }
+
+    public function send_registration_continuation($user_id, array $actor)
+    {
+        $failure = ['status'=>false, 'msg'=>'A registration email could not be sent. Please try again.'];
+        $user = $this->user_read_model->get_user_details_by_id($user_id);
+        if (!registration_can_resume($user) || ($actor['type'] ?? '') !== 'admin'
+            || (int) ($actor['id'] ?? 0) <= 0 || !$this->db->table_exists('user_activity_logs')) {
+            return ['status'=>false, 'msg'=>'Registration recovery is unavailable for this account.'];
+        }
+        $keys = ['registration-email:user:' . (int) $user_id => [3,900],
+            'registration-email:cooldown:' . (int) $user_id => [1,30]];
+        foreach ($keys as $key=>$settings) {
+            $limit = auth_throttle_check($key, $settings[0], $settings[1]);
+            if (!$limit['allowed']) { return ['status'=>false, 'msg'=>auth_throttle_message($limit['retry_after'], 'registration email')]; }
+        }
+        $token = $this->issue_signup_resume_token($user_id);
+        $current = $token ? $this->get_signup_resume_user($token) : null;
+        if (!$current || $current->email !== $user->email) { return $failure; }
+        foreach ($keys as $key=>$settings) { auth_throttle_hit($key, $settings[0], $settings[1]); }
+        $sent = send_email_notification($this, $current->email, 'Complete your ShareMyBag registration',
+            ['firstname'=>$current->firstname, 'resume_link'=>production_url('continue-registration/' . rawurlencode($token))],
+            'user_registration_continuation_email');
+        $this->load->model('user_activity_model');
+        $audited = $this->user_activity_model->record($user_id,
+            $sent ? 'registration_email_sent' : 'registration_email_failed', $actor);
+        if (!$audited) { log_message('error', 'Registration email audit failed for user ID ' . (int) $user_id); }
+        if (!$sent) { return $failure; }
+        return ['status'=>true, 'msg'=>$audited ? 'Registration email sent.' : 'Registration email sent. Its activity record could not be saved.',
+            'sent_at'=>date('Y-m-d H:i:s')];
+    }
+
+    public function last_registration_email($user_id)
+    {
+        if (!$this->db->table_exists('user_activity_logs')) { return null; }
+        $row = $this->db->where('user_id', (int) $user_id)->where('event', 'registration_email_sent')
+            ->order_by('id', 'DESC')->limit(1)->get('user_activity_logs')->row();
+        return $row ? $row->date_added : null;
     }
 
 
-    public function record_verification_failure($user_id, $max_attempts = 5, $lock_minutes = 15)
+    public function record_signup_login($user)
     {
-        $user = $this->user_read_model->get_user_details_by_id($user_id);
-        if (!$user) {
-            return;
+        if (!$this->db->table_exists('user_activity_logs')) { return; }
+        $this->load->model('user_activity_model');
+        if (!$this->user_activity_model->record($user->id, 'signed_in',
+            ['type'=>'user', 'id'=>(int) $user->id, 'name'=>trim($user->firstname . ' ' . ($user->lastname ?? ''))], [], 'registration')) {
+            log_message('error', 'Registration sign-in audit failed for user ID ' . (int) $user->id);
         }
+    }
 
-        $attempts = (int) ($user->verification_attempts ?? 0) + 1;
-        $data = [];
-
-        if ($this->db->field_exists('verification_attempts', 'users')) {
-            $data['verification_attempts'] = $attempts;
-        }
-
-        if ($attempts >= $max_attempts && $this->db->field_exists('verification_locked_until', 'users')) {
-            $data['verification_locked_until'] = date('Y-m-d H:i:s', time() + ($lock_minutes * 60));
-        }
-
-        if (!empty($data)) {
-            $this->db->where('id', $user_id);
-            $this->db->update('users', $data);
-        }
+    public function record_verification_failure($user_id, $max_attempts = 5, $lock_minutes = 15, $code = null, $token = null)
+    {
+        if (!$this->db->field_exists('verification_attempts', 'users')
+            || !$this->db->field_exists('verification_locked_until', 'users')) { return; }
+        $this->pending_signup_where($user_id);
+        if ($code !== null) { $this->db->where('verification_code', $code); }
+        if ($token !== null) { $this->db->where('signup_resume_token', $token); }
+        $this->db->group_start()->where('verification_locked_until IS NULL', null, false)
+            ->or_where('verification_locked_until <=', date('Y-m-d H:i:s'))->group_end();
+        // Set the lock first: MySQL evaluates assignments left-to-right.
+        $this->db->set('verification_locked_until', 'CASE WHEN COALESCE(verification_attempts, 0) + 1 >= ' . (int) $max_attempts
+            . ' THEN ' . $this->db->escape(date('Y-m-d H:i:s', time() + (int) $lock_minutes * 60))
+            . ' ELSE verification_locked_until END', false);
+        $this->db->set('verification_attempts', 'COALESCE(verification_attempts, 0) + 1', false);
+        $this->db->update('users');
     }
 
 

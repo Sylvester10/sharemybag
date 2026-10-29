@@ -14,7 +14,7 @@ class Registration extends MY_Controller
     private const RESEND_RATE_LIMIT_MAX = 3;
     private const RESEND_RATE_LIMIT_WINDOW = 900;
     private const RESEND_COOLDOWN_SECONDS = 30;
-    private const SIGNUP_RESUME_TTL = 3600;
+    private const SIGNUP_RESUME_TTL = 86400;
 
     public function __construct()
     {
@@ -36,6 +36,12 @@ class Registration extends MY_Controller
     public function signup()
     {
         $csrf_hash = $this->security->get_csrf_hash();
+        if (!$this->require_post()) { return; }
+        $email = strtolower(trim((string) $this->input->post('email', TRUE)));
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $existing = $this->user_read_model->get_user_details($email);
+            if ($existing) { $this->start_ajax(); return; }
+        }
         $this->form_validation->set_rules('firstname', 'First Name', 'trim|required');
         $this->form_validation->set_rules('lastname', 'Last Name', 'trim|required');
         $this->form_validation->set_rules('email',  'Email',  'trim|required|valid_email');
@@ -82,48 +88,23 @@ class Registration extends MY_Controller
 
             $existing_user = $this->user_read_model->get_user_details($email);
 
-            if ($existing_user) {
-                if (empty($existing_user->password)) {
-                    auth_throttle_clear($signup_throttle_key);
-                    $new_verification_code = generate_verification_code();
-                    $this->users_model->update_user_verification_code($existing_user->id, $new_verification_code);
-                    $this->users_model->resend_verification_code($existing_user->id);
-                    $resume_token = $this->users_model->issue_signup_resume_token($existing_user->id, self::SIGNUP_RESUME_TTL);
-
-                    $res = [
-                        'status' => true,
-                        'msg' => "Your account setup is already in progress. We've sent a fresh verification code to $email.",
-                        'title' => 'Complete Setup',
-                        'msg_timeout' => 7000,
-                        'redirect' => $this->build_verification_redirect($resume_token),
-                        'csrf_hash' => $csrf_hash
-                    ];
-                    echo json_encode($res);
-                    return;
-                }
-
-                $res = [
-                    'status' => false,
-                    'msg' => 'This email address is already registered. Sign in instead to continue.',
-                    'field' => 'email',
-                    'title' => 'Sign Up Error',
-                    'msg_timeout' => 7000,
-                    'csrf_hash' => $csrf_hash
-                ];
-                echo json_encode($res);
-                return;
-            }
+            if ($existing_user) { $this->start_ajax(); return; }
 
             $user_id = $this->users_model->add_new_user(); // insert the data into the database and get user ID
+            if (!$user_id) {
+                echo json_encode(['status'=>false, 'msg'=>'We could not save your registration. Please try again.', 'csrf_hash'=>$csrf_hash]);
+                return;
+            }
             $resume_token = $this->users_model->issue_signup_resume_token($user_id, self::SIGNUP_RESUME_TTL);
+            $delivery = $this->users_model->send_signup_verification_code($user_id, $resume_token);
             auth_throttle_clear($signup_throttle_key);
             $this->refresh_signup_captcha();
             $res = [
                 'status' => true,
-                'msg' => "A verification code has been sent to $email.",
-                'title' => 'Check Your Email',
+                'msg' => $delivery['status'] ? 'A verification code has been sent to your email.' : 'Your details are saved, but we could not send your code. Continue to try again.',
+                'title' => $delivery['status'] ? 'Check Your Email' : 'Continue Registration',
                 'msg_timeout' => 7000,
-                'redirect' => $this->build_verification_redirect($resume_token),
+                'redirect' => $delivery['status'] ? $this->build_verification_redirect($resume_token) : base_url('continue-registration/' . rawurlencode((string) $resume_token)),
                 'csrf_hash' => $csrf_hash
             ];
             echo json_encode($res);
@@ -141,12 +122,61 @@ class Registration extends MY_Controller
         }
     }
 
+    /** Email-first entry shared by signup and expired-link recovery. No email is sent here. */
+    public function start_ajax()
+    {
+        if (!$this->require_post()) { return; }
+        $csrf = $this->security->get_csrf_hash();
+        $email = strtolower(trim((string) $this->input->post('email', TRUE)));
+        $key = 'registration-lookup:' . get_user_ip();
+        $limit = auth_throttle_check($key, 20, 900);
+        if (!$limit['allowed']) {
+            echo json_encode(['status'=>false, 'msg'=>auth_throttle_message($limit['retry_after'], 'registration'), 'field'=>'email', 'csrf_hash'=>$csrf]);
+            return;
+        }
+        auth_throttle_hit($key, 20, 900);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['status'=>false, 'msg'=>'Enter a valid email address.', 'field'=>'email', 'csrf_hash'=>$csrf]);
+            return;
+        }
+        $user = $this->user_read_model->get_user_details($email);
+        if (!$user) {
+            echo json_encode(['status'=>true, 'new_registration'=>true, 'msg'=>'Complete your details to create your account.', 'csrf_hash'=>$csrf]);
+            return;
+        }
+        $token = registration_can_resume($user) ? $this->users_model->issue_signup_resume_token($user->id) : null;
+        echo json_encode($token
+            ? ['status'=>true, 'redirect'=>base_url('continue-registration/' . rawurlencode($token)), 'csrf_hash'=>$csrf]
+            : ['status'=>false, 'msg'=>'Sign in to your account, or contact support if you cannot continue.', 'field'=>'email', 'csrf_hash'=>$csrf]);
+    }
+
+    public function continue_registration($resume_token = null)
+    {
+        $this->output->set_header('Cache-Control: no-store');
+        $this->output->set_header('Referrer-Policy: no-referrer');
+        $user = $this->users_model->get_signup_resume_user($resume_token);
+        $this->load->view('user_login/continue_registration', [
+            'resume_token'=>$user ? $resume_token : null,
+            'email_hint'=>$user ? registration_email_hint($user->email) : null,
+            'expired_link'=>!$user && !empty($resume_token),
+        ]);
+    }
+
+    private function require_post()
+    {
+        if ($this->input->method() === 'post') { return true; }
+        echo json_encode(['status'=>false, 'msg'=>'Submit the form to continue.', 'csrf_hash'=>$this->security->get_csrf_hash()]);
+        return false;
+    }
 
     public function verify_email($resume_token = null)
     {
+        $this->output->set_header('Cache-Control: no-store');
+        $this->output->set_header('Referrer-Policy: no-referrer');
         $pending_user = $this->get_pending_user_by_resume_token($resume_token);
         if (!$pending_user) {
-            redirect('signin');
+            redirect('continue-registration');
+            return;
         }
 
         $data['verification_email'] = $pending_user->email;
@@ -157,6 +187,7 @@ class Registration extends MY_Controller
 
     public function verify_email_ajax()
     {
+        if (!$this->require_post()) { return; }
         $csrf_hash = $this->security->get_csrf_hash();
         $this->form_validation->set_rules('verification_code', 'Verification Code', 'trim|required');
         $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[8]');
@@ -215,14 +246,24 @@ class Registration extends MY_Controller
             if (hash_equals((string) $pending_user->verification_code, (string) $verification_code)) {
                 // Complete signup once, even if another request has the same pending snapshot.
                 $completed = $this->users_model->update_user_verification(
-                    $pending_user->id, $password, $verification_code, $resume_token
+                    $pending_user->id, $password, $verification_code, $resume_token, $pending_user->email
                 );
                 if (!$completed) {
                     echo json_encode(['status' => false, 'msg' => 'This verification could not be completed. Sign in if you have already verified, or request a new code and try again.', 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash]);
                     return;
                 }
                 auth_throttle_clear($verify_throttle_key);
-                $this->users_model->clear_verification_security_state($pending_user->id);
+                $current_user = $this->user_read_model->get_user_details_by_id($pending_user->id);
+                if (!$current_user || (int) $current_user->account_status !== 1 || !empty($current_user->deleted_at)
+                    || $current_user->email !== $pending_user->email || !hash_equals((string) $current_user->password, $password)) {
+                    echo json_encode(['status'=>false, 'msg'=>'Your registration is complete. Please contact support to access your account.', 'csrf_hash'=>$csrf_hash]);
+                    return;
+                }
+                $this->session->sess_regenerate(TRUE);
+                $this->session->set_userdata(['email'=>$current_user->email, 'user_id'=>(int) $current_user->id, 'user_loggedin'=>true]);
+                $this->session->unset_userdata('user_impersonator_id');
+                $this->common_model->update_last_login($current_user->id);
+                $this->users_model->record_signup_login($current_user);
 
                 if (!send_email_notification($this, $pending_user->email, 'Welcome to ' . business, array(
                     'firstname' => $pending_user->firstname,
@@ -231,13 +272,15 @@ class Registration extends MY_Controller
                     log_message('error', 'Welcome email delivery failed for verified user ID ' . (int) $pending_user->id);
                 }
 
-                $res = ['status' => true, 'msg' => 'Your email has been verified successfully.', 'title' => 'Verification Complete', 'msg_timeout' => 5000, 'csrf_hash' => $csrf_hash];
+                $res = ['status' => true, 'msg' => 'Your registration is complete.', 'title' => 'Verification Complete', 'redirect'=>base_url('dashboard'), 'msg_timeout' => 5000, 'csrf_hash' => $csrf_hash];
             } else {
                 auth_throttle_hit($verify_throttle_key, self::VERIFY_RATE_LIMIT_MAX, self::VERIFY_RATE_LIMIT_WINDOW);
                 $this->users_model->record_verification_failure(
                     $pending_user->id,
                     self::VERIFICATION_MAX_ATTEMPTS,
-                    self::VERIFICATION_LOCK_MINUTES
+                    self::VERIFICATION_LOCK_MINUTES,
+                    $pending_user->verification_code,
+                    $resume_token
                 );
                 $res = ['status' => false, 'msg' => 'Enter the correct verification code and try again.', 'field' => 'verification_code', 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
             }
@@ -250,6 +293,7 @@ class Registration extends MY_Controller
 
     public function resend_verification_email_ajax()
     {
+        if (!$this->require_post()) { return; }
         $csrf_hash = $this->security->get_csrf_hash();
         $resume_token = trim((string) $this->input->post('resume_token', TRUE));
         $pending_user = $this->get_pending_user_by_resume_token($resume_token);
@@ -268,19 +312,11 @@ class Registration extends MY_Controller
             return;
         }
 
-        if ($pending_user && empty($pending_user->password)) {
+        if ($pending_user) {
             auth_throttle_hit($resend_throttle_key, self::RESEND_RATE_LIMIT_MAX, self::RESEND_RATE_LIMIT_WINDOW);
-            $new_verification_code = generate_verification_code();
-            $this->users_model->update_user_verification_code($user_id, $new_verification_code);
-            $this->users_model->resend_verification_code($user_id);
-            $res = [
-                'status' => true,
-                'msg' => 'A new verification code has been sent to your email.',
-                'title' => 'Code Sent',
-                'msg_timeout' => 6000,
-                'csrf_hash' => $csrf_hash,
-                'cooldown_seconds' => self::RESEND_COOLDOWN_SECONDS
-            ];
+            $res = $this->users_model->send_signup_verification_code($user_id, $resume_token);
+            $res['csrf_hash'] = $csrf_hash;
+            if ($res['status']) { $res['redirect'] = $this->build_verification_redirect($resume_token); }
             echo json_encode($res);
         } else {
             $res = ['status' => false, 'msg' => 'We could not send a new code right now. Please try again shortly.', 'title' => 'Code Not Sent', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash];
@@ -297,21 +333,7 @@ class Registration extends MY_Controller
 
     private function get_pending_user_by_resume_token($resume_token)
     {
-        $resume_token = trim((string) $resume_token);
-        if ($resume_token === '') {
-            return null;
-        }
-
-        $user = $this->user_read_model->get_user_by_signup_resume_token($resume_token);
-        if (!$user || !empty($user->password)) {
-            return null;
-        }
-
-        if (empty($user->signup_resume_expires_at) || strtotime((string) $user->signup_resume_expires_at) <= time()) {
-            return null;
-        }
-
-        return $user;
+        return $this->users_model->get_signup_resume_user(trim((string) $resume_token));
     }
 
     private function build_verification_redirect($resume_token)
