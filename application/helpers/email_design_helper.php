@@ -103,6 +103,7 @@ function email_receiving_reason($template)
         'admin_general_notification_email' => 'You’re receiving this service update because you have a ShareMyBag account.',
         'user_code_verification_email' => 'You’re receiving this email because this address was used to register with ShareMyBag.',
         'user_welcome_email' => 'You’re receiving this email because you completed signup with ShareMyBag.',
+        'user_registration_continuation_email' => 'You’re receiving this email to help you finish your ShareMyBag registration.',
         'user_login_code_email' => 'You’re receiving this email because a sign-in code was requested for your ShareMyBag account.',
         'password_recovery_email' => 'You’re receiving this email because a password reset was requested for your ShareMyBag account.',
         'user_document_verification_email' => 'You’re receiving this email about your ShareMyBag identity verification.',

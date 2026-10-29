@@ -279,10 +279,26 @@ jQuery(document).ready(function ($) {
         });
 
     //Sign up
+    $('#signup_change_email').on('click', function () {
+        $('#signup_form [data-signup-details]').prop('disabled', true).addClass('d-none');
+        $('#signup_form [name="email"]').prop('readonly', false).trigger('focus');
+        $(this).addClass('d-none');
+        clearAuthFieldError($('#signup_form'));
+    });
     $('#signup_form').submit(function (e) {
         e.preventDefault();
+        var $details = $(this).find('[data-signup-details]');
+        var emailStep = $details.prop('disabled');
         submitInlineAjax(this, {
-            url: base_url + 'registration/signup',
+            url: base_url + (emailStep ? 'registration/start_ajax' : 'registration/signup'),
+            onSuccess: function (res) {
+                if (!res.new_registration) return;
+                $details.prop('disabled', false).removeClass('d-none');
+                $('#signup_form [name="email"]').prop('readonly', true);
+                $('#signup_change_email').removeClass('d-none');
+                $details.find('input').first().trigger('focus');
+                return false;
+            },
             inlineErrorField: function (res) {
                 if (res.field) return res.field;
                 var message = (res.msg || '').toLowerCase();
@@ -291,7 +307,20 @@ jQuery(document).ready(function ($) {
                 return 'email';
             },
             redirectDelay: 1500,
-            resetOnSuccess: true,
+            resetOnSuccess: false,
+        });
+    });
+
+    $('#registration_recovery_form').on('submit', function (e) {
+        e.preventDefault();
+        var hasToken = !!$(this).find('[name="resume_token"]').val();
+        submitInlineAjax(this, {
+            url: base_url + (hasToken ? 'registration/resend_verification_email_ajax' : 'registration/start_ajax'),
+            inlineErrorField: hasToken ? null : 'email',
+            redirectDelay: 0,
+            onSuccess: function (res) {
+                if (res.new_registration) { window.location.href = base_url + 'registration'; return false; }
+            }
         });
     });
 
@@ -307,7 +336,7 @@ jQuery(document).ready(function ($) {
                 if (message.indexOf('password') !== -1) return 'password';
                 return 'verification_code';
             },
-            redirect: base_url + 'signin',
+            redirect: base_url + 'dashboard',
             redirectDelay: 1500,
             resetOnSuccess: true,
         });
@@ -556,7 +585,8 @@ jQuery(document).ready(function ($) {
 				});
 			}
             $forgotLink.toggleClass('d-none', !passwordMode);
-            $passwordInput.prop('required', passwordMode);
+            // Pending registrations may resume with email alone; completed accounts are validated by the server.
+            $passwordInput.prop('required', false);
             $submitLabel.text(passwordMode ? 'Login' : 'Get One-Time Code');
             $loginForm.find('[data-password-mode-toggle]').text(
                 passwordMode ? 'Use One-Time Code Instead' : 'Use Password Instead'
@@ -604,6 +634,10 @@ jQuery(document).ready(function ($) {
                 dataType: 'json',
                 success: function (res) {
                     updateCsrf(res.csrf_hash);
+                    if (res.status && res.registration_pending && res.redirect) {
+                        window.location.href = res.redirect;
+                        return;
+                    }
                     if (!res.status) {
                         showAuthFieldError($loginForm, identifierField(),
                             phoneMode && !res.field && (res.msg || '').indexOf('could not send') !== -1

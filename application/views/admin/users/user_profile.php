@@ -27,6 +27,10 @@
                     <div class="admin-user-profile__actions">
                         <button type="button" class="btn btn-default btn-sm btn-block action-btn" data-toggle="modal" data-target="#update<?= (int) $y->id ?>"><i class="las la-pen" aria-hidden="true"></i> &nbsp; Update Details</button>
                         <button type="button" class="btn btn-default btn-sm btn-block action-btn" data-toggle="modal" data-target="#userActivityHistory"><i class="las la-history" aria-hidden="true"></i> &nbsp; Activity History</button>
+                        <?= registration_email_action($y) ?>
+                        <?php if (registration_can_resume($y)): ?>
+                            <p class="small text-muted" data-registration-last-sent>Last registration email: <?= html_escape($last_registration_email ?: 'Not sent yet') ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <dl class="admin-user-profile__details">
@@ -317,3 +321,4 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
     </div>
 </div>
 <script src="<?= base_url('assets/admin/custom/js/user_activity.js') ?>" defer></script>
+<script src="<?= base_url('assets/admin/custom/js/registration_recovery.js') ?>" defer></script>

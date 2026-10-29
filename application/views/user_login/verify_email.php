@@ -4,6 +4,8 @@
 <head>
     <!--required meta tags-->
     <meta charset="utf-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="robots" content="noindex, nofollow">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
     <meta name="description" content="<?php echo business_description; ?>">
@@ -79,7 +81,8 @@
                             <div class="price-feature-col pricing-action-info p-5 right-radius bg-light-subtle order-0 order-lg-1">
                                 <a href="<?php echo base_url(); ?>" class="mb-5 d-block d-xl-none d-lg-none"><img src="<?= business_logo ?>" alt="logo" width="150" class="img-fluid"></a>
                                 <!-- <h1 class="h3">Create an Account</h1> -->
-                                <p class="text-muted">We sent a verification code to your email<?php echo !empty($verification_email) ? ': <b>' . html_escape($verification_email) . '</b>' : ''; ?></p>
+                                <h1 class="h3">Verify your email</h1>
+                                <p class="text-muted">Enter the latest code sent to <?= html_escape(registration_email_hint($verification_email)) ?> and create your password. Codes expire in 15 minutes.</p>
 
                                 <div class="mt-4 register-form">
 

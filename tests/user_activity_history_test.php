@@ -117,3 +117,15 @@ $available=true; $page=1; $more=false;
 ob_start(); include $root . '/application/views/admin/users/activity_history.php'; $html=ob_get_clean();
 check_activity(strpos($html,'<script>')===false && strpos($html,'<img src=x')===false && strpos($html,'&lt;img')!==false, 'History escapes actor names and changed values.');
 echo "PASS: phone reset, old-code rejection, new verification, history isolation, pagination, audit rollback, sign-in/out; only temporary tables used.\n";
+// Changing the signup email revokes old mailbox credentials without exposing them in history.
+$db->query('ALTER TABLE users ADD verification_code VARCHAR(64) NULL, ADD verification_code_expires_at DATETIME NULL, ADD signup_resume_token VARCHAR(64) NULL, ADD signup_resume_expires_at DATETIME NULL');
+$db->insert('users', array('id'=>77, 'firstname'=>'Pending', 'email'=>'old@example.invalid',
+    'verification_code'=>'482915', 'signup_resume_token'=>str_repeat('b',64),
+    'verification_code_expires_at'=>date('Y-m-d H:i:s',time()+900), 'signup_resume_expires_at'=>date('Y-m-d H:i:s',time()+3600)));
+check_activity($model->updateDetails(77,array('email'=>'new@example.invalid'),$admin), 'Signup email change succeeds.');
+$changed=$db->where('id',77)->get('users')->row();
+check_activity($changed->verification_code===null && $changed->signup_resume_token===null
+    && $changed->verification_code_expires_at===null && $changed->signup_resume_expires_at===null, 'Email change revokes previous code and continuation link.');
+$entry=$db->where('user_id',77)->order_by('id','DESC')->get('user_activity_logs')->row();
+check_activity(array_keys(json_decode($entry->changes,true))===array('email'), 'Credential revocation does not log codes or tokens.');
+echo "PASS: signup email change revokes old credentials and records only the email change.\n";

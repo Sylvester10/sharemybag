@@ -154,6 +154,14 @@
                                     echo form_open('registration/signup', $form_attributes); ?>
 
                                     <div class="row">
+                                        <div class="col-sm-12">
+                                            <label for="email" class="mb-1">Email <span class="text-danger">*</span></label>
+                                            <div class="input-group mb-3">
+                                                <input type="email" class="form-control" placeholder="xyz@example.com" name="email" id="email" required autocomplete="email">
+                                            </div>
+                                            <button type="button" id="signup_change_email" class="btn btn-link p-0 mb-3 d-none">Change email</button>
+                                        </div>
+                                        <fieldset class="row g-0 d-none" data-signup-details disabled>
                                         <div class="col-6">
                                             <label for="firstname" class="mb-1">First Name <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
@@ -164,12 +172,6 @@
                                             <label for="lastname" class="mb-1">Last name <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
                                                 <input type="text" class="form-control" placeholder="Doe" name="lastname" id="lastname" required aria-label="lastname">
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12">
-                                            <label for="email" class="mb-1">Email <span class="text-danger">*</span></label>
-                                            <div class="input-group mb-3">
-                                                <input type="email" class="form-control" placeholder="xyz@example.com" name="email" id="email" required aria-label="email">
                                             </div>
                                         </div>
                                         <?php $this->load->view('partials/phone_input', array(
@@ -226,7 +228,8 @@
                                             </div>
                                         </div>
 
-                                        <div class="mb-0 mt-2" id="status_msg"></div>
+                                        </fieldset>
+                                        <div class="mb-0 mt-2" id="status_msg" role="status" aria-live="polite"></div>
 
                                         <div class="col-12">
                                             <button type="submit" id="submit" class="main-btn primary">
