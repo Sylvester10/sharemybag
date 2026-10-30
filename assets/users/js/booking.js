@@ -859,7 +859,8 @@ jQuery(document).ready(function ($) {
         targetInput.val('').removeClass('input-image-blob error');
 
         const inputEl = targetInput[0];
-        if (inputEl.type === 'hidden') {
+        // Camera captures use a data URL field, including type="text" with hidden.
+        if (inputEl.type !== 'file') {
             const originalSrc = image.data('original-src') || image.attr('src');
             image.attr('src', originalSrc).removeClass('img-changed');
             $('.take-selfie[target-input="' + inputEl.id + '"]')

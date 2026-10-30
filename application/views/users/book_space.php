@@ -333,7 +333,7 @@
                             <h4 class="card-title mb-2 bookspace_title">Parcel protection <b class="!tw-text-[#f36b24]">(Optional)</b></h4>
                             <p class="card-subtitle mb-3 fs-3">As with everything else in life, anything can happen. If it does, Sharemybag covers your parcel up to £20 in the case of loss or damage during the traveller's journey. If you want extra protection choose from the options below.</p>
 
-                            <div class="col-lg-6 mb-3"
+                            <div class="col-lg-6 mb-3">
                                 <?php
                                 // Insurance prices
                                 $ins_low_val = 3.99;
