@@ -59,7 +59,8 @@ phase5_contains($twilioService, '/Verifications', 'Twilio adapter must start Ver
 phase5_contains($twilioService, '/VerificationCheck', 'Twilio adapter must check Verify codes.');
 phase5_contains($challengeModel, 'password_hash', 'Email login codes must be stored as hashes.');
 phase5_contains($challengeModel, 'destinationMatches', 'Challenge destinations must be verified before an OTP is accepted.');
-phase5_contains($emailHelper, 'return $mail->send()', 'Email delivery must report success or failure to passwordless callers.');
+phase5_contains($emailHelper, 'return send_prepared_email(', 'Email delivery must return the budgeted transport result to passwordless callers.');
+phase5_contains($emailHelper, 'return $sent;', 'The shared gate must preserve the SMTP result.');
 
 phase5_contains($loginView, "'field_name' => 'phone'", 'Login must use the shared phone input.');
 phase5_contains($loginView, 'data-login-email-panel', 'Login must default to the email field.');

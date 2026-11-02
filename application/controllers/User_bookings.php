@@ -466,17 +466,7 @@ class User_bookings extends MY_Controller
 
     public function paystack_cancel($hash = false)
     {
-        if ($hash) {
-            $this->users_model->cancel_booking_payment_by_hash($hash);
-        }
-
-        $result = [
-            'status' => false,
-            'msg' => 'You cancelled the payment.',
-            'title' => 'Booking Canceled.',
-            'msg_timeout' => 7000,
-            'redirect' => 'history',
-        ];
+        $result = $this->users_model->finalize_booking_payment_by_hash($hash, false);
         $this->set_booking_flash($result);
         redirect($result['redirect']);
     }

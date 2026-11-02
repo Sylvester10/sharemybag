@@ -442,7 +442,7 @@ function submitInlineAjax(form, opts) {
 					hideLoading();
 					return;
 				}
-				renderAlert("success", res.msg || "Success");
+				if (!opts.suppressSuccess) renderAlert("success", res.msg || "Success");
 
 				if (resetOnSuccess) {
 					try {
@@ -463,6 +463,7 @@ function submitInlineAjax(form, opts) {
 				fadeOutAlert(successTimeout);
 			} else {
 				hideLoading();
+				if (typeof opts.onError === 'function') opts.onError(res);
 				renderError((res && res.msg) || "Request failed.", res);
 			}
 		},

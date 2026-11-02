@@ -98,15 +98,20 @@ class Registration extends MY_Controller
             $resume_token = $this->users_model->issue_signup_resume_token($user_id, self::SIGNUP_RESUME_TTL);
             $delivery = $this->users_model->send_signup_verification_code($user_id, $resume_token);
             auth_throttle_clear($signup_throttle_key);
-            $this->refresh_signup_captcha();
+            $captcha_code = $this->refresh_signup_captcha();
             $res = [
-                'status' => true,
-                'msg' => $delivery['status'] ? 'A verification code has been sent to your email.' : 'Your details are saved, but we could not send your code. Continue to try again.',
+                'status' => $delivery['status'],
+                'msg' => $delivery['status'] ? 'A verification code has been sent to your email.' : $delivery['msg'],
                 'title' => $delivery['status'] ? 'Check Your Email' : 'Continue Registration',
                 'msg_timeout' => 7000,
-                'redirect' => $delivery['status'] ? $this->build_verification_redirect($resume_token) : base_url('continue-registration/' . rawurlencode((string) $resume_token)),
                 'csrf_hash' => $csrf_hash
             ];
+            if ($delivery['status']) {
+                $res['redirect'] = $this->build_verification_redirect($resume_token);
+            } else {
+                $res['resume_token'] = $resume_token;
+                $res['captcha_code'] = $captcha_code;
+            }
             echo json_encode($res);
         } else {
             auth_throttle_hit($signup_throttle_key, self::SIGNUP_RATE_LIMIT_MAX, self::SIGNUP_RATE_LIMIT_WINDOW);
@@ -189,10 +194,13 @@ class Registration extends MY_Controller
     {
         if (!$this->require_post()) { return; }
         $csrf_hash = $this->security->get_csrf_hash();
-        $this->form_validation->set_rules('verification_code', 'Verification Code', 'trim|required');
-        $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[8]');
-        $this->form_validation->set_rules('confirm_password', 'Confirm Password', 'trim|required|matches[password]',
-            array('matches' => 'Passwords do not match'));
+        $code_only = $this->input->post('verification_step', TRUE) === 'code';
+        $this->form_validation->set_rules('verification_code', 'Verification Code', 'trim|required|exact_length[6]|numeric');
+        if (!$code_only) {
+            $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[8]');
+            $this->form_validation->set_rules('confirm_password', 'Confirm Password', 'trim|required|matches[password]',
+                array('matches' => 'Passwords do not match'));
+        }
         $this->form_validation->set_rules('resume_token', 'Resume Token', 'trim|required');
 
         if ($this->form_validation->run()) {
@@ -207,6 +215,7 @@ class Registration extends MY_Controller
                     'status' => false,
                     'msg' => auth_throttle_message($verify_throttle_state['retry_after'], 'verification'),
                     'title' => 'Too Many Attempts',
+                    'field' => 'verification_code',
                     'msg_timeout' => 7000,
                     'csrf_hash' => $csrf_hash
                 ]);
@@ -214,7 +223,7 @@ class Registration extends MY_Controller
             }
 
             if (!$pending_user || !empty($pending_user->password)) {
-                echo json_encode(['status' => false, 'msg' => 'This verification link is no longer valid. Start again from sign up or sign in.', 'title' => 'Verification Error', 'msg_timeout' => 7000, 'csrf_hash' => $csrf_hash]);
+                echo json_encode(['status' => false, 'field'=>'verification_code', 'msg' => 'This verification link is no longer valid. Start again from sign up or sign in.', 'title' => 'Verification Error', 'msg_timeout' => 7000, 'csrf_hash' => $csrf_hash]);
                 return;
             }
 
@@ -223,6 +232,7 @@ class Registration extends MY_Controller
                     'status' => false,
                     'msg' => 'Too many incorrect verification attempts. Request a new code or try again later.',
                     'title' => 'Verification Locked',
+                    'field' => 'verification_code',
                     'msg_timeout' => 7000,
                     'csrf_hash' => $csrf_hash
                 ]);
@@ -234,6 +244,7 @@ class Registration extends MY_Controller
                     'status' => false,
                     'msg' => 'This verification code has expired. Request a new code to continue.',
                     'title' => 'Verification Expired',
+                    'field' => 'verification_code',
                     'msg_timeout' => 7000,
                     'csrf_hash' => $csrf_hash
                 ]);
@@ -241,22 +252,27 @@ class Registration extends MY_Controller
             }
 
             $verification_code = $this->input->post('verification_code', TRUE);
-            $password = password_hash($this->input->post('password', TRUE), PASSWORD_DEFAULT);
 
             if (hash_equals((string) $pending_user->verification_code, (string) $verification_code)) {
+                if ($code_only) {
+                    // This is a precheck only. Final submission revalidates and consumes the same credentials.
+                    echo json_encode(['status'=>true, 'code_verified'=>true, 'csrf_hash'=>$csrf_hash]);
+                    return;
+                }
+                $password = password_hash($this->input->post('password', TRUE), PASSWORD_DEFAULT);
                 // Complete signup once, even if another request has the same pending snapshot.
                 $completed = $this->users_model->update_user_verification(
                     $pending_user->id, $password, $verification_code, $resume_token, $pending_user->email
                 );
                 if (!$completed) {
-                    echo json_encode(['status' => false, 'msg' => 'This verification could not be completed. Sign in if you have already verified, or request a new code and try again.', 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash]);
+                    echo json_encode(['status' => false, 'field'=>'verification_code', 'msg' => 'This verification could not be completed. Sign in if you have already verified, or request a new code and try again.', 'title' => 'Verification Error', 'msg_timeout' => 6000, 'csrf_hash' => $csrf_hash]);
                     return;
                 }
                 auth_throttle_clear($verify_throttle_key);
                 $current_user = $this->user_read_model->get_user_details_by_id($pending_user->id);
                 if (!$current_user || (int) $current_user->account_status !== 1 || !empty($current_user->deleted_at)
                     || $current_user->email !== $pending_user->email || !hash_equals((string) $current_user->password, $password)) {
-                    echo json_encode(['status'=>false, 'msg'=>'Your registration is complete. Please contact support to access your account.', 'csrf_hash'=>$csrf_hash]);
+                    echo json_encode(['status'=>false, 'field'=>'verification_code', 'msg'=>'Your registration is complete. Please contact support to access your account.', 'csrf_hash'=>$csrf_hash]);
                     return;
                 }
                 $this->session->sess_regenerate(TRUE);

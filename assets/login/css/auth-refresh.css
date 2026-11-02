@@ -1,4 +1,11 @@
 /* Shared presentation only: form contracts and authentication states stay in the views. */
+.smb-auth-page .auth-email-icon {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    color: #f36b24;
+}
+
 .smb-auth-page {
     background: #fff;
     color: #121d24;

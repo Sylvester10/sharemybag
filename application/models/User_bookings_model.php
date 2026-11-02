@@ -115,7 +115,7 @@ class User_bookings_model extends MY_Model
             $body = $this->load->view('mail/admin_booking_notify_email', $data, true);
             $mail->Body = $body;
             $mail->AltBody = $body;
-            $mail->send();
+            send_prepared_email($this, $mail, 'legacy_booking');
         } catch (Exception $e) {
         }
 
@@ -238,7 +238,7 @@ class User_bookings_model extends MY_Model
             $mail->AltBody = $body;
 
 
-            $mail->send();
+            send_prepared_email($this, $mail, 'legacy_booking');
         } catch (Exception $e) {
         }
 
@@ -256,7 +256,7 @@ class User_bookings_model extends MY_Model
             $mail->AltBody = $body;
 
 
-            $mail->send();
+            send_prepared_email($this, $mail, 'legacy_booking');
         } catch (Exception $e) {
         }
 

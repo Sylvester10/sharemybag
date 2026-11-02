@@ -112,7 +112,7 @@ class Bookings_model extends \MY_Model
 			$body = $this->load->view('mail/admin_booking_notify_email', $data, true);
 			$mail->Body = $body;
 			$mail->AltBody = $body;
-			$mail->send();
+			send_prepared_email($this, $mail, 'legacy_booking');
 		} catch (Exception $e) {
 		}
 
@@ -306,7 +306,7 @@ class Bookings_model extends \MY_Model
 			$mail->AltBody = $body;
 
 
-			$mail->send();
+			send_prepared_email($this, $mail, 'legacy_booking');
 		} catch (Exception $e) {
 		}
 
@@ -324,7 +324,7 @@ class Bookings_model extends \MY_Model
 			$mail->AltBody = $body;
 
 
-			$mail->send();
+			send_prepared_email($this, $mail, 'legacy_booking');
 		} catch (Exception $e) {
 		}
 
@@ -346,24 +346,41 @@ class Bookings_model extends \MY_Model
 
 	public function confirm_booking($id)
 	{
-		$this->db->trans_start();
+		if (!$this->db->trans_start()) { return false; }
 
 		$data = array(
 			'payment_status' => payment_status_normalize('completed'),
 		);
 		$this->db->where('id', $id);
-		$this->db->update('bookings', $data);
+		$this->db->where('deleted_at IS NULL', null, false);
+		$this->db->where("LOWER(TRIM(COALESCE(payment_status, ''))) NOT IN ('completed', 'complete', 'success', 'paid')", null, false);
+		$updated = $this->db->update('bookings', $data);
+		$claimed = $this->db->affected_rows() === 1;
+		if (!$updated || !$claimed) {
+			if (!$updated || !$this->db->trans_complete()) {
+				$this->db->trans_rollback();
+				return false;
+			}
+			$current = $this->booking_read_model->get_booking_details_by_id($id);
+			return $current && empty($current->deleted_at) && payment_status_normalize($current->payment_status) === 'completed';
+		}
 
 		$booking = $this->booking_read_model->get_booking_details_by_id($id);
+		if (!$booking || !empty($booking->deleted_at)) {
+			$this->db->trans_rollback();
+			return false;
+		}
 		$traveller_id = $booking->traveller_id;
 		$email = $booking->agent_email;
 
 		//Update the tracking ID, used space and available space in the traveller table
-		$this->travellers_model->update_traveller_space($traveller_id);
+		if (!$this->travellers_model->update_traveller_space($traveller_id)) {
+			$this->db->trans_rollback();
+			return false;
+		}
 
-		$this->db->trans_complete();
-
-		if ($this->db->trans_status() === FALSE) {
+		if (!$this->db->trans_complete()) {
+			$this->db->trans_rollback();
 			log_message('error', 'Transaction failed in ' . __METHOD__);
 			return false;
 		}
@@ -399,7 +416,7 @@ class Bookings_model extends \MY_Model
 		// send_email_notification($this, 'customers@sharemybag.co.uk', 'New Booking', $data, 'admin_booking_notification_email');
 		send_email_notification($this, $email, 'Booking Successful', $data, 'user_booking_notification_email');
 
-		return;
+		return true;
 	}
 
 

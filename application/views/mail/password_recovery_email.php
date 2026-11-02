@@ -1,12 +1,12 @@
 <?php $email_template = basename(__FILE__, '.php'); $email_title = 'Password Recovery';
 include 'email_header.php'; ?>
 
-<p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi <?= $firstname ?>,</p>
+<p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi <?= html_escape($firstname) ?>,</p>
 <p style="<?= email_style('paragraph') ?>">We received a request to reset your password. Use the code below along with the button to create a new password.</p>
 
 <div class="code-wrap" style="<?= email_style('code-wrap') ?>">
     <div class="code-label" style="<?= email_style('code-label') ?>">Password reset code</div>
-    <div class="code-box" style="<?= email_style('code-box') ?>"><?= $pass_reset_code ?></div>
+    <div class="code-box" style="<?= email_style('code-box') ?>"><?= html_escape($pass_reset_code) ?></div>
 </div>
 
 <div class="btn-wrap" style="<?= email_style('btn-wrap') ?>">

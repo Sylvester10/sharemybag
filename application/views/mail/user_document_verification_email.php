@@ -3,9 +3,9 @@ include 'email_header.php'; ?>
 
 <?= email_image_card('documents_under_review') ?>
 
-<p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi <?= $firstname ?>,</p>
+<p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi <?= html_escape($firstname) ?>,</p>
 
-<p style="<?= email_style('paragraph') ?>">Thank you for submitting your <span class="id-badge" style="<?= email_style('id-badge') ?>"><?= $id_type ?></span> for verification.</p>
+<p style="<?= email_style('paragraph') ?>">Thank you for submitting your <span class="id-badge" style="<?= email_style('id-badge') ?>"><?= html_escape($id_type) ?></span> for verification.</p>
 
 <p style="<?= email_style('paragraph') ?>">Our compliance team is currently reviewing your documents. You'll receive a notification as soon on your verification status update.</p>
 

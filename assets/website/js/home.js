@@ -279,25 +279,49 @@ jQuery(document).ready(function ($) {
         });
 
     //Sign up
+    var signupResumeToken = '';
+    var signupReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     $('#signup_change_email').on('click', function () {
-        $('#signup_form [data-signup-details]').prop('disabled', true).addClass('d-none');
-        $('#signup_form [name="email"]').prop('readonly', false).trigger('focus');
+        signupResumeToken = '';
+        $('#signup_form #submit').prop('disabled', true);
+        $('#signup_form [data-signup-submit-label]').text('Continue');
         $(this).addClass('d-none');
         clearAuthFieldError($('#signup_form'));
+        $('#signup_form [data-signup-details]').stop(true, true).prop('disabled', true)
+            .slideUp(signupReducedMotion ? 0 : 250, function () {
+                $(this).addClass('d-none');
+                $('#signup_form [name="email"]').prop('readonly', false).trigger('focus');
+                $('#signup_form #submit').prop('disabled', false);
+            });
     });
     $('#signup_form').submit(function (e) {
         e.preventDefault();
         var $details = $(this).find('[data-signup-details]');
-        var emailStep = $details.prop('disabled');
+        var emailStep = !signupResumeToken && $details.prop('disabled');
         submitInlineAjax(this, {
-            url: base_url + (emailStep ? 'registration/start_ajax' : 'registration/signup'),
+            url: base_url + (signupResumeToken ? 'registration/resend_verification_email_ajax' : emailStep ? 'registration/start_ajax' : 'registration/signup'),
+            extraData: signupResumeToken ? { resume_token: signupResumeToken } : null,
+            submitEl: $('#signup_form #submit, #signup_change_email'),
+            suppressSuccess: true,
             onSuccess: function (res) {
                 if (!res.new_registration) return;
-                $details.prop('disabled', false).removeClass('d-none');
+                $details.stop(true, true).prop('disabled', false).removeClass('d-none').css('display', 'flex').hide();
                 $('#signup_form [name="email"]').prop('readonly', true);
                 $('#signup_change_email').removeClass('d-none');
-                $details.find('input').first().trigger('focus');
+                $details.slideDown(signupReducedMotion ? 0 : 250, function () {
+                    $details.find('input').first().trigger('focus');
+                });
                 return false;
+            },
+            onError: function (res) {
+                if (!res || !res.resume_token) return;
+                signupResumeToken = res.resume_token;
+                if (res.captcha_code) {
+                    $('#signup_form #captcha_code').val(res.captcha_code);
+                    $('#signup_form [name="c_captcha_code"]').val('');
+                }
+                $details.prop('disabled', true);
+                $('#signup_form [data-signup-submit-label]').text('Retry sending code');
             },
             inlineErrorField: function (res) {
                 if (res.field) return res.field;
@@ -306,7 +330,7 @@ jQuery(document).ready(function ($) {
                 if (message.indexOf('email') !== -1) return 'email';
                 return 'email';
             },
-            redirectDelay: 1500,
+            redirectDelay: 0,
             resetOnSuccess: false,
         });
     });
@@ -317,6 +341,7 @@ jQuery(document).ready(function ($) {
         submitInlineAjax(this, {
             url: base_url + (hasToken ? 'registration/resend_verification_email_ajax' : 'registration/start_ajax'),
             inlineErrorField: hasToken ? null : 'email',
+            suppressSuccess: true,
             redirectDelay: 0,
             onSuccess: function (res) {
                 if (res.new_registration) { window.location.href = base_url + 'registration'; return false; }
@@ -324,20 +349,54 @@ jQuery(document).ready(function ($) {
         });
     });
 
-    //Verify email
+    // Verify the code before revealing password creation; final POST rechecks the proof.
+    var $registrationVerification = $('#verify_email_form');
+    var registrationIntro = $('#verification_intro').html();
+    function registrationPasswordStep(show) {
+        var $codePanel = $registrationVerification.find('[data-registration-code-panel]');
+        var $passwordPanel = $registrationVerification.find('[data-registration-password-panel]');
+        $registrationVerification.find('[name="verification_step"]').val(show ? 'password' : 'code');
+        $codePanel.toggleClass('d-none', show).find('.otp-input').prop('disabled', show);
+        $('#resend_verification_email, #verification_expiry').toggleClass('d-none', show);
+        $('[data-registration-verification-title]').text(show ? 'Enter your password' : 'Verify your email');
+        $('[data-registration-verification-icon]').attr('class', show ? 'fas fa-lock fa-2x' : 'fas fa-envelope-open-text fa-2x');
+        if (show) {
+            $('#verification_intro').text('Choose a password for your account.');
+            clearAuthFieldError($registrationVerification);
+            $passwordPanel.stop(true, true).prop('disabled', false).removeClass('d-none').css('display', 'flex').hide()
+                .slideDown(signupReducedMotion ? 0 : 250, function () { $(this).find('[name="password"]').trigger('focus'); });
+        } else {
+            $('#verification_intro').html(registrationIntro);
+            $passwordPanel.stop(true, true).hide().prop('disabled', true).addClass('d-none').find('input').val('');
+            $codePanel.find('.otp-input').first().trigger('focus');
+        }
+    }
+    $registrationVerification.on('otp-complete', function () {
+        if ($(this).find('[name="verification_step"]').val() === 'code' && !$(this).find('#submit').prop('disabled')) {
+            this.requestSubmit();
+        }
+    });
     $('#verify_email_form').submit(function (e) {
         e.preventDefault();
+        if ($(this).find('#submit').prop('disabled')) return;
         submitInlineAjax(this, {
             url: base_url + 'registration/verify_email_ajax',
+            suppressSuccess: true,
+            onSuccess: function (res) {
+                if (res.code_verified) { registrationPasswordStep(true); return false; }
+            },
+            onError: function (res) {
+                if (res && (res.field === 'verification_code' || res.field === 'resume_token')) registrationPasswordStep(false);
+            },
             inlineErrorField: function (res) {
                 if (res.field) return res.field;
                 var message = (res.msg || '').toLowerCase();
                 if (message.indexOf('confirm') !== -1 || message.indexOf('match') !== -1) return 'confirm_password';
                 if (message.indexOf('password') !== -1) return 'password';
-                return 'verification_code';
+                return $registrationVerification.find('[name="verification_step"]').val() === 'password' ? null : 'verification_code';
             },
             redirect: base_url + 'dashboard',
-            redirectDelay: 1500,
+            redirectDelay: 0,
             resetOnSuccess: true,
         });
     });
@@ -372,7 +431,6 @@ jQuery(document).ready(function ($) {
                 }
 
                 let isOk = !!(res && res.status);
-                let cls = isOk ? 'alert-success' : 'alert-danger';
                 let msg = (res && res.msg) || 'Request failed.';
                 if (!isOk) {
                     showAuthFieldError($('#verify_email_form'), 'verification_code', msg);
@@ -381,16 +439,8 @@ jQuery(document).ready(function ($) {
                 if (isOk) {
                     startResendCooldown((res && res.cooldown_seconds) || parseInt($('#resend_verification_email').data('cooldown'), 10) || 30);
                 }
-                $status
-                    .stop(true, true)
-                    .html(
-                        '<div class="alert ' + cls + ' text-center" style="color: #000">' +
-                            msg +
-                            '</div>'
-                    )
-                    .fadeIn('fast')
-                    .delay(isOk ? 3000 : 4000)
-                    .fadeOut('slow');
+                clearAuthFieldError($('#verify_email_form'));
+                $status.stop(true, true).empty();
             },
             error: function (xhr) {
                 $spinner.addClass('d-none');
@@ -460,6 +510,8 @@ jQuery(document).ready(function ($) {
 
         var passwordMode = false;
         var phoneMode = false;
+        var $loginSubtitle = $('#loginSubtitle');
+        var defaultLoginSubtitle = $loginSubtitle.text();
         var $emailInput = $('#login_email');
         var $phoneInputs = $loginForm.find('[data-login-phone-panel] input, [data-login-phone-panel] select');
         var $identifierToggle = $loginForm.find('[data-login-identifier-toggle]');
@@ -647,7 +699,7 @@ jQuery(document).ready(function ($) {
                     }
 
                     $codeForm.find('[data-challenge-token]').val(res.challenge_token || '');
-                    $codeForm.find('[data-code-destination]').text(
+                    $loginSubtitle.text(
                         'Code sent to ' + (res.destination_hint || 'your registered contact') + '.'
                     );
                     $loginForm.addClass('d-none');
@@ -671,6 +723,7 @@ jQuery(document).ready(function ($) {
 			resetPasswordlessResend();
             $codeForm.addClass('d-none');
             $loginForm.removeClass('d-none');
+            $loginSubtitle.text(defaultLoginSubtitle);
             (phoneMode ? $('#login_phone_number') : $emailInput).trigger('focus');
         });
 
@@ -697,7 +750,7 @@ jQuery(document).ready(function ($) {
 					}
 
 					$codeForm.find('[data-challenge-token]').val(res.challenge_token || '');
-					$codeForm.find('[data-code-destination]').text(
+					$loginSubtitle.text(
 						'Code sent to ' + (res.destination_hint || 'your registered contact') + '.'
 					);
 					resetPasswordlessCode();

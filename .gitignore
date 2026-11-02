@@ -65,6 +65,12 @@ PROJECT_REFERENCE.md
 !/tests/registration_recovery_test.php
 !/tests/registration_recovery_email_test.php
 !/tests/selfie_reset_test.js
+!/tests/signup_feedback_test.js
+!/tests/mail_content_safety_test.php
+!/tests/booking_mail_once_test.php
+!/tests/mail_request_safety_test.php
+!/tests/mail_safety_test.php
+!/tests/bulk_mail_queue_test.php
 !/tests/support/
 /tests/support/*
 !/tests/support/email_render.php

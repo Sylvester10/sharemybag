@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
     <meta name="description" content="<?php echo business_description; ?>">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="author" content="">
 
     <!--favicon icon-->
@@ -161,79 +162,81 @@
                                             </div>
                                             <button type="button" id="signup_change_email" class="btn btn-link p-0 mb-3 d-none">Change email</button>
                                         </div>
-                                        <fieldset class="row g-0 d-none" data-signup-details disabled>
-                                        <div class="col-6">
-                                            <label for="firstname" class="mb-1">First Name <span class="text-danger">*</span></label>
-                                            <div class="input-group mb-3">
-                                                <input type="text" class="form-control" placeholder="John" name="firstname" id="firstname" required aria-label="firstname">
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <label for="lastname" class="mb-1">Last name <span class="text-danger">*</span></label>
-                                            <div class="input-group mb-3">
-                                                <input type="text" class="form-control" placeholder="Doe" name="lastname" id="lastname" required aria-label="lastname">
-                                            </div>
-                                        </div>
-                                        <?php $this->load->view('partials/phone_input', array(
-                                            'wrapper_class' => 'col-sm-12 mb-3',
-                                            'field_name' => 'phone',
-                                            'country_code_name' => 'country_code',
-                                            'country_code_id' => 'country_code',
-                                            'input_id' => 'phone_number',
-                                            'country_code' => set_value('country_code', '+44'),
-                                            'local_number' => set_value('phone'),
-                                            'label' => 'Phone Number',
-                                            'placeholder' => '7911123456',
-                                            'required' => true,
-                                        )); ?>
-                                        <div class="col-sm-12 mt-n2 mb-3">
-                                        </div>
-                                        <div class="col-sm-12">
-                                            <label for="password" class="mb-1">Country of Residence <span class="text-danger">*</span></label>
-                                            <div class="input-group mb-3">
-                                                <select data-style="form-select" class="selectpicker form-control" data-live-search="true" id="country" name="country" required>
-                                                    <option value="">Select country</option>
-                                                    <?php
-                                                    $countries = countries();
-                                                    foreach ($countries as $country) { ?>
-                                                        <option value="<?php echo $country; ?>" <?php echo set_select('nationality', $country); ?>><?php echo $country; ?>
-                                                        </option>
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-6">
-                                            <label class="mb-1">Captcha code</label>
-                                            <div class="input-group mb-3">
-                                                <input type="text" class="form-control" id="captcha_code" value="<?php echo html_escape($captcha_code); ?>" readonly>
-                                            </div>
-                                            <small class="text-muted d-block mt-n2 mb-2">Reload the page for a new code.</small>
-                                        </div>
-
-                                        <div class="col-6">
-                                            <label class="mb-1">Enter captcha code <span class="text-danger">*</span></label>
-                                            <div class="input-group mb-3">
-                                                <input type="tel" class="form-control" placeholder="Enter code here" name="c_captcha_code" value="<?php echo set_value('c_captcha_code'); ?>" required>
-                                            </div>
-                                        </div>
-
                                         <div class="col-12">
-                                            <div class="form-check d-flex mb-2">
-                                                <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckChecked" required>
-                                                <label class="form-check-label" for="flexCheckChecked">
-                                                    I have read and agree to the
-                                                    <a href="<?php echo base_url('terms-and-conditions'); ?>" target="_blank" class="text-decoration-none">Terms &amp; Conditions</a>
-                                                </label>
-                                            </div>
-                                        </div>
+                                            <fieldset class="row gx-3 d-none" data-signup-details disabled>
+                                                <div class="col-6">
+                                                    <label for="firstname" class="mb-1">First Name <span class="text-danger">*</span></label>
+                                                    <div class="input-group mb-3">
+                                                        <input type="text" class="form-control" placeholder="John" name="firstname" id="firstname" required aria-label="firstname">
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <label for="lastname" class="mb-1">Last name <span class="text-danger">*</span></label>
+                                                    <div class="input-group mb-3">
+                                                        <input type="text" class="form-control" placeholder="Doe" name="lastname" id="lastname" required aria-label="lastname">
+                                                    </div>
+                                                </div>
+                                                <?php $this->load->view('partials/phone_input', array(
+                                                    'wrapper_class' => 'col-sm-12 mb-3',
+                                                    'field_name' => 'phone',
+                                                    'country_code_name' => 'country_code',
+                                                    'country_code_id' => 'country_code',
+                                                    'input_id' => 'phone_number',
+                                                    'country_code' => set_value('country_code', '+44'),
+                                                    'local_number' => set_value('phone'),
+                                                    'label' => 'Phone Number',
+                                                    'placeholder' => '7911123456',
+                                                    'required' => true,
+                                                )); ?>
+                                                <div class="col-sm-12 mt-n2 mb-3">
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <label for="password" class="mb-1">Country of Residence <span class="text-danger">*</span></label>
+                                                    <div class="input-group mb-3">
+                                                        <select data-style="form-select" class="selectpicker form-control" data-live-search="true" id="country" name="country" required>
+                                                            <option value="">Select country</option>
+                                                            <?php
+                                                            $countries = countries();
+                                                            foreach ($countries as $country) { ?>
+                                                                <option value="<?php echo $country; ?>" <?php echo set_select('nationality', $country); ?>><?php echo $country; ?>
+                                                                </option>
+                                                            <?php } ?>
+                                                        </select>
+                                                    </div>
+                                                </div>
 
-                                        </fieldset>
+                                                <div class="col-6">
+                                                    <label class="mb-1">Captcha code</label>
+                                                    <div class="input-group mb-3">
+                                                        <input type="text" class="form-control" id="captcha_code" value="<?php echo html_escape($captcha_code); ?>" readonly>
+                                                    </div>
+                                                    <small class="text-muted d-block mt-n2 mb-2">Reload the page for a new code.</small>
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <label class="mb-1">Enter captcha code <span class="text-danger">*</span></label>
+                                                    <div class="input-group mb-3">
+                                                        <input type="tel" class="form-control" placeholder="Enter code here" name="c_captcha_code" value="<?php echo set_value('c_captcha_code'); ?>" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12">
+                                                    <div class="form-check d-flex mb-2">
+                                                        <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckChecked" required>
+                                                        <label class="form-check-label" for="flexCheckChecked">
+                                                            I have read and agree to the
+                                                            <a href="<?php echo base_url('terms-and-conditions'); ?>" target="_blank" class="text-decoration-none">Terms &amp; Conditions</a>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                            </fieldset>
+                                        </div>
                                         <div class="mb-0 mt-2" id="status_msg" role="status" aria-live="polite"></div>
 
                                         <div class="col-12">
                                             <button type="submit" id="submit" class="main-btn primary">
-                                                Continue
+                                                <span data-signup-submit-label>Continue</span>
                                                 <span class="spinner-border spinner-border-sm text-light ms-2 d-none" id="search-spinner" role="status" aria-hidden="true"></span>
                                             </button>
                                         </div>

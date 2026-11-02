@@ -4,7 +4,7 @@ include 'email_header.php'; ?>
 
 <?= email_image_card('traveller_approved') ?>
 
-<p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi <?= $fullname ?>,</p>
+<p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi <?= html_escape($fullname) ?>,</p>
 <p style="<?= email_style('paragraph') ?>">You are a Verified Traveller!</p>
 <p style="<?= email_style('paragraph') ?>">We'll be in touch as soon as we have customers for you.</p>
 

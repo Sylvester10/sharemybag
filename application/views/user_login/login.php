@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
     <meta name="description" content="<?php echo business_description; ?>">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="<?= current_url(); ?>">
 
     <!-- Open Graph Tags -->
@@ -159,7 +159,7 @@
                             <div class="price-feature-col pricing-action-info p-5 right-radius bg-light-subtle order-0 order-lg-1">
                                 <a href="<?php echo base_url(); ?>" class="mb-5 d-block d-xl-none d-lg-none"><img src="<?= business_logo ?>" alt="logo" width="150" class="img-fluid"></a>
                                 <h1 class="h3">Sign in to your account</h1>
-                                <p class="text-muted" id="loginSubtitle">Use a one-time code, or sign in with your password.</p>
+                                <p class="text-muted" id="loginSubtitle" aria-live="polite" aria-atomic="true">Use a one-time code, or sign in with your password.</p>
 
                                 <div class="mt-4 register-form">
                                     <?php
@@ -236,18 +236,17 @@
 
                                     <?php echo form_open('user_login/passwordless_verify_ajax', array('id' => 'passwordless_code_form', 'class' => 'd-none', 'data-passwordless-code-panel' => '')); ?>
                                     <input type="hidden" name="challenge_token" data-challenge-token>
-                                    <div class="mb-3">
-                                        <button type="button" class="btn btn-link p-0 text-decoration-none" data-change-identifier>
+                                    <div class="mb-2">
+                                        <button type="button" class="btn btn-link p-0 text-decoration-none copyright" data-change-identifier style="font-size: 12px;">
                                             <i class="fa fa-arrow-left me-1" aria-hidden="true"></i> Change email
                                         </button>
                                     </div>
-                                    <p class="text-muted mb-3" data-code-destination aria-live="polite"></p>
                                     <?php $this->load->view('user_login/partials/otp_inputs', array(
                                         'hidden_name' => 'code',
                                         'hidden_id' => 'passwordlessCode',
                                         'input_id_prefix' => 'passwordlessOtp',
                                         'group_label' => 'One-time sign-in code',
-                                        'described_by' => 'passwordless_code_status',
+                                        'described_by' => 'loginSubtitle passwordless_code_status',
                                         'auto_submit' => true,
                                     )); ?>
                                     <div class="d-none text-center text-muted mb-3" id="passwordless_code_status" role="status" aria-live="polite">
@@ -297,7 +296,7 @@
     <!--endbuild-->
 
 
-    <!-- schema -->
+    <!-- schema
     <script>
         fetch("<?= base_url('seo/schema') ?>")
             .then(response => response.text())
@@ -307,7 +306,7 @@
                 script.text = json;
                 document.head.appendChild(script); // or document.body if you prefer
             });
-    </script>
+    </script> -->
 
     <!-- custom scripts -->
     <script src="<?php echo base_url(); ?>assets/general/js/my_functions.js?v=<?php echo filemtime(FCPATH . 'assets/general/js/my_functions.js'); ?>"></script>

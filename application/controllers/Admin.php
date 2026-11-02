@@ -7,7 +7,6 @@ Name: Admin
 Role: Controller
 Description: Controls access to pages who's models are listed below and functions in admin panel
 Model: Admin_model, Travellers_model
-Author: Sylvester Esso Nmakwe
 Date Created: 10th May, 2023
 */
 

@@ -7,7 +7,6 @@ Name: Admin_travellers
 Role: Controller
 Description: Controls access to Travellers pages and functions in admin panel
 Models: Traveller_model
-Author: Sylvester Esso Nmakwe
 Date Created: 10th May, 2023
 
 UPDATED:
