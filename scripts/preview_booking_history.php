@@ -50,7 +50,11 @@ $booking=[];$booking_checkout=[];$booking_routes=[];
 for($i=0;$i<14;$i++){
     $id=$i+1;$status=in_array($i,[0,2,3,4,11],true)?'pending':'completed';
     $routes=[['United Kingdom','Nigeria'],['Nigeria','United Kingdom'],['Nigeria','Canada'],['Canada','Nigeria']];
-    $route=$routes[$i%4];$booking_routes[$id]=(object)['location'=>$route[0],'destination'=>$route[1]];
+    $route=$routes[$i%4];
+    $places=['United Kingdom'=>['Gatwick','Greater London'],'Nigeria'=>['Oshodi','Lagos'],'Canada'=>['Scarborough','Toronto']];
+    $booking_routes[$id]=(object)['location'=>$route[0],'destination'=>$route[1],
+        'area'=>$places[$route[0]][0],'current_state'=>$places[$route[0]][1],
+        'destination_area'=>$places[$route[1]][0],'arrival_state'=>$places[$route[1]][1]];
     $booking[]=(object)['id'=>$id,'traveller_id'=>$id,'hash'=>'preview-booking-'.$id,'tracking_id'=>'SMB'.(7654321-$i),'currency'=>'GBP',
         'user_fullname'=>'Ada Example','traveller_name'=>'James Example','traveller_drop_address1'=>'Example drop-off point, London',
         'traveller_drop_address2'=>'Second example drop-off point','traveller_drop_date1'=>'2026-11-06',

@@ -75,13 +75,19 @@
                                     $parcel_items = json_decode((string) $y->items);
                                     $parcel_items = is_array($parcel_items) ? $parcel_items : [];
                                     $booking_reference = trim((string) ($y->tracking_id ?? '')) ?: 'Booking #' . (int) $y->id;
-                                    // Use countries, never airport/state names, for the compact card title.
+                                    // Match search results: area, city/state; countries supply the flags.
                                     $country_route = $booking_routes[(int) ($y->traveller_id ?? 0)] ?? null;
                                     $country_labels = ['united kingdom' => 'UK', 'uk' => 'UK', 'nigeria' => 'Nigeria', 'canada' => 'Canada'];
                                     $origin_country = trim((string) ($country_route->location ?? '')) ?: trim((string) ($y->traveller_current_state ?? ''));
                                     $destination_country = trim((string) ($country_route->destination ?? '')) ?: trim((string) ($y->traveller_destination ?? ''));
-                                    $route_origin = $country_labels[strtolower($origin_country)] ?? '';
-                                    $route_destination = $country_labels[strtolower($destination_country)] ?? '';
+                                    $origin_label = $country_labels[strtolower($origin_country)] ?? '';
+                                    $destination_label = $country_labels[strtolower($destination_country)] ?? '';
+                                    $route_origin = implode(', ', array_filter(array_map('trim', [
+                                        (string) ($country_route->area ?? ''), (string) ($country_route->current_state ?? '')
+                                    ]), static function ($part) { return $part !== ''; })) ?: $origin_label;
+                                    $route_destination = implode(', ', array_filter(array_map('trim', [
+                                        (string) ($country_route->destination_area ?? ''), (string) ($country_route->arrival_state ?? '')
+                                    ]), static function ($part) { return $part !== ''; })) ?: $destination_label;
                                     $booking_route = ($route_origin !== '' && $route_destination !== '')
                                         ? $route_origin . ' → ' . $route_destination : 'Route unavailable';
                                     $route_search = ($route_origin !== '' && $route_destination !== '') ? $origin_country . ' ' . $destination_country : '';
@@ -207,14 +213,13 @@
                                                 <button type="button" class="history-card-open history-mobile-only fs-2" data-history-open data-history-reference="<?= html_escape($booking_reference) ?>" data-bs-toggle="modal" data-bs-target="#history-booking-details" aria-haspopup="dialog" aria-controls="history-booking-details" aria-label="<?= html_escape('View booking ' . $booking_reference) ?>">
                                                     <span class="history-route" data-history-route data-history-route-search="<?= html_escape($route_search) ?>">
                                                         <?php if ($route_origin !== '' && $route_destination !== ''): ?>
-                                                            <span class="history-route-country"><i class="cf-16 cf-<?= $country_flags[$route_origin] ?>" aria-hidden="true"></i><?= html_escape($route_origin) ?></span>
-                                                            <span>→</span>
-                                                            <span class="history-route-country"><i class="cf-16 cf-<?= $country_flags[$route_destination] ?>" aria-hidden="true"></i><?= html_escape($route_destination) ?></span>
+                                                            <span class="history-route-country"><?php if (isset($country_flags[$origin_label])): ?><i class="cf-16 cf-<?= $country_flags[$origin_label] ?>" aria-hidden="true"></i><?php endif; ?><span class="history-route-label"><?= html_escape($route_origin) ?></span></span>
+                                                            <span class="history-route-arrow">→</span>
+                                                            <span class="history-route-country"><?php if (isset($country_flags[$destination_label])): ?><i class="cf-16 cf-<?= $country_flags[$destination_label] ?>" aria-hidden="true"></i><?php endif; ?><span class="history-route-label"><?= html_escape($route_destination) ?></span></span>
                                                         <?php else: ?>
                                                             <?= html_escape($booking_route) ?>
                                                         <?php endif; ?>
                                                     </span>
-                                                    <i class="ti ti-chevron-right" aria-hidden="true"></i>
                                                 </button>
                                                 <div class="history-card-meta history-mobile-only">
                                                     <div><span class="history-card-space"><i class="ti ti-luggage" aria-hidden="true"></i><span data-history-space><?= html_escape($booking_space) ?></span></span><strong><?= $symbol . number_format($y->total_amount, 2) ?></strong></div>

@@ -1634,16 +1634,18 @@ table.dataTable thead > tr > th.sorting:before {
 .history-mobile-only { display: none; }
 .history-card-content { display: flex; flex-direction: column; }
 .history-card-footer { order: -1; }
-.history-route { align-items: center; display: inline-flex; flex-wrap: wrap; gap: 6px; }
-.history-route-country { align-items: center; display: inline-flex; gap: 5px; white-space: nowrap; }
-.history-route .cf-16 { flex: 0 0 16px; }
+.history-route { align-items: start; display: grid; gap: 4px; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); width: 100%; }
+.history-route-country { align-items: start; display: flex; gap: 4px; min-width: 0; white-space: normal; }
+.history-route-label { min-width: 0; overflow-wrap: anywhere; }
+.history-route-arrow { align-self: center; }
+.history-route .cf-16 { flex: 0 0 16px; margin-top: 1px; }
 .history-route .cf-16.cf-gb::before { background-image: url('../../general/countryflags/dist/flat16/gb.png'); }
 .history-route .cf-16.cf-ng::before { background-image: url('../../general/countryflags/dist/flat16/ng.png'); }
 .history-route .cf-16.cf-ca::before { background-image: url('../../general/countryflags/dist/flat16/ca.png'); }
-.booking-history-view [data-history-status] .badge { border-radius: 999px; line-height: 1.4; padding: 5px 11px; white-space: normal; }
+.booking-history-view [data-history-status] .badge { border-radius: 999px; font-size: .75rem !important; line-height: 1.4; padding: 5px 11px; white-space: normal; }
 .history-details-modal .modal-dialog { max-width: 640px; }
 .history-details-modal .modal-content { background: #fff; border-radius: 7px; }
-.history-details-modal [data-history-target="status"] .badge { border-radius: 999px; line-height: 1.4; padding: 5px 11px; }
+.history-details-modal [data-history-target="status"] .badge { border-radius: 999px; font-size: .75rem !important; line-height: 1.4; padding: 5px 11px; }
 .history-details-modal .modal-header { padding: 20px; }
 .history-details-modal .modal-title { font-weight: 700; overflow-wrap: anywhere; }
 .history-details-modal .modal-body { padding: 20px; }
