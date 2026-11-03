@@ -3,7 +3,7 @@ include 'email_header.php'; ?>
 
 <?= email_image_card('identity_verification_successful') ?>
 
-<p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi <?= $firstname ?>,</p>
+<p class="greeting" style="<?= email_style('paragraph') . email_style('greeting') ?>">Hi <?= html_escape($firstname) ?>,</p>
 
 <p style="<?= email_style('paragraph') ?>">Your identity verification was successful.</p>
 

@@ -23,7 +23,7 @@ $booking_support_url = booking_support_whatsapp_url(array(
             Payment received:
             <?php if (!empty($tracking_id)) { ?><br><span style="font-size:10px;">Booking reference: <?= html_escape($tracking_id) ?></span><?php } ?>
         </td>
-        <td align="right" style="padding:18px 20px 18px 0;font-size:28px;line-height:1.5;font-weight:700;color:#292727;<?= email_style() ?>"><?= $currency ?><?= number_format($total_amount, 2) ?></td>
+        <td align="right" style="padding:18px 20px 18px 0;font-size:28px;line-height:1.5;font-weight:700;color:#292727;<?= email_style() ?>"><?= html_escape($currency) ?><?= number_format($total_amount, 2) ?></td>
     </tr>
 </table>
 
@@ -43,10 +43,10 @@ $booking_support_url = booking_support_whatsapp_url(array(
             $unit_display = booking_category_unit($item->category);
         ?>
             <tr>
-                <td style="<?= email_style('table-cell') ?>"><?= $item->category ?></td>
-                <td style="<?= email_style('table-cell') ?>"><?= $item->item_name ?></td>
-                <td style="<?= email_style('table-cell') ?>"><?= $item->size ?><?= $unit_display ?></td>
-                <td style="<?= email_style('table-cell') ?>"><?= $currency ?><?= number_format($item->price, 2) ?></td>
+                <td style="<?= email_style('table-cell') ?>"><?= html_escape($item->category) ?></td>
+                <td style="<?= email_style('table-cell') ?>"><?= html_escape($item->item_name) ?></td>
+                <td style="<?= email_style('table-cell') ?>"><?= html_escape($item->size) ?><?= html_escape($unit_display) ?></td>
+                <td style="<?= email_style('table-cell') ?>"><?= html_escape($currency) ?><?= number_format($item->price, 2) ?></td>
             </tr>
         <?php endforeach; ?>
     </tbody>
@@ -71,33 +71,33 @@ $booking_support_url = booking_support_whatsapp_url(array(
     </tr>
     <tr>
         <td class="label" style="<?= email_style('table-cell') . email_style('label') ?>">Departure Airport</td>
-        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= $traveller_departure_state ?></td>
+        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= html_escape($traveller_departure_state) ?></td>
     </tr>
     <tr>
         <td class="label" style="<?= email_style('table-cell') . email_style('label') ?>">Arrival Airport</td>
-        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= $traveller_arrival_airport ?></td>
+        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= html_escape($traveller_arrival_airport) ?></td>
     </tr>
     <tr>
         <td class="label" style="<?= email_style('table-cell') . email_style('label') ?>">Departure Date</td>
-        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= $traveller_departure_date ?></td>
+        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= html_escape($traveller_departure_date) ?></td>
     </tr>
     <tr>
         <td class="label" style="<?= email_style('table-cell') . email_style('label') ?>">Arrival Date</td>
-        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= $traveller_arrival_date ?></td>
+        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= html_escape($traveller_arrival_date) ?></td>
     </tr>
     <tr>
         <td class="label" style="<?= email_style('table-cell') . email_style('label') ?>">Current Location</td>
-        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= $traveller_current_state ?></td>
+        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= html_escape($traveller_current_state) ?></td>
     </tr>
     <tr>
         <td class="label" style="<?= email_style('table-cell') . email_style('label') ?>">Final Destination</td>
-        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= $traveller_arrival_state ?></td>
+        <td class="value" style="<?= email_style('table-cell') . email_style('value') ?>"><?= html_escape($traveller_arrival_state) ?></td>
     </tr>
 </table>
 
 <p style="<?= email_style('paragraph') ?>font-size:13px; color:#6b7280;">
-    First drop-off: <strong><?= $traveller_drop_address1 ?></strong> on <strong><?= $traveller_drop_date1 ?></strong>.
-    Last drop-off: <strong><?= $traveller_drop_address2 ?></strong> on <strong><?= $traveller_drop_date2 ?></strong>.
+    First drop-off: <strong><?= html_escape($traveller_drop_address1) ?></strong> on <strong><?= html_escape($traveller_drop_date1) ?></strong>.
+    Last drop-off: <strong><?= html_escape($traveller_drop_address2) ?></strong> on <strong><?= html_escape($traveller_drop_date2) ?></strong>.
 </p>
 
 <div class="warning-box" style="<?= email_style('warning-box') ?>">

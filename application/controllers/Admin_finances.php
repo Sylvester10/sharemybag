@@ -7,7 +7,6 @@ Name: Admin_finances
 Role: Controller
 Description: Controls access to Booking pages and functions in admin panel
 Models: Bookings_model
-Author: Sylvester Esso Nmakwe
 Date Created: 10th May, 2023
 
 UPDATED: Added role restriction — finances pages are super_admin only.

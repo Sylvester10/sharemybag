@@ -115,7 +115,7 @@ class User_bookings_model extends MY_Model
             $body = $this->load->view('mail/admin_booking_notify_email', $data, true);
             $mail->Body = $body;
             $mail->AltBody = $body;
-            $mail->send();
+            send_prepared_email($this, $mail, 'legacy_booking');
         } catch (Exception $e) {
         }
 
@@ -238,7 +238,7 @@ class User_bookings_model extends MY_Model
             $mail->AltBody = $body;
 
 
-            $mail->send();
+            send_prepared_email($this, $mail, 'legacy_booking');
         } catch (Exception $e) {
         }
 
@@ -256,7 +256,7 @@ class User_bookings_model extends MY_Model
             $mail->AltBody = $body;
 
 
-            $mail->send();
+            send_prepared_email($this, $mail, 'legacy_booking');
         } catch (Exception $e) {
         }
 
@@ -310,25 +310,8 @@ class User_bookings_model extends MY_Model
         // Retrieve the traveller_id from the booking
         $traveller_id = $y->traveller_id;
 
-        // Retrieve the current available space for the traveller from the travellers table
-        $this->db->select('available_space');
-        $this->db->where('id', $traveller_id);
-        ci_where_not_deleted($this->db, 'travellers');
-        $query = $this->db->get('travellers');
-        $current_row = $query->row();
-        $current_space = $current_row ? $current_row->available_space : NULL;
-
-        if ($current_space !== NULL) {
-            // Calculate the new available space
-            $new_space = $current_space + $selected_space;
-
-            // Update the available_space in the travellers table
-            $data = array(
-                'available_space' => $new_space,
-            );
-            $this->db->where('id', $traveller_id);
-            ci_where_not_deleted($this->db, 'travellers');
-            $this->db->update('travellers', $data);
+        if (!$this->travellers_model->update_traveller_space($traveller_id)) {
+            $this->db->trans_rollback(); return false;
         }
 
         // Delete rows from the shipping table with the same Tracking ID

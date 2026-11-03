@@ -15,7 +15,6 @@ include 'email_header.php'; ?>
 <?php endif; ?>
 
 <p style="<?= email_style('paragraph') ?>">If you didn't create an account, you can safely ignore this email.</p>
-<p style="<?= email_style('paragraph') ?>">If you have any questions or need further assistance, don't hesitate to reach out — we're here to help.</p>
 
 <hr class="divider" style="<?= email_style('divider') ?>">
 <p class="sign-off" style="<?= email_style('paragraph') . email_style('sign-off') ?>">Best regards,<br><strong>The <?= business ?> Team</strong></p>

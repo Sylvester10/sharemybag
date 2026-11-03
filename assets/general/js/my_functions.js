@@ -180,6 +180,10 @@ function applyWizardStepErrors(form, steps) {
 
 //universal form ajax
 function submitFormAjax(form) {
+	let isBookingCheckout = $(form).hasClass("booking-wizard-form");
+	if (isBookingCheckout && form.dataset.bookingSubmitting === "1") {
+		return;
+	}
 	let action = form.hasAttribute("action")
 		? form.getAttribute("action")
 		: false;
@@ -189,6 +193,10 @@ function submitFormAjax(form) {
 	let reset = form.hasAttribute("reset") ? true : false;
 
 	if (action) {
+		if (isBookingCheckout) {
+			form.dataset.bookingSubmitting = "1";
+			$(form).attr("aria-busy", "true");
+		}
 		// If action
 		let form_data = new FormData(form);
 		form_data = appendGlobalCsrfToFormData(form_data);
@@ -216,6 +224,10 @@ function submitFormAjax(form) {
 
 				if (res.status) {
 					clearWizardStepErrors(form);
+					if (isBookingCheckout && res.redirect) {
+						window.location.assign(res.redirect);
+						return;
+					}
 
 					// Display success message
 					toastr.success(res.msg, res?.title ?? "Success", {
@@ -248,6 +260,9 @@ function submitFormAjax(form) {
 						hideFormLoader();
 					}, 700);
 				} else {
+					if (isBookingCheckout && res.quote_changed && typeof window.applyBookingCheckoutQuote === "function") {
+						window.applyBookingCheckoutQuote(form, res);
+					}
 					if (res && res.error_steps) {
 						applyWizardStepErrors(form, res.error_steps);
 					}
@@ -276,6 +291,12 @@ function submitFormAjax(form) {
 					progressBar: true,
 					timeOut: 5000,
 				});
+			},
+			complete: function () {
+				if (isBookingCheckout) {
+					delete form.dataset.bookingSubmitting;
+					$(form).attr("aria-busy", "false");
+				}
 			},
 		});
 	}
@@ -442,7 +463,7 @@ function submitInlineAjax(form, opts) {
 					hideLoading();
 					return;
 				}
-				renderAlert("success", res.msg || "Success");
+				if (!opts.suppressSuccess) renderAlert("success", res.msg || "Success");
 
 				if (resetOnSuccess) {
 					try {
@@ -463,6 +484,7 @@ function submitInlineAjax(form, opts) {
 				fadeOutAlert(successTimeout);
 			} else {
 				hideLoading();
+				if (typeof opts.onError === 'function') opts.onError(res);
 				renderError((res && res.msg) || "Request failed.", res);
 			}
 		},
@@ -639,6 +661,9 @@ $(".form-wizard-ajax").each(function () {
 				return valid;
 			},
 			onStepChanged: function (event, currentIndex, priorIndex) {
+				if (advanced_form.hasClass("booking-wizard-form")) {
+					advanced_form.find("[name='_booking_step']").val(currentIndex);
+				}
 				autoLoadPageHelpers();
 				revealKycStep();
 			},

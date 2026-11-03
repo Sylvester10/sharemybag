@@ -492,6 +492,9 @@ $config['csrf_cookie_name'] = 'q2r_csrf_cookie';
 $config['csrf_expire'] = 7200;
 $config['csrf_regenerate'] = TRUE;
 $config['csrf_exclude_uris'] = array(
+	// Signed gateway webhooks validate their raw payload before any financial mutation.
+	'booking_webhooks/stripe',
+	'booking_webhooks/paystack',
 	// Payment gateway callbacks (Stripe/Paystack webhooks hit these directly)
 	'user_bookings/stripe/.*',
 	'user_bookings/paystack/.*',

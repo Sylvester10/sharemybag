@@ -4,32 +4,36 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
-    <meta name="description" content="<?php echo business_description; ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <?php
+    $page_description = !empty($meta_description) ? $meta_description : business_description;
+    $page_title = !empty($title) ? trim($title) . ' - ' . sub_tagline : business_name . ' - ' . sub_tagline;
+    $canonical_url = rtrim(current_url(), '/');
+    if ($canonical_url === rtrim(base_url(), '/')) {
+        $canonical_url = base_url();
+    }
+    ?>
+
+    <title>Sandbox | <?php echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'); ?></title>
+    <meta name="description" content="<?php echo htmlspecialchars($page_description, ENT_QUOTES, 'UTF-8'); ?>">
     <meta name="author" content="ShareMyBag">
     <meta name="robots" content="noindex, nofollow">
-    <link rel="canonical" href="<?= current_url(); ?>">
-
-    <title>Sandbox | <?php echo $title; ?> - <?php echo sub_tagline; ?></title>
+    <link rel="canonical" href="<?php echo $canonical_url; ?>">
 
     <!-- Open Graph Tags -->
-    <meta property="og:title" content="<?php echo $title; ?>" />
-    <meta property="og:description" content="<?php echo business_description; ?>" />
+    <meta property="og:title" content="<?php echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'); ?>" />
+    <meta property="og:description" content="<?php echo htmlspecialchars($page_description, ENT_QUOTES, 'UTF-8'); ?>" />
     <meta property="og:image" content="<?php echo base_url('assets/website/img/home.jpg'); ?>" />
-    <meta property="og:url" content="<?php echo current_url(); ?>" />
+    <meta property="og:url" content="<?php echo $canonical_url; ?>" />
     <meta property="og:type" content="website" />
 
     <!-- Twitter Card Tags -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="<?php echo $title; ?>" />
-    <meta name="twitter:description" content="<?php echo business_description; ?>" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="<?php echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'); ?>" />
+    <meta name="twitter:description" content="<?php echo htmlspecialchars($page_description, ENT_QUOTES, 'UTF-8'); ?>" />
     <meta name="twitter:image" content="<?php echo base_url('assets/website/img/home.jpg'); ?>" />
-    <meta name="twitter:url" content="<?php echo current_url(); ?>" />
-
-    <meta name="mswebdialog-title" content="<?php echo $title; ?>" />
-    <meta name="mswebdialog-logo" content="<?php echo business_logo; ?>" />
-    <meta name="mswebdialog-header-color" content="#FFF" />
-    <meta name="mswebdialog-newwindowurl" content="*" />
+    <meta name="twitter:url" content="<?php echo $canonical_url; ?>" />
 
     <!--Favicon-->
     <link rel="icon" href="<?php echo business_favicon; ?>" type="image/png" />
@@ -60,7 +64,6 @@
     <!-- Date Picker -->
     <link href="<?php echo base_url(); ?>assets/website/vendor/daterangepicker/daterangepicker.css" rel="stylesheet" />
 
-
     <!-- country flags -->
     <link href="<?php echo base_url(); ?>assets/general/countryflags/dist/flat.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/country-flags-css@1.1.2/dist/flat.min.css" rel="stylesheet">
@@ -74,11 +77,52 @@
     <link rel="stylesheet" href="<?php echo base_url('assets/website/css/landing-refresh.css'); ?>?v=<?php echo filemtime(FCPATH . 'assets/website/css/landing-refresh.css'); ?>" />
 
     <!-- schema -->
-    <?php if (isset($schema)): ?>
-        <script type="application/ld+json">
-            <?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); ?>
-        </script>
-    <?php endif; ?>
+    <?php
+    if (empty($schema)) {
+        $schema = [
+            "@context" => "https://schema.org",
+            "@graph" => [
+                [
+                    "@type" => "WebSite",
+                    "@id" => base_url() . "#website",
+                    "name" => "Share My Bag",
+                    "alternateName" => ["ShareMyBag", "Share My Bag UK", "Share My Bag Nigeria"],
+                    "url" => base_url()
+                ],
+                [
+                    "@type" => "DeliveryService",
+                    "@id" => base_url() . "#organization",
+                    "name" => business_name,
+                    "alternateName" => "Share My Bag",
+                    "url" => base_url(),
+                    "logo" => business_logo,
+                    "description" => business_description,
+                    "areaServed" => [
+                        ["@type" => "Country", "name" => "United Kingdom"],
+                        ["@type" => "Country", "name" => "Nigeria"],
+                        ["@type" => "Country", "name" => "Canada"]
+                    ],
+                    "contactPoint" => [
+                        [
+                            "@type" => "ContactPoint",
+                            "telephone" => business_phone_number,
+                            "contactType" => "Customer Service",
+                            "areaServed" => ["GB", "NG", "CA"],
+                            "availableLanguage" => ["English"]
+                        ]
+                    ],
+                    "sameAs" => [
+                        business_facebook,
+                        business_instagram
+                    ]
+                ]
+            ]
+        ];
+    }
+    ?>
+    <script type="application/ld+json">
+        <?php echo json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); ?>
+    </script>
 </head>
 
 <body>
@@ -105,71 +149,59 @@
     </style>
     <span class="sandbox-badge sandbox-badge--public"><i class="las la-flask" aria-hidden="true"></i> Sandbox</span>
 
-    <!-- Pre-Loader -->
-    <!-- <div class="preloader"></div> -->
 
-    <!-- preloader start -->
+    <!-- Pre-Loader -->
     <div id="preloader" class="bg-light-subtle">
         <div class="preloader-wrap">
             <div class="loading-bar"></div>
         </div>
     </div>
-    <!-- preloader end -->
 
     <?php if (!empty($policy_page) || !empty($traveller_page)): ?>
-    <header class="smb-policy-header">
-        <div class="container">
-            <a class="smb-policy-logo" href="<?= base_url(); ?>"><img src="<?= business_logo; ?>" width="101" height="63" alt="ShareMyBag home"></a>
-            <nav aria-label="Main navigation">
-                <a class="smb-policy-traveller" href="<?= base_url('travellers'); ?>">I'm a Traveller</a>
-                <a class="smb-policy-login" href="<?= base_url('signin'); ?>">Login <i class="las la-sign-in-alt" aria-hidden="true"></i></a>
-            </nav>
-        </div>
-    </header>
+        <header class="smb-policy-header">
+            <div class="container">
+                <a class="smb-policy-logo" href="<?php echo base_url(); ?>"><img src="<?php echo business_logo; ?>" width="101" height="63" alt="ShareMyBag home"></a>
+                <nav aria-label="Main navigation">
+                    <a class="smb-policy-traveller" href="<?php echo base_url('travellers'); ?>">I'm a Traveller</a>
+                    <a class="smb-policy-login" href="<?php echo base_url('signin'); ?>">Login <i class="las la-sign-in-alt" aria-hidden="true"></i></a>
+                </nav>
+            </div>
+        </header>
     <?php else: ?>
-    <!-- Header Area -->
-    <?php if (empty($traveller_page) && ($this->router->fetch_class() !== 'home' || !in_array($this->router->fetch_method(), ['index', 'success'], true))): ?>
-    <div class="header-area absolute-header">
-        <div class="sticky-area">
-            <div class="navigation">
-                <div class="container-fluid">
-                    <div class="header-inner-box">
-                        <div class="logo">
-                            <a class="navbar-Solar" href="<?php echo base_url(); ?>"><img src="<?php echo business_logo_white; ?>" width="101" height="63" alt="Sharemybag"></a>
-                        </div>
-
-                        <div class="main-menu">
-                            <nav class="navbar navbar-expand-lg">
-                                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                                    <span class="navbar-toggler-icon"></span>
-                                    <span class="navbar-toggler-icon"></span>
-                                    <span class="navbar-toggler-icon"></span>
-                                </button>
-
-                                <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
-                                    <ul class="navbar-nav m-auto">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="<?php echo base_url('travellers'); ?>">I'm a Traveller</a>
-                                        </li>
-                                        <!-- <li class="nav-item">
-                                            <a class="nav-link" href="<?php echo base_url('investors'); ?>">Investors</a>
-                                        </li> -->
-                                        <li class="nav-item">
-                                            <a href="<?php echo base_url('signin'); ?>" class="login-btn primary">Login</a>
-                                        </li>
-                                    </ul>
+        <?php if (empty($traveller_page) && ($this->router->fetch_class() !== 'home' || !in_array($this->router->fetch_method(), ['index', 'success'], true))): ?>
+            <div class="header-area absolute-header">
+                <div class="sticky-area">
+                    <div class="navigation">
+                        <div class="container-fluid">
+                            <div class="header-inner-box">
+                                <div class="logo">
+                                    <a class="navbar-Solar" href="<?php echo base_url(); ?>"><img src="<?php echo business_logo_white; ?>" width="101" height="63" alt="Sharemybag"></a>
                                 </div>
-                            </nav>
+                                <div class="main-menu">
+                                    <nav class="navbar navbar-expand-lg">
+                                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                            <span class="navbar-toggler-icon"></span>
+                                            <span class="navbar-toggler-icon"></span>
+                                            <span class="navbar-toggler-icon"></span>
+                                        </button>
+                                        <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
+                                            <ul class="navbar-nav m-auto">
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="<?php echo base_url('travellers'); ?>">I'm a Traveller</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="<?php echo base_url('signin'); ?>" class="login-btn primary">Login</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </nav>
+                                </div>
+                            </div>
                         </div>
-
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <?php endif; ?>
-
+        <?php endif; ?>
     <?php endif; ?>
 
     <!-- Traveller search shares the estimate dialog shell. -->

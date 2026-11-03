@@ -60,28 +60,23 @@
 
     <?php endif; ?>
 
-    <!-- Search loading skeletons mirror the traveller result cards. -->
-    <div class="traveller-search-skeleton d-none mb-0" id="search-spinner" role="status" aria-live="polite" aria-label="Finding available travellers">
-        <span class="visually-hidden">Finding available travellers...</span>
-        <div class="traveller-results-grid" aria-hidden="true">
-            <?php for ($skeleton = 0; $skeleton < 3; $skeleton++): ?>
-                <article class="traveller-result-card traveller-result-card-skeleton">
-                    <div class="traveller-skeleton-block traveller-skeleton-visual"></div>
-                    <div class="traveller-card-content">
-                        <div class="traveller-skeleton-block traveller-skeleton-title"></div>
-                        <div class="traveller-skeleton-meta">
-                            <div class="traveller-skeleton-block"></div>
-                            <div class="traveller-skeleton-block"></div>
-                            <div class="traveller-skeleton-block"></div>
-                        </div>
-                    </div>
-                    <div class="traveller-skeleton-block traveller-skeleton-action"></div>
-                </article>
-            <?php endfor; ?>
-        </div>
+    <div class="traveller-search-loading d-none" id="search-spinner" role="status" aria-live="polite">
+        <svg class="traveller-book" viewBox="0 0 96 80" width="96" height="80" aria-hidden="true" focusable="false">
+            <path class="traveller-book-cover" d="M7 27Q28 22 48 32Q68 22 89 27V69Q68 65 48 73Q28 65 7 69Z" />
+            <path class="traveller-book-paper" d="M11 23Q31 18 48 30V67Q30 57 11 63Z" />
+            <path class="traveller-book-paper" d="M48 30Q65 18 85 23V63Q66 57 48 67Z" />
+            <path class="traveller-book-spine" d="M48 30V69" />
+            <g class="traveller-book-page traveller-book-page--back">
+                <path d="M48 29Q63 15 82 19V58Q63 55 48 67Z" />
+            </g>
+            <g class="traveller-book-page traveller-book-page--front">
+                <path d="M48 29Q56 9 72 6V44Q57 49 48 67Z" />
+            </g>
+        </svg>
+        <p class="fs-3 mb-0">Searching for travellers…</p>
     </div>
 
-    <div class="card search-results-card">
+    <div class="card search-results-card d-none">
         <div class="card-body">
             <div id="search-results" aria-live="polite"></div>
         </div>

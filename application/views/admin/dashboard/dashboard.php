@@ -1,4 +1,11 @@
 <?php
+// Session-owned intent token also protects these forms when global CSRF is disabled.
+$mail_token = (string) $this->session->userdata('admin_mail_token');
+if ($mail_token === '') {
+    $mail_token = bin2hex(random_bytes(32));
+    $this->session->set_userdata('admin_mail_token', $mail_token);
+}
+$mail_hidden = array('admin_mail_token' => $mail_token);
 $tiles = array(
     array('icon' => 'las la-users', 'value' => $total_users, 'label' => 'Total Users'),
     array('icon' => 'las la-suitcase-rolling', 'value' => $total_approved_travellers, 'label' => 'Approved Travellers'),
@@ -24,7 +31,7 @@ $this->load->view('admin/partials/stat_tiles', array('tiles' => $tiles));
 					<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 
 						<?php
-						echo form_open('message/send_email', 'id="submit_button"'); ?>
+						echo form_open('message/send_email', 'id="submit_button"', $mail_hidden); ?>
 
 						<h3 class="m-b-30 text-bold tw-noselect">Quick Mail</h3>
 						<div class="form-group">
@@ -61,7 +68,7 @@ $this->load->view('admin/partials/stat_tiles', array('tiles' => $tiles));
 					<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 
 						<?php
-						echo form_open('message/send_bulk_mail', 'id="submit_buttons"'); ?>
+						echo form_open('message/send_bulk_mail', 'id="submit_buttons"', $mail_hidden); ?>
 
 						<h3 class="m-b-30 text-bold">Bulk Mail</h3>
 						<div class="form-group">
@@ -85,7 +92,7 @@ $this->load->view('admin/partials/stat_tiles', array('tiles' => $tiles));
 
 						<div class="form-group">
 							<button type="submit" id="send_mail_btns" class="btn btn-lg btn-primary">
-								<span id="btn_texts">Send Mail</span>
+								<span id="btn_texts">Queue Mail</span>
 								<span id="loading_icons" style="display: none;"><i class="las la-spinner la-spin"></i></span>
 							</button>
 						</div>

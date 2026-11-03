@@ -1,17 +1,6 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-
-/* ===== Documentation ===== 
-Name: Seo
-Role: Controller
-Description: Serves sitemap, robots, and schema endpoints
-Author: Sylvester Esso Nmakwe
-Date Created: 25th July, 2025
-*/
-
-
-
 class Seo extends MY_Controller
 {
     public function __construct()
@@ -19,26 +8,25 @@ class Seo extends MY_Controller
         parent::__construct();
     }
 
-
     public function sitemap()
     {
-        $this->output->set_content_type('application/xml', 'utf-8')->set_output(
-            $this->load->view('sitemap.xml', [
-                'pages' => [
-                    base_url(),
-                    base_url('travellers'),
-                    base_url('investors'),
-                    base_url('prohibited-items'),
-                    base_url('terms-of-use'),
-                    base_url('terms-and-conditions'),
-                    base_url('privacy-policy'),
-                    base_url('cookies'),
-                    base_url('traveller-agreement'),
-                    base_url('signin'),
-                ],
-                'lastmod' => date('Y-m-d')
-            ], true)
-        );
+        $pages = [
+            ['loc' => base_url(), 'lastmod' => '2026-11-02'],
+            ['loc' => base_url('travellers'), 'lastmod' => '2026-11-02'],
+            ['loc' => base_url('track'), 'lastmod' => '2026-11-02'],
+            ['loc' => base_url('investors'), 'lastmod' => '2026-11-02'],
+            ['loc' => base_url('prohibited-items'), 'lastmod' => '2026-11-02'],
+            ['loc' => base_url('waiver'), 'lastmod' => '2026-11-02'],
+            ['loc' => base_url('traveller-agreement'), 'lastmod' => '2026-10-01'],
+            ['loc' => base_url('terms-of-use'), 'lastmod' => '2026-10-01'],
+            ['loc' => base_url('terms-and-conditions'), 'lastmod' => '2026-10-01'],
+            ['loc' => base_url('privacy-policy'), 'lastmod' => '2026-10-01'],
+            ['loc' => base_url('cookies'), 'lastmod' => '2026-10-01'],
+        ];
+
+        $this->output
+            ->set_content_type('application/xml', 'utf-8')
+            ->set_output($this->load->view('sitemap.xml', ['pages' => $pages], true));
     }
 
     public function robots()
@@ -50,34 +38,8 @@ class Seo extends MY_Controller
 
     public function schema()
     {
-        $schema = [
-            "@context" => "https://schema.org",
-            "@type" => "DeliveryService",
-            "name" => business_name,
-            "url" => base_url(),
-            "logo" => business_logo,
-            "contactPoint" => [
-                [
-                    "@type" => "ContactPoint",
-                    "telephone" => business_phone_number,
-                    "contactType" => "Customer Service",
-                    "areaServed" => "NG",
-                    "availableLanguage" => ["English"]
-                ],
-                [
-                    "@type" => "ContactPoint",
-                    "telephone" => business_phone_number2,
-                    "contactType" => "Customer Service",
-                    "areaServed" => "NG",
-                    "availableLanguage" => ["English"]
-                ]
-            ],
-            "sameAs" => [
-                business_facebook,
-                business_instagram,
-            ]
-        ];
-
-        $this->output->set_content_type('application/ld+json', 'utf-8')->set_output(json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        $this->output
+            ->set_content_type('application/ld+json', 'utf-8')
+            ->set_output(json_encode($this->get_schema(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
     }
 }

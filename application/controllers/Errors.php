@@ -7,7 +7,6 @@ Name: Errors
 Role: Controller
 Description: Errors Class controls error pages such as error404 and no_js
 Model: (None)
-Author: Sylvester
 Date Created: 17th April, 2018
 */
 

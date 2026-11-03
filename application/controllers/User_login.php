@@ -94,6 +94,10 @@ class User_login extends MY_Controller
     public function passwordless_request_ajax()
     {
         $csrf_hash = $this->security->get_csrf_hash();
+        if ($this->input->method() !== 'post') {
+            $this->sendUnavailableChallengeResponse($csrf_hash);
+            return;
+        }
         $isEmail = $this->input->post('identifier_type', TRUE) === 'email';
         $email = strtolower(trim((string) $this->input->post('email', TRUE)));
         $identifier = $isEmail ? $email : $this->submittedLoginPhone();
@@ -117,6 +121,13 @@ class User_login extends MY_Controller
         }
 
         auth_throttle_hit($key, self::CODE_REQUEST_RATE_LIMIT_MAX, self::CODE_RATE_LIMIT_WINDOW);
+        $ip_key = 'passwordless-request:ip:' . get_user_ip();
+        $ip_state = auth_throttle_check($ip_key, 15, self::CODE_RATE_LIMIT_WINDOW);
+        if (!$ip_state['allowed']) {
+            echo json_encode(['status'=>false, 'msg'=>auth_throttle_message($ip_state['retry_after'], 'code request'), 'title'=>'Too Many Requests', 'csrf_hash'=>$csrf_hash]);
+            return;
+        }
+        auth_throttle_hit($ip_key, 15, self::CODE_RATE_LIMIT_WINDOW);
         $user = $this->user_read_model->get_login_user($identifier);
 
         if ($isEmail && $this->resume_pending_registration($user)) { return; }
@@ -131,6 +142,18 @@ class User_login extends MY_Controller
                 $this->sendUnavailableChallengeResponse($csrf_hash);
                 return;
             }
+            $account_keys = [
+                'passwordless-request:account:' . (int) $user->id => [self::CODE_REQUEST_RATE_LIMIT_MAX, self::CODE_RATE_LIMIT_WINDOW],
+                'passwordless-request:cooldown:' . (int) $user->id => [1, 30],
+            ];
+            foreach ($account_keys as $account_key=>$settings) {
+                $account_state = auth_throttle_check($account_key, $settings[0], $settings[1]);
+                if (!$account_state['allowed']) {
+                    echo json_encode(['status'=>false, 'msg'=>auth_throttle_message($account_state['retry_after'], 'code request'), 'title'=>'Too Many Requests', 'csrf_hash'=>$csrf_hash]);
+                    return;
+                }
+            }
+            foreach ($account_keys as $account_key=>$settings) { auth_throttle_hit($account_key, $settings[0], $settings[1]); }
             $code = generate_verification_code();
             $token = $this->auth_challenge_model->createChallenge($user->id, 'login', 'email', strtolower($user->email), $code);
             if (!$token) {

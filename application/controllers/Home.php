@@ -7,19 +7,14 @@ Name: Home
 Role: Controller
 Description: Public website controller for landing, traveller search, booking, and parcel tracking flows
 Models: Travellers_model, Traveller_read_model, Bookings_model, Adverts_model
-Author: Sylvester Esso Nmakwe
 Date Created: 11th April, 2023
-
-UPDATED:
-  - price_estimate(): AJAX endpoint for the landing page price checker popup.
-    Accepts: destination (Nigeria/United Kingdom/Canada), category, weight.
-    Returns: itemised cost breakdown matching the booking summary page.
 */
 
 
 
 class Home extends MY_Controller
 {
+    private const TRAVELLER_CAPTCHA_SESSION_KEY = 'traveller_captcha_code';
     public function __construct()
     {
         parent::__construct();
@@ -34,8 +29,8 @@ class Home extends MY_Controller
 
     public function index()
     {
-        $data['schema'] = $this->get_schema();
-        $this->website_header('Share My Bag', $data);
+        $data['meta_description'] = 'Share My Bag connects verified travellers with spare luggage space to people sending parcels between the UK, Nigeria, and Canada. Fast, affordable peer-to-peer delivery.';
+        $this->website_header('Share My Bag | Peer-to-Peer Parcel Delivery & Luggage Sharing (UK, Nigeria & Canada)', $data);
         $this->load->view('website/new/home', $data);
         $this->website_footer();
     }
@@ -114,7 +109,8 @@ class Home extends MY_Controller
 
     public function track()
     {
-        $this->website_header('Track Parcel');
+        $data['meta_description'] = 'Track your Share My Bag parcel in real time across the UK, Nigeria, and Canada using your unique tracking number.';
+        $this->website_header('Track Your Parcel | Share My Bag', $data);
         $this->load->view('website/track');
         $this->website_footer();
     }
@@ -123,8 +119,9 @@ class Home extends MY_Controller
     public function booking($hash = null)
     {
         if (!$hash) redirect('/');
-        $this->website_header('Booking');
         $data['hash'] = $hash;
+        $data['noindex'] = true; // Never index private booking hashes
+        $this->website_header('Complete Your Booking | Share My Bag', $data);
         $this->load->view('website/booking', $data);
         $this->website_footer();
     }
@@ -132,14 +129,42 @@ class Home extends MY_Controller
 
     public function travellers()
     {
-        $data['captcha_code'] = mt_rand(111111, 999999);
-        $this->website_header('Travellers', ['traveller_page' => true]);
+        $data['captcha_code'] = generate_verification_code();
+        $this->session->set_userdata(self::TRAVELLER_CAPTCHA_SESSION_KEY, $data['captcha_code']);
+        $header_data = [
+            'traveller_page' => true,
+            'meta_description' => 'Flying between the UK, Nigeria, or Canada? Monetize your spare baggage allowance safely with Share My Bag and earn extra income on your next flight.'
+        ];
+        $this->website_header('Earn Money Sharing Your Spare Luggage Space | Share My Bag Travellers', $header_data);
         $this->load->view('website/new/travellers', $data);
         $this->website_footer();
     }
 
     public function add_traveller_ajax()
     {
+        $csrf = $this->security->get_csrf_hash();
+        if ($this->input->method() !== 'post') {
+            echo json_encode(['status' => false, 'msg' => 'Submit the traveller form to continue.', 'csrf_hash' => $csrf]);
+            return;
+        }
+        $throttle_key = 'traveller-request:ip:' . get_user_ip();
+        $limit = auth_throttle_check($throttle_key, 5, 900);
+        if (!$limit['allowed']) {
+            echo json_encode(['status' => false, 'msg' => auth_throttle_message($limit['retry_after'], 'traveller request'), 'csrf_hash' => $csrf]);
+            return;
+        }
+        auth_throttle_hit($throttle_key, 5, 900);
+        $expected_captcha = (string) $this->session->userdata(self::TRAVELLER_CAPTCHA_SESSION_KEY);
+        $posted_captcha = trim((string) $this->input->post('c_captcha_code', TRUE));
+        if ($expected_captcha === '' || !hash_equals($expected_captcha, $posted_captcha)) {
+            echo json_encode([
+                'status' => false,
+                'msg' => 'Enter the correct captcha code. Reload the page if needed.',
+                'errors' => ['c_captcha_code' => 'Enter the correct captcha code.'],
+                'csrf_hash' => $csrf
+            ]);
+            return;
+        }
         $rules = [
             ['field' => 'fullname', 'label' => 'Full Name', 'rules' => 'trim|required'],
             ['field' => 'travel_date', 'label' => 'Travel Date', 'rules' => 'trim|required'],
@@ -151,8 +176,7 @@ class Home extends MY_Controller
             ['field' => 'available_space', 'label' => 'Bag Space', 'rules' => 'trim|required'],
             ['field' => 'c_code2', 'label' => 'Alternate Country Code', 'rules' => 'trim'],
             ['field' => 'alt_phone', 'label' => 'Alternate Phone Number', 'rules' => 'trim'],
-            ['field' => 'captcha_code', 'label' => 'Captcha Code', 'rules' => 'trim'],
-            ['field' => 'c_captcha_code', 'label' => 'Captcha Code', 'rules' => 'trim|required|matches[captcha_code]']
+            ['field' => 'c_captcha_code', 'label' => 'Captcha Code', 'rules' => 'trim|required']
         ];
 
         foreach ($rules as $rule) {
@@ -292,73 +316,84 @@ class Home extends MY_Controller
     }
 
 
-
-    public function investors()
-    {
-        $this->website_header('Investors');
-        $this->load->view('website/investors');
-        $this->website_footer();
-    }
-
-
     public function traveller_agreement()
     {
-        $this->website_header('Traveller Agreement');
+        $data['meta_description'] = 'Read the Share My Bag Traveller Agreement outlining responsibilities, customs compliance, and payout terms for verified travellers.';
+        $this->website_header('Traveller Agreement | Share My Bag', $data);
         $this->load->view('website/traveller_agreement');
         $this->website_footer();
     }
 
     public function waiver()
     {
-        $this->website_header('Liability Waiver', ['policy_page' => true]);
+        $data = [
+            'policy_page' => true,
+            'meta_description' => 'Review the Share My Bag Liability Waiver regarding parcel protection, declared item values, and shipping terms.'
+        ];
+        $this->website_header('Liability Waiver | Share My Bag', $data);
         $this->load->view('website/new/waiver');
         $this->website_footer();
     }
 
-
     public function prohibited()
     {
-        $this->website_header('Prohibited Items', ['policy_page' => true]);
+        $data = [
+            'policy_page' => true,
+            'meta_description' => 'Check the list of prohibited and restricted items not permitted in Share My Bag luggage shipments between the UK, Nigeria, and Canada.'
+        ];
+        $this->website_header('Prohibited & Restricted Shipping Items | Share My Bag', $data);
         $this->load->view('website/new/prohibited');
         $this->website_footer();
     }
 
-
     public function terms_of_use()
     {
-        $this->website_header('Terms of Use', ['policy_page' => true]);
+        $data = [
+            'policy_page' => true,
+            'meta_description' => 'Website Terms of Use governing access to the Share My Bag platform and services.'
+        ];
+        $this->website_header('Terms of Use | Share My Bag', $data);
         $this->load->view('website/new/terms_use');
         $this->website_footer();
     }
 
-
     public function terms_conditions()
     {
-        $this->website_header('Terms & Conditions', ['policy_page' => true]);
+        $data = [
+            'policy_page' => true,
+            'meta_description' => 'General Terms and Conditions for senders and travellers using Share My Bag parcel delivery services.'
+        ];
+        $this->website_header('Terms & Conditions | Share My Bag', $data);
         $this->load->view('website/new/terms_conditions');
         $this->website_footer();
     }
 
-
     public function policy()
     {
-        $this->website_header('Privacy Policy', ['policy_page' => true]);
+        $data = [
+            'policy_page' => true,
+            'meta_description' => 'Learn how Share My Bag collects, protects, and processes your personal data in compliance with UK GDPR and NDPR.'
+        ];
+        $this->website_header('Privacy Policy | Share My Bag', $data);
         $this->load->view('website/new/policy');
         $this->website_footer();
     }
 
-
     public function cookies()
     {
-        $this->website_header('Cookies', ['policy_page' => true]);
+        $data = [
+            'policy_page' => true,
+            'meta_description' => 'Information about how Share My Bag uses essential and analytical cookies on our website.'
+        ];
+        $this->website_header('Cookie Policy | Share My Bag', $data);
         $this->load->view('website/new/cookies');
         $this->website_footer();
     }
 
-
     public function success()
     {
-        $this->website_header('Payment Successful');
+        // Prevent duplicate content indexing of the home view on /success
+        $this->website_header('Payment Successful | Share My Bag', ['noindex' => true]);
         $this->load->view('website/new/home');
         $this->website_footer();
     }

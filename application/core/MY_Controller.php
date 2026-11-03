@@ -6,7 +6,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 Name: MY_Controller
 Role: Core (super) Controller
 Description: MY_Controller Class is the super class that holds global info accessible to the regular controller and model classes. The headers and footers for Site, Admin and Customer are created here. Database, libraries and helpers used by the app are loaded here. This class extends the main CI controller, and at such, every other controller inherits it.
-Author: Sylvester Esso Nmakwe
 Date Created: 4th January, 2020
 
 UPDATED: Added employee role-based access control methods.
@@ -76,12 +75,15 @@ class MY_Controller extends CI_Controller
 	}
 
 
-	/* ===== Website layout===== */
-	public function website_header($title, $data = [])
-	{
-		$data['title'] = $title;
-		return $this->load->view('website/new/layout/header', $data);
-	}
+    /* ===== Website layout===== */
+    public function website_header($title, $data = [])
+    {
+        $data['title'] = $title;
+        if (!isset($data['schema'])) {
+            $data['schema'] = $this->get_schema();
+        }
+        return $this->load->view('website/new/layout/header', $data);
+    }
 
 
 	public function website_footer()
@@ -380,35 +382,54 @@ class MY_Controller extends CI_Controller
 	}
 
 
-	// Schema
-	protected function get_schema()
-	{
-		return [
-			"@context" => "https://schema.org",
-			"@type" => "DeliveryService",
-			"name" => business_name,
-			"url" => base_url(),
-			"logo" => business_logo,
-			"contactPoint" => [
-				[
-					"@type" => "ContactPoint",
-					"telephone" => business_phone_number,
-					"contactType" => "Customer Service",
-					"areaServed" => "NG",
-					"availableLanguage" => ["English"]
-				],
-				[
-					"@type" => "ContactPoint",
-					"telephone" => business_phone_number2,
-					"contactType" => "Customer Service",
-					"areaServed" => "NG",
-					"availableLanguage" => ["English"]
-				]
-			],
-			"sameAs" => [
-				business_facebook,
-				business_instagram,
-			]
-		];
-	}
+    // Schema
+    protected function get_schema()
+    {
+        return [
+            "@context" => "https://schema.org",
+            "@graph" => [
+                [
+                    "@type" => "WebSite",
+                    "@id" => base_url() . "#website",
+                    "name" => "Share My Bag",
+                    "alternateName" => ["ShareMyBag", "Share My Bag UK", "Share My Bag Nigeria"],
+                    "url" => base_url()
+                ],
+                [
+                    "@type" => "DeliveryService",
+                    "@id" => base_url() . "#organization",
+                    "name" => business_name,
+                    "alternateName" => "Share My Bag",
+                    "url" => base_url(),
+                    "logo" => business_logo,
+                    "description" => business_description,
+                    "areaServed" => [
+                        ["@type" => "Country", "name" => "United Kingdom"],
+                        ["@type" => "Country", "name" => "Nigeria"],
+                        ["@type" => "Country", "name" => "Canada"]
+                    ],
+                    "contactPoint" => [
+                        [
+                            "@type" => "ContactPoint",
+                            "telephone" => business_phone_number,
+                            "contactType" => "Customer Service",
+                            "areaServed" => ["GB", "NG", "CA"],
+                            "availableLanguage" => ["English"]
+                        ],
+                        [
+                            "@type" => "ContactPoint",
+                            "telephone" => business_phone_number2,
+                            "contactType" => "Customer Service",
+                            "areaServed" => ["GB", "NG", "CA"],
+                            "availableLanguage" => ["English"]
+                        ]
+                    ],
+                    "sameAs" => [
+                        business_facebook,
+                        business_instagram,
+                    ]
+                ]
+            ]
+        ];
+    }
 }

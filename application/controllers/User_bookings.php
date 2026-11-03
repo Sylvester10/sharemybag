@@ -15,6 +15,7 @@ class User_bookings extends MY_Controller
         $this->load->model('traveller_read_model');
         $this->load->model('user_bookings_model');
         $this->load->model('travellers_model');
+        $this->load->library('booking_checkout_flow');
         $this->user_details = $this->user_read_model->get_user_details($this->session->email);
         $this->traveller_details = $this->traveller_read_model->get_traveller_details_by_id($this->session->id);
     }
@@ -23,6 +24,16 @@ class User_bookings extends MY_Controller
 
     public function index()
     {
+        $from = $this->input->get('from_booking',true);
+        if ($from) {
+            $booking = $this->booking_checkout_flow->owned_booking($from,$this->user_details->id);
+            $this->load->model('booking_checkout_model');
+            $checkout = $booking && $this->booking_checkout_model->ready() ? $this->booking_checkout_model->checkout($booking->id,$this->user_details->id) : null;
+            $form = $checkout ? json_decode($checkout->form_data,true) : null;
+            if (is_array($form)) {
+                $this->session->set_userdata('booking_prefill',['form'=>booking_checkout_form($form),'expires'=>time()+900]);
+            }
+        }
         $this->dashboard_header('Search Travellers');
         $id = $this->user_details->id;
         $data['is_verified'] = $this->user_details->is_verified;
@@ -114,6 +125,27 @@ class User_bookings extends MY_Controller
             return;
         }
 
+        $resume_hash = $this->input->get('resume', true);
+        $data['booking_restore'] = [];
+        $data['resume_booking'] = null;
+        if ($resume_hash) {
+            $booking = $this->booking_checkout_flow->owned_booking($resume_hash,$this->user_details->id);
+            $restore = $this->booking_checkout_flow->restore($booking,$this->user_details->id);
+            if (empty($restore['status']) || (int)$booking->traveller_id !== (int)$traveller->id) {
+                $this->session->set_flashdata('status_error',$restore['msg'] ?? 'This booking is unavailable.');
+                redirect('history'); return;
+            }
+            $data['booking_restore'] = $restore['form'];
+            $data['resume_booking'] = $booking;
+            $this->output->set_header('Cache-Control: no-store');
+        } else {
+            $prefill = $this->session->userdata('booking_prefill');
+            if (is_array($prefill) && ($prefill['expires'] ?? 0) > time()) {
+                $data['booking_restore'] = $prefill['form'];
+            }
+        }
+        $data['resume_token'] = $this->booking_checkout_flow->intent();
+        $data['booking_request_id'] = $this->booking_checkout_flow->new_request($traveller->id);
         $this->dashboard_header('Buy Space');
         $data['user_details'] = $this->user_details;
         $data['user_id'] = $this->user_details->id;
@@ -152,6 +184,10 @@ class User_bookings extends MY_Controller
     public function add_booking_ajax()
     {
         $csrf_hash = $this->security->get_csrf_hash();
+        $post = $this->input->post(null,true);
+        if ($this->input->method() !== 'post' || !is_array($post) || !$this->booking_checkout_flow->valid_intent($post)) {
+            $this->checkout_json(['status'=>false,'msg'=>'Reload the booking page and try again.']); return;
+        }
         // Traveller details validation
         $this->form_validation->set_rules('traveller_id', 'Traveller ID', 'trim|is_natural_no_zero');
         $this->form_validation->set_rules('traveller_name', 'Traveller Name', 'trim');
@@ -187,307 +223,106 @@ class User_bookings extends MY_Controller
         $this->form_validation->set_rules('receiver_postcode', 'receiver Postcode', 'trim');
         $this->form_validation->set_rules('payment_method', 'Payment Method', 'trim|required|in_list[stripe,paystack]', array('required' => 'Please select a payment method', 'in_list' => 'Invalid payment method selected.'));
 
-        $payment_method = $this->input->post('payment_method');
-
-        // Check if form validation passes
-        if ($this->form_validation->run()) {
-
-            // Get user details
-            $user_id = $this->user_details->id;
-            $fullname = $this->user_details->firstname . ' ' . $this->user_details->lastname;
-            $email = $this->user_details->email;
-            // get agent and receiver details
-            $agent_name = $this->input->post('agent_name');
-            $receiver_name = $this->input->post('receiver_name');
-            $traveller_id = $this->input->post('traveller_id');
-
-            // Agent cannot be the same as receiver
-            if ($agent_name == $receiver_name) {
-                $res = [
-                    'status' => false,
-                    'msg' => 'Enter different details for the agent and receiver.',
-                    'title' => 'Booking Error',
-                    'msg_timeout' => 6000,
-                    'csrf_hash' => $csrf_hash,
-                ];
-                echo json_encode($res);
-                return;
-            };
-
-            $traveller_details = $this->traveller_read_model->get_traveller_details_by_id($traveller_id);
-            if (
-                !$traveller_details ||
-                $traveller_details->status !== 'Approved' ||
-                !$this->traveller_read_model->is_bookable_by_cutoff($traveller_details)
-            ) {
-                echo json_encode([
-                    'status' => false,
-                    'msg' => 'This traveller is no longer available. Search for another traveller to continue.',
-                    'title' => 'Traveller Unavailable',
-                    'msg_timeout' => 6000,
-                    'csrf_hash' => $csrf_hash,
-                ]);
-                return;
-            }
-
-            $calculations = json_decode($this->input->post('price_calculations'));
-            $selected_space = $calculations->selectedSpace; // Use selectedSpace from calculations for accuracy
-            $_POST['traveller_commission'] = $this->users_model->calculate_traveller_commission(
-                $traveller_details,
-                $selected_space,
-                $this->input->post('items')
-            );
-
-            $booking = $this->users_model->add_booking_to_db($user_id, $fullname, $email);
-
-            // Safely retrieve exchange rates
-            $cad_rate_obj = $this->finance_read_model->get_most_recent_cad_exchange_rate();
-            $pound_rate_obj = $this->finance_read_model->get_most_recent_pound_exchange_rate();
-
-            $cad_rate = $cad_rate_obj ? $cad_rate_obj->rate : 0;
-            $pound_rate = $pound_rate_obj ? $pound_rate_obj->rate : 0;
-
-            // Get traveller details (only needed for route title)
-            $traveller = $this->traveller_read_model->get_traveller_details_by_id($booking->traveller_id);
-
-            if ($booking) {
-                $currency = currency_code_normalize($booking->currency);
-                $exchange_rate = ($currency === 'CAD') ? $cad_rate : $pound_rate;
-                $charge_amount = (float) $booking->total_amount;
-                $title_route = $traveller->location . ' - ' . $traveller->destination;
-
-                $ngn_amount = $charge_amount * $exchange_rate;
-                $title = 'Purchasing ' . $booking->selected_space . 'KG Bag Space ' . $title_route;
-
-                if ($payment_method === 'stripe') {
-                    // Create Stripe Checkout session
-                    try {
-                        // Verify Stripe payment using secret key
-                        $stripeSecretKey = get_stripe_secret_key();
-                        \Stripe\Stripe::setApiKey($stripeSecretKey);
-
-                        $checkout_session = \Stripe\Checkout\Session::create([
-                            'line_items' => [[
-                                'price_data' => array(
-                                    'currency' => strtolower($currency),
-                                    'unit_amount' => $charge_amount * 100, // Amount to charge
-                                    'product_data' => array(
-                                        'name' => $title,
-                                        // 'description' => 'This is the test description.',
-                                        // 'images' => [''],
-                                    ),
-
-                                ),
-                                'quantity' => 1,
-                            ]],
-                            'mode' => 'payment',
-                            'success_url' => base_url() . 'user_bookings/stripe/' . $booking->hash . '/1',
-                            'cancel_url' => base_url() . 'user_bookings/stripe/' . $booking->hash . '/0',
-                            'automatic_tax' => [
-                                'enabled' => true,
-                            ],
-                        ]);
-
-                        // Return Stripe session ID to the frontend
-                        $res = [
-                            'status' => true,
-                            'msg' => 'Redirecting to Stripe to complete your payment.',
-                            'title' => 'Booking Initialized',
-                            'msg_timeout' => 5000,
-                            'redirect' => $checkout_session->url,
-                            'csrf_hash' => $csrf_hash,
-                        ];
-
-                        echo json_encode($res);
-                        return;
-                    } catch (Exception $e) {
-                        // Handle Stripe errors
-                        $res = [
-                            'status' => false,
-                            'msg' => 'We could not start your payment right now. Please try again.',
-                            'title' => 'Payment Error.',
-                            'msg_timeout' => 7000,
-                            'csrf_hash' => $csrf_hash,
-                        ];
-                        echo json_encode($res);
-                        return;
-                    }
-                } elseif ($payment_method === 'paystack') {
-                    // Create Paystack Checkout session (Always NGN amount for Paystack)
-                    try {
-                        // Verify Paystack payment using secret key
-                        $paystackSecretKey = get_paystack_secret_key();
-
-                        $reference = 'SMB' . uniqid(); // Unique reference for transaction
-                        $callback_url = base_url() . 'user_bookings/paystack/' . $booking->hash . '?reference=' . $reference;
-
-                        $fields = [
-                            'email' => $email,
-                            'amount' => $ngn_amount * 100, // Convert NGN amount to kobo
-                            'reference' => $reference,
-                            'callback_url' => $callback_url,
-                            'metadata' => [
-                                'booking_id' => $booking->id,
-                                'user_id' => $user_id,
-                                'cancel_action' => base_url('user_bookings/paystack_cancel/' . $booking->hash)
-                                // 'cancel_action' => base_url('history')
-                            ]
-                        ];
-
-                        $fields_string = http_build_query($fields);
-
-                        $ch = curl_init();
-                        curl_setopt($ch, CURLOPT_URL, "https://api.paystack.co/transaction/initialize");
-                        curl_setopt($ch, CURLOPT_POST, true);
-                        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-                        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                            "Authorization: Bearer {$paystackSecretKey}",
-                            "Cache-Control: no-cache",
-                        ));
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                        $result = curl_exec($ch);
-                        $response = json_decode($result);
-
-                        if ($response && $response->status) {
-                            // Save reference and set initial payment status for your tracking
-                            if (!$this->users_model->mark_paystack_initialized($booking->id, $reference, $exchange_rate)) {
-                                throw new Exception('Failed to persist Paystack transaction details.');
-                            }
-
-                            $res = [
-                                'status' => true,
-                                'msg' => 'Redirecting to Paystack to complete your payment.',
-                                'title' => 'Booking Initialized',
-                                'msg_timeout' => 5000,
-                                'redirect' => $response->data->authorization_url,
-                                'csrf_hash' => $csrf_hash,
-                            ];
-                            echo json_encode($res);
-                            return;
-                        } else {
-                            throw new Exception($response->message ?? 'Failed to initialize Paystack payment.');
-                        }
-                    } catch (Exception $e) {
-                        // Handle Paystack errors
-                        $res = [
-                            'status' => false,
-                            'msg' => 'We could not start your payment right now. Please try again.',
-                            'title' => 'Payment Error',
-                            'msg_timeout' => 6000,
-                            'csrf_hash' => $csrf_hash,
-                        ];
-                        echo json_encode($res);
-                        return;
-                    }
-                } else {
-                    $res = [
-                        'status' => false,
-                        'msg' => 'Select a valid payment method to continue.',
-                        'title' => 'Payment Error.',
-                        'msg_timeout' => 6000,
-                        'csrf_hash' => $csrf_hash,
-                    ];
-                    echo json_encode($res);
-                    return;
-                }
-            }
-        } else {
-
-            // Show validation errors
-            $res = [
-                'status' => false,
-                'msg' => first_validation_error('Please complete the booking form and try again.'),
-                'title' => 'Booking Error.',
-                'msg_timeout' => 6000,
-                'csrf_hash' => $csrf_hash,
-            ];
-            echo json_encode($res);
-            return;
+        if (!$this->form_validation->run()) {
+            $this->checkout_json(['status'=>false,'msg'=>first_validation_error('Please complete the booking form.')]); return;
         }
+        if (trim((string)($post['agent_name'] ?? '')) === trim((string)($post['receiver_name'] ?? ''))) {
+            $this->checkout_json(['status'=>false,'msg'=>'Enter different details for the agent and receiver.']); return;
+        }
+        $this->checkout_json($this->booking_checkout_flow->submit($post,$this->user_details));
     }
 
+    public function resume_ajax()
+    {
+        $post = $this->input->post(null,true);
+        if ($this->input->method() !== 'post' || !is_array($post)) {
+            $this->checkout_json(['status'=>false,'msg'=>'Open History and use the booking action to continue.']); return;
+        }
+        $this->checkout_json($this->booking_checkout_flow->resume($post,$this->user_details));
+    }
+
+    private function checkout_json(array $result)
+    {
+        $result['csrf_hash'] = $this->security->get_csrf_hash();
+        $this->output->set_content_type('application/json')->set_output(json_encode($result));
+    }
+
+    public function payment_return($reference = '') { $this->finish_payment_return($reference,false); }
+    public function payment_cancel($reference = '') { $this->finish_payment_return($reference,true); }
+
+    private function finish_payment_return($reference, $close)
+    {
+        $this->load->model('booking_checkout_model');
+        $attempt = $this->booking_checkout_model->ready() ? $this->booking_checkout_model->attempt_by_reference($reference) : null;
+        if (!$attempt || (int)$attempt->user_id !== (int)$this->user_details->id) {
+            $this->set_booking_flash(['status'=>false,'msg'=>'This payment is unavailable.','title'=>'Payment unavailable','redirect'=>'history']);
+            redirect('history'); return;
+        }
+        $this->load->library('booking_payment_reconciler');
+        $result = $this->booking_payment_reconciler->reconcile($attempt,$close);
+        $paid = !empty($result['paid']);
+        $this->set_booking_flash(['status'=>$paid,'booking_id'=>$attempt->booking_id,
+            'msg'=>$paid?'Your booking payment is confirmed.':($result['msg'] ?? 'We are checking this payment.'),
+            'title'=>$paid?'Booking confirmed':'Payment status','redirect'=>$paid?'booking-success':'history']);
+        redirect($paid?'booking-success':'history');
+    }
 
     public function stripe($hash = false, $status = 'No status')
     {
-        $result = $this->users_model->finalize_booking_payment_by_hash($hash, $status == '1');
-        $this->set_booking_flash($result);
-        redirect($result['redirect']);
+        $booking = $this->booking_checkout_flow->owned_booking($hash,$this->user_details->id);
+        if ($booking) {
+            $this->load->model('booking_checkout_model');
+            $attempt = $this->booking_checkout_model->ready() ? $this->booking_checkout_model->latest_attempt($booking->id) : null;
+            if ($attempt) { $this->finish_payment_return($attempt->reference,$status === '0'); return; }
+        }
+        $paid = $booking && payment_status_normalize($booking->payment_status) === 'completed';
+        $this->set_booking_flash(['status'=>$paid,'booking_id'=>$booking->id ?? 0,
+            'msg'=>$paid?'Your booking payment is confirmed.':'This older payment needs verification. Please contact support if you paid.',
+            'title'=>'Payment status','redirect'=>$paid?'booking-success':'history']);
+        redirect($paid?'booking-success':'history');
     }
-
 
     public function paystack($hash = false)
     {
-        $reference = $this->input->get('reference');
-        $booking = $this->user_bookings_model->dataByHash($hash);
-
-        if (!$reference || !$booking) {
-            $this->session->set_flashdata('status_error', 'This payment link is no longer valid.');
-            $this->session->set_flashdata('title', 'Booking Invalid.');
-            $this->session->set_flashdata('msg_timeout', 7000);
-            redirect('history');
+        $booking = $this->booking_checkout_flow->owned_booking($hash,$this->user_details->id);
+        $reference = (string)$this->input->get('reference',true);
+        if (!$booking || !$reference || !hash_equals((string)($booking->paystack_ref ?? ''),$reference)) {
+            $this->session->set_flashdata('status_error','This payment link is unavailable.'); redirect('history'); return;
         }
-
-        if ($booking) {
-
-            // Verify Paystack payment using secret key
-            $secretKey = get_paystack_secret_key();
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "https://api.paystack.co/transaction/verify/" . $reference);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                "Authorization: Bearer {$secretKey}",
-                "Cache-Control: no-cache",
-            ));
-            $result = curl_exec($ch);
-            curl_close($ch);
-
-            $response = json_decode($result);
-            $status = payment_status_normalize(($response && $response->status && $response->data->status === 'success') ? 'completed' : 'canceled');
-
-            if ($status === 'completed') {
-                $result = $this->users_model->finalize_booking_payment_by_hash($hash, true);
-                $this->set_booking_flash($result);
-                redirect($result['redirect']);
-            } else {
-                $result = [
-                    'status' => false,
-                    'msg' => 'Your payment was not completed.',
-                    'title' => 'Booking Cancelled.',
-                    'msg_timeout' => 7000,
-                    'redirect' => 'history',
-                ];
-                $this->set_booking_flash($result);
-                redirect($result['redirect']);
-            }
+        $this->load->model('booking_checkout_model');
+        $attempt = $this->booking_checkout_model->ready() ? $this->booking_checkout_model->attempt_by_reference($reference) : null;
+        if ($attempt) { $this->finish_payment_return($reference,false); return; }
+        // Older Paystack bookings retain a server-verifiable reference and expected amount.
+        $this->load->library('booking_payment_gateway');
+        $legacy = (object)['provider'=>'paystack','reference'=>$reference,'booking_id'=>$booking->id,
+            'user_id'=>$booking->user_id,'provider_session_id'=>null,'currency'=>'NGN',
+            'amount_minor'=>(int)round((float)$booking->total_amount*(float)$booking->paystack_exchange_rate*100)];
+        $verified = $this->booking_payment_gateway->verify($legacy);
+        if (($verified['outcome'] ?? '') === 'paid') {
+            $result = $this->users_model->finalize_booking_payment_by_hash($hash,true);
+        } else {
+            $result = ['status'=>false,'title'=>'Payment status','msg'=>'Your payment has not been confirmed. Please check again or contact support.','redirect'=>'history'];
         }
+        $this->set_booking_flash($result); redirect($result['redirect']);
     }
-
 
     public function paystack_cancel($hash = false)
     {
-        if ($hash) {
-            $this->users_model->cancel_booking_payment_by_hash($hash);
+        $booking = $this->booking_checkout_flow->owned_booking($hash,$this->user_details->id);
+        if ($booking) {
+            $this->load->model('booking_checkout_model');
+            $attempt = $this->booking_checkout_model->ready() ? $this->booking_checkout_model->latest_attempt($booking->id) : null;
+            if ($attempt) { $this->finish_payment_return($attempt->reference,true); return; }
         }
-
-        $result = [
-            'status' => false,
-            'msg' => 'You cancelled the payment.',
-            'title' => 'Booking Canceled.',
-            'msg_timeout' => 7000,
-            'redirect' => 'history',
-        ];
-        $this->set_booking_flash($result);
-        redirect($result['redirect']);
+        $this->session->set_flashdata('status_error','Payment was not completed.'); redirect('history');
     }
-
 
     private function set_booking_flash($result)
     {
         $flash_key = !empty($result['status']) ? 'status_success' : 'status_error';
         $this->session->set_flashdata($flash_key, $result['msg']);
         $this->session->set_flashdata('title', $result['title']);
-        $this->session->set_flashdata('msg_timeout', $result['msg_timeout']);
+        $this->session->set_flashdata('msg_timeout', ($result['msg_timeout'] ?? 6000));
 
         if (!empty($result['status']) && !empty($result['booking_id'])) {
             $this->session->set_flashdata('booking_success_id', (int) $result['booking_id']);

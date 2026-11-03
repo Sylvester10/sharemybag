@@ -7,7 +7,6 @@ Name: Admin_bookings
 Role: Controller
 Description: Controls access to Booking pages and functions in admin panel
 Models: Bookings_model
-Author: Sylvester Esso Nmakwe
 Date Created: 10th May, 2023
 
 UPDATED:
@@ -522,8 +521,9 @@ class Admin_bookings extends MY_Controller
             return;
         }
 
-        $this->bookings_model->confirm_booking($id);
-        $this->session->set_flashdata('status_msg', 'Booking Confirmed Successfully.');
+        $confirmed = $this->bookings_model->confirm_booking($id);
+        $this->session->set_flashdata($confirmed ? 'status_msg' : 'status_msg_error',
+            $confirmed ? 'Booking Confirmed Successfully.' : 'Booking could not be confirmed. Please try again.');
         redirect($this->agent->referrer());
     }
 

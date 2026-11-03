@@ -80,7 +80,7 @@
 
                             <div class="price-feature-col pricing-action-info p-5 right-radius bg-light-subtle order-0 order-lg-1">
                                 <a href="<?php echo base_url(); ?>" class="mb-5 d-block d-xl-none d-lg-none"><img src="<?= business_logo ?>" alt="logo" width="150" class="img-fluid"></a>
-                                <div class="mb-3" style="color:#f36b24" aria-hidden="true"><i class="fas fa-envelope-open-text fa-2x"></i></div>
+                                <div class="auth-email-icon mb-3" aria-hidden="true"><i class="fas fa-envelope-open-text fa-2x"></i></div>
                                 <h1 class="h3"><?= $resume_token ? 'Welcome back' : 'Continue registration' ?></h1>
                                 <p class="text-muted"><?= $resume_token ? 'Your details are saved. Get a new verification code to finish your registration.' : ($expired_link ? 'This link has expired or is no longer available. Enter your email to continue, or sign in if you have already finished.' : 'Enter the email you used to start registration.') ?></p>
                                 <div class="mt-4 register-form">

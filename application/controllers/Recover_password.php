@@ -28,8 +28,19 @@ class Recover_password extends MY_Controller
     public function password_recovery_ajax()
     {
         $csrf_hash = $this->security->get_csrf_hash();
+        if ($this->input->method() !== 'post') {
+            echo json_encode(['status'=>false, 'msg'=>'Submit the form to request a password reset.', 'csrf_hash'=>$csrf_hash]);
+            return;
+        }
         $this->form_validation->set_rules('email', ' Email', 'trim|required|valid_email');
-        $email = $this->input->post('email', TRUE);
+        $email = strtolower(trim((string) $this->input->post('email', TRUE)));
+        $ip_key = 'password-recovery:ip:' . get_user_ip();
+        $ip_state = auth_throttle_check($ip_key, 15, self::RECOVERY_RATE_LIMIT_WINDOW);
+        if (!$ip_state['allowed']) {
+            echo json_encode(['status'=>false, 'msg'=>auth_throttle_message($ip_state['retry_after'], 'password recovery'), 'csrf_hash'=>$csrf_hash]);
+            return;
+        }
+        auth_throttle_hit($ip_key, 15, self::RECOVERY_RATE_LIMIT_WINDOW);
         $recovery_throttle_key = 'password-recovery:' . get_user_ip() . ':' . strtolower(trim((string) $email));
         $recovery_throttle_state = auth_throttle_check($recovery_throttle_key, self::RECOVERY_RATE_LIMIT_MAX, self::RECOVERY_RATE_LIMIT_WINDOW);
         if (!$recovery_throttle_state['allowed']) {
@@ -50,6 +61,28 @@ class Recover_password extends MY_Controller
             if ($email_exists) {
 
                 $y = $this->user_read_model->get_user_details($email);
+                if (!$y || (int) $y->account_status !== 1 || !empty($y->deleted_at)) {
+                    echo json_encode(['status'=>false, 'msg'=>'We could not send reset instructions for this account.', 'field'=>'email', 'csrf_hash'=>$csrf_hash]);
+                    return;
+                }
+                if (empty($y->password)) {
+                    echo json_encode(['status'=>false, 'msg'=>'Your registration is not complete. Enter your email on the sign-in page to continue registration.', 'field'=>'email', 'csrf_hash'=>$csrf_hash]);
+                    return;
+                }
+                $account_keys = [
+                    'password-recovery:account:' . sha1(strtolower($y->email)) => [self::RECOVERY_RATE_LIMIT_MAX, self::RECOVERY_RATE_LIMIT_WINDOW],
+                    'password-recovery:cooldown:' . sha1(strtolower($y->email)) => [1, 30],
+                ];
+                foreach ($account_keys as $key=>$settings) {
+                    $state = auth_throttle_check($key, $settings[0], $settings[1]);
+                    if (!$state['allowed']) {
+                        echo json_encode(['status'=>false, 'msg'=>auth_throttle_message($state['retry_after'], 'password recovery'), 'field'=>'email', 'csrf_hash'=>$csrf_hash]);
+                        return;
+                    }
+                }
+                // Count attempted sends before contacting SMTP, including failed attempts.
+                foreach ($account_keys as $key=>$settings) { auth_throttle_hit($key, $settings[0], $settings[1]); }
+                auth_throttle_hit($recovery_throttle_key, self::RECOVERY_RATE_LIMIT_MAX, self::RECOVERY_RATE_LIMIT_WINDOW);
                 $user_id = $y->id;
                 $data['firstname'] = $y->firstname;
                 $pass_reset_code = $y->pass_reset_code;
@@ -59,18 +92,17 @@ class Recover_password extends MY_Controller
                 $data['pass_reset_code'] = $pass_reset_code;
 
                 // Send email to User
-                send_email_notification($this, $email, 'Reset Password', $data, 'password_recovery_email');
-                auth_throttle_hit($recovery_throttle_key, self::RECOVERY_RATE_LIMIT_MAX, self::RECOVERY_RATE_LIMIT_WINDOW);
+                $sent = send_email_notification($this, $y->email, 'Reset Password', $data, 'password_recovery_email');
 
                 $res = [
-                    'status' => true,
-                    'msg' => "We have sent password reset instructions to $email.",
-                    'title' => 'Check Your Email',
+                    'status' => $sent,
+                    'msg' => $sent ? "We have sent password reset instructions to $email." : 'We could not send password reset instructions. Please try again later.',
+                    'title' => $sent ? 'Check Your Email' : 'Email Not Sent',
                     'msg_timeout' => 7000,
                     'csrf_hash' => $csrf_hash
                 ];
                 echo json_encode($res);
-                die;
+                return;
             } else {
                 auth_throttle_hit($recovery_throttle_key, self::RECOVERY_RATE_LIMIT_MAX, self::RECOVERY_RATE_LIMIT_WINDOW);
                 $res = [
@@ -82,7 +114,7 @@ class Recover_password extends MY_Controller
                     'csrf_hash' => $csrf_hash
                 ];
                 echo json_encode($res);
-                die;
+                return;
             }
         } else { //form validation is not successful
             auth_throttle_hit($recovery_throttle_key, self::RECOVERY_RATE_LIMIT_MAX, self::RECOVERY_RATE_LIMIT_WINDOW);

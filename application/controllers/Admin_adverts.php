@@ -7,7 +7,6 @@ Name: Admin_adverts
 Role: Controller
 Description: Controls access to Adverts pages and functions in admin panel
 Models: Adverts_model
-Author: Sylvester Esso Nmakwe
 Date Created: 10th May, 2023
 */
 

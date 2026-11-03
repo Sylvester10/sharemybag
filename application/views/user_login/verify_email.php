@@ -80,9 +80,10 @@
 
                             <div class="price-feature-col pricing-action-info p-5 right-radius bg-light-subtle order-0 order-lg-1">
                                 <a href="<?php echo base_url(); ?>" class="mb-5 d-block d-xl-none d-lg-none"><img src="<?= business_logo ?>" alt="logo" width="150" class="img-fluid"></a>
-                                <!-- <h1 class="h3">Create an Account</h1> -->
-                                <h1 class="h3">Verify your email</h1>
-                                <p class="text-muted">Enter the latest code sent to <?= html_escape(registration_email_hint($verification_email)) ?> and create your password. Codes expire in 15 minutes.</p>
+                                <div class="auth-email-icon mb-3" aria-hidden="true"><i class="fas fa-envelope-open-text fa-2x" data-registration-verification-icon></i></div>
+                                <h1 class="h3" data-registration-verification-title aria-live="polite">Verify your email</h1>
+                                <p class="text-muted" id="verification_intro">Enter the code sent to <strong><?= html_escape(registration_email_hint($verification_email)) ?></strong>.</p>
+                                <p class="text-muted" id="verification_expiry">Code expires in 15 minutes.</p>
 
                                 <div class="mt-4 register-form">
 
@@ -92,30 +93,28 @@
 
                                     <div class="row">
                                         <input type="hidden" name="resume_token" id="resume_token" value="<?php echo html_escape($resume_token); ?>">
-                                        <!--<div class="col-sm-12">-->
-                                        <!--    <label for="verificationCode" class="mb-1">Verification Code<span class="text-danger">*</span></label>-->
-                                        <!--    <div class="input-group mb-3">-->
-                                        <!--        <input type="tel" class="form-control otp-input" id="verificationCode" name="verification_code" required placeholder="000000">-->
-                                        <!--    </div>-->
-                                        <!--</div>-->
+                                        <input type="hidden" name="verification_step" value="code">
                                         
-                                        <div class="col-sm-12 mb-3">
-                                            <label for="otp1" class="mb-1">Verification Code<span class="text-danger">*</span></label>
+                                        <div class="col-sm-12 mb-3" data-registration-code-panel>
                                             <?php $this->load->view('user_login/partials/otp_inputs', array(
                                                 'hidden_name' => 'verification_code',
                                                 'hidden_id' => 'verificationCode',
                                                 'input_id_prefix' => 'otp',
                                                 'group_label' => 'Email verification code',
                                                 'autofocus' => true,
+                                                'auto_submit' => true,
+                                                'described_by' => 'verification_intro verification_expiry',
                                             )); ?>
                                         </div>
                                         
                                         
+                                        <div class="col-12">
+                                        <fieldset class="row gx-3 d-none" data-registration-password-panel disabled>
                                         <div class="col-sm-6">
                                             <label for="password" class="mb-1">Password <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
-                                                <input type="password" class="form-control" placeholder="******" name="password" id="password" required aria-label="password">
-                                                <button type="button" class="eyes toggle-password" data-target="password">
+                                                <input type="password" class="form-control" placeholder="******" name="password" id="password" required minlength="8" autocomplete="new-password" aria-label="password">
+                                                <button type="button" class="eyes toggle-password" data-target="password" aria-label="Show or hide password">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
                                             </div>
@@ -124,14 +123,16 @@
                                         <div class="col-sm-6">
                                             <label for="confirmPassword" class="mb-1">Confirm Password <span class="text-danger">*</span></label>
                                             <div class="input-group mb-3">
-                                                <input type="password" class="form-control" placeholder="******" name="confirm_password" id="confirmPassword" required aria-label="confirmPassword">
-                                                <button type="button" class="eyes toggle-password" data-target="confirmPassword">
+                                                <input type="password" class="form-control" placeholder="******" name="confirm_password" id="confirmPassword" required minlength="8" autocomplete="new-password" aria-label="confirmPassword">
+                                                <button type="button" class="eyes toggle-password" data-target="confirmPassword" aria-label="Show or hide confirm password">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
                                             </div>
                                         </div>
 
-                                        <div class="mb-0 mt-2" id="status_msg"></div>
+                                        </fieldset>
+                                        </div>
+                                        <div class="mb-0 mt-2" id="status_msg" role="status" aria-live="polite"></div>
 
                                         <div class="col-12">
                                             <button type="submit" id="submit" class="main-btn primary">

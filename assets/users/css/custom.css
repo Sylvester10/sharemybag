@@ -1,3 +1,13 @@
+/* Text-only Toastr notifications, without the leading status-icon space. */
+#toast-container > .toast {
+    background-image: none !important;
+    padding-inline: 15px;
+}
+
+@media (min-width: 241px) and (max-width: 480px) {
+    #toast-container > .toast { padding-inline: 8px; }
+}
+
 /* Preloader */
 
 #preloader {
@@ -1412,7 +1422,7 @@ div#default_order_info {
     }
 
     .booking-payment-options {
-        gap: 10px;
+        gap: 0;
     }
 
     .booking-payment-option {
@@ -1592,6 +1602,140 @@ table.dataTable thead > tr > th.sorting:before {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
+.history-posting-notes {
+    background: #020713;
+    border: 1px solid #020713;
+    border-radius: 7px;
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 24px;
+    padding: 0;
+}
+.history-posting-notes h2 { color: inherit; margin: 0; }
+.history-posting-toggle { align-items: center; background: transparent; border: 0; border-radius: inherit; color: inherit; cursor: pointer; display: flex; font: inherit; font-weight: 600; gap: 12px; padding: 18px 20px; text-align: left; width: 100%; }
+.history-posting-toggle span { flex: 1; }
+.history-posting-toggle::after { border-bottom: 2px solid currentColor; border-right: 2px solid currentColor; content: ''; height: 8px; transform: rotate(45deg); transition: transform .4s cubic-bezier(.22, 1, .36, 1); width: 8px; flex: 0 0 auto; }
+.history-posting-toggle[aria-expanded="true"]::after { transform: rotate(225deg); }
+.history-posting-toggle:focus-visible { border-radius: 7px; outline: 2px solid #f36b24; outline-offset: 3px; }
+.history-posting-toggle .ti { color: inherit; flex: 0 0 auto; font-size: 24px; }
+.history-posting-notes .collapsing { transition: height .4s cubic-bezier(.22, 1, .36, 1); }
+.history-posting-content { border-top: 1px solid rgba(255, 255, 255, .18); padding: 18px 20px; }
+.history-posting-list { list-style: none; margin: 0; max-width: none; padding: 0; }
+.history-posting-list .list-text { font-size: inherit; line-height: 1.65; overflow-wrap: anywhere; }
+
+@media (prefers-reduced-motion: reduce) {
+    .history-posting-notes .collapsing, .history-posting-toggle::after { transition: none; }
+}
+
+@media (min-width: 768px) {
+    .history-posting-toggle.fs-2 { font-size: .875rem !important; }
+}
+
+.history-mobile-only { display: none; }
+.history-card-content { display: flex; flex-direction: column; }
+.history-card-footer { order: -1; }
+.history-route { align-items: center; display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.history-route-country { align-items: center; display: inline-flex; gap: 5px; white-space: nowrap; }
+.history-route .cf-16 { flex: 0 0 16px; }
+.history-route .cf-16.cf-gb::before { background-image: url('../../general/countryflags/dist/flat16/gb.png'); }
+.history-route .cf-16.cf-ng::before { background-image: url('../../general/countryflags/dist/flat16/ng.png'); }
+.history-route .cf-16.cf-ca::before { background-image: url('../../general/countryflags/dist/flat16/ca.png'); }
+.booking-history-view [data-history-status] .badge { border-radius: 999px; line-height: 1.4; padding: 5px 11px; white-space: normal; }
+.history-details-modal .modal-dialog { max-width: 640px; }
+.history-details-modal .modal-content { background: #fff; border-radius: 7px; }
+.history-details-modal [data-history-target="status"] .badge { border-radius: 999px; line-height: 1.4; padding: 5px 11px; }
+.history-details-modal .modal-header { padding: 20px; }
+.history-details-modal .modal-title { font-weight: 700; overflow-wrap: anywhere; }
+.history-details-modal .modal-body { padding: 20px; }
+.history-details-modal .booking-support-link { font-size: inherit !important; }
+.history-details-modal .modal-footer { padding: 16px 20px; }
+.history-details-modal .modal-footer[hidden] { display: none; }
+.history-details-modal .btn-close { flex: 0 0 auto; margin-left: 12px; padding: 12px; }
+.history-details-section { border-top: 1px solid #e5e7eb; margin-top: 22px; padding-top: 20px; }
+.history-details-section:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+.history-details-section h3 { font-weight: 700; margin-bottom: 14px; }
+.history-details-section > div { line-height: 2; overflow-wrap: anywhere; }
+.history-payment-details { margin: 0; }
+.history-payment-details > div { align-items: center; display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); margin-top: 14px; }
+.history-payment-details dt { font-weight: 500; }
+.history-payment-details dd { margin: 0; overflow-wrap: anywhere; text-align: right; }
+.history-payment-details .badge { max-width: 100%; white-space: normal; }
+.history-details-modal .table { margin-bottom: 0; table-layout: fixed; white-space: normal !important; width: 100%; }
+.history-details-modal .table th, .history-details-modal .table td { padding: 10px 4px; overflow-wrap: anywhere; vertical-align: top; }
+.history-details-modal .table th:first-child { width: 30%; }
+.history-details-modal .table th:nth-child(2) { width: 28%; }
+.history-details-modal .table th:nth-child(3) { width: 17%; }
+.history-details-modal .table th:last-child { width: 25%; }
+.history-details-modal .table td:last-child { text-align: right; }
+.history-details-modal .table .fw-bold td { padding-top: 18px; }
+.history-details-invoice { display: block; padding: 12px 16px; text-align: center; width: 100%; }
+.history-details-modal [data-history-target="invoice"] > div { width: 100%; }
+
+@media (max-width: 767.98px) {
+    .history-enhanced .history-mobile-only { display: block; }
+    /* Contain the theme's floated label so the scroll body cannot cover the input. */
+    .booking-history-view.history-enhanced .dataTables_filter { display: flow-root; margin-bottom: 20px; }
+    .booking-history-view.history-enhanced .dataTables_filter label { align-items: center; display: flex; float: none; margin-bottom: 0; }
+    .history-enhanced .history-table-region,
+    .history-enhanced .dataTables_scrollBody { overflow: visible !important; }
+    .history-enhanced .dataTables_scrollHead { display: none; }
+    .history-enhanced .history-table { border: 0; display: block; margin: 0 !important; width: 100% !important; }
+    .history-enhanced .history-table > thead { display: none; }
+    .history-enhanced .history-table > tbody { display: grid; gap: 16px; width: 100%; }
+    .history-enhanced .history-table > tbody > tr { --bs-table-bg: #fff; --bs-table-striped-bg: #fff; background: #fff !important; border: 1px solid #e5e7eb; border-radius: 7px; display: block; width: 100%; }
+    .history-enhanced .history-table > tbody > tr > td { display: none; }
+    .history-enhanced .history-table > tbody > tr > .history-payment-cell,
+    .history-enhanced .history-table > tbody > tr:not([data-history-row]) > td {
+        --bs-table-accent-bg: transparent;
+        --bs-table-bg: #fff;
+        --bs-table-striped-bg: #fff;
+        --bs-table-hover-bg: #fff;
+        background: #fff !important;
+        border: 0;
+        box-sizing: border-box !important;
+        box-shadow: none !important;
+        display: block;
+        padding: 16px;
+        border-radius: inherit;
+        white-space: normal;
+        width: 100% !important;
+    }
+    .history-card-open {
+        align-items: center;
+        background: none;
+        border: 0;
+        color: #020713;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 700;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        min-height: 36px;
+        padding: 0;
+        text-align: left;
+        width: 100%;
+    }
+    .history-enhanced .history-card-open { display: flex; gap: 12px; }
+    .history-card-open span { overflow-wrap: anywhere; }
+    .history-card-open .ti { flex: 0 0 auto; font-size: 18px; }
+    .history-card-open:focus-visible { border-radius: 4px; outline: 2px solid #f36b24; outline-offset: 4px; }
+    .history-card-footer { align-items: center; display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); margin-top: 16px; order: 0; }
+    .history-card-footer [data-history-status] { display: flex; justify-content: flex-end; min-width: 0; text-align: center; }
+    .history-card-footer .badge { max-width: 100%; overflow-wrap: anywhere; }
+    .history-enhanced .history-card-date { align-items: center; display: flex; gap: 6px; margin: 0; }
+    .history-card-date .ti { flex: 0 0 auto; }
+    .history-card-meta { margin-top: 0; }
+    .history-card-space { align-items: center; display: inline-flex; gap: 6px; }
+    .history-card-meta > div { align-items: center; display: flex; gap: 12px; justify-content: space-between; }
+    .history-enhanced [data-booking-recovery] button { min-height: 44px; width: 100%; }
+    .history-enhanced [data-booking-recovery] { align-items: stretch !important; }
+    .history-enhanced .dataTables_info, .history-enhanced .dataTables_paginate { font-size: 12px; }
+    .history-details-modal .modal-dialog { height: calc(100% - 32px); margin: 16px; max-width: none; min-height: calc(100% - 32px); }
+    .history-posting-notes { font-size: 12px; }
+    .history-posting-toggle { padding: 16px; }
+    .history-posting-content { padding: 16px; }
+}
+
 .traveller-search-panel {
     background: #020713;
     border-radius: 7px;
@@ -1717,72 +1861,48 @@ table.dataTable thead > tr > th.sorting:before {
 }
 
 .traveller-search-submit:disabled {
+    background-color: #f36b24;
+    border-color: #f36b24;
+    color: #fff;
     cursor: wait;
     opacity: 0.7;
     transform: none;
 }
 
-.traveller-search-skeleton {
-    padding: 20px;
-}
-
-.traveller-result-card-skeleton {
-    pointer-events: none;
-}
-
-.traveller-skeleton-block {
-    background: #edf0f4;
-    border-radius: 7px;
-    overflow: hidden;
-    position: relative;
-}
-
-.traveller-skeleton-block::after {
-    animation: traveller-skeleton-shimmer 1.35s infinite;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.72),
-        transparent
-    );
-    content: '';
-    inset: 0;
-    position: absolute;
-    transform: translateX(-100%);
-}
-
-.traveller-skeleton-visual {
-    height: 124px;
-    width: 150px;
-}
-
-.traveller-skeleton-title {
-    height: 24px;
-    margin-bottom: 22px;
-    max-width: 440px;
-}
-
-.traveller-skeleton-meta {
+/* The locally drawn book pauses whenever the search finishes. */
+.traveller-search-loading {
+    align-items: center;
+    color: #020713;
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px 18px;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: center;
+    min-height: 300px;
+    padding: 54px 16px;
+    text-align: center;
 }
-
-.traveller-skeleton-meta .traveller-skeleton-block {
-    height: 16px;
-    width: 120px;
+.traveller-book { flex: 0 0 auto; overflow: visible; }
+.traveller-search-loading p { font-weight: 500; }
+.traveller-book path { stroke: #020713; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.6; }
+.traveller-book-cover { fill: #f36b24; }
+.traveller-book-paper { fill: #fffdf8; }
+.traveller-book-spine { fill: none; }
+.traveller-book-page {
+    animation: traveller-book-turn 2.2s cubic-bezier(.45, 0, .3, 1) infinite;
+    animation-play-state: paused;
+    transform-box: view-box;
+    transform-origin: 48px 48px;
 }
-
-.traveller-skeleton-action {
-    height: 44px;
-    justify-self: end;
-    width: 130px;
-}
-
-@keyframes traveller-skeleton-shimmer {
-    100% {
-        transform: translateX(100%);
-    }
+.traveller-book-page path { fill: #fffdf8; }
+.traveller-book-page--back { animation-delay: -.8s; }
+.traveller-book-page--front { animation-delay: -.1s; }
+.traveller-search-loading:not(.d-none) .traveller-book-page { animation-play-state: running; }
+@keyframes traveller-book-turn {
+    0%, 12% { transform: perspective(180px) rotateY(0deg); opacity: 0; }
+    18% { opacity: 1; }
+    50% { transform: perspective(180px) rotateY(-90deg); opacity: 1; }
+    82% { opacity: 1; }
+    88%, 100% { transform: perspective(180px) rotateY(-180deg); opacity: 0; }
 }
 
 .search-results-card .card-body {
@@ -1989,8 +2109,9 @@ table.dataTable thead > tr > th.sorting:before {
         transform: none;
     }
 
-    .traveller-skeleton-block::after {
+    .traveller-book-page {
         animation: none;
+        opacity: 1;
     }
 }
 
@@ -2079,20 +2200,6 @@ table.dataTable thead > tr > th.sorting:before {
         padding: 18px;
         flex-direction: column;
         align-items: flex-start;
-    }
-
-    .traveller-result-card-skeleton {
-        display: grid;
-        grid-template-columns: 1fr;
-    }
-
-    .traveller-skeleton-visual {
-        display: none;
-    }
-
-    .traveller-skeleton-action {
-        justify-self: stretch;
-        width: 100%;
     }
 
     .traveller-card-visual {

@@ -2,12 +2,11 @@
 defined('BASEPATH') or die('Direct access not allowed');
 
 
-/* ===== Documentation ===== 
+/* ===== Documentation =====
 Name: Admin_exchange
 Role: Controller
 Description: Controls access to Exchange pages and functions in admin panel
 Models: Exchange_model
-Author: Sylvester Esso Nmakwe
 Date Created: 10th May, 2023
 */
 

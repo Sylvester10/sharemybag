@@ -19,8 +19,9 @@ class Users_model extends MY_Model
         $this->primary_cols = array('id');
 
         // Don't load traveller details on every single model instantiation unless needed.
-        if ($this->session->userdata('id')) {
-            $this->traveller_details = $this->traveller_read_model->get_traveller_details_by_id($this->session->id);
+        $session = get_instance()->session ?? null;
+        if ($session && $session->userdata('id')) {
+            $this->traveller_details = $this->traveller_read_model->get_traveller_details_by_id($session->id);
         }
     }
 
@@ -447,11 +448,14 @@ class Users_model extends MY_Model
     }
 
 
-    public function add_booking_to_db($user_id, $fullname, $email)
+    public function add_booking_to_db($user_id, $fullname, $email, $existing_booking_id = 0)
     {
         // Generate server-side identifiers
-        $tracking_id = generate_unique_tracking_id('bookings', 'tracking_id', 7);
-        $hash = $this->generate_hash(200);
+        $existing = $existing_booking_id ? $this->db->where('id',(int)$existing_booking_id)->where('user_id',(int)$user_id)
+            ->where('deleted_at IS NULL',null,false)->get('bookings')->row() : null;
+        if ($existing_booking_id && (!$existing || payment_status_normalize($existing->payment_status) === 'completed')) { return false; }
+        $tracking_id = $existing ? $existing->tracking_id : generate_unique_tracking_id('bookings', 'tracking_id', 7);
+        $hash = $existing ? $existing->hash : $this->generate_hash(200);
         $traveller_id = (int) $this->input->post('traveller_id', TRUE);
         $traveller = $this->traveller_read_model->get_traveller_details_by_id($traveller_id);
         $route_origin = $traveller && !empty($traveller->location)
@@ -549,7 +553,13 @@ class Users_model extends MY_Model
             'items'           => $this->input->post('items', TRUE),
         );
 
-        $this->db->insert('bookings', $data);
+        if ($existing) {
+            unset($data['payment_status'],$data['status'],$data['delivery_status'],$data['tracking_id'],$data['hash']);
+            $saved = $this->db->where('id',$existing->id)->where('user_id',(int)$user_id)
+                ->where("LOWER(TRIM(COALESCE(payment_status, ''))) NOT IN ('completed','complete','success','paid')",null,false)
+                ->update('bookings',$data);
+        } else { $saved = $this->db->insert('bookings', $data); }
+        if (!$saved) { return false; }
         $this->finance_read_model->clearFinanceSummaryCaches();
         $this->booking_read_model->clearBookingCountCaches();
 
@@ -566,12 +576,15 @@ class Users_model extends MY_Model
 
     public function mark_paystack_initialized($booking_id, $reference, $exchange_rate)
     {
+        if ($this->has_managed_checkout($booking_id)) { return false; }
         $this->db->where('id', $booking_id);
+        $this->db->where("LOWER(TRIM(COALESCE(payment_status, ''))) NOT IN ('completed', 'complete', 'success', 'paid')", null, false);
         $updated = $this->db->update('bookings', [
             'paystack_ref' => $reference,
             'paystack_exchange_rate' => round((float) $exchange_rate, 4),
             'payment_status' => payment_status_normalize('canceled')
         ]);
+        $updated = $updated && $this->db->affected_rows() === 1;
         if ($updated) {
             $this->finance_read_model->clearFinanceSummaryCaches();
             $this->booking_read_model->clearBookingCountCaches();
@@ -587,7 +600,10 @@ class Users_model extends MY_Model
             return false;
         }
 
+        if ($this->has_managed_checkout($booking->id)) { return false; }
+
         $this->db->where('id', $booking->id);
+        $this->db->where("LOWER(TRIM(COALESCE(payment_status, ''))) NOT IN ('completed', 'complete', 'success', 'paid')", null, false);
         $updated = $this->db->update('bookings', [
             'payment_status' => payment_status_normalize('canceled')
         ]);
@@ -612,13 +628,53 @@ class Users_model extends MY_Model
             ];
         }
 
+        if (payment_status_normalize($booking->payment_status) !== 'completed'
+            && $this->has_managed_checkout($booking->id)) {
+            return ['status'=>false,'title'=>'Payment status','msg'=>'This payment requires gateway verification. Open History to check it.','redirect'=>'history'];
+        }
         $payment_status = payment_status_normalize($is_completed ? 'completed' : 'canceled');
 
+        if (!$this->db->trans_begin()) {
+            return ['status'=>false, 'title'=>'Booking Error', 'msg'=>'We could not update this booking. Please try again.', 'redirect'=>'history'];
+        }
         $this->db->where('id', $booking->id);
-        $this->db->update('bookings', [
+        $this->db->where('deleted_at IS NULL', null, false);
+        $this->db->where("LOWER(TRIM(COALESCE(payment_status, ''))) NOT IN ('completed', 'complete', 'success', 'paid')", null, false);
+        $updated = $this->db->update('bookings', [
             'payment_status' => $payment_status,
             'new' => $is_completed ? 0 : $booking->new,
         ]);
+        $claimed = $this->db->affected_rows() === 1;
+        if (!$updated) {
+            $this->db->trans_rollback();
+            return ['status'=>false, 'title'=>'Booking Error', 'msg'=>'We could not update this booking. Please try again.', 'redirect'=>'history'];
+        }
+        if (!$claimed) {
+            if (!$this->db->trans_commit()) {
+                $this->db->trans_rollback();
+                return ['status'=>false, 'title'=>'Booking Error', 'msg'=>'We could not update this booking. Please try again.', 'redirect'=>'history'];
+            }
+            $current = $this->booking_read_model->dataByHash($hash);
+            $paid = $current && empty($current->deleted_at) && payment_status_normalize($current->payment_status) === 'completed';
+            if (!$is_completed && $current && empty($current->deleted_at) && payment_status_normalize($current->payment_status) === 'canceled') {
+                return ['status'=>false, 'title'=>'Booking Canceled.', 'msg'=>'You canceled the payment.', 'msg_timeout'=>7000, 'redirect'=>'history'];
+            }
+            return ['status'=>$paid, 'title'=>$paid ? 'Booking Successful.' : 'Booking Unavailable',
+                'msg'=>$paid ? 'This booking payment is already confirmed.' : 'This booking could not be updated.',
+                'redirect'=>$paid ? 'booking-success' : 'history', 'booking_id'=>(int)$booking->id];
+        }
+        if ($is_completed && !$this->travellers_model->update_traveller_space($booking->traveller_id)) {
+            $this->db->trans_rollback();
+            return ['status'=>false, 'title'=>'Booking Error', 'msg'=>'We could not update this booking. Please contact support.', 'redirect'=>'history'];
+        }
+        if (!$this->db->trans_status()) {
+            $this->db->trans_rollback();
+            return ['status'=>false, 'title'=>'Booking Error', 'msg'=>'We could not update this booking. Please contact support.', 'redirect'=>'history'];
+        }
+        if (!$this->db->trans_commit()) {
+            $this->db->trans_rollback();
+            return ['status'=>false, 'title'=>'Booking Error', 'msg'=>'We could not update this booking. Please contact support.', 'redirect'=>'history'];
+        }
         $this->finance_read_model->clearFinanceSummaryCaches();
         $this->booking_read_model->clearBookingCountCaches();
 
@@ -632,22 +688,34 @@ class Users_model extends MY_Model
             ];
         }
 
-        $this->travellers_model->update_traveller_space($booking->traveller_id);
-
-        $email_data = $this->build_booking_notification_data($booking);
-        send_email_notification($this, $_ENV['ADMIN_NOTIFICATION_EMAIL'] ?? 'customers@sharemybag.co.uk', 'New Booking', $email_data, 'admin_booking_notification_email');
-        send_email_notification($this, $booking->agent_email, 'Booking Successful', $email_data, 'user_booking_notification_email');
+        $this->send_booking_payment_notifications($booking->id);
 
         return [
             'status' => true,
             'title' => 'Booking Successful.',
-            'msg' => 'Please check your email for details.',
+            'msg' => 'Your booking payment is confirmed. View your booking for details.',
             'msg_timeout' => 7000,
             'redirect' => 'booking-success',
             'booking_id' => (int) $booking->id,
         ];
     }
 
+
+    private function has_managed_checkout($booking_id)
+    {
+        return $this->db->table_exists('booking_checkouts')
+            && $this->db->where('booking_id',(int)$booking_id)->count_all_results('booking_checkouts') > 0;
+    }
+
+
+    public function send_booking_payment_notifications($booking_id)
+    {
+        $booking = $this->booking_read_model->get_booking_details_by_id((int)$booking_id);
+        if (!$booking || payment_status_normalize($booking->payment_status) !== 'completed') { return; }
+        $email_data = $this->build_booking_notification_data($booking);
+        send_email_notification($this, $_ENV['ADMIN_NOTIFICATION_EMAIL'] ?? 'customers@sharemybag.co.uk', 'New Booking', $email_data, 'admin_booking_notification_email');
+        send_email_notification($this, $booking->agent_email, 'Booking Successful', $email_data, 'user_booking_notification_email');
+    }
 
     private function build_booking_notification_data($booking)
     {
@@ -766,8 +834,8 @@ class Users_model extends MY_Model
 
         $this->db->trans_start();
         $inserted = $this->db->insert('bookings', $data);
-        if ($inserted) {
-            $this->travellers_model->update_traveller_space($data['traveller_id']);
+        if ($inserted && !$this->travellers_model->update_traveller_space($data['traveller_id'])) {
+            $this->db->trans_rollback(); return false;
         }
         $this->db->trans_complete();
 

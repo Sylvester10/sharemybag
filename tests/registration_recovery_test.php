@@ -112,6 +112,33 @@ function response($controller, $method)
     ob_start(); $controller->$method(); return json_decode(ob_get_clean(), true, 512, JSON_THROW_ON_ERROR);
 }
 
+// The first step only checks ownership; only the password step may complete registration.
+[$controller,$model,$db] = fixture();
+$stepToken = $model->issue_signup_resume_token(42);
+$model->send_signup_verification_code(42,$stepToken);
+$stepCode = $db->get('users')->row()->verification_code;
+$controller->input->values = ['resume_token'=>$stepToken,'verification_code'=>$stepCode,'verification_step'=>'code'];
+$controller->input->values['verification_code'] = '000000';
+check(!response($controller,'verify_email_ajax')['status'] && !$controller->session->values, 'Wrong code cannot reveal password creation or create a session');
+$controller->input->values['verification_code'] = $stepCode;
+$checked = response($controller,'verify_email_ajax');
+check($checked['status'] && !empty($checked['code_verified']) && empty($checked['redirect']), 'Correct code alone must reveal password step without redirect');
+check($db->get('users')->row()->password === null && $db->get('users')->row()->email_verified_at === null
+    && $db->get('users')->row()->signup_resume_token === $stepToken && !$controller->session->values,
+    'Code check must not consume credentials, mark verified or sign in');
+$controller->input->values['verification_step'] = 'password';
+$controller->input->values['password'] = 'fixture-password';
+$controller->input->values['confirm_password'] = 'fixture-password';
+$db->where('id',42)->update('users',['verification_code'=>'replacement']);
+$stale = response($controller,'verify_email_ajax');
+check(!$stale['status'] && $stale['field'] === 'verification_code' && !$controller->session->values, 'A code replaced between steps must return to code entry');
+$db->where('id',42)->update('users',['verification_code'=>$stepCode,'verification_code_expires_at'=>date('Y-m-d H:i:s',time()-1)]);
+$expired = response($controller,'verify_email_ajax');
+check(!$expired['status'] && $expired['field'] === 'verification_code', 'A code expiring on password step must return to code entry');
+$db->where('id',42)->update('users',['verification_code_expires_at'=>date('Y-m-d H:i:s',time()+900)]);
+check(response($controller,'verify_email_ajax')['status'] && $controller->session->values['user_loggedin'], 'Password step completes only after code is revalidated');
+echo "PASS: sequential code precheck is read-only; wrong, replaced and expired codes cannot complete password creation.\n";
+
 [$controller,$model,$db] = fixture();
 $token = $model->issue_signup_resume_token(42, 86400);
 check(strlen($token) === 64, 'Pending account receives a random resume token');
@@ -204,11 +231,18 @@ foreach ([true,false] as $delivered) {
     $GLOBALS['delivery'] = $delivered;
     $signup = response($controller,'signup');
     $new = $model->user_read_model->get_user_details('new@example.invalid');
-    check($new && $signup['status'] && count($GLOBALS['mail']) === 1, 'New signup persists and attempts one email');
-    check(strpos($signup['redirect'], $delivered ? '/verify-email/' : '/continue-registration/') !== false, 'Initial signup routes according to actual delivery result');
+    check($new && $signup['status'] === $delivered && count($GLOBALS['mail']) === 1, 'Signup must report the actual email result while preserving saved details');
+    if ($delivered) {
+        check(strpos($signup['redirect'], '/verify-email/') !== false, 'Successful signup opens code entry directly');
+    } else {
+        check(empty($signup['redirect']) && !empty($signup['resume_token']), 'Failed signup email stays on the form with a usable retry token');
+        $controller->input->values['resume_token'] = $signup['resume_token'];
+        $GLOBALS['delivery'] = true;
+        check(response($controller,'resend_verification_email_ajax')['status'], 'Saved registration can retry email without re-entering details');
+    }
     check($delivered ? !empty($new->verification_code) : $new->verification_code === null, 'Failed initial email does not leave a usable unsent code');
     $again = response($controller,'signup');
-    check($again['status'] && $db->count_all('users') === 2 && count($GLOBALS['mail']) === 1, 'Repeated signup resumes the saved record without duplicate users or automatic email');
+    check($again['status'] && $db->count_all('users') === 2 && count($GLOBALS['mail']) === ($delivered ? 1 : 2), 'Repeated signup resumes the saved record without duplicate users or automatic email');
 }
 [$controller,$model,$db] = fixture();
 $token = $model->issue_signup_resume_token(42);

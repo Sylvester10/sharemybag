@@ -65,6 +65,14 @@
                     ?> -->
 
                     <form action="<?= base_url('user_bookings/add_booking_ajax') ?>" class="form-wizard-ajax booking-wizard-form mt-2" id="booking_form" key="<?= $traveller_details->id ?>" method="POST" enctype="multipart/form-data" target="_blank">
+                        <input type="hidden" name="booking_checkout_token" value="<?= html_escape($resume_token ?? '') ?>">
+                        <input type="hidden" name="booking_request_id" value="<?= html_escape($booking_request_id ?? '') ?>">
+                        <input type="hidden" name="resume_booking_hash" value="<?= html_escape(isset($resume_booking) ? $resume_booking->hash : '') ?>">
+                        <input type="hidden" name="booking_quote_token" value="<?= html_escape($booking_quote_token ?? '') ?>">
+                        <input type="hidden" name="_booking_step" value="0">
+                        <?php if (!empty($booking_restore) && is_array($booking_restore)): ?>
+                            <script type="application/json" id="booking-restore-data"><?= json_encode($booking_restore, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE) ?></script>
+                        <?php endif; ?>
 
                         <div class="d-none">
                             <input name="traveller_id" value="<?php echo set_value('traveller_id', $traveller_details->id); ?>" type="text" class="form-control" />

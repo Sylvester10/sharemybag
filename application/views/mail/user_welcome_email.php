@@ -1,10 +1,10 @@
-<?php $email_template = basename(__FILE__, '.php'); $email_title = 'Welcome to ' . business;
+<?php $email_template = basename(__FILE__, '.php');
+$email_title = 'Welcome to ' . business;
 include 'email_header.php'; ?>
 
 <p class="greeting" style="<?= email_style('greeting') ?>">Hi <?= html_escape($firstname ?? '') ?>,</p>
-<p style="<?= email_style('paragraph') ?>">Welcome to <?= business ?>! Your email address has been verified.</p>
-<p style="<?= email_style('paragraph') ?>">You can now sign in to your account to explore travellers and available luggage space for your parcels.</p>
-<p style="<?= email_style('paragraph') ?>">Before booking, review the traveller's route, arrival date, and final drop-off date.</p>
+<p style="<?= email_style('paragraph') ?>">Welcome to <?= business ?>!</p>
+<p style="<?= email_style('paragraph') ?>">You now have full access to send and receive parcels through our trusted community of travellers.</p>
 
 <div class="btn-wrap" style="<?= email_style('btn-wrap') ?>">
     <?= email_button(production_url('login'), 'Sign In') ?>
