@@ -1,5 +1,6 @@
 <?php
 defined('BASEPATH') or exit('Direct access to script not allowed');
+require_once APPPATH . 'helpers/booking_capacity_helper.php';
 
 
 class Travellers_model extends \MY_Model
@@ -130,8 +131,25 @@ class Travellers_model extends \MY_Model
 		$hash = getRandomName(134);
 		$data['hash'] = $hash;
 
-		$this->db->where('id', $id);
-		$updated = $this->db->update('travellers', $data);
+		if (!$this->db->trans_begin()) { return false; }
+		$locked = booking_lock_traveller($this->db, $id);
+		if (!$locked) { $this->db->trans_rollback(); return false; }
+		$current_capacity = booking_capacity_snapshot($this->db, $locked);
+		if (!$current_capacity) { $this->db->trans_rollback(); return false; }
+		foreach (['location','destination','travel_date'] as $field) {
+			if ($current_capacity['held'] > 0 && (string) $locked->$field !== (string) $data[$field]) {
+				$this->db->trans_rollback(); return false;
+			}
+		}
+		$locked->original_bag_space = (float) $data['original_bag_space'];
+		$capacity = booking_capacity_snapshot($this->db, $locked);
+		if (!$capacity || $capacity['overcommitted']) { $this->db->trans_rollback(); return false; }
+		$data['used_space'] = $capacity['used'];
+		$data['available_space'] = $capacity['available'];
+		$updated = $this->db->where('id', $id)->update('travellers', $data);
+		if (!$updated || !$this->db->trans_status() || !$this->db->trans_commit()) {
+			$this->db->trans_rollback(); return false;
+		}
 
 		if ($updated) {
 			$this->traveller_read_model->clearTravellerCountCaches();
@@ -147,44 +165,33 @@ class Travellers_model extends \MY_Model
 
 	public function add_traveller_bag_space($id, $space_to_add)
 	{
-		// 1. Add to 'original_bag_space'
-		// The FALSE parameter tells CodeIgniter NOT to escape the string,
-		// allowing the math "original_bag_space + value" to happen in SQL.
-		$this->db->set('original_bag_space', 'original_bag_space + ' . (float)$space_to_add, FALSE);
-
-		// 2. OPTIONAL: Usually, if you increase original capacity,
-		// you also want to increase the 'available_space' by the same amount.
-		// If you want this, uncomment the line below:
-		$this->db->set('available_space', 'available_space + ' . (float)$space_to_add, FALSE);
-
-		$this->db->where('id', $id);
-		$updated = $this->db->update('travellers');
-		if ($updated) {
-			$this->traveller_read_model->clearTravellerCountCaches();
-		}
-		return $updated;
+		return $this->change_capacity($id, max(0, (float) $space_to_add));
 	}
 
-	public function remove_traveller_bag_space($id, $space_to_add)
+	public function remove_traveller_bag_space($id, $space_to_remove)
 	{
-		// 1. Add to 'original_bag_space'
-		// The FALSE parameter tells CodeIgniter NOT to escape the string,
-		// allowing the math "original_bag_space + value" to happen in SQL.
-		$this->db->set('original_bag_space', 'original_bag_space - ' . (float)$space_to_add, FALSE);
-
-		// 2. OPTIONAL: Usually, if you increase original capacity,
-		// you also want to increase the 'available_space' by the same amount.
-		// If you want this, uncomment the line below:
-		$this->db->set('available_space', 'available_space - ' . (float)$space_to_add, FALSE);
-
-		$this->db->where('id', $id);
-		$updated = $this->db->update('travellers');
-		if ($updated) {
-			$this->traveller_read_model->clearTravellerCountCaches();
-		}
-		return $updated;
+		return $this->change_capacity($id, -max(0, (float) $space_to_remove));
 	}
 
+	private function change_capacity($id, $delta)
+	{
+		if (!$this->db->trans_begin()) { return false; }
+		$traveller = booking_lock_traveller($this->db, $id);
+		if (!$traveller) { $this->db->trans_rollback(); return false; }
+		$traveller->original_bag_space = round((float) $traveller->original_bag_space + $delta, 3);
+		$capacity = booking_capacity_snapshot($this->db, $traveller);
+		if (!$capacity || $capacity['overcommitted'] || $traveller->original_bag_space < 0) {
+			$this->db->trans_rollback(); return false;
+		}
+		$updated = $this->db->where('id', (int) $id)->update('travellers', [
+			'original_bag_space' => $traveller->original_bag_space,
+			'used_space' => $capacity['used'], 'available_space' => $capacity['available']]);
+		if (!$updated || !$this->db->trans_status() || !$this->db->trans_commit()) {
+			$this->db->trans_rollback(); return false;
+		}
+		$this->traveller_read_model->clearTravellerCountCaches();
+		return true;
+	}
 
 
 	public function recycle_traveller($id, $itinerary_photo, $thumbnail)
@@ -231,47 +238,18 @@ class Travellers_model extends \MY_Model
 
 	function update_traveller_space($id, $return_snapshot = false)
 	{
-		$this->db->trans_start();
-
-		// Lock the traveller row to prevent concurrent read-modify-write (DB-005)
-		$traveller = $this->db->query(
-			"SELECT * FROM travellers WHERE id = ? FOR UPDATE",
-			array($id)
-		)->row();
-
-		if (!$traveller) {
-			$this->db->trans_complete();
-			return false;
+		if (!$this->db->trans_begin()) { return false; }
+		$traveller = booking_lock_traveller($this->db, $id);
+		$capacity = $traveller ? booking_capacity_snapshot($this->db, $traveller) : false;
+		if (!$capacity || $capacity['overcommitted']) { $this->db->trans_rollback(); return false; }
+		$updated = $this->db->where('id', (int) $id)->update('travellers', [
+			'used_space' => $capacity['used'], 'available_space' => $capacity['available']]);
+		if (!$updated || !$this->db->trans_status() || !$this->db->trans_commit()) {
+			$this->db->trans_rollback(); return false;
 		}
-
-		// Atomic sum of confirmed bookings
-		$this->db->select_sum('selected_space');
-		$this->db->where('traveller_id', $id);
-		$this->db->where('payment_status', 'completed');
-		$this->applyNotDeleted('bookings');
-		$booked = $this->db->get('bookings')->row();
-		$used = ($booked && $booked->selected_space) ? $booked->selected_space : 0;
-
-		$available = max(0, $traveller->original_bag_space - $used);
-
-		$this->db->where('id', $id);
-		$this->db->update('travellers', array(
-			'used_space'      => $used,
-			'available_space' => $available,
-		));
-
-		$this->db->trans_complete();
-		if (!$this->db->trans_status()) {
-			return false;
-		}
-
-		if ($return_snapshot) {
-			$traveller->used_space = $used;
-			$traveller->available_space = $available;
-			return $traveller;
-		}
-
-		return true;
+		$traveller->used_space = $capacity['used'];
+		$traveller->available_space = $capacity['available'];
+		return $return_snapshot ? $traveller : true;
 	}
 
 
@@ -350,20 +328,18 @@ class Travellers_model extends \MY_Model
 
 	public function unlock_traveller_bag($id)
 	{
-		$traveller = $this->traveller_read_model->get_traveller_details_by_id($id);
-		if (!$traveller) return false;
-
-		$data = [
-			'bag_locked' => 0,
-			'available_space' => $traveller->original_bag_space - $traveller->used_space
-		];
-
-		$this->db->where('id', $id);
-		$updated = $this->db->update('travellers', $data);
-		if ($updated) {
-			$this->traveller_read_model->clearTravellerCountCaches();
+		if (!$this->db->trans_begin()) { return false; }
+		$traveller = booking_lock_traveller($this->db, $id);
+		if (!$traveller) { $this->db->trans_rollback(); return false; }
+		$traveller->bag_locked = 0;
+		$capacity = booking_capacity_snapshot($this->db, $traveller);
+		if (!$capacity || $capacity['overcommitted'] || !$this->db->where('id', (int) $id)->update('travellers',
+			['bag_locked' => 0, 'used_space' => $capacity['used'], 'available_space' => $capacity['available']])
+			|| !$this->db->trans_status() || !$this->db->trans_commit()) {
+			$this->db->trans_rollback(); return false;
 		}
-		return $updated;
+		$this->traveller_read_model->clearTravellerCountCaches();
+		return true;
 	}
 
 

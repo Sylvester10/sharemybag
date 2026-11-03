@@ -177,21 +177,23 @@ jQuery(document).ready(function ($) {
         var destination = $('#select_destination').val();
 
         $('#select_location option').each(function () {
-            var shouldExclude = Boolean(destination) && $(this).val() === destination;
-            $(this).prop('disabled', shouldExclude).prop('hidden', shouldExclude);
+            var shouldExclude =
+                Boolean(destination) && $(this).val() === destination;
+            $(this)
+                .prop('disabled', shouldExclude)
+                .prop('hidden', shouldExclude);
         });
 
         $('#select_destination option').each(function () {
             var shouldExclude = Boolean(location) && $(this).val() === location;
-            $(this).prop('disabled', shouldExclude).prop('hidden', shouldExclude);
+            $(this)
+                .prop('disabled', shouldExclude)
+                .prop('hidden', shouldExclude);
         });
     }
 
     function handleRouteChange(changedSelect, otherSelect) {
-        if (
-            changedSelect.val() &&
-            changedSelect.val() === otherSelect.val()
-        ) {
+        if (changedSelect.val() && changedSelect.val() === otherSelect.val()) {
             otherSelect.val('');
         }
 
@@ -241,6 +243,7 @@ jQuery(document).ready(function ($) {
         var destination = String($('#select_destination').val() || '').trim();
         var submitButton = form.find('.traveller-search-submit');
         var url = form.attr('action');
+        if (submitButton.prop('disabled')) return;
 
         if (!location || !destination || location === destination) {
             toastr.error(
@@ -251,6 +254,7 @@ jQuery(document).ready(function ($) {
         }
 
         $('#search-spinner').removeClass('d-none');
+        $('.search-results-card').addClass('d-none');
         $('#search-results').attr('aria-busy', 'true').html('');
         submitButton.prop('disabled', true);
 
@@ -279,7 +283,7 @@ jQuery(document).ready(function ($) {
             </div>
 
             <div class="traveller-results-header">
-              <p>We found <span class="traveller-results-kicker">${response.travellers.length}</span> travellers</p>
+              <p>We found <span class="traveller-results-kicker">${response.travellers.length}</span> traveller(s)</p>
             </div>
 
             <div class="traveller-results-grid">`;
@@ -291,6 +295,7 @@ jQuery(document).ready(function ($) {
                     html_response += `</div>`;
 
                     $('#search-results').html(html_response);
+                    $('.search-results-card').removeClass('d-none');
                 } else {
                     var noResultsHtml = `
                               <div class="card mb-0">
@@ -303,6 +308,7 @@ jQuery(document).ready(function ($) {
                                 </div>
                             </div>`;
                     $('#search-results').html(noResultsHtml);
+                    $('.search-results-card').removeClass('d-none');
                 }
             },
             error: function () {

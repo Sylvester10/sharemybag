@@ -43,4 +43,25 @@ result = run({ status: true, code_verified: true }, {
 });
 assert.equal(result.resets, 0, 'Code precheck must preserve hidden proof for the password step');
 assert.equal(result.location.href, null, 'Code precheck must not sign in or redirect');
-console.log('PASS: silent signup transitions, immediate redirects, failed-send retry callbacks and unchanged feedback for other forms.');
+// Exercise the password-login caller's actual options, not a copied configuration.
+const home = fs.readFileSync(path.join(__dirname, '../assets/website/js/home.js'), 'utf8');
+const loginUrl = home.indexOf("url: base_url + 'user_login/login_ajax'");
+const loginStart = home.lastIndexOf('submitInlineAjax(this, {', loginUrl);
+const loginEnd = home.indexOf('});', loginUrl) + 3;
+assert(loginUrl > 0 && loginStart > 0 && loginEnd > loginUrl);
+let loginOptions;
+vm.runInNewContext(home.slice(loginStart, loginEnd), {
+    base_url: '/', $() { return { val() { return '/dashboard'; } }; },
+    identifierField() { return 'email'; },
+    submitInlineAjax(form, options) { loginOptions = options; }
+});
+result = run({ status: true }, loginOptions);
+assert.deepEqual(result.alerts, [], 'Password login must not flash a default Success alert');
+assert.equal(result.location.href, '/dashboard');
+assert.deepEqual(result.delays, [0], 'Password login must redirect immediately');
+result = run({ status: true, redirect: '/continue-registration/fixture' }, loginOptions);
+assert.equal(result.location.href, '/continue-registration/fixture', 'Server-directed pending registration recovery remains intact');
+result = run({ status: false, msg: 'Enter valid account details and try again.' }, loginOptions);
+assert.deepEqual(result.alerts, ['alert alert-danger text-center'], 'Password errors remain visible');
+assert.equal(result.location.href, null, 'An invalid password must not redirect');
+console.log('PASS: silent signup and password-login redirects, failed-send/password errors, recovery redirects and unchanged feedback for other forms.');

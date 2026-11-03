@@ -661,6 +661,7 @@ jQuery(document).ready(function ($) {
             if (passwordMode) {
                 submitInlineAjax(this, {
                     url: base_url + 'user_login/login_ajax',
+                    suppressSuccess: true,
                     redirect: function () {
                         return $('#requested_page').val() || base_url + 'dashboard';
                     },

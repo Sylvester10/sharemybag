@@ -23,6 +23,9 @@ application/cache/*
 !application/cache/index.html
 !application/cache/.htaccess
 
+# Runtime logs stay on their own machine/server.
+application/logs/log-*.php
+
 # Runtime uploads
 assets/selfie/*
 !assets/selfie/.htaccess
@@ -71,6 +74,18 @@ PROJECT_REFERENCE.md
 !/tests/mail_request_safety_test.php
 !/tests/mail_safety_test.php
 !/tests/bulk_mail_queue_test.php
+!/tests/booking_checkout_test.php
+!/tests/booking_restore_test.js
+!/tests/booking_checkout_quote_test.php
+!/tests/booking_gateway_test.php
+!/tests/booking_checkout_flow_test.php
+!/tests/booking_webhook_test.php
+!/tests/booking_recovery_view_test.php
+!/tests/booking_history_ui_test.php
+!/tests/booking_history_routes_test.php
+!/tests/traveller_search_cards_test.php
+!/tests/traveller_search_loading_test.js
+!/tests/booking_checkout_concurrency_test.php
 !/tests/support/
 /tests/support/*
 !/tests/support/email_render.php
@@ -79,4 +94,8 @@ PROJECT_REFERENCE.md
 !/tests/fixtures/email_copy.json
 
 !/scripts/setup_signin_code_methods.php
+!/scripts/setup_booking_checkout.php
+!/scripts/verify_booking_checkout_http.php
+!/scripts/verify_booking_checkout.php
+!/scripts/preview_booking_history.php
 !/tests/signin_code_methods_test.php

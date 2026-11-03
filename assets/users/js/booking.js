@@ -1,3 +1,66 @@
+// Restore the existing form controls. Checkout identity, prices and tokens remain server-owned.
+function restoreBookingFormFields(form, snapshot) {
+    const editableFields = [
+        'category', 'item', 'size', 'parcel_status', 'receiver_status',
+        'agent_name', 'agent_email', 'agent_country_code', 'agent_phone',
+        'agent_address', 'agent_locality', 'agent_postcode',
+        'receiver_name', 'receiver_email', 'receiver_country_code', 'receiver_phone',
+        'receiver_address', 'receiver_locality', 'receiver_postcode',
+        'insurance', 'payment_method',
+    ];
+    editableFields.forEach(function (name) {
+        if (!Object.prototype.hasOwnProperty.call(snapshot, name)) return;
+        const value = String(snapshot[name] == null ? '' : snapshot[name]);
+        form.querySelectorAll('[name="' + name + '"]').forEach(function (field) {
+            if (field.type === 'radio' || field.type === 'checkbox') {
+                field.checked = field.value === value;
+            } else {
+                field.value = value;
+            }
+        });
+    });
+    let parcels = snapshot.items || [];
+    if (typeof parcels === 'string') {
+        try { parcels = JSON.parse(parcels); } catch (error) { parcels = []; }
+    }
+    return {
+        items: Array.isArray(parcels) ? parcels : [],
+        step: Math.min(4, Math.max(0, parseInt(snapshot._booking_step, 10) || 0)),
+    };
+}
+
+function createBookingParcelNode(item, currencySymbol) {
+    const parcel = document.createElement('div');
+    const size = Number(item.size) || 0;
+    const unitPrice = Number(item.unit_price) || 0;
+    const price = unitPrice * size;
+    const unit = item.unit || 'KG';
+    parcel.className = 'item select_item';
+    Object.entries({category: item.category, itemName: item.item_name, size: size,
+        price: price, unitPrice: unitPrice, unit: unit}).forEach(function (entry) {
+        parcel.setAttribute(entry[0], String(entry[1] == null ? '' : entry[1]));
+    });
+    const values = {category: item.category, name: item.item_name,
+        size: size + unit, price: currencySymbol + price.toFixed(2)};
+    Object.keys(values).forEach(function (name) {
+        const span = document.createElement('span');
+        span.className = name;
+        span.textContent = String(values[name] == null ? '' : values[name]);
+        parcel.appendChild(span);
+    });
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'delete btn btn-link p-0';
+    remove.title = 'Delete item';
+    remove.setAttribute('aria-label', 'Remove ' + String(item.item_name || 'parcel'));
+    const icon = document.createElement('i');
+    icon.className = 'ti ti-trash fs-4 text-danger';
+    icon.setAttribute('aria-hidden', 'true');
+    remove.appendChild(icon);
+    parcel.appendChild(remove);
+    return parcel;
+}
+
 jQuery(document).ready(function ($) {
     // ("use strict");
 
@@ -395,25 +458,204 @@ jQuery(document).ready(function ($) {
     });
     // --- END NEW LOGIC ---
 
+    const bookingForm = document.getElementById('booking_form');
+    const restoreData = document.getElementById('booking-restore-data');
+    let restoredBooking = null;
+    if (bookingForm && restoreData) {
+        try {
+            restoredBooking = restoreBookingFormFields(bookingForm, JSON.parse(restoreData.textContent));
+            const list = document.getElementById('item-list');
+            restoredBooking.items.forEach(function (item) {
+                const option = Array.from(document.getElementById('select1').options)
+                    .find(function (candidate) { return candidate.value === item.category; });
+                const rate = option ? Number(option.getAttribute('data-price')) : Number(item.unit_price);
+                list.appendChild(createBookingParcelNode(Object.assign({}, item, {unit_price: rate}),
+                    $('#holdThisInfo').attr('symbol') || ''));
+            });
+            $('#select1').trigger('change');
+            if (typeof window.initSmbPhoneInputs === 'function') window.initSmbPhoneInputs(bookingForm);
+            ['agentName', 'agentAddress', 'receiverName', 'receiverAddress'].forEach(function (id) {
+                const input = document.getElementById(id);
+                const target = document.getElementById(id + 'Value');
+                if (input && target) target.textContent = input.value;
+            });
+        } catch (error) {
+            toastr.error('We could not restore this booking. Reload the page and try again.', 'Booking Error');
+        }
+    }
+
     // NOTE: Calling updateBooking() once immediately to fix initial currency display
     initBookingStepper();
     initKycStepper();
     syncPaymentMethod();
-    updateBooking();
     updateitems();
+    updateBooking();
     updateCategoryAdvisory();
     updateWeightRoundingNotice(false);
 
-    $('#item-list')
-        .children('.select_item')
-        .each(function () {
-            activeItem = $(this);
-            activeItem.find('.delete').click(function () {
-                activeItem.remove();
-                updateitems();
-                updateBooking();
-            });
+    $('#item-list').on('click.bookingParcel', '.delete', function () {
+        $(this).closest('.select_item').remove();
+        $('#booking_form [name="booking_quote_token"]').val('');
+        updateitems();
+        updateBooking();
+    });
+
+    if (restoredBooking && $.fn.steps) {
+        for (let index = 0; index < restoredBooking.step; index++) {
+            const prior = $(bookingForm).steps('getCurrentIndex');
+            $(bookingForm).steps('next');
+            if ($(bookingForm).steps('getCurrentIndex') === prior) break;
+        }
+        syncBookingStepperState($(bookingForm));
+        updateBookingStepTitle($(bookingForm));
+    }
+    $(bookingForm).on('input.bookingQuote change.bookingQuote', 'input:not([type="hidden"]), select, textarea', function () {
+        $(bookingForm).find('[name="booking_quote_token"]').val('');
+        $(bookingForm).removeData('checkout-quote');
+    });
+
+    window.applyBookingCheckoutQuote = function (form, response) {
+        const pricing = response.pricing;
+        if (!pricing || !Array.isArray(pricing.items) || !response.quote_token) return false;
+        const currencySymbol = pricing.currency === 'GBP' ? '£' : pricing.currency === 'CAD' ? 'C$' : '₦';
+        $(form).find('[name="currency"]').val(pricing.currency);
+        $('#holdThisInfo').attr('currency', pricing.currency).attr('symbol', currencySymbol);
+        $('#holdThisInfo').attr(pricing.currency === 'CAD' ? 'dollar_sign' : 'pound_sign', currencySymbol);
+        $('#parcel-guarantee-notice').attr('data-currency-symbol', currencySymbol);
+        $('#insuranceBox option[data-protection-label]').each(function () {
+            const option = $(this);
+            option.text(option.attr('data-protection-label') + ' ' + currencySymbol + Number(option.val()).toFixed(2));
         });
+        const list = document.getElementById('item-list');
+        list.replaceChildren();
+        pricing.items.forEach(function (item) {
+            list.appendChild(createBookingParcelNode(item, $('#holdThisInfo').attr('symbol') || ''));
+        });
+        $('.service_charge').attr('charge', Number(pricing.service_charge) || 0);
+        const insuranceOption = $('#insuranceBox option:selected');
+        insuranceOption.attr('data-insurance', Number(pricing.insurance) || 0)
+            .data('insurance', Number(pricing.insurance) || 0);
+        if (Number(pricing.exchange_rate) > 0) {
+            $('#holdThisInfo').attr(pricing.currency === 'CAD' ? 'one_dollar' : 'one_pound', pricing.exchange_rate);
+            $(form).find('[name="rate"]').val(pricing.exchange_rate);
+        }
+        updateitems();
+        $(form).find('[name="booking_quote_token"]').val(response.quote_token);
+        $(form).data('checkout-quote', pricing);
+        updateBooking();
+        updateParcelGuaranteeNotice();
+        if ($.fn.steps) {
+            for (let index = $(form).steps('getCurrentIndex'); index < 4; index++) {
+                const prior = $(form).steps('getCurrentIndex');
+                $(form).steps('next');
+                if ($(form).steps('getCurrentIndex') === prior) break;
+            }
+        }
+        // Confirmation remains an explicit second click on the existing Finish control.
+        $(form).find('.actions a[href="#finish"]').trigger('focus');
+        return true;
+    };
+
+    function scheduleBookingRecoveryExpiry(button, timestamp) {
+        window.clearTimeout(button.data('booking-recovery-timeout'));
+        const deadline = Number(timestamp) * 1000;
+        if (!Number.isFinite(deadline) || deadline <= 0) return;
+        button.attr('data-resume-until', timestamp);
+        const expire = function () {
+            button.addClass('d-none').prop('disabled', true);
+            const container = button.closest('[data-booking-recovery]');
+            container.find('[data-booking-recovery-status]').text('');
+            if (button.attr('data-booking-mode') === 'check' || button.attr('data-expiry-checking') === 'true') {
+                container.closest('td').find('.badge').first()
+                    .removeClass('bg-danger-subtle text-danger text_danger')
+                    .addClass('bg-warning-subtle text-warning').text('Checking payment');
+            } else {
+                container.closest('td').find('.badge').first()
+                    .removeClass('bg-warning-subtle text-warning text-danger')
+                    .addClass('bg-danger-subtle text_danger').text('Canceled');
+            }
+        };
+        if (deadline <= Date.now()) expire();
+        else button.data('booking-recovery-timeout', window.setTimeout(expire, Math.min(900001, deadline - Date.now() + 1)));
+    }
+    function initializeBookingRecoveryButtons(buttons) {
+        buttons.each(function () {
+            const button = $(this);
+            if (button.data('booking-recovery-initialized')) return;
+            button.data('booking-recovery-initialized', true).prop('disabled', false);
+            scheduleBookingRecoveryExpiry(button, button.attr('data-resume-until'));
+        });
+    }
+    initializeBookingRecoveryButtons($('[data-booking-resume]'));
+    if ($.fn.dataTable && $.fn.dataTable.isDataTable('#default_order')) {
+        // DataTables detaches other pages. Their controls and deadlines must start now too.
+        initializeBookingRecoveryButtons($('#default_order').DataTable().rows().nodes().to$().find('[data-booking-resume]'));
+    }
+    $('#default_order').on('draw.dt.bookingRecovery', function () {
+        initializeBookingRecoveryButtons($(this).find('[data-booking-resume]'));
+    });
+    $(document).on('click.bookingResume', '[data-booking-resume]', function () {
+        const button = $(this);
+        if (button.prop('disabled')) return;
+        const container = button.closest('[data-booking-recovery]');
+        const body = new FormData();
+        body.append('booking_hash', button.attr('data-booking-hash'));
+        body.append('mode', button.attr('data-booking-mode') === 'check' ? 'check' : 'resume');
+        body.append('booking_checkout_token', container.attr('data-checkout-token'));
+        appendGlobalCsrfToFormData(body);
+        button.prop('disabled', true).attr('aria-busy', 'true');
+        button.find('[data-booking-resume-spinner]').removeClass('d-none');
+        $.ajax({
+            url: base_url + 'user_bookings/resume_ajax',
+            type: 'POST', data: body, dataType: 'json', processData: false, contentType: false,
+            success: function (response) {
+                updateGlobalCsrfHash(response.csrf_hash);
+                if (response.status && response.redirect) {
+                    window.location.assign(response.redirect);
+                    return;
+                }
+                const message = response.msg || 'We could not resume this booking. Please try again.';
+                container.find('[data-booking-recovery-status]').text(message);
+                toastr.error(message, response.title || 'Booking unavailable', {progressBar: true, timeOut: 6000});
+                const badge = container.closest('td').find('.badge').first();
+                if (response.review_required === true || response.review === true) {
+                    window.clearTimeout(button.data('booking-recovery-timeout'));
+                    button.addClass('d-none');
+                    badge.removeClass('bg-danger-subtle text-danger text_danger').addClass('bg-warning-subtle text-warning').text('Payment needs review');
+                    return;
+                }
+                if (response.checking_payment === true) {
+                    button.removeClass('d-none').attr('data-booking-mode', 'check');
+                    button.find('[data-booking-resume-label]').text('Check payment');
+                    badge.removeClass('bg-danger-subtle text-danger text_danger').addClass('bg-warning-subtle text-warning').text('Checking payment');
+                    scheduleBookingRecoveryExpiry(button, response.resume_until || button.attr('data-resume-until'));
+                    return;
+                }
+                if (response.recovery_expired === true) {
+                    button.attr('data-booking-mode', 'resume');
+                    scheduleBookingRecoveryExpiry(button, response.resume_until || 1);
+                    return;
+                }
+                if (response.resume_available === true) {
+                    button.removeClass('d-none').attr('data-booking-mode', 'resume');
+                    button.find('[data-booking-resume-label]').text('Resume booking');
+                    badge.removeClass('bg-danger-subtle text-danger text_danger').addClass('bg-warning-subtle text-warning').text('Not completed');
+                    scheduleBookingRecoveryExpiry(button, response.resume_until);
+                    return;
+                }
+                if (response.resume_available === false && response.checking_payment !== true) button.addClass('d-none');
+            },
+            error: function (xhr) {
+                const error = getAjaxErrorMessage(xhr, 'We could not check this booking. Please try again.');
+                container.find('[data-booking-recovery-status]').text(error.message);
+                toastr.error(error.message, error.title, {progressBar: true, timeOut: 6000});
+            },
+            complete: function () {
+                button.prop('disabled', false).attr('aria-busy', 'false');
+                button.find('[data-booking-resume-spinner]').addClass('d-none');
+            },
+        });
+    });
 
     // Add an event listener to the "add-item" button
     $('button#add-me').click(function () {
@@ -545,43 +787,13 @@ jQuery(document).ready(function ($) {
                 let specialCharge = isSpecialCategory(category) ? 10 : 0;
 
                 // Create a new item element with the selected category, item name, size, price, special charge, and delete icon
-                const newItem = document.createElement('div');
                 let currencySymbol = $('#holdThisInfo').attr('symbol');
-                newItem.classList.add('item');
-                newItem.classList.add('select_item');
-                newItem.setAttribute('category', category);
-                newItem.setAttribute('itemName', itemName);
-                newItem.setAttribute('size', kg);
-                newItem.setAttribute('price', kg * price); // Set price attribute to unit price * size
-                newItem.setAttribute('unitPrice', price);
-                newItem.setAttribute('unit', unit); // --- NEW: Store the unit (KG or Piece) ---
-                newItem.innerHTML = `
-                    <span class="category">${category}</span>
-                    <span class="name">${itemName}</span>
-                    <span class="size">${size}${unit}</span>
-                    <span class="price">${currencySymbol}${parseFloat(
-                        (kg * price).toFixed(2)
-                    )} </span>
-                    <span class="delete" title="Delete item"><i class="ti ti-trash fs-4 text-danger"></i></span>
-                `;
+                const newItem = createBookingParcelNode({category: category,
+                    item_name: itemName, size: kg, unit_price: price, unit: unit}, currencySymbol);
 
                 // Add the new item element to the list
                 document.getElementById('item-list').appendChild(newItem);
                 showMobileItemAddedFeedback(itemName);
-
-                // Add an event listener to the delete icon of the new item element
-                newItem
-                    .querySelector('.delete')
-                    .addEventListener('click', function () {
-                        // Remove the new item element from the list
-                        newItem.remove();
-
-                        updateitems();
-                        updateBooking();
-                        document.getElementById(
-                            'special-charge-value'
-                        ).textContent = getSpecialCharge().toFixed(2);
-                    });
 
                 // Clear the select and text fields
                 document.getElementById('select1').selectedIndex = 0;
@@ -1271,6 +1483,19 @@ function calculateBooking() {
         onePound: onePound,
         oneDollar: oneDollar, // Added oneDollar
     };
+    const quoted = $('#booking_form').data('checkout-quote');
+    if (quoted && $('#booking_form [name="booking_quote_token"]').val()) {
+        Object.assign(calculatedValues, {
+            selectedSpace: Number(quoted.selected_space),
+            selectedPrice: quoted.items.reduce(function (sum, item) { return sum + Number(item.unit_price) * Number(item.size); }, 0),
+            subTotal: Number(quoted.sub_total),
+            serviceCharge: Number(quoted.service_charge),
+            insurance: Number(quoted.insurance),
+            vat: Number(quoted.vat),
+            totalAmount: Number(quoted.total_amount),
+            baseTotal: Number(quoted.total_amount) - Number(quoted.vat),
+        });
+    }
     $('#price_calculations').val(JSON.stringify(calculatedValues));
     return calculatedValues;
 }
@@ -1341,7 +1566,16 @@ function updateBooking() {
     }
 
     // Set the value for the large display on the summary page
-    $('#totalAmountDisplay').html(largeTotalDisplay);
+    if (getSelectedPaymentMethod() === 'paystack') {
+        const quote = $('#booking_form').data('checkout-quote');
+        const rate = Number($('#holdThisInfo').attr(currency === 'CAD' ? 'one_dollar' : 'one_pound'));
+        const payable = quote && $('#booking_form [name="booking_quote_token"]').val()
+            ? Number(quote.charge_minor) / 100 : totalAmount * rate;
+        if (Number.isFinite(payable) && payable > 0) {
+            largeTotalDisplay += ' (₦' + payable.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ')';
+        }
+    }
+    $('#totalAmountDisplay').text(largeTotalDisplay);
 
     // --- END UPDATED CURRENCY DISPLAY LOGIC ---
 }

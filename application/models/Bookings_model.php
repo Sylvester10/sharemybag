@@ -1,5 +1,6 @@
 <?php
 defined('BASEPATH') or exit('Direct access to script not allowed');
+require_once APPPATH . 'helpers/booking_capacity_helper.php';
 
 /* ===== Documentation =====
 Name: Bookings_model
@@ -347,6 +348,17 @@ class Bookings_model extends \MY_Model
 	public function confirm_booking($id)
 	{
 		if (!$this->db->trans_start()) { return false; }
+		if ($this->db->table_exists('booking_checkouts')) {
+			$lock = $this->db->dbdriver === 'sqlite3' ? '' : ' FOR UPDATE';
+			$locked_booking = $this->db->query('SELECT * FROM bookings WHERE id = ?' . $lock, [(int) $id])->row();
+			if (!$locked_booking || !booking_lock_traveller($this->db, $locked_booking->traveller_id)) {
+				$this->db->trans_rollback(); return false;
+			}
+			if ($this->db->where('booking_id', (int) $id)->get('booking_checkouts')->row()
+				&& payment_status_normalize($locked_booking->payment_status) !== 'completed') {
+				$this->db->trans_rollback(); return false;
+			}
+		}
 
 		$data = array(
 			'payment_status' => payment_status_normalize('completed'),
@@ -422,17 +434,25 @@ class Bookings_model extends \MY_Model
 
 	public function add_parcel($booking_id, $item_name, $category, $item_size, $notes = '')
 	{
-		$booking = $this->booking_read_model->get_booking_details_by_id($booking_id);
+		if (!$this->db->trans_begin()) { return ['status' => false, 'msg' => 'Unable to update this booking.']; }
+		$lock = $this->db->dbdriver === 'sqlite3' ? '' : ' FOR UPDATE';
+		$booking = $this->db->query('SELECT * FROM bookings WHERE id = ?' . $lock, [(int) $booking_id])->row();
 		if (!$booking || payment_status_normalize($booking->payment_status) !== 'completed') {
+			$this->db->trans_rollback();
 			return ['status' => false, 'msg' => 'Booking not found or not in a completed state.'];
 		}
 
-		$traveller = $this->traveller_read_model->get_traveller_details_by_id($booking->traveller_id);
+		$traveller = booking_lock_traveller($this->db, $booking->traveller_id);
+		$capacity = $traveller ? booking_capacity_snapshot($this->db, $traveller) : false;
+		if (!$capacity) { $this->db->trans_rollback(); return ['status' => false, 'msg' => 'Traveller not found.']; }
+		$traveller->available_space = $capacity['available'];
 		if (!$traveller) {
+			$this->db->trans_rollback();
 			return ['status' => false, 'msg' => 'Traveller not found.'];
 		}
 
-		if ($item_size > (float) $traveller->available_space) {
+		if ($item_size <= 0 || $item_size > (float) $traveller->available_space) {
+			$this->db->trans_rollback();
 			return [
 				'status' => false,
 				'msg' => "Not enough space. Traveller only has {$traveller->available_space}KG available."
@@ -458,7 +478,6 @@ class Bookings_model extends \MY_Model
 		$new_total = round($old_total + $item_price + $special_charge, 2);
 		$new_commission = round($old_commission + $this->get_category_commission_delta($category, $item_size, $traveller), 2);
 
-		$this->db->trans_start();
 
 		$this->db->where('id', $booking_id);
 		$this->db->update('bookings', [
@@ -468,12 +487,15 @@ class Bookings_model extends \MY_Model
 			'traveller_commission' => $new_commission,
 		]);
 
-		$this->travellers_model->update_traveller_space($booking->traveller_id);
+		if (!$this->travellers_model->update_traveller_space($booking->traveller_id)) {
+			$this->db->trans_rollback();
+			return ['status' => false, 'msg' => 'There is not enough available bag space for this change.'];
+		}
 		$this->log_parcel_change($booking_id, 'add', $new_item, $old_total, $new_total, $old_commission, $new_commission, $notes);
 
-		$this->db->trans_complete();
+		$committed = $this->db->trans_complete();
 
-		if ($this->db->trans_status() === FALSE) {
+		if (!$committed || $this->db->trans_status() === FALSE) {
 			log_message('error', 'Transaction failed in ' . __METHOD__);
 			return ['status' => false, 'msg' => 'Failed to update booking parcel.'];
 		}
@@ -494,19 +516,27 @@ class Bookings_model extends \MY_Model
 
 	public function remove_parcel($booking_id, $item_index, $notes = '')
 	{
-		$booking = $this->booking_read_model->get_booking_details_by_id($booking_id);
+		if (!$this->db->trans_begin()) { return ['status' => false, 'msg' => 'Unable to update this booking.']; }
+		$lock = $this->db->dbdriver === 'sqlite3' ? '' : ' FOR UPDATE';
+		$booking = $this->db->query('SELECT * FROM bookings WHERE id = ?' . $lock, [(int) $booking_id])->row();
 		if (!$booking || payment_status_normalize($booking->payment_status) !== 'completed') {
+			$this->db->trans_rollback();
 			return ['status' => false, 'msg' => 'Booking not found or not in a completed state.'];
 		}
 
-		$traveller = $this->traveller_read_model->get_traveller_details_by_id($booking->traveller_id);
+		$traveller = booking_lock_traveller($this->db, $booking->traveller_id);
+		$capacity = $traveller ? booking_capacity_snapshot($this->db, $traveller) : false;
+		if (!$capacity) { $this->db->trans_rollback(); return ['status' => false, 'msg' => 'Traveller not found.']; }
+		$traveller->available_space = $capacity['available'];
 		$current_items = json_decode($booking->items, true) ?: [];
 
 		if (!isset($current_items[$item_index])) {
+			$this->db->trans_rollback();
 			return ['status' => false, 'msg' => 'Item not found at the specified index.'];
 		}
 
 		if (count($current_items) <= 1) {
+			$this->db->trans_rollback();
 			return ['status' => false, 'msg' => 'Cannot remove the last item from a booking. Cancel the booking instead.'];
 		}
 
@@ -525,7 +555,6 @@ class Bookings_model extends \MY_Model
 		$new_items_json = json_encode(array_values($current_items));
 		$new_selected_space = max(0, (float) $booking->selected_space - $removed_size);
 
-		$this->db->trans_start();
 
 		$this->db->where('id', $booking_id);
 		$this->db->update('bookings', [
@@ -535,12 +564,15 @@ class Bookings_model extends \MY_Model
 			'traveller_commission' => $new_commission,
 		]);
 
-		$this->travellers_model->update_traveller_space($booking->traveller_id);
+		if (!$this->travellers_model->update_traveller_space($booking->traveller_id)) {
+			$this->db->trans_rollback();
+			return ['status' => false, 'msg' => 'There is not enough available bag space for this change.'];
+		}
 		$this->log_parcel_change($booking_id, 'remove', $removed_item, $old_total, $new_total, $old_commission, $new_commission, $notes);
 
-		$this->db->trans_complete();
+		$committed = $this->db->trans_complete();
 
-		if ($this->db->trans_status() === FALSE) {
+		if (!$committed || $this->db->trans_status() === FALSE) {
 			log_message('error', 'Transaction failed in ' . __METHOD__);
 			return ['status' => false, 'msg' => 'Failed to update booking parcel.'];
 		}
@@ -899,6 +931,12 @@ class Bookings_model extends \MY_Model
 			return array('status' => false, 'msg' => 'The selected traveller must have the same origin and destination.');
 		}
 
+		$targetCapacity = booking_capacity_snapshot($this->db, $targetTraveller);
+		if (!$targetCapacity || $targetCapacity['overcommitted']) {
+			$this->db->trans_rollback();
+			return ['status' => false, 'msg' => 'Unable to confirm the selected traveller capacity.'];
+		}
+		$targetTraveller->available_space = $targetCapacity['available'];
 		$parcelSize = (float) $booking->selected_space;
 		if ($parcelSize <= 0 || (float) $targetTraveller->available_space < $parcelSize) {
 			$this->db->trans_rollback();
@@ -1084,25 +1122,8 @@ class Bookings_model extends \MY_Model
 		// Retrieve the traveller_id from the booking
 		$traveller_id = $y->traveller_id;
 
-		// Retrieve the current available space for the traveller from the travellers table
-		$this->db->select('available_space');
-		$this->db->where('id', $traveller_id);
-		ci_where_not_deleted($this->db, 'travellers');
-		$query = $this->db->get('travellers');
-		$current_row = $query->row();
-		$current_space = $current_row ? $current_row->available_space : NULL;
-
-		if ($current_space !== NULL) {
-			// Calculate the new available space
-			$new_space = $current_space + $selected_space;
-
-			// Update the available_space in the travellers table
-			$data = array(
-				'available_space' => $new_space,
-			);
-			$this->db->where('id', $traveller_id);
-			ci_where_not_deleted($this->db, 'travellers');
-			$this->db->update('travellers', $data);
+		if (!$this->travellers_model->update_traveller_space($traveller_id)) {
+			$this->db->trans_rollback(); return false;
 		}
 
 		// Delete rows from the shipping table with the same Tracking ID
