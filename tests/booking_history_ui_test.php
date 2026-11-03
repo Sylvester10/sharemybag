@@ -4,15 +4,17 @@ require __DIR__.'/booking_recovery_view_test.php';
 function history_route_label($xpath) { return preg_replace('/\s+/u', ' ', trim($xpath->query('//*[@data-history-route]')->item(0)->textContent)); }
 $state=['resume_available'=>true,'checking_payment'=>false,'message'=>'','resume_until'=>time()+900];
 $pending=recovery_history($state,['tracking_id'=>'SMB7654321','traveller_id'=>81,'traveller_departure_state'=>'London Heathrow Airport','traveller_arrival_state'=>'Lagos International Airport','selected_space'=>3,'agent_name'=>'<img src=x onerror=alert(1)>',
-    'traveller_drop_address1'=>'Must not be exposed','items'=>'[{"item_name":"<script>alert(1)</script>","category":"Normal","size":2,"unit_price":6.5,"unit":"KG"},{"item_name":"Laptop","category":"Laptop","size":1,"unit_price":30,"unit":"PC"}]'],[81=>(object)['location'=>'United Kingdom','destination'=>'Nigeria']]);
+    'traveller_drop_address1'=>'Must not be exposed','items'=>'[{"item_name":"<script>alert(1)</script>","category":"Normal","size":2,"unit_price":6.5,"unit":"KG"},{"item_name":"Laptop","category":"Laptop","size":1,"unit_price":30,"unit":"PC"}]'],[81=>(object)['location'=>'United Kingdom','destination'=>'Nigeria','area'=>'Gatwick','current_state'=>'Greater London','destination_area'=>'Oshodi','arrival_state'=>'Lagos']]);
 recovery_view_check($pending->query('//*[@data-history-open]')->length===1,'Each row has one accessible details trigger.');
 recovery_view_check($pending->query('//*[@id="history-booking-details"]')->length===1,'All rows share one details modal.');
 recovery_view_check($pending->query('//table[@id="default_order"]/thead/tr/th')->length===6,'Desktop keeps the original six columns.');
 recovery_view_check($pending->query('//*[@data-history-reference]')->item(0)->getAttribute('data-history-reference')==='SMB7654321','Details retain the existing booking tracking reference.');
-recovery_view_check(history_route_label($pending)==='UK → Nigeria','Country names replace airport names in the mobile title.');
+recovery_view_check(history_route_label($pending)==='Gatwick, Greater London → Oshodi, Lagos','Mobile titles use the same area and city/state fields as traveller search.');
+recovery_view_check($pending->query('//*[@data-history-open]//i[contains(@class,"ti-chevron-right")]')->length===0,'The route uses the full header without a right chevron.');
+recovery_view_check($pending->query('//*[@data-history-route]/*[contains(@class,"history-route-country")]')->length===2,'Route endpoints have independent wrapping columns.');
 recovery_view_check($pending->query('//*[@data-history-route]//i[contains(@class,"cf-gb")][@aria-hidden="true"]')->length===1
     && $pending->query('//*[@data-history-route]//i[contains(@class,"cf-ng")][@aria-hidden="true"]')->length===1,'Each country has its matching decorative flag.');
-recovery_view_check($pending->query('//*[@id="history-details-title"][@data-history-target="route"]')->length===1,'The modal heading receives the country route and flags.');
+recovery_view_check($pending->query('//*[@id="history-details-title"][@data-history-target="route"]')->length===1,'The modal heading receives the same route and flags.');
 $sections=[];
 foreach ($pending->query('//*[contains(@class,"modal-body")]/section/h3') as $heading) { $sections[]=trim($heading->textContent); }
 recovery_view_check($sections===['Traveller Details','Agent Details','Item Details','Payment Details'],'The modal sections follow the requested reading order.');
@@ -51,4 +53,8 @@ foreach ([['Nigeria','Canada','Nigeria → Canada'],['Canada','Nigeria','Canada 
     recovery_view_check(history_route_label($row)===$route[2],'Both Canada route directions are retained.');
     recovery_view_check($row->query('//*[@data-history-route]//i[contains(@class,"cf-ca")]')->length===1,'Canada routes retain the Canadian flag in either direction.');
 }
+$partial=recovery_history([],['traveller_id'=>81],[81=>(object)['location'=>'United Kingdom','destination'=>'Nigeria','area'=>'','current_state'=>'Greater London','destination_area'=>'Oshodi','arrival_state'=>'']]);
+recovery_view_check(history_route_label($partial)==='Greater London → Oshodi','Partially filled routes omit empty separators.');
+$escaped=recovery_history([],['traveller_id'=>81],[81=>(object)['location'=>'United Kingdom','destination'=>'Nigeria','area'=>'<img src=x onerror=alert(1)>','current_state'=>'London','destination_area'=>'Oshodi','arrival_state'=>'Lagos']]);
+recovery_view_check($escaped->query('//*[@data-history-route]//img')->length===0,'Route area names remain escaped.');
 echo "PASS: shared mobile/desktop booking rows, accessible single modal, financial actions, safe permitted details and retained parcel instructions.\n";

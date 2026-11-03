@@ -27,7 +27,7 @@ class History extends MY_Controller
         $data['active_only'] = $activeOnly;
         $data['booking'] = $this->booking_read_model->get_bookings_by_user_id($user_id, $activeOnly);
         $travellerIds = array_map(static function ($booking) { return (int) $booking->traveller_id; }, $data['booking']);
-        $data['booking_routes'] = $this->traveller_read_model->get_route_countries_by_ids($travellerIds);
+        $data['booking_routes'] = $this->traveller_read_model->get_routes_by_ids($travellerIds);
         $this->load->library('booking_checkout_flow');
         $this->load->model('booking_checkout_model');
         $data['resume_token'] = $this->booking_checkout_flow->intent();

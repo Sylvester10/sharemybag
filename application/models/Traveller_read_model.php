@@ -22,13 +22,13 @@ class Traveller_read_model extends \MY_Model
         return $this->dataByHash($hash);
     }
 
-    /** Country metadata for an already owner-scoped booking list, including past trips. */
-    public function get_route_countries_by_ids(array $ids)
+    /** Public route metadata for an already owner-scoped booking list, including past trips. */
+    public function get_routes_by_ids(array $ids)
     {
         $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static function ($id) { return $id > 0; })));
         if (!$ids) { return []; }
         // Retain historical route labels even after a traveller is archived.
-        $rows = $this->db->select('id, location, destination')->where_in('id', $ids)->get($this->table)->result();
+        $rows = $this->db->select('id, location, destination, area, current_state, destination_area, arrival_state')->where_in('id', $ids)->get($this->table)->result();
         $routes = [];
         foreach ($rows as $row) { $routes[(int) $row->id] = $row; }
         return $routes;
