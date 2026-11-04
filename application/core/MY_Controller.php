@@ -130,7 +130,7 @@ class MY_Controller extends CI_Controller
 			$data['pending_users_count'] = (int) $this->user_read_model->count_pending_users();
 			$data['new_completed_bookings_count'] = $this->booking_read_model->count_new_completed_bookings();
 		}
-		if (in_array($role, ['super_admin', 'traveller_support'], true)) {
+		if (in_array($role, ['super_admin', 'traveller_support', 'customer_support'], true)) {
 			$this->load->model('travellers_model');
 			$data['pending_travellers_count'] = (int) $this->travellers_model->count_pending_travellers();
 		}
