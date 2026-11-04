@@ -11,7 +11,7 @@ Date Created: 10th May, 2023
 
 UPDATED:
   - traveller_support: full access to travellers section
-  - customer_support:  read-only access (view only, no add/edit/delete)
+  - customer_support:  full access to travellers section
   - super_admin:       full access
 */
 
@@ -23,9 +23,7 @@ class Admin_travellers extends MY_Controller
     {
         parent::__construct();
         $this->admin_restricted();
-        // customer_support can't manage travellers directly
-        // they can see bookings but not edit traveller listings
-        $this->admin_role_restricted(['super_admin', 'traveller_support']);
+        $this->admin_role_restricted(['super_admin', 'traveller_support', 'customer_support']);
         $this->load->model('travellers_model');
         $this->load->model('users_model');
         $this->load->model('user_read_model');
@@ -558,10 +556,10 @@ class Admin_travellers extends MY_Controller
     }
 
 
-    /* DELETE — super_admin only */
+    /* DELETE — super_admin and customer_support */
     public function delete_traveller($id)
     {
-        $this->admin_role_restricted(['super_admin']);
+        $this->admin_role_restricted(['super_admin', 'customer_support']);
         $this->check_data_exists($id, 'id', 'travellers', 'admin');
         $this->travellers_model->delete_traveller($id);
         $this->session->set_flashdata('status_msg', 'Traveller Deleted.');

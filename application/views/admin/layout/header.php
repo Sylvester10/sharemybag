@@ -126,10 +126,10 @@
 									</li>
 								<?php endif; ?>
 
-								<?php $can_manage_travellers = in_array($role, ['super_admin', 'traveller_support']); ?>
+								<?php $can_manage_travellers = in_array($role, ['super_admin', 'traveller_support', 'customer_support']); ?>
 								<?php $can_manage_shipping = $ci->admin_can_manage_shipping(); ?>
 								<?php if ($can_manage_travellers || $can_manage_shipping): ?>
-									<!-- Travellers — super_admin + traveller_support -->
+									<!-- Travellers — super_admin + traveller_support + customer_support -->
 									<li>
 										<a><i class="las la-plane"></i> Travellers <?php if ($can_manage_travellers && $pending_travellers_count > 0): ?><span class="admin-sidebar-count" aria-label="<?php echo $pending_travellers_count; ?> pending travellers"><?php echo $pending_travellers_count; ?></span><?php endif; ?> <span class="las la-angle-down"></span></a>
 										<ul class="nav child_menu">
