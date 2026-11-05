@@ -20,9 +20,14 @@
             </div>
             <div class="admin-user-profile__layout">
                 <div class="admin-user-profile__identity">
+                    <?php if (get_instance()->get_admin_role() === 'customer_support'): ?>
+                        <?php $initials = mb_strtoupper(mb_substr(trim((string) $y->firstname), 0, 1) . mb_substr(trim((string) $y->lastname), 0, 1)); ?>
+                        <span class="img-circle admin-user-profile__avatar admin-user-profile__initials" role="img" aria-label="Client initials"><?= html_escape($initials) ?></span>
+                    <?php else: ?>
                     <img class="img-circle admin-user-profile__avatar"
-                        src="<?= html_escape($y->selfie ? base_url('assets/selfie/' . $y->selfie) : user_avatar) ?>"
+                        src="<?= html_escape($y->selfie ? base_url('file/selfie/' . rawurlencode($y->selfie)) : user_avatar) ?>"
                         alt="<?= html_escape(trim($y->firstname . ' ' . $y->lastname)) ?>">
+                    <?php endif; ?>
                     <h2 class="admin-user-profile__name"><?= html_escape(trim($y->firstname . ' ' . $y->lastname)) ?></h2>
                     <div class="admin-user-profile__actions">
                         <button type="button" class="btn btn-default btn-sm btn-block action-btn" data-toggle="modal" data-target="#update<?= (int) $y->id ?>"><i class="las la-pen" aria-hidden="true"></i> &nbsp; Update Details</button>
@@ -172,7 +177,7 @@
 $options_array = array(
     //'value' => 'Caption'
 );
-echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
+if (get_instance()->get_admin_role() !== 'customer_support') echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
 
 <div class="table-scroll admin-inline-table">
 
@@ -180,7 +185,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
         <thead>
             <tr>
-                <th class="w-15-p"> <input type="checkbox" class="radio-box select_all" /> </th>
+                <th class="w-15-p"> <?php if (get_instance()->get_admin_role() !== 'customer_support'): ?><input type="checkbox" class="radio-box select_all" /><?php endif; ?> </th>
                 <th> Actions </th>
                 <th class="min-w-300">Traveller Details</th>
                 <th class="min-w-300">Agent Details</th>
@@ -198,7 +203,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
             foreach ($bookings as $y) { ?>
 
                 <tr>
-                    <td> <?php echo checkbox_bulk_action($y->id); ?></td>
+                    <td> <?php if (get_instance()->get_admin_role() !== 'customer_support') echo checkbox_bulk_action($y->id); ?></td>
 					<?php {
 						$cancelAction = '';
 						if (!empty($is_super_admin) && payment_status_normalize($y->payment_status) === 'completed') {
@@ -298,7 +303,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 </div>
 
-<?php echo form_close(); ?>
+<?php if (get_instance()->get_admin_role() !== 'customer_support') echo form_close(); ?>
 
 <?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/cancel_parcel'); ?>
 <?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/move_parcel'); ?>

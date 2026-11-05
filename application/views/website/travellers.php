@@ -1,5 +1,6 @@
     <?php
 
+    /* Referral feature suspended.
     if (isset($_GET['refer']) and $_GET['refer'] != "") {
         $refer = $_GET['refer'];
         $refer_state = "readonly";
@@ -8,6 +9,7 @@
         $refer_state = "";
     }
 
+    */
     ?>
 
     <!-- Breadcrumb Area -->
@@ -307,10 +309,13 @@
                                         <input type="file" class="form-control align-contents-center" name="itinerary_photo" accept=".jpeg,.jpg,.png,.pdf" required>
                                     </div>
 
-                                    <div class="col-12 col-md-6">
+                                    <?php /* Referral feature suspended.
+?>
+<div class="col-12 col-md-6">
                                         <label class="form-label">Referral Code (optional)</label>
                                         <input type="text" class="form-control" name="referred_by" <?php echo $refer_state; ?> value="<?php echo $refer; ?>" placeholder="example1234">
                                     </div>
+<?php */ ?>
 
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Captcha Code</label>

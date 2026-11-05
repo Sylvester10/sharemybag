@@ -20,10 +20,16 @@ class Admin_users_model_ajax extends CI_Model
     private function the_query()
     {
         $search_value = datatable_search_value();
+        $support = get_instance()->get_admin_role() === 'customer_support';
+        $columns = $support
+            ? array(null, null, 'firstname', 'number', 'country', 'is_verified', 'account_status', 'last_login', 'date_registered')
+            : array(null, null, null, null, null, 'firstname', 'number', 'country', 'is_verified', 'account_status', 'last_login', 'date_registered');
         $this->db->from($this->table);
         ci_where_not_deleted($this->db, $this->table);
         $i = 0;
-        foreach ($this->column_search as $item) // loop column
+        $search_columns = array_diff($this->column_search, array('selfie', 'id_card', 'utility'));
+        $search_columns = array_values($search_columns);
+        foreach ($search_columns as $item) // loop column
         {
             if ($search_value !== '') // if datatable send POST for search
             {
@@ -34,13 +40,16 @@ class Admin_users_model_ajax extends CI_Model
                 } else {
                     $this->db->or_like($item, $search_value);
                 }
-                if (count($this->column_search) - 1 == $i) //last loop
+                if (count($search_columns) - 1 == $i) //last loop
                     $this->db->group_end(); //close bracket
             }
             $i++;
         }
         if (isset($_POST['order'])) { // here order processing
-            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+            $column = $columns[(int) $_POST['order']['0']['column']] ?? null;
+            if ($column) {
+                $this->db->order_by($column, strtolower($_POST['order']['0']['dir']) === 'asc' ? 'asc' : 'desc');
+            }
         } else if (isset($this->order)) {
             $order = $this->order;
             $this->db->order_by(key($order), $order[key($order)]);
@@ -78,6 +87,11 @@ class Admin_users_model_ajax extends CI_Model
     {
         $y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
         $id = $y->id;
+
+        if (get_instance()->get_admin_role() === 'customer_support') {
+            return '<p><a href="' . base_url('admin_users/user_profile/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"><i class="las la-user"></i> &nbsp; View Profile</a></p>'
+                . registration_email_action($y);
+        }
 
         if ($y->account_status == 1) {
             $block_action = '<p><a type="button" href="' . base_url('admin_users/block_user/' . $y->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-times" style="color: red"></i> &nbsp; Block User </a></p>';
@@ -226,6 +240,9 @@ class Admin_users_model_ajax extends CI_Model
     public function modals($user)
     {
         $y = is_object($user) ? $user : $this->user_read_model->get_user_details_by_id($user);
+        if (get_instance()->get_admin_role() === 'customer_support') {
+            return $this->modal_options($y);
+        }
         $modal_delete_confirm = modal_delete_confirm($y->id, $y->firstname, 'user', 'admin_users/delete_user');
         return     $this->modal_options($y) .
             $this->modal_unverify($y) .

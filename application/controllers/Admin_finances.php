@@ -38,12 +38,7 @@ class Admin_finances extends MY_Controller
         $inner_page_title = 'All GBP Finances';
         $this->admin_header('Admin', $inner_page_title);
 
-        // --- GBP/Pounds Data ---
-        $data['total_pounds_tax'] = $this->finance_read_model->get_total_pounds_tax();
-        $data['total_pounds_amount'] = $this->finance_read_model->get_total_pounds_amount();
-
-        // Assuming these methods are intended to calculate the sum of commission directly from the DB
-        $data['total_pounds_commission'] = $this->finance_read_model->get_total_pounds_commission();
+        $data['finance_cards'] = $this->finance_read_model->get_finance_cards('GBP');
 
         $this->load->view('admin/finances/pound_finances', $data);
         $this->admin_footer();
@@ -120,12 +115,7 @@ class Admin_finances extends MY_Controller
         $inner_page_title = 'All CAD Finances'; // Updated title
         $this->admin_header('Admin', $inner_page_title);
 
-        // --- CAD/Dollars Data ---
-        $data['total_cad_tax'] = $this->finance_read_model->get_total_cad_tax();
-        $data['total_cad_amount'] = $this->finance_read_model->get_total_cad_amount();
-
-        // Assuming these methods calculate the sum of commission directly from the DB
-        $data['total_cad_commission'] = $this->finance_read_model->get_total_cad_commission();
+        $data['finance_cards'] = $this->finance_read_model->get_finance_cards('CAD');
 
         $this->load->view('admin/finances/dollar_finances', $data);
         $this->admin_footer();

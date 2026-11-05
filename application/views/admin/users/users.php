@@ -5,6 +5,7 @@
 
 
 <?php
+$restricted_support = get_instance()->get_admin_role() === 'customer_support';
 //select options bulk actions
 $options_array = array(
 	//'value' => 'Caption'
@@ -14,10 +15,10 @@ $options_array = array(
 	'unblock' => 'Unblock',
 	'delete' => 'Delete'
 );
-echo modal_bulk_actions('admin_users/bulk_actions_user', $options_array); ?>
+if (!$restricted_support) echo modal_bulk_actions('admin_users/bulk_actions_user', $options_array); ?>
 <?php
 $columns = array(
-    array('label' => '<input type="checkbox" class="radio-box select_all" />', 'class' => 'w-15-p'),
+    array('label' => $restricted_support ? '' : '<input type="checkbox" class="radio-box select_all" />', 'class' => 'w-15-p'),
     array('label' => 'Actions'),
     array('label' => 'Photo'),
     array('label' => 'Id Card'),
@@ -30,6 +31,9 @@ $columns = array(
     array('label' => 'Last Login', 'class' => 'min-w-100'),
     array('label' => 'Date Registered', 'class' => 'min-w-100'),
 );
+if ($restricted_support) {
+    array_splice($columns, 2, 3);
+}
 $this->load->view('admin/partials/datatable_shell', array(
     'table_id' => 'users_table',
     'columns' => $columns,
@@ -37,5 +41,5 @@ $this->load->view('admin/partials/datatable_shell', array(
 ));
 ?>
 
-<?php echo form_close(); ?>
+<?php if (!$restricted_support) echo form_close(); ?>
 <script src="<?= base_url('assets/admin/custom/js/registration_recovery.js') ?>" defer></script>

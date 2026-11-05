@@ -36,6 +36,7 @@ class Admin_bookings extends MY_Controller
     {
         parent::__construct();
         $this->admin_restricted(); //allow only logged in users to access this class
+        $this->customer_support_restricted();
         $this->load->model('bookings_model');
         $this->load->model('shipping_model');
         $this->load->model('travellers_model');
@@ -108,7 +109,7 @@ class Admin_bookings extends MY_Controller
             $new_tag = ($y->new == 0) ? ' <span class="badge badge-success">NEW</span>' : '';
 
             $row = array();
-            $row[] = checkbox_bulk_action($y->id);
+            $row[] = $this->get_admin_role() === 'customer_support' ? '' : checkbox_bulk_action($y->id);
             $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y, $isSuperAdmin);
             $row[] = x_datetime_full($y->date_added) . $new_tag;
             $row[] = $y->need_help;
@@ -204,7 +205,7 @@ class Admin_bookings extends MY_Controller
             $new_tag = ($y->new == 0) ? ' <span class="badge badge-success">NEW</span>' : '';
 
             $row = array();
-            $row[] = checkbox_bulk_action($y->id);
+            $row[] = $this->get_admin_role() === 'customer_support' ? '' : checkbox_bulk_action($y->id);
             $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y, $isSuperAdmin);
             $row[] = x_datetime_full($y->date_added) . $new_tag;
             $row[] = $y->need_help;
@@ -279,7 +280,7 @@ class Admin_bookings extends MY_Controller
             $total_amount = $this->booking_presenter->format_total_amount_summary($y->currency, $y->total_amount, $payment_method);
 
             $row = array();
-            $row[] = checkbox_bulk_action($y->id);
+            $row[] = $this->get_admin_role() === 'customer_support' ? '' : checkbox_bulk_action($y->id);
             $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y, $isSuperAdmin);
             $row[] = x_datetime_full($y->date_added);
             $row[] = $traveller_details;
@@ -450,7 +451,7 @@ class Admin_bookings extends MY_Controller
     {
         $this->check_data_exists($id, 'id', 'bookings', 'admin');
         $bookings_details = $this->booking_read_model->get_booking_details_by_id($id);
-        if (in_array($this->admin_details->role ?? 'super_admin', array('super_admin', 'customer_support'), true)
+        if (($this->admin_details->role ?? 'super_admin') === 'super_admin'
             && $bookings_details->payment_status === 'completed'
             && (int) $bookings_details->new === 0) {
             $this->bookings_model->update_new_status((int) $id);

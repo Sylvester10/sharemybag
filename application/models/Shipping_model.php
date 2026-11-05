@@ -28,7 +28,8 @@ class Shipping_model extends \MY_Model
 
         $data = $this->prepareShippingRecordData($booking, $payload);
         if ($data['pickup_address'] === '') {
-            return array('status' => false, 'msg' => "Add the traveler's 1st Drop Off Address before booking shipping.");
+            $message = "Enter the traveler's collection address.";
+            return array('status' => false, 'msg' => $message, 'field_errors' => array('pickup_address' => $message));
         }
         if (!$data['staff_name']) {
             return array('status' => false, 'msg' => 'Please select a staff member.');

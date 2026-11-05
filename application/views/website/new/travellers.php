@@ -1,5 +1,6 @@
     <?php
 
+    /* Referral feature suspended.
     if (isset($_GET['refer']) and $_GET['refer'] != "") {
         $refer = $_GET['refer'];
         $refer_state = "readonly";
@@ -8,6 +9,7 @@
         $refer_state = "";
     }
 
+    */
     ?>
 
 
@@ -103,9 +105,9 @@
                                     <section class="smb-traveller-field-section" aria-labelledby="smb-travel-details-title">
                                         <h3 id="smb-travel-details-title">Travel details</h3>
                                         <div class="smb-traveller-fields">
-                                        <div class="smb-standard-field">
-                                            <label for="traveller_location">Travelling from <span class="text-danger" aria-hidden="true">*</span></label>
-                                            <select class="nice-select form-control" id="traveller_location" name="location" required>
+                                            <div class="smb-standard-field">
+                                                <label for="traveller_location">Travelling from <span class="text-danger" aria-hidden="true">*</span></label>
+                                                <select class="nice-select form-control" id="traveller_location" name="location" required>
                                                     <option value="">Select</option>
                                                     <?php
                                                     $countries = countries();
@@ -115,11 +117,11 @@
                                                         </option>
                                                     <?php } ?>
                                                 </select>
-                                            
-                                        </div>
-                                        <div class="smb-standard-field">
-                                            <label for="traveller_destination">Travelling to <span class="text-danger" aria-hidden="true">*</span></label>
-                                            <select class="nice-select form-control" id="traveller_destination" name="destination" required>
+
+                                            </div>
+                                            <div class="smb-standard-field">
+                                                <label for="traveller_destination">Travelling to <span class="text-danger" aria-hidden="true">*</span></label>
+                                                <select class="nice-select form-control" id="traveller_destination" name="destination" required>
                                                     <option value="">Select</option>
                                                     <?php
                                                     $countries = countries();
@@ -129,57 +131,57 @@
                                                         </option>
                                                     <?php } ?>
                                                 </select>
-                                        </div>
-                                        <div class="smb-standard-field">
-                                            <label for="travelDate">Travel date <span class="text-danger" aria-hidden="true">*</span></label>
-                                            <input type="text" id="travelDate" placeholder="Select date" readonly aria-required="true" value="<?= set_value('travel_date') ? html_escape(date('jS \o\f F Y', strtotime(set_value('travel_date')))) : ''; ?>"><input type="hidden" name="travel_date" id="traveller_date_value" value="<?= html_escape(set_value('travel_date')); ?>">
-                                        </div>
-                                        <div class="smb-standard-field">
-                                            <label for="traveller_available_space">Available bag space (KG) <span class="text-danger" aria-hidden="true">*</span></label>
-                                            <select class="nice-select form-control" id="traveller_available_space" name="available_space" required>
+                                            </div>
+                                            <div class="smb-standard-field">
+                                                <label for="travelDate">Travel date <span class="text-danger" aria-hidden="true">*</span></label>
+                                                <input type="text" id="travelDate" placeholder="Select date" readonly aria-required="true" value="<?= set_value('travel_date') ? html_escape(date('jS \o\f F Y', strtotime(set_value('travel_date')))) : ''; ?>"><input type="hidden" name="travel_date" id="traveller_date_value" value="<?= html_escape(set_value('travel_date')); ?>">
+                                            </div>
+                                            <div class="smb-standard-field">
+                                                <label for="traveller_available_space">Available bag space (KG) <span class="text-danger" aria-hidden="true">*</span></label>
+                                                <select class="nice-select form-control" id="traveller_available_space" name="available_space" required>
                                                     <option value="">Select</option>
                                                     <?php for ($i = 1; $i <= 50; $i++) : ?>
                                                         <option value="<?= $i; ?>"><?= $i; ?> KG</option>
                                                     <?php endfor; ?>
                                                 </select>
-                                        </div>
+                                            </div>
                                         </div>
                                     </section>
                                     <section class="smb-traveller-field-section" aria-labelledby="smb-traveller-information-title">
                                         <h3 id="smb-traveller-information-title">Traveller information</h3>
                                         <div class="smb-traveller-fields">
-                                        <div class="smb-standard-field">
-                                            <label for="traveller_fullname">Full name <span class="text-danger" aria-hidden="true">*</span></label>
-                                            <input class="form-control" type="text" id="traveller_fullname" name="fullname" placeholder="John Doe" required>
-                                        </div>
-                                        <div class="smb-standard-field">
-                                            <label for="traveller_email">Email address <span class="text-danger" aria-hidden="true">*</span></label>
-                                            <input class="form-control" type="email" id="traveller_email" name="email" placeholder="xyz@gmail.com" required>
-                                        </div>
-                                        <?php $this->load->view('partials/phone_input', array(
-                                            'wrapper_class' => 'smb-standard-field',
-                                            'field_name' => 'phone',
-                                            'country_code_name' => 'c_code1',
-                                            'country_code_id' => 'country_code',
-                                            'input_id' => 'traveller_phone',
-                                            'country_code' => set_value('c_code1', '+44'),
-                                            'local_number' => set_value('phone'),
-                                            'label' => 'Contact number',
-                                            'placeholder' => '7911123456',
-                                            'required' => true,
-                                        )); ?>
-                                        <?php $this->load->view('partials/phone_input', array(
-                                            'wrapper_class' => 'smb-standard-field',
-                                            'field_name' => 'alt_phone',
-                                            'country_code_name' => 'c_code2',
-                                            'country_code_id' => 'country_code2',
-                                            'input_id' => 'traveller_alt_phone',
-                                            'country_code' => set_value('c_code2', '+44'),
-                                            'local_number' => set_value('alt_phone'),
-                                            'label' => 'Alternative number (optional)',
-                                            'placeholder' => '7911123456',
-                                            'required' => false,
-                                        )); ?>
+                                            <div class="smb-standard-field">
+                                                <label for="traveller_fullname">Full name <span class="text-danger" aria-hidden="true">*</span></label>
+                                                <input class="form-control" type="text" id="traveller_fullname" name="fullname" placeholder="John Doe" required>
+                                            </div>
+                                            <div class="smb-standard-field">
+                                                <label for="traveller_email">Email address <span class="text-danger" aria-hidden="true">*</span></label>
+                                                <input class="form-control" type="email" id="traveller_email" name="email" placeholder="xyz@gmail.com" required>
+                                            </div>
+                                            <?php $this->load->view('partials/phone_input', array(
+                                                'wrapper_class' => 'smb-standard-field',
+                                                'field_name' => 'phone',
+                                                'country_code_name' => 'c_code1',
+                                                'country_code_id' => 'country_code',
+                                                'input_id' => 'traveller_phone',
+                                                'country_code' => set_value('c_code1', '+44'),
+                                                'local_number' => set_value('phone'),
+                                                'label' => 'Contact number',
+                                                'placeholder' => '7911123456',
+                                                'required' => true,
+                                            )); ?>
+                                            <?php $this->load->view('partials/phone_input', array(
+                                                'wrapper_class' => 'smb-standard-field',
+                                                'field_name' => 'alt_phone',
+                                                'country_code_name' => 'c_code2',
+                                                'country_code_id' => 'country_code2',
+                                                'input_id' => 'traveller_alt_phone',
+                                                'country_code' => set_value('c_code2', '+44'),
+                                                'local_number' => set_value('alt_phone'),
+                                                'label' => 'Alternative number (optional)',
+                                                'placeholder' => '7911123456',
+                                                'required' => false,
+                                            )); ?>
 
                                         </div>
                                     </section>
@@ -189,7 +191,12 @@
                                                 <div><label class="form-label" for="traveller_itinerary_photo">Upload itinerary <span class="text-danger" aria-hidden="true">*</span></label><input type="file" class="form-control align-contents-center" id="traveller_itinerary_photo" name="itinerary_photo" accept=".jpeg,.jpg,.png,.pdf" required>
                                                     <p class="smb-upload-hint">Your itinerary should show your full name. JPG, PNG or PDF; maximum 5 MB.</p>
                                                 </div>
-                                                <div><label class="form-label" for="traveller_referred_by">Referral code (optional)</label><input type="text" class="form-control" id="traveller_referred_by" name="referred_by" <?php echo $refer_state; ?> value="<?php echo html_escape($refer); ?>" placeholder="example1234"></div>
+                                                <?php /* Referral feature suspended.
+?>
+<!-- <div>
+                                                    <label class="form-label" for="traveller_referred_by">Referral code (optional)</label><input type="text" class="form-control" id="traveller_referred_by" name="referred_by" <?php echo $refer_state; ?> value="<?php echo html_escape($refer); ?>" placeholder="example1234">
+                                                </div> -->
+<?php */ ?>
                                                 <div class="smb-document-fields">
                                                     <div><label class="form-label" for="traveller_captcha_code">Captcha code</label><input type="text" class="form-control" id="traveller_captcha_code" name="captcha_code" value="<?php echo $captcha_code; ?>" readonly></div>
                                                     <div><label class="form-label" for="traveller_c_captcha_code">Enter captcha code here <span class="text-danger" aria-hidden="true">*</span></label><input type="text" class="form-control" id="traveller_c_captcha_code" name="c_captcha_code" required placeholder=""></div>

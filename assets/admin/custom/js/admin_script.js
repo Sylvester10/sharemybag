@@ -696,7 +696,7 @@ jQuery(document).ready(function ($) {
         base_url + 'admin_users/user_ajax',
         'Search/filter user:'
     )
-        .order([9, 'desc'])
+        .order([$('body').attr('data-admin-role') === 'customer_support' ? 8 : 11, 'desc'])
         .draw();
 
     /////////////////////////////////////////////////////////
@@ -1853,7 +1853,7 @@ jQuery(document).ready(function ($) {
             $('#shipping_next_btn').removeClass('d-none');
             $('#shipping_submit_btn').addClass('d-none');
         } else {
-            if (mode === 'edit') {
+            if (mode === 'edit' || $('#manageShippingModal').attr('data-prefill-only') === '1') {
                 $('#shipping_back_btn').addClass('d-none');
             } else {
                 $('#shipping_back_btn').removeClass('d-none');
@@ -1867,6 +1867,19 @@ jQuery(document).ready(function ($) {
         $('#shipping_modal_error, #shipping_modal_success')
             .addClass('d-none')
             .text('');
+        $('#manageShippingModal [id^="shipping_"]').each(function () {
+            window.AdminModalValidation.clearFieldError(this);
+        });
+    }
+
+    function shippingShowFieldErrors(errors) {
+        $.each(errors || {}, function (field, message) {
+            if (field === 'pickup_address') {
+                $('#shipping_pickup_address').addClass('admin-form-modal__control--invalid').attr('aria-invalid', 'true');
+                return;
+            }
+            window.AdminModalValidation.setFieldError($('#shipping_' + field), message);
+        });
     }
 
     function shippingRenderSelectedContext(context) {
@@ -1940,6 +1953,9 @@ jQuery(document).ready(function ($) {
             '#shipping_status'
         );
         shippingRenderSelectedContext(context);
+        if (!context.pickup_address) {
+            shippingShowFieldErrors({ pickup_address: "Enter the traveler's collection address." });
+        }
     }
 
     function shippingOpenModal(mode, bookingId) {
@@ -2014,7 +2030,7 @@ jQuery(document).ready(function ($) {
             base_url + 'shipping/records_ajax',
             'Search/filter shipping:'
         )
-            .order([10, 'desc'])
+            .order([9, 'desc'])
             .draw();
     }
 
@@ -2119,10 +2135,12 @@ jQuery(document).ready(function ($) {
     });
 
     $(document).on('click', '#shipping_back_btn', function () {
+        if ($('#manageShippingModal').attr('data-prefill-only') === '1') return;
         shippingSetStep(1);
     });
 
     $(document).on('click', '#shipping_submit_btn', function () {
+        shippingResetMessages();
         var bookingId = parseInt($('#shipping_booking_id').val(), 10) || 0;
         var mode = $('#shipping_mode').val() || 'create';
         var payload = {
@@ -2144,16 +2162,20 @@ jQuery(document).ready(function ($) {
                 .removeClass('d-none');
             return;
         }
-        if (!payload.carrier_tracking_id) {
-            $('#shipping_modal_error')
-                .text('Enter the carrier tracking ID before saving.')
-                .removeClass('d-none');
-            return;
-        }
-        if (!payload.status) {
-            $('#shipping_modal_error')
-                .text('Select the next shipping status before saving.')
-                .removeClass('d-none');
+        var fieldErrors = {};
+        $.each({
+            carrier_tracking_id: 'Enter the carrier tracking ID.',
+            pickup_address: "Enter the traveler's collection address.",
+            dropoff_address: "Enter the receiver's drop-off address.",
+            pickup_country: 'Enter the pickup country.',
+            courier: 'Select a courier.',
+            staff_admin_id: 'Select a staff member.',
+            status: 'Select the next shipping status.',
+        }, function (field, message) {
+            if (!payload[field]) fieldErrors[field] = message;
+        });
+        if (Object.keys(fieldErrors).length) {
+            shippingShowFieldErrors(fieldErrors);
             return;
         }
 
@@ -2178,6 +2200,7 @@ jQuery(document).ready(function ($) {
                 $btn.prop('disabled', false).html('<i class="las la-save"></i> Save Shipping');
 
                 if (!res.status) {
+                    shippingShowFieldErrors(res.field_errors);
                     $('#shipping_modal_error')
                         .text(res.msg || 'Unable to save shipping details.')
                         .removeClass('d-none');

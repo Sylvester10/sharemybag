@@ -86,6 +86,11 @@ PROJECT_REFERENCE.md
 !/tests/traveller_search_cards_test.php
 !/tests/traveller_search_loading_test.js
 !/tests/booking_checkout_concurrency_test.php
+!/tests/customer_support_permissions_test.php
+!/tests/shipping_workflow_test.php
+!/tests/dashboard_overview_test.php
+!/tests/dashboard_chart_test.js
+!/tests/shipping_modal_ui_test.js
 !/tests/support/
 /tests/support/*
 !/tests/support/email_render.php

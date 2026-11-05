@@ -22,9 +22,9 @@
 			opacity: .4;
 		}
 		.admin-sidebar-count {
-			background: #d98613;
+			background: #ffc107;
 			border-radius: 10px;
-			color: #fff;
+			color: #332701;
 			display: inline-block;
 			font-size: 11px;
 			font-weight: 600;
@@ -38,7 +38,7 @@
 
 </head>
 
-<body class="nav-md">
+<body class="nav-md" data-admin-role="<?= html_escape($admin_details->role ?? 'super_admin') ?>">
 	<div class="container body">
 		<div class="main_container">
 			<div class="col-md-3 left_col">
@@ -115,13 +115,19 @@
 								<?php endif; ?>
 
 								<?php if (in_array($role, ['super_admin', 'customer_support'])): ?>
+									<?php
+									$users_menu_count = $role === 'super_admin' ? $pending_users_count : $new_signups_count;
+									$users_menu_count_label = $role === 'super_admin' ? 'pending users' : 'new signups in the last 5 days';
+									?>
 									<!-- Users — super_admin + customer_support -->
 									<li>
-										<a><i class="las la-user"></i> Users <?php if ($pending_users_count > 0): ?><span class="admin-sidebar-count" aria-label="<?php echo $pending_users_count; ?> pending users"><?php echo $pending_users_count; ?></span><?php endif; ?> <span class="las la-angle-down"></span></a>
+										<a><i class="las la-user"></i> Users <?php if ($users_menu_count > 0): ?><span class="admin-sidebar-count" title="<?php echo html_escape($users_menu_count_label); ?>" aria-label="<?php echo $users_menu_count . ' ' . html_escape($users_menu_count_label); ?>"><?php echo $users_menu_count; ?></span><?php endif; ?> <span class="las la-angle-down"></span></a>
 										<ul class="nav child_menu">
-											<li><a href="<?php echo base_url('admin_users'); ?>"> All Users</a></li>
+											<li><a href="<?php echo base_url('admin_users'); ?>"> All Users<?php if ($new_signups_count > 0): ?> <span class="admin-sidebar-count" title="New signups in the last 5 days" aria-label="<?php echo $new_signups_count; ?> new signups in the last 5 days"><?php echo $new_signups_count; ?></span><?php endif; ?></a></li>
+											<?php if ($role === 'super_admin'): ?>
 											<li><a href="<?php echo base_url('admin_users/approved_users'); ?>"> Approved Users</a></li>
 											<li><a href="<?php echo base_url('admin_users/pending_users'); ?>"> Pending Users<?php if ($pending_users_count > 0): ?> <span class="admin-sidebar-count" aria-label="<?php echo $pending_users_count; ?> pending users"><?php echo $pending_users_count; ?></span><?php endif; ?></a></li>
+											<?php endif; ?>
 										</ul>
 									</li>
 								<?php endif; ?>
@@ -135,8 +141,8 @@
 										<ul class="nav child_menu">
 											<?php if ($can_manage_travellers): ?><li><a href="<?php echo base_url('admin_travellers'); ?>">Upcoming Travellers</a></li><?php endif; ?>
 											<?php if ($can_manage_shipping): ?><li><a href="<?php echo base_url('shipping/arrivals'); ?>">Arrivals</a></li><?php endif; ?>
-											<?php if ($can_manage_travellers): ?><li><a href="<?php echo base_url('admin_travellers/approved_travellers'); ?>">All Travellers</a></li><?php endif; ?>
-											<?php if ($can_manage_travellers): ?><li><a href="<?php echo base_url('admin_travellers/pending_travellers'); ?>">Pending Travellers<?php if ($pending_travellers_count > 0): ?> <span class="admin-sidebar-count" aria-label="<?php echo $pending_travellers_count; ?> pending travellers"><?php echo $pending_travellers_count; ?></span><?php endif; ?></a></li><?php endif; ?>
+											<?php if ($can_manage_travellers && $role !== 'customer_support'): ?><li><a href="<?php echo base_url('admin_travellers/approved_travellers'); ?>">All Travellers</a></li><?php endif; ?>
+											<?php if ($can_manage_travellers && $role !== 'customer_support'): ?><li><a href="<?php echo base_url('admin_travellers/pending_travellers'); ?>">Pending Travellers<?php if ($pending_travellers_count > 0): ?> <span class="admin-sidebar-count" aria-label="<?php echo $pending_travellers_count; ?> pending travellers"><?php echo $pending_travellers_count; ?></span><?php endif; ?></a></li><?php endif; ?>
 										</ul>
 									</li>
 								<?php endif; ?>

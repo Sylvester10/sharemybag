@@ -5,13 +5,14 @@
 </div> -->
 
 <?php
+$restricted_support = get_instance()->get_admin_role() === 'customer_support';
 //select options bulk actions 
 $options_array = array(
     //'value' => 'Caption'
     'unapprove' => 'Unapprove',
     'delete' => 'Delete'
 );
-echo modal_bulk_actions('admin_travellers/bulk_actions_traveller', $options_array); ?>
+if (!$restricted_support) echo modal_bulk_actions('admin_travellers/bulk_actions_traveller', $options_array); ?>
 <?php
 $country_options = array('' => 'All Countries');
 foreach (countries() as $country) {
@@ -26,7 +27,7 @@ $filters = array(
     ),
 );
 $columns = array(
-    array('label' => '<input type="checkbox" class="radio-box select_all" />', 'class' => 'w-15-p'),
+    array('label' => $restricted_support ? '' : '<input type="checkbox" class="radio-box select_all" />', 'class' => 'w-15-p'),
     array('label' => 'Actions'),
     array('label' => 'Travel Date', 'class' => 'min-w-150'),
     array('label' => 'Itinerary'),
@@ -43,10 +44,14 @@ $columns = array(
     array('label' => 'Total Bag Space', 'class' => 'min-w-100'),
     array('label' => 'Used Bag Space', 'class' => 'min-w-100'),
     array('label' => 'Available Bag Space', 'class' => 'min-w-100'),
-    array('label' => 'Referred By', 'class' => 'min-w-150'),
+    // Referral feature suspended.
+    // array('label' => 'Referred By', 'class' => 'min-w-150'),
     array('label' => 'Status', 'class' => 'min-w-100'),
     array('label' => 'Date Added', 'class' => 'min-w-150'),
 );
+if ($restricted_support) {
+    array_splice($columns, 3, 1);
+}
 $this->load->view('admin/partials/filter_row', array('filters' => $filters));
 $this->load->view('admin/partials/datatable_shell', array(
     'table_id' => 'upcoming_travellers_table',
@@ -55,4 +60,4 @@ $this->load->view('admin/partials/datatable_shell', array(
 ));
 ?>
 
-<?php echo form_close(); ?>
+<?php if (!$restricted_support) echo form_close(); ?>

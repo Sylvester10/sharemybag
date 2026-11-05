@@ -5,10 +5,10 @@ $options_array = array(
     'update_new_status' => 'Mark as Seen',
     'confirm' => 'Confirm'
 );
-echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
+if (get_instance()->get_admin_role() !== 'customer_support') echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
 <?php
 $columns = array(
-    array('label' => '<input type="checkbox" class="radio-box select_all" />', 'class' => 'w-15-p'),
+    array('label' => get_instance()->get_admin_role() === 'customer_support' ? '' : '<input type="checkbox" class="radio-box select_all" />', 'class' => 'w-15-p'),
     array('label' => 'Actions'),
     array('label' => 'Date', 'class' => 'min-w-200'),
     array('label' => 'Need Help with Parcel?'),
@@ -29,7 +29,7 @@ $this->load->view('admin/partials/datatable_shell', array(
 ));
 ?>
 
-<?php echo form_close(); ?>
+<?php if (get_instance()->get_admin_role() !== 'customer_support') echo form_close(); ?>
 
 <?php $this->load->view('admin/bookings/modal/add_remove_parcel'); ?>
 <?php if (!empty($is_super_admin)) $this->load->view('admin/bookings/modal/cancel_parcel'); ?>

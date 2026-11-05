@@ -11,7 +11,7 @@ Date Created: 10th May, 2023
 
 UPDATED:
   - traveller_support: full access to travellers section
-  - customer_support:  full access to travellers section
+  - customer_support: upcoming travellers and explicitly permitted bag/booking actions
   - super_admin:       full access
 */
 
@@ -24,11 +24,19 @@ class Admin_travellers extends MY_Controller
         parent::__construct();
         $this->admin_restricted();
         $this->admin_role_restricted(['super_admin', 'traveller_support', 'customer_support']);
+        $this->customer_support_restricted();
         $this->load->model('travellers_model');
         $this->load->model('users_model');
         $this->load->model('user_read_model');
         $this->load->model('booking_read_model');
         $this->load->model('traveller_read_model');
+        if ($this->get_admin_role() === 'customer_support'
+            && !in_array($this->router->fetch_method(), array('index', 'upcoming_travellers_ajax', 'get_user_details'), true)) {
+            $traveller = $this->traveller_read_model->get_traveller_details_by_id((int) $this->uri->rsegment(3));
+            if (!$this->customer_support_policy->can_access_traveller($traveller, date('Y-m-d'))) {
+                show_error('Only upcoming approved travellers are available to Customer Support.', 403, 'Access Denied');
+            }
+        }
         $this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
     }
 
@@ -57,7 +65,8 @@ class Admin_travellers extends MY_Controller
             $itinerary_src = base_url('assets/itinerary/' . $y->itinerary_photo);
             $itinerary = traveller_itinerary_table_link($y->itinerary_photo, $itinerary_src, user_avatar);
 
-            $referrer = $y->referrer_firstname ?: 'No Referral';
+            // Referral feature suspended.
+            // $referrer = $y->referrer_firstname ?: 'No Referral';
 
             $status = traveller_status_badge($y->status);
             $original_bag_space = "$y->original_bag_space KG";
@@ -74,10 +83,13 @@ class Admin_travellers extends MY_Controller
             $bag_locked = ($y->bag_locked == 1) ? '<i class="las la-lock" style="color: red"></i>' : '';
 
             $row = array();
-            $row[] = checkbox_bulk_action($y->id);
+            $restricted_support = $this->get_admin_role() === 'customer_support';
+            $row[] = $restricted_support ? '' : checkbox_bulk_action($y->id);
             $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y);
             $row[] = x_date($y->travel_date);
-            $row[] = $itinerary;
+            if (!$restricted_support) {
+                $row[] = $itinerary;
+            }
             $row[] = ucwords($y->fullname) . ' ' . $bag_locked;
             $row[] = $y->phone;
             $row[] = $y->alt_phone;
@@ -91,7 +103,7 @@ class Admin_travellers extends MY_Controller
             $row[] = $original_bag_space;
             $row[] = $used_space;
             $row[] = $available_space;
-            $row[] = $referrer;
+            // $row[] = $referrer;
             // 			$row[] = $payment_type;
             $row[] = $status;
             $row[] = x_datetime_full($y->date_added);
@@ -184,7 +196,8 @@ class Admin_travellers extends MY_Controller
             $itinerary_src = base_url('assets/itinerary/' . $y->itinerary_photo);
             $itinerary = traveller_itinerary_table_link($y->itinerary_photo, $itinerary_src, user_avatar);
 
-            $referrer = $y->referrer_firstname ?: 'No Referral';
+            // Referral feature suspended.
+            // $referrer = $y->referrer_firstname ?: 'No Referral';
 
             $status = traveller_status_badge($y->status);
             $original_bag_space = "$y->original_bag_space KG";
@@ -218,7 +231,7 @@ class Admin_travellers extends MY_Controller
             $row[] = $original_bag_space;
             $row[] = $used_space;
             $row[] = $available_space;
-            $row[] = $referrer;
+            // $row[] = $referrer;
             // 			$row[] = $payment_type;
             $row[] = $status;
             $row[] = x_datetime_full($y->date_added);
@@ -556,10 +569,10 @@ class Admin_travellers extends MY_Controller
     }
 
 
-    /* DELETE — super_admin and customer_support */
+    /* DELETE — super_admin only */
     public function delete_traveller($id)
     {
-        $this->admin_role_restricted(['super_admin', 'customer_support']);
+        $this->admin_role_restricted(['super_admin']);
         $this->check_data_exists($id, 'id', 'travellers', 'admin');
         $this->travellers_model->delete_traveller($id);
         $this->session->set_flashdata('status_msg', 'Traveller Deleted.');

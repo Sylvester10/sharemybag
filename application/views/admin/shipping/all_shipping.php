@@ -15,16 +15,16 @@
     <?php
     $columns = array(
         array('label' => 'Actions', 'class' => 'min-w-220'),
-        array('label' => 'Staff', 'class' => 'min-w-200'),
+        array('label' => 'Status', 'class' => 'min-w-120'),
+        array('label' => 'Courier', 'class' => 'min-w-140'),
+        array('label' => 'Carrier Tracking ID', 'class' => 'min-w-160'),
         array('label' => 'User', 'class' => 'min-w-250'),
         array('label' => 'Traveller', 'class' => 'min-w-200'),
         array('label' => 'Pickup Address', 'class' => 'min-w-300'),
         array('label' => 'Drop-off Address', 'class' => 'min-w-300'),
         array('label' => 'Country', 'class' => 'min-w-140'),
-        array('label' => 'Courier', 'class' => 'min-w-140'),
-        array('label' => 'Carrier Tracking ID', 'class' => 'min-w-160'),
-        array('label' => 'Status', 'class' => 'min-w-120'),
         array('label' => 'Date Added', 'class' => 'min-w-200'),
+        array('label' => 'Staff', 'class' => 'min-w-200'),
     );
 
     $this->load->view('admin/partials/datatable_shell', array(
