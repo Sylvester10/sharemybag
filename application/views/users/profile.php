@@ -26,6 +26,8 @@
             </li>
         </ul>
 
+<?php /* Referral feature suspended.
+?>
         <!-- referral link -->
         <div class="card-body border-bottom pb-3">
             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
@@ -42,7 +44,8 @@
             </div>
         </div>
 
-        <div class="card-body">
+
+<?php */ ?>        <div class="card-body">
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
                     <div class="row">

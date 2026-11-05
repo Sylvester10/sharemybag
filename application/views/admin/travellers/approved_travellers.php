@@ -43,7 +43,8 @@ $columns = array(
     array('label' => 'Total Bag Space', 'class' => 'min-w-100'),
     array('label' => 'Used Bag Space', 'class' => 'min-w-100'),
     array('label' => 'Available Bag Space', 'class' => 'min-w-100'),
-    array('label' => 'Referred By', 'class' => 'min-w-150'),
+    // Referral feature suspended.
+    // array('label' => 'Referred By', 'class' => 'min-w-150'),
     array('label' => 'Status', 'class' => 'min-w-100'),
     array('label' => 'Date Added', 'class' => 'min-w-150'),
 );

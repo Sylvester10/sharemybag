@@ -51,9 +51,11 @@ function autoLoadPageHelpers() {
 			});
 	}
 
+	/* Referral feature suspended.
 	$(".copy-referral").click(function () {
 		copyToClipboard($(this).children(".r-link").text(), "Referral Link Copied", null, 500);
 	});
+	*/
 
 	document.addEventListener("DOMContentLoaded", function () {
 		const categorySelect = document.querySelector('select[name="category"]');

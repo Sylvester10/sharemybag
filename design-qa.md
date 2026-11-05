@@ -1,3 +1,70 @@
+# Dashboard and finance visual review
+
+## Release calculation clarification
+
+Gross Profit retains the previous card calculation: stored total payment minus stored traveller payout and stored VAT, separately for GBP and CAD. Parcel commission in the existing finance table remains unchanged. Finance card subtotals and dashboard booking activity use booking creation dates; their labels now state this explicitly rather than implying payment-confirmation timestamps. Regression checks include nonzero and legacy NULL VAT and a booking confirmed after its creation day. No financial records or database schema are changed by this clarification.
+
+## Follow-up review: in-place periods and consistency
+
+The latest user instructions supersede the earlier light-blue finance-card reference: finance now uses the exact shared dashboard stat-card component and blue background, and all admin stat cards use 9px corners. Finance summaries remain all-time; cards therefore precede the table's Month/Year/Route filters.
+
+Both chart ranges are preloaded in the same role-filtered response. Native buttons update the existing ApexCharts instance with a 450ms transition, respect reduced-motion preference, and change neither location nor history. Browser verification switched 7 → 30 → 7 with the same chart DOM ID and URL, and confirmed 30/7 accessible daily rows respectively. The legend, recent rows, and View links all compute to 13px. All user/traveler/booking notification counts use warning yellow (#ffc107), with dark text.
+
+Recent queries now apply a rolling seven-day cutoff and reject future timestamps before ordering/limiting each source. The regression fixture includes a 260-day-old registration and proves it is excluded from every recent list. Zero-count attention items are removed so the icon-based Nothing to show state can appear. Both empty states were rendered and inspected in the browser.
+
+Current follow-up captures: `evidence/verification/dashboard-refresh/revision-dashboard.png` and `revision-finance.png`, using disposable test data. Earlier screenshot comparisons below document the superseded styling. Model/view and JavaScript regressions pass; no database schema changes or production writes are involved.
+
+final result: passed
+
+Scope: the changed production components, rendered through the real CodeIgniter view loader with disposable test data. This is component verification, not an authenticated full-page or production deployment claim.
+
+## Visual sources
+
+- Dashboard: `/Users/mac/.codex/generated_images/01a02a2e-950b-7463-a3dd-5b0787c72c45/exec-ebb2ff99-1d7a-47b0-9e37-3cfba4461292.png` (1385 × 1136).
+- Finance: `/Users/mac/.codex/generated_images/01a02a2e-950b-7463-a3dd-5b0787c72c45/exec-f2296b0a-9050-4ce4-b95c-26d576efdb90.png` (1663 × 946).
+- Implementation: `evidence/verification/dashboard-refresh/smb-dashboard-final.png`, `smb-finance-cards-final.png`, `smb-sidebar-badge.png`, `smb-dashboard-mobile.png` in that directory.
+- Browser viewport: 1280 × 720 desktop; 390 × 844 mobile. Desktop screenshots are 1× pixels; dashboard capture includes the full component page. Finance capture is viewport-sized. No device frame.
+- Focused, paired comparisons: `chart-comparison.png`, `activity-comparison.png`, `finance-comparison.png` in the same evidence directory. Reference and implementation content crops are normalized to equal 800-pixel widths and placed together; this compares component geometry, not browser chrome or omitted sidebar context.
+
+## Approved differences from the images
+
+- Preserve existing application font families, sizes and weights instead of copying generated typography.
+- Smooth curved lines replace the reference's straight segments. Show the full daily series, including zero days, within rolling 7/30-calendar-day periods ending today.
+- No finance cards on the dashboard. Keep existing finance Month/Year/Route filters; omit the Booking Breakdown heading and All-time badge.
+- Keep the agreed Traveller Payouts label. Finance calculations remain unchanged.
+- Record counts, dates and list length are data-driven; test fixtures are not live customer activity.
+
+## Comparison iterations
+
+1. P1: HTML/CSS bars, missing explicit activity actions, unmatched finance-card style. Replaced with bundled ApexCharts smooth lines; added list filters, details/time/action columns and explicit View links; added blue-bordered finance cards.
+2. P2: last chart date label omitted by automatic datetime ticks. Changed to equally spaced daily categories with explicit first/last labels; 30-day browser capture shows 7 October through 5 November 2026, and 7-day capture shows 30 October through 5 November.
+3. P1: legacy global white stat-title rule reduced contrast on finance cards. Added a scoped title-color override; computed title color is rgb(64,92,124).
+4. P2: finance cards too tall compared with the reference. Tightened padding and amount line-height, preserving existing family, size and weight. Final cards measure 137.55 pixels high.
+5. Final desktop: chart/Needs Attention heights both 319.80 pixels; no horizontal overflow. Finance cards have equal heights, blue borders, light blue backgrounds, rounded corners, today amounts, and readable headings.
+
+## Required fidelity surfaces
+
+- Typography: application Figtree/Be Vietnam Pro styles retained; ApexCharts reads computed application typography. No new text font family, size or weight definitions. Existing bold headings and icon-size utilities reused.
+- Layout: equal-height desktop panels; responsive full-width mobile stacking; list columns and filter controls follow the reference. Finance filters remain intact.
+- Colors/tokens: reference teal/blue/purple series, muted panel headers, blue finance borders and light blue finance backgrounds. Parent signup badge uses teal.
+- Assets: existing Line Awesome icons and bundled ApexCharts; no custom chart artwork or new raster dependencies. Test preview assets are served from the existing asset tree.
+- Content: no unwanted subtitles, View All button, finance dashboard cards, All-time badge or Booking Breakdown heading. Activity rows show explicit actions and relative times.
+
+## Verification
+
+- Users filter displayed only user events in the browser; automated checks cover switching back to All.
+- Parent Users badge visible while child menu display is none.
+- Mobile chart retained first/last dates and did not overflow; mobile finance cards stacked at equal widths.
+- Browser console: no errors in the final component page.
+- PHP view/model tests, JavaScript chart/filter regression, and syntax/whitespace checks passed.
+- Actual local database dashboard queries for all three roles and GBP/CAD summaries passed in a READ ONLY transaction.
+
+No remaining P0/P1/P2 findings within the reviewed component scope. Full authenticated page composition and production deployment remain outside this proof boundary.
+
+---
+
+## Earlier review (preserved)
+
 # Search and booking-history implementation review
 
 Date: 3 November 2026. Scope: approved search loader, mobile history/details and posting instructions, followed by the user's route/quantity cards, accordion and inset-modal refinements. Production deployment was not performed.

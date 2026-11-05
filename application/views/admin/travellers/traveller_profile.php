@@ -1,8 +1,10 @@
 <?php $is_arrival_profile = !empty($is_arrival_profile); ?>
 <div class="new-item admin-page-actions">
+    <?php if (get_instance()->get_admin_role() !== 'customer_support'): ?>
     <a class="btn btn-default btn-sm button-adjust"
         href="<?php echo base_url('admin_travellers/update_traveller/' . $y->id); ?>"><i class="las la-pen"></i> Edit
         Traveller</a>
+    <?php endif; ?>
     <a class="btn btn-primary btn-sm button-adjust" href="#" data-toggle="modal" data-target="#addTravellerBagSpaceModal"><i class="las la-plus"></i> Add Bag Space</a>
     <a class="btn btn-danger btn-sm button-adjust" href="#" data-toggle="modal" data-target="#removeTravellerBagSpaceModal"><i class="las la-minus"></i> Remove Bag Space</a>
     <a class="btn btn-default btn-sm button-adjust admin-back-btn" data-traveller-back href="<?php echo base_url($is_arrival_profile ? 'shipping/arrivals' : 'admin_travellers'); ?>"><i
@@ -100,7 +102,7 @@ $traveller = $y;
 $options_array = array(
     //'value' => 'Caption'
 );
-echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
+if (get_instance()->get_admin_role() !== 'customer_support') echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); ?>
 
 <div class="table-scroll admin-inline-table">
 
@@ -108,7 +110,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
         <thead>
             <tr>
-                <th class="w-15-p"> <input type="checkbox" class="radio-box select_all" /> </th>
+                <th class="w-15-p"> <?php if (get_instance()->get_admin_role() !== 'customer_support'): ?><input type="checkbox" class="radio-box select_all" /><?php endif; ?> </th>
                 <th> Actions </th>
                 <th class="min-w-300">SMB User Details</th>
                 <th class="min-w-300">Agent Details</th>
@@ -126,8 +128,10 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
                 <?php foreach ($booking_details as $booking) { ?>
 					<?php
                     $shipping_booking_action = '';
+                    $needs_shipping = false;
                     if ($is_arrival_profile && payment_status_normalize($booking->payment_status) === 'completed') {
                         $has_shipping = !empty($booking->shipping_record_id);
+                        $needs_shipping = !$has_shipping;
                         $shipping_booking_action = '<p><button type="button" class="btn btn-primary btn-sm btn-block action-btn '
                             . ($has_shipping ? 'open-edit-shipping' : 'open-create-shipping')
                             . '" data-booking-id="' . (int) $booking->id . '" data-dismiss="modal"><i class="las la-truck"></i> &nbsp; '
@@ -145,9 +149,9 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 					?>
 
                     <tr>
-                        <td> <?php echo checkbox_bulk_action($booking->id); ?></td>
+                        <td> <?php if (get_instance()->get_admin_role() !== 'customer_support') echo checkbox_bulk_action($booking->id); ?></td>
 
-                        <?php echo '<td> <div class="text-center"><a type="button" href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $booking->id . '" title="Options"> <i class="las la-bars"></i> </a></div>';
+                        <?php echo '<td> <div class="text-center"><a type="button" href="#" class="btn ' . ($needs_shipping ? 'btn-danger' : 'btn-primary') . ' btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#options' . $booking->id . '" title="' . ($needs_shipping ? 'Options — shipping not booked' : 'Options') . '"> <i class="las la-bars"></i> </a></div>';
 
                         echo '<div class="modal fade" id="options' . $booking->id . '" role="dialog">
 							<div class="modal-dialog">
@@ -265,7 +269,7 @@ echo modal_bulk_actions('admin_bookings/bulk_actions_booking', $options_array); 
 
 </div>
 
-<?php echo form_close(); ?>
+<?php if (get_instance()->get_admin_role() !== 'customer_support') echo form_close(); ?>
 
 <?php
 $bag_options = '<option value="">Select</option>';

@@ -119,6 +119,7 @@ class Traveller_read_model extends \MY_Model
         return $this->db->get()->result();
     }
 
+    /* Referral feature suspended.
     public function get_referrer_details($travellerId)
     {
         $this->db->select('referred_by');
@@ -137,4 +138,5 @@ class Traveller_read_model extends \MY_Model
         $this->applyNotDeleted('users');
         return $this->db->get()->row();
     }
+    */
 }

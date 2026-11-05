@@ -18,6 +18,7 @@ class Admin_exchange extends MY_Controller
 	{
 		parent::__construct();
 		$this->admin_restricted(); //allow only logged in users to access this class
+		$this->customer_support_restricted();
 		$this->load->model('exchange_model');
 		$this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
 	}

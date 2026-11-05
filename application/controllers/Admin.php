@@ -22,7 +22,6 @@ class Admin extends MY_Controller
 		$this->admin_restricted(); //allow only logged in users to access this class
 		$this->load->model('admin_model');
 		$this->load->model('travellers_model');
-		$this->load->model('finance_read_model');
 		$this->load->model('user_read_model');
 		$this->load->model('users_model');
 		$this->load->model('booking_read_model');
@@ -36,14 +35,11 @@ class Admin extends MY_Controller
 	public function index()
 	{ //admin dashboard, routed as dashboard
 		$this->admin_header('Admin', 'Dashboard');
-		$data['total_approved_travellers'] = $this->travellers_model->count_approved_travellers();
-		$data['total_pending_travellers'] = $this->travellers_model->count_pending_travellers();
-		$data['total_unapproved_travellers'] = $this->travellers_model->count_unapproved_travellers();
-		$data['total_amount'] = $this->finance_read_model->get_all_total_amount();
-		$data['all_users'] = $this->user_read_model->count_users();
-		$data['approved_users'] = $this->user_read_model->count_approved_users();
-		$data['total_bookings'] = $this->booking_read_model->count_completed_bookings();
-		$data['total_users'] = $this->user_read_model->count_users();
+		$this->load->model('dashboard_read_model');
+		$data['overview'] = $this->dashboard_read_model->get_overview($this->get_admin_role());
+		$data['can_message'] = in_array($this->get_admin_role(), array('super_admin', 'customer_support'), true);
+		$data['all_users'] = $data['can_message'] ? $this->user_read_model->count_users() : 0;
+		$data['approved_users'] = $data['can_message'] ? $this->user_read_model->count_approved_users() : 0;
 		$this->load->view('admin/dashboard/dashboard', $data);
 		$this->admin_footer();
 	}

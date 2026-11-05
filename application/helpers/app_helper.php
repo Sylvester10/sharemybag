@@ -2040,17 +2040,20 @@ function user_avatar_table($user_photo, $image_src, $default_avatar)
 	$is_selfie = (strpos($relative_path, 'assets/selfie/') === 0);
 	$is_id_card = (strpos($relative_path, 'assets/id_cards/') === 0);
 	$is_utility = (strpos($relative_path, 'assets/utility/') === 0);
+	$is_itinerary = (strpos($relative_path, 'assets/itinerary/') === 0);
 	if ($is_selfie) {
 		$secure_href = base_url('file/selfie/' . rawurlencode($user_photo));
 	} elseif ($is_id_card) {
 		$secure_href = base_url('file/id_cards/' . rawurlencode($user_photo));
 	} elseif ($is_utility) {
 		$secure_href = base_url('file/utility/' . rawurlencode($user_photo));
+	} elseif ($is_itinerary) {
+		$secure_href = base_url('file/itinerary/' . rawurlencode($user_photo));
 	}
 
 	$thumbnail_src = $is_pdf ? pdf_icon : $secure_href;
 
-	if ($is_pdf || $is_selfie || $is_id_card || $is_utility) {
+	if ($is_pdf || $is_selfie || $is_id_card || $is_utility || $is_itinerary) {
 		return '<a target="_blank" rel="noopener" href="' . $secure_href . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
 	}
 
@@ -2078,9 +2081,10 @@ function traveller_itinerary_table_link($itinerary_file, $file_src, $default_ava
 	}
 
 	$file_extension = strtolower(pathinfo((string) $itinerary_file, PATHINFO_EXTENSION));
-	$thumbnail_src = ($file_extension === 'pdf') ? pdf_icon : $file_src;
+	$secure_href = base_url('file/itinerary/' . rawurlencode($itinerary_file));
+	$thumbnail_src = ($file_extension === 'pdf') ? pdf_icon : $secure_href;
 
-	return '<a target="_blank" rel="noopener noreferrer" href="' . $file_src . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
+	return '<a target="_blank" rel="noopener noreferrer" href="' . $secure_href . '"><img class="avatar" src="' . $thumbnail_src . '" /></a>';
 }
 
 function traveller_destination_label($arrival_state, $destination, $destination_area = '')
@@ -3047,7 +3051,7 @@ function admin_shipping_access_allowed($admin)
 		return true;
 	}
 
-	if (!in_array($role, array('customer_support', 'traveller_support'), true)) {
+	if ($role !== 'traveller_support') {
 		return false;
 	}
 

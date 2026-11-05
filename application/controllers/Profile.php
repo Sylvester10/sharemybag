@@ -25,7 +25,8 @@ class Profile extends MY_Controller
         $user_details = $this->user_read_model->get_user_details($this->session->email);
         $this->dashboard_header('Profile');
         $data['user_details'] = $user_details;
-        $data['referral_link'] = $this->user_details->referral_link;
+        // Referral feature suspended.
+        // $data['referral_link'] = $this->user_details->referral_link;
         $this->load->view('users/profile', $data);
         $this->dashboard_footer();
     }

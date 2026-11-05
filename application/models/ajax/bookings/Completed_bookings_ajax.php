@@ -103,7 +103,7 @@ class Completed_bookings_ajax extends CI_Model
         $invoiceAction = '<p><a type="button" href="' . base_url('admin/invoice/' . $booking->id) . '" target="_blank" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-file-invoice" style="color: #0c6cf2"></i> &nbsp; View Invoice </a></p>';
         $seenAction = '';
 
-        if ($booking->new != 1) {
+        if ($booking->new != 1 && get_instance()->get_admin_role() !== 'customer_support') {
             $seenAction = '<p><a type="button" href="' . base_url('admin_bookings/update_new_status/' . $booking->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-eye" style="color: green"></i> &nbsp; Mark as Seen </a></p>';
         }
 

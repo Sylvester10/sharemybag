@@ -46,7 +46,7 @@ class Travellers_model extends \MY_Model
 		$address = ucfirst($this->input->post('address', TRUE));
 		$available_space = $this->input->post('available_space', TRUE);
 		$unwanted_items = $this->input->post('unwanted_items', TRUE);
-		$referred_by = strtolower($this->input->post('referred_by', TRUE));
+		// $referred_by = strtolower($this->input->post('referred_by', TRUE));
 
 		if (is_array($unwanted_items)) {
 			// If $unwanted_items is an array, implode it with ', ' as separator
@@ -81,7 +81,7 @@ class Travellers_model extends \MY_Model
 			'status' => $status,
 			'itinerary_photo' => $serialized_images, // Store serialized array of image filenames
 			'itinerary_photo_thumb' => $thumbnails, // Store serialized array of image filenames
-			'referred_by' => $referred_by,
+			// 'referred_by' => $referred_by,
 		);
 
 

@@ -83,7 +83,8 @@ class Users_model extends MY_Model
             $this->input->post('country_code', TRUE),
             $this->input->post('phone', TRUE)
         );
-        $referral_link = base_url('travellers/?refer=' . $username);
+        // Referral feature suspended.
+        // $referral_link = base_url('travellers/?refer=' . $username);
 
         // SECURITY: Explicitly define ONLY the fields you want users to submit.
         $data = array(
@@ -93,7 +94,7 @@ class Users_model extends MY_Model
             'number'            => $number,
             'country'           => trim($this->input->post('country', TRUE)),
             'username'          => $username,
-            'referral_link'     => $referral_link,
+            // 'referral_link'     => $referral_link,
             'verification_code' => null,
             'pass_reset_code'   => $pass_reset_code,
             'account_status'    => 1, // Set to 1 explicitly

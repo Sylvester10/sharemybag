@@ -6,17 +6,16 @@ class Shipping_records_ajax extends CI_Model
     private $table = 'shipping_records';
     private $column_order = array(
         null,
-        'shipping_records.staff_name',
-        'admins.role',
+        'shipping_records.status',
+        'shipping_records.courier',
+        'shipping_records.carrier_tracking_id',
         'bookings.user_fullname',
         'bookings.traveller_name',
         'shipping_records.pickup_address',
         'shipping_records.dropoff_address',
         'shipping_records.pickup_country',
-        'shipping_records.courier',
-        'shipping_records.carrier_tracking_id',
-        'shipping_records.status',
         'shipping_records.date_added',
+        'shipping_records.staff_name',
     );
     private $column_search = array(
         'shipping_records.staff_name',

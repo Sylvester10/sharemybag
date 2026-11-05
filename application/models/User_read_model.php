@@ -115,6 +115,14 @@ class User_read_model extends \MY_Model
         return $this->getUserCountSummary()->total_users;
     }
 
+    public function count_recent_signups()
+    {
+        $this->db->where('date_registered >=', date('Y-m-d H:i:s', strtotime('-5 days')));
+        $this->db->where('date_registered <=', date('Y-m-d H:i:s'));
+        $this->applyNotDeleted();
+        return (int) $this->db->count_all_results('users');
+    }
+
     public function clearUserCountCaches()
     {
         $this->forgetCache('users.summary.counts');

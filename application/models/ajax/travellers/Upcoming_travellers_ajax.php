@@ -13,18 +13,20 @@ class Upcoming_travellers_ajax extends CI_Model
     }
 
     var $table = 'travellers';
-    var $column_order = array(null, null, 'travellers.travel_date', 'travellers.fullname', 'travellers.phone', 'travellers.alt_phone', 'travellers.email', 'travellers.location', 'travellers.arrival_airport', 'travellers.destination', 'travellers.address', 'travellers.airline', 'travellers.arrival_date', 'travellers.original_bag_space', 'travellers.used_space',  'travellers.available_space', 'travellers.referred_by', 'travellers.status', 'travellers.date_added');
-    var $column_search = array('travellers.travel_date', 'travellers.fullname', 'travellers.phone', 'travellers.alt_phone', 'travellers.email', 'travellers.location', 'travellers.arrival_airport', 'travellers.destination', 'travellers.address', 'travellers.airline', 'travellers.arrival_date', 'travellers.original_bag_space', 'travellers.used_space',  'travellers.available_space', 'travellers.referred_by', 'travellers.status', 'travellers.date_added');
+    var $column_order = array(null, null, 'travellers.travel_date', 'travellers.fullname', 'travellers.phone', 'travellers.alt_phone', 'travellers.email', 'travellers.location', 'travellers.arrival_airport', 'travellers.destination', 'travellers.address', 'travellers.airline', 'travellers.arrival_date', 'travellers.original_bag_space', 'travellers.used_space',  'travellers.available_space', /* 'travellers.referred_by', */ 'travellers.status', 'travellers.date_added');
+    var $column_search = array('travellers.travel_date', 'travellers.fullname', 'travellers.phone', 'travellers.alt_phone', 'travellers.email', 'travellers.location', 'travellers.arrival_airport', 'travellers.destination', 'travellers.address', 'travellers.airline', 'travellers.arrival_date', 'travellers.original_bag_space', 'travellers.used_space',  'travellers.available_space', /* 'travellers.referred_by', */ 'travellers.status', 'travellers.date_added');
     var $order = array('travellers.travel_date' => 'desc');
 
     private function the_query()
     {
         $search_value = datatable_search_value();
-        $this->db->select('travellers.*, users.firstname AS referrer_firstname');
+        // Referral feature suspended.
+        // $this->db->select('travellers.*, users.firstname AS referrer_firstname');
+        $this->db->select('travellers.*');
         $this->db->from($this->table);
-        $this->db->join('users', 'travellers.referred_by = users.username', 'left');
+        // $this->db->join('users', 'travellers.referred_by = users.username', 'left');
         ci_where_not_deleted($this->db, $this->table);
-        ci_where_not_deleted($this->db, 'users');
+        // ci_where_not_deleted($this->db, 'users');
         $i = 0;
         foreach ($this->column_search as $item) {
             if ($search_value !== '') {
@@ -40,7 +42,14 @@ class Upcoming_travellers_ajax extends CI_Model
             $i++;
         }
         if (isset($_POST['order'])) {
-            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+            $columns = $this->column_order;
+            if (get_instance()->get_admin_role() !== 'customer_support') {
+                array_splice($columns, 3, 0, array(null)); // Itinerary is not sortable.
+            }
+            $column = $columns[(int) $_POST['order']['0']['column']] ?? null;
+            if ($column) {
+                $this->db->order_by($column, strtolower($_POST['order']['0']['dir']) === 'asc' ? 'asc' : 'desc');
+            }
         } else if (isset($this->order)) {
             $order = $this->order;
             $this->db->order_by(key($order), $order[key($order)]);
@@ -105,6 +114,23 @@ class Upcoming_travellers_ajax extends CI_Model
 
     public function actions($traveller)
     {
+        if (get_instance()->get_admin_role() === 'customer_support') {
+            $id = (int) $traveller->id;
+            $actions = '<p><a href="' . base_url('admin_travellers/traveller_profile/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"><i class="las la-user" style="color: green"></i> &nbsp; View Traveller</a></p>'
+                . '<p><a href="' . base_url('admin_travellers/traveller_profile/' . $id) . '#table" class="btn btn-default btn-sm btn-block action-btn clickable"><i class="las la-box-open" style="color: #f36b24"></i> &nbsp; Manage Parcels</a></p>';
+            $modalActions = array(
+                'add_bag' => array('Add Bag Space', '<i class="las la-plus" style="color: green"></i> <i class="las la-briefcase" style="color: green"></i>'),
+                'remove_bag' => array('Remove Bag Space', '<i class="las la-minus" style="color: red"></i> <i class="las la-briefcase" style="color: red"></i>'),
+                'offline' => array('Offline Booking', '<i class="las la-file-invoice" style="color: grey"></i>'),
+            );
+            foreach ($modalActions as $modal => $action) {
+                $actions .= '<p><a href="#" class="btn btn-default btn-sm btn-block action-btn clickable" data-toggle="modal" data-target="#' . $modal . $id . '">' . $action[1] . ' &nbsp; ' . $action[0] . '</a></p>';
+            }
+            if (!$traveller->bag_locked) {
+                $actions .= '<p><a href="' . base_url('admin_travellers/lock_traveller_bag/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"><i class="las la-briefcase" style="color: green"></i> &nbsp; Lock Bag</a></p>';
+            }
+            return $actions;
+        }
         if ($traveller->bag_locked == 0) {
             $bag_lock_status = '<p><a type="button" href="' . base_url('admin_travellers/lock_traveller_bag/' . $traveller->id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"> <i class="las la-briefcase" style="color: green"></i> &nbsp; Lock Bag </a></p>';
         } else {
@@ -547,6 +573,9 @@ class Upcoming_travellers_ajax extends CI_Model
 
     public function modals($traveller)
     {
+        if (get_instance()->get_admin_role() === 'customer_support') {
+            return $this->modal_options($traveller);
+        }
         $modal_delete_confirm = modal_delete_confirm($traveller->id, $traveller->fullname, 'travellers', 'admin_travellers/delete_traveller');
         return $this->modal_options($traveller) .
             $modal_delete_confirm;

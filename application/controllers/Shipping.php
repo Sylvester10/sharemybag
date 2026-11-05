@@ -114,7 +114,7 @@ class Shipping extends MY_Controller
             $staff = $this->renderStaffCell($row->staff_name ?? '', $row->staff_role ?? '');
             $user = $this->renderPersonCard($row->user_fullname, $row->user_phone ?: '', $row->user_email);
             $traveller = $this->renderPersonCard($row->traveller_name, $row->traveller_contact, $row->traveller_email);
-            $pickupAddress = $row->pickup_address ?: $this->composeAddress($row->agent_address, $row->agent_locality, $row->agent_postcode);
+            $pickupAddress = trim((string) $row->pickup_address) ?: 'Not available';
             $dropoffAddress = $row->dropoff_address ?: $this->composeAddress($row->receiver_address, $row->receiver_locality, $row->receiver_postcode);
             $country = $row->pickup_country ?: $this->inferPickupCountryFromRow($row);
             $courier = $row->courier ? html_escape($row->courier) : '<span class="text-muted">Not Assigned</span>';
@@ -123,16 +123,16 @@ class Shipping extends MY_Controller
 
             $data[] = array(
                 $actions,
-                $staff,
+                $status,
+                $courier,
+                '<code>' . html_escape($row->carrier_tracking_id) . '</code>',
                 $user,
                 $traveller,
                 nl2br(html_escape($pickupAddress)),
                 nl2br(html_escape($dropoffAddress)),
                 html_escape($country),
-                $courier,
-                '<code>' . html_escape($row->carrier_tracking_id) . '</code>',
-                $status,
                 $dateAdded,
+                $staff,
             );
         }
 
@@ -183,16 +183,20 @@ class Shipping extends MY_Controller
             'user' => $context->user_fullname ?: '',
             'user_phone' => $context->user_phone ?: '',
             'traveller' => $context->traveller_name ?: '',
-            'pickup_address' => $context->pickup_address ?: trim((string) $context->traveller_pickup_address),
+            'pickup_address' => !empty($context->shipping_record_id)
+                ? trim((string) $context->pickup_address)
+                : trim((string) $context->traveller_pickup_address),
             'dropoff_address' => $context->dropoff_address ?: $this->composeAddress($context->receiver_address, $context->receiver_locality, $context->receiver_postcode),
-            'pickup_country' => $context->pickup_country ?: $this->inferPickupCountryFromRow($context),
+            'pickup_country' => !empty($context->shipping_record_id)
+                ? $context->pickup_country
+                : $this->inferPickupCountryFromRow($context),
             'courier' => $context->courier ?: '',
             'staff_admin_id' => $context->staff_admin_id ? (int) $context->staff_admin_id : (int) $this->admin_details->id,
             'status' => shipping_status_normalize($context->status ?: 'Awaiting Collection'),
-            'status_next_options' => $context->shipping_date_added
+            'status_next_options' => !empty($context->shipping_record_id)
                 ? shipping_status_next_options($context->status)
                 : shipping_status_creation_options(),
-            'shipping_exists' => !empty($context->shipping_date_added),
+            'shipping_exists' => !empty($context->shipping_record_id),
         );
 
         $this->jsonResponse(true, '', array('context' => $defaults));
@@ -210,7 +214,7 @@ class Shipping extends MY_Controller
         $this->form_validation->set_rules('status', 'Status', 'trim|required|in_list[Awaiting Collection,In Transit,Completed]');
 
         if (!$this->form_validation->run()) {
-            $this->jsonResponse(false, strip_tags(validation_errors()));
+            $this->jsonResponse(false, strip_tags(validation_errors()), array('field_errors' => $this->form_validation->error_array()));
             return;
         }
 
@@ -229,7 +233,7 @@ class Shipping extends MY_Controller
         $this->form_validation->set_rules('status', 'Status', 'trim|required|in_list[Awaiting Collection,In Transit,Completed]');
 
         if (!$this->form_validation->run()) {
-            $this->jsonResponse(false, strip_tags(validation_errors()));
+            $this->jsonResponse(false, strip_tags(validation_errors()), array('field_errors' => $this->form_validation->error_array()));
             return;
         }
 

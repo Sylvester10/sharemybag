@@ -47,13 +47,13 @@
                 <div class="card-body">
 
                     <!-- <?php
-                    if ($traveller_details->additional_info === NULL) {
+                            if ($traveller_details->additional_info === NULL) {
 
-                        echo '';
-                    } else {
+                                echo '';
+                            } else {
 
-                        echo
-                        '<div class="card !tw-bg-[#020713] mb-3">
+                                echo
+                                '<div class="card !tw-bg-[#020713] mb-3">
                             <div class="card-body p-4">
                                 <h6 class="card-text text-white text-center fw-bolder ">
                                     <i class="ti ti-alert-circle"></i> Important!!
@@ -61,8 +61,8 @@
                                 <p class="text-white text-center">' . $traveller_details->additional_info . ' </p>
                             </div>
                         </div>';
-                    }
-                    ?> -->
+                            }
+                            ?> -->
 
                     <form action="<?= base_url('user_bookings/add_booking_ajax') ?>" class="form-wizard-ajax booking-wizard-form mt-2" id="booking_form" key="<?= $traveller_details->id ?>" method="POST" enctype="multipart/form-data" target="_blank">
                         <input type="hidden" name="booking_checkout_token" value="<?= html_escape($resume_token ?? '') ?>">
@@ -71,7 +71,9 @@
                         <input type="hidden" name="booking_quote_token" value="<?= html_escape($booking_quote_token ?? '') ?>">
                         <input type="hidden" name="_booking_step" value="0">
                         <?php if (!empty($booking_restore) && is_array($booking_restore)): ?>
-                            <script type="application/json" id="booking-restore-data"><?= json_encode($booking_restore, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE) ?></script>
+                            <script type="application/json" id="booking-restore-data">
+                                <?= json_encode($booking_restore, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE) ?>
+                            </script>
                         <?php endif; ?>
 
                         <div class="d-none">
@@ -402,7 +404,9 @@
                                             <i class="ti ti-alert-circle"></i> Important!!
                                         </h6>
                                         <p class="text-white text-center fs-3">Please drop your items off with the traveller by your regions last drop-off date. There will be no refund or transfer of service to another traveller.</p>
-                                        <p class="text-white text-center">Payment must be made with a bank card bearing the same name as the one on your profile.</p>
+                                        <p class="text-white text-center">
+                                            If the cardholder differs from the account holder, additional KYC checks will be required. To avoid delays, please use your own card.
+                                        </p>
                                     </div>
                                 </div>
 

@@ -6,9 +6,8 @@ defined('BASEPATH') or die('Direct access not allowed');
 Name: Admin_Users
 Role: Controller
 UPDATED:
-  - customer_support: can view users (index, user_ajax, user_profile)
-                      can email users, can approve/block users
-                      CANNOT delete users (super_admin only)
+  - customer_support: All Users, general-detail edits and Activity History;
+                      no identity files, verification, deletion or impersonation
   - traveller_support: can only view travellers section — blocked from this controller
   - super_admin: full access
 */
@@ -24,6 +23,7 @@ class Admin_Users extends MY_Controller
 
         // traveller_support has no business in the users section
         $this->admin_role_restricted(['super_admin', 'customer_support']);
+        $this->customer_support_restricted();
 
         $this->load->model('admin_user_model');
         $this->load->model('users_model');
@@ -69,11 +69,14 @@ class Admin_Users extends MY_Controller
                                 <i class="las la-map-marker-alt"></i> ' . $y->address . ', ' . $y->state . ', ' . $y->post_code . '';
 
             $row = array();
-            $row[] = checkbox_bulk_action($y->id);
+            $restricted_support = $this->get_admin_role() === 'customer_support';
+            $row[] = $restricted_support ? '' : checkbox_bulk_action($y->id);
             $row[] = $this->current_model->options($y->id) . $this->current_model->modals($y);
-            $row[] = $selfie;
-            $row[] = $id_card;
-            $row[] = $utility;
+            if (!$restricted_support) {
+                $row[] = $selfie;
+                $row[] = $id_card;
+                $row[] = $utility;
+            }
             $row[] = $y->firstname . " " . $y->lastname;
             $row[] = $contact_details;
             $row[] = $y->country;
@@ -298,6 +301,15 @@ class Admin_Users extends MY_Controller
         $type = $this->input->get('type', TRUE) === 'signin' ? 'signin' : 'details';
         $page = min(100000, max(1, (int) $this->input->get('page', TRUE)));
         $data = $this->user_activity_model->history((int) $id, $type, $page);
+        if ($this->get_admin_role() === 'customer_support') {
+            foreach ($data['rows'] as $entry) {
+                $changes = json_decode((string) $entry->changes, true);
+                if (is_array($changes)) {
+                    unset($changes['selfie'], $changes['id_card'], $changes['utility']);
+                    $entry->changes = json_encode($changes);
+                }
+            }
+        }
         $data['type'] = $type;
         $data['user_id'] = (int) $id;
         $this->output->set_header('Cache-Control: no-store');

@@ -48,6 +48,7 @@ require_once FCPATH . 'vendor/autoload.php';
 
 class MY_Controller extends CI_Controller
 {
+    private $resolved_admin_role;
 
 	public function __construct()
 	{
@@ -121,16 +122,18 @@ class MY_Controller extends CI_Controller
 		$data['ci'] = $this;
 		$role = $admin_details->role ?? 'super_admin';
 		$data['pending_users_count'] = 0;
+		$data['new_signups_count'] = 0;
 		$data['pending_travellers_count'] = 0;
 		$data['new_completed_bookings_count'] = 0;
 
 		if (in_array($role, ['super_admin', 'customer_support'], true)) {
 			$this->load->model('user_read_model');
 			$this->load->model('booking_read_model');
-			$data['pending_users_count'] = (int) $this->user_read_model->count_pending_users();
+			$data['pending_users_count'] = $role === 'super_admin' ? (int) $this->user_read_model->count_pending_users() : 0;
+			$data['new_signups_count'] = $this->user_read_model->count_recent_signups();
 			$data['new_completed_bookings_count'] = $this->booking_read_model->count_new_completed_bookings();
 		}
-		if (in_array($role, ['super_admin', 'traveller_support', 'customer_support'], true)) {
+		if (in_array($role, ['super_admin', 'traveller_support'], true)) {
 			$this->load->model('travellers_model');
 			$data['pending_travellers_count'] = (int) $this->travellers_model->count_pending_travellers();
 		}
@@ -191,8 +194,23 @@ class MY_Controller extends CI_Controller
 	 */
 	public function get_admin_role()
 	{
+		if ($this->resolved_admin_role !== null) {
+			return $this->resolved_admin_role;
+		}
 		$admin = $this->common_model->get_admin_details($this->session->admin_email ?? $this->session->email);
-		return $admin->role ?? 'super_admin';
+		$this->resolved_admin_role = $admin->role ?? 'super_admin';
+		return $this->resolved_admin_role;
+	}
+
+	public function customer_support_restricted()
+	{
+		if ($this->get_admin_role() !== 'customer_support') {
+			return;
+		}
+		$this->load->library('customer_support_policy');
+		if (!$this->customer_support_policy->allows($this->router->fetch_class(), $this->router->fetch_method())) {
+			show_error('You do not have permission to perform this action.', 403, 'Access Denied');
+		}
 	}
 
 
@@ -235,6 +253,14 @@ class MY_Controller extends CI_Controller
 	/* =========== User =========== */
 	public function user_restricted()
 	{
+		$impersonator_id = (int) $this->session->userdata('user_impersonator_id');
+		if ($impersonator_id > 0) {
+			$impersonator = $this->db->where('id', $impersonator_id)->get('admins')->row();
+			if (!$impersonator || $impersonator->role === 'customer_support') {
+				show_error('Customer Support cannot log in on behalf of users.', 403, 'Access Denied');
+				return;
+			}
+		}
 		//check user's session
 		if ($this->session->user_loggedin) {
 			return TRUE;

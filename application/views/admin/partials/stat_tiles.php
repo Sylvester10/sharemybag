@@ -7,6 +7,7 @@
                 <div class="icon"><i class="<?php echo html_escape($tile['icon']); ?>"></i></div>
                 <div class="count"><?php echo $tile['value']; ?></div>
                 <h3 class="stats-title"><?php echo html_escape($tile['label']); ?></h3>
+                <?php if (isset($tile['detail'])): ?><p><?php echo html_escape($tile['detail']); ?></p><?php endif; ?>
             </div>
         </div>
     <?php } ?>

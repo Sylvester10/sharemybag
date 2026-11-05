@@ -6,18 +6,16 @@ if ($mail_token === '') {
     $this->session->set_userdata('admin_mail_token', $mail_token);
 }
 $mail_hidden = array('admin_mail_token' => $mail_token);
-$tiles = array(
-    array('icon' => 'las la-users', 'value' => $total_users, 'label' => 'Total Users'),
-    array('icon' => 'las la-suitcase-rolling', 'value' => $total_approved_travellers, 'label' => 'Approved Travellers'),
-    array('icon' => 'las la-history', 'value' => $total_pending_travellers, 'label' => 'Pending Travellers'),
-    array('icon' => 'las la-briefcase', 'value' => $total_bookings, 'label' => 'Total Bookings'),
-);
-$this->load->view('admin/partials/stat_tiles', array('tiles' => $tiles));
+echo '<div class="admin-dashboard-summary">';
+$this->load->view('admin/partials/stat_tiles', array('tiles' => $overview['tiles']));
+echo '</div>';
+$this->load->view('admin/dashboard/activity', array('overview' => $overview));
 ?>
 
-
+<?php if ($can_message): ?>
 <div class="panel with-nav-tabs panel-default">
 	<div class="panel-heading">
+		<h4>Messaging</h4>
 		<ul class="nav nav-tabs">
 			<li class="active"><a href="#quick_email" data-toggle="tab">Quick Mail</a></li>
 			<li class=""><a href="#bulk_email" data-toggle="tab">Bulk Mail</a></li>
@@ -33,7 +31,6 @@ $this->load->view('admin/partials/stat_tiles', array('tiles' => $tiles));
 						<?php
 						echo form_open('message/send_email', 'id="submit_button"', $mail_hidden); ?>
 
-						<h3 class="m-b-30 text-bold tw-noselect">Quick Mail</h3>
 						<div class="form-group">
 							<label class="form-control-label">Email</label>
 							<input type="email" name="email" class="form-control" required />
@@ -70,7 +67,6 @@ $this->load->view('admin/partials/stat_tiles', array('tiles' => $tiles));
 						<?php
 						echo form_open('message/send_bulk_mail', 'id="submit_buttons"', $mail_hidden); ?>
 
-						<h3 class="m-b-30 text-bold">Bulk Mail</h3>
 						<div class="form-group">
 							<label class="form-control-label">Mailing List</label>
 							<select class="form-control" name="mailing_list" required>
@@ -107,3 +103,4 @@ $this->load->view('admin/partials/stat_tiles', array('tiles' => $tiles));
 		</div>
 	</div>
 </div>
+<?php endif; ?>

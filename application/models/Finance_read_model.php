@@ -82,6 +82,24 @@ class Finance_read_model extends \MY_Model
         return $this->getCompletedBookingSummaryByCurrency('CAD')->traveller_commission;
     }
 
+    public function get_finance_cards($currency)
+    {
+        $start = $this->db->escape(date('Y-m-d'));
+        $end = $this->db->escape(date('Y-m-d', strtotime('+1 day')));
+        $today = 'date_added >= ' . $start . ' AND date_added < ' . $end;
+        // Preserve the previous Gross Profit card: collected total less payout and VAT.
+        // Use the booking's stored amounts, never current pricing.
+        $commission = '(COALESCE(total_amount, 0) - COALESCE(traveller_commission, 0) - COALESCE(vat, 0))';
+        $this->db->select('COALESCE(SUM(total_amount), 0) AS payments,
+            COALESCE(SUM(' . $commission . '), 0) AS commission,
+            COALESCE(SUM(traveller_commission), 0) AS payouts,
+            COALESCE(SUM(CASE WHEN ' . $today . ' THEN total_amount ELSE 0 END), 0) AS payments_today,
+            COALESCE(SUM(CASE WHEN ' . $today . ' THEN ' . $commission . ' ELSE 0 END), 0) AS commission_today,
+            COALESCE(SUM(CASE WHEN ' . $today . ' THEN traveller_commission ELSE 0 END), 0) AS payouts_today', false);
+        $this->filterCompletedByCurrency($currency);
+        return $this->db->get('bookings')->row();
+    }
+
     public function clearFinanceSummaryCaches()
     {
         foreach (array('GBP', 'CAD') as $currency) {

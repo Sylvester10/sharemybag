@@ -108,8 +108,8 @@ class Shipping_read_model extends \MY_Model
     {
         $this->db->select('
             bookings.id,
-            travellers.drop_address1 AS traveller_pickup_address,
-            travellers.location AS traveller_pickup_country,
+            travellers.additional_info AS traveller_pickup_address,
+            travellers.destination AS traveller_pickup_country,
             bookings.tracking_id,
             bookings.delivery_status,
             bookings.date_added,
@@ -134,6 +134,7 @@ class Shipping_read_model extends \MY_Model
             bookings.traveller_current_state,
             bookings.traveller_arrival_state,
             bookings.traveller_destination,
+            shipping_records.id AS shipping_record_id,
             shipping_records.pickup_address,
             shipping_records.carrier_tracking_id,
             shipping_records.dropoff_address,
@@ -165,8 +166,8 @@ class Shipping_read_model extends \MY_Model
 
         $this->db->select('
             bookings.id,
-            travellers.drop_address1 AS traveller_pickup_address,
-            travellers.location AS traveller_pickup_country,
+            travellers.additional_info AS traveller_pickup_address,
+            travellers.destination AS traveller_pickup_country,
             bookings.tracking_id,
             bookings.user_fullname,
             bookings.user_email,
