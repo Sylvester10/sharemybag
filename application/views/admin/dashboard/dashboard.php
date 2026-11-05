@@ -13,12 +13,12 @@ $this->load->view('admin/dashboard/activity', array('overview' => $overview));
 ?>
 
 <?php if ($can_message): ?>
-<div class="panel with-nav-tabs panel-default">
-	<div class="panel-heading">
+<div class="panel panel-default admin-dashboard-panel admin-messaging-panel">
+	<div class="panel-heading admin-dashboard-heading admin-recent-heading">
 		<h4>Messaging</h4>
-		<ul class="nav nav-tabs">
-			<li class="active"><a href="#quick_email" data-toggle="tab">Quick Mail</a></li>
-			<li class=""><a href="#bulk_email" data-toggle="tab">Bulk Mail</a></li>
+		<ul class="nav nav-tabs admin-messaging-tabs">
+			<li class="active"><a class="btn btn-sm btn-default" href="#quick_email" data-toggle="tab">Quick Mail</a></li>
+			<li class=""><a class="btn btn-sm btn-default" href="#bulk_email" data-toggle="tab">Bulk Mail</a></li>
 		</ul>
 	</div>
 	<div class="panel-body">
