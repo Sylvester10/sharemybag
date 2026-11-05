@@ -30,7 +30,6 @@ $relativeTime = function ($date) {
                 </div>
             </div>
             <div class="panel-body admin-dashboard-chart-body">
-                <?php if (isset($overview['sources']['bookings'])): ?><p class="text-muted">Completed bookings are grouped by booking creation date.</p><?php endif; ?>
                 <div id="admin-activity-chart" aria-label="Activity from <?= html_escape(array_key_first($overview['daily'])) ?> to <?= html_escape(array_key_last($overview['daily'])) ?>. Daily counts follow in an accessible table."></div>
                 <table class="sr-only">
                     <caption>Daily Activity</caption>
