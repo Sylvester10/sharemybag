@@ -21,7 +21,7 @@ $db->insert('users', array('id' => 4, 'firstname' => 'Year Old', 'lastname' => '
 $db->where('id', 1)->update('travellers', array('fullname' => 'Upcoming Traveller', 'status' => 'Approved', 'travel_date' => date('Y-m-d', strtotime('+3 days')), 'date_added' => $now));
 $db->insert('travellers', array('id' => 2, 'fullname' => 'Private Pending Traveller', 'status' => 'Pending', 'travel_date' => date('Y-m-d', strtotime('+3 days')), 'date_added' => $now));
 $db->insert('travellers', array('id' => 3, 'fullname' => 'Past Traveller', 'status' => 'Approved', 'travel_date' => date('Y-m-d', strtotime('-3 days')), 'date_added' => $now));
-$db->where('id', 1)->update('bookings', array('date_added' => $now, 'total_amount' => 100, 'selected_price' => 80, 'traveller_commission' => 30, 'vat' => 7, 'currency' => 'GBP', 'payment_method' => 'offline'));
+$db->where('id', 1)->update('bookings', array('date_added' => $now, 'total_amount' => 100, 'selected_price' => 80, 'traveller_commission' => 30, 'vat' => 7, 'currency' => 'GBP', 'payment_method' => 'offline', 'user_fullname' => 'Alice Edokpayi', 'selected_space' => 5, 'traveller_destination' => 'Nigeria'));
 $db->where('id', 2)->update('bookings', array('date_added' => date('Y-m-d H:i:s', strtotime('-2 days')), 'total_amount' => 60, 'selected_price' => 50, 'traveller_commission' => 20, 'currency' => 'GBP', 'payment_method' => 'stripe'));
 $db->where('id', 3)->update('bookings', array('date_added' => $now, 'total_amount' => 500, 'selected_price' => 400, 'traveller_commission' => 100, 'currency' => 'GBP', 'payment_status' => 'canceled', 'payment_method' => 'paystack'));
 $db->insert('bookings', array('id' => 4, 'date_added' => $now, 'payment_status' => 'completed', 'tracking_id' => 'CADTEST', 'total_amount' => 200, 'selected_price' => 150, 'traveller_commission' => 70, 'vat' => 12, 'currency' => 'CAD', 'payment_method' => 'paystack', 'user_id' => 1, 'traveller_id' => 1, 'user_fullname' => 'CAD User'));
@@ -54,11 +54,17 @@ foreach (array('super_admin', 'customer_support', 'traveller_support') as $role)
         support_check(array_keys($result['sources']) === array('travellers') && !in_array('Total Users', array_column($result['tiles'], 'label'), true) && !in_array('Completed Bookings', array_column($result['tiles'], 'label'), true), 'Traveller Support sees no user or booking activity.');
     } else {
         support_check(count($result['sources']) === 3 && count($result['recent']) >= 6, 'Super Admin receives all three activity sources.');
+        $bookingActivity = array_values(array_filter($result['recent'], function ($row) { return $row['type'] === 'bookings' && $row['id'] === 1; }))[0];
+        support_check($bookingActivity['details'] === 'Alice E. booked a 5 kg parcel to Nigeria', 'Booking text abbreviates the last name and describes the parcel.');
+        support_check(strpos($html, 'cf-16 cf-ng') !== false && strpos($html, 'cf-16 cf-gb') !== false, 'Existing flag plugin renders booking and traveler countries.');
     }
     $thirty = $dashboard->get_overview($role, 30);
     support_check(count($thirty['daily']) === 30, 'Thirty-day selection is supported.');
     support_check(array_key_first($thirty['daily']) === date('Y-m-d', strtotime('-29 days')) && array_key_last($thirty['daily']) === date('Y-m-d'), 'Thirty days ends today.');
 }
+$controller->session = new class { public function userdata($key) { return 'test-mail-intent'; } };
+$messaging = $render('admin/dashboard/dashboard', array('overview' => $result, 'can_message' => true, 'all_users' => 3, 'approved_users' => 2));
+support_check(strpos($messaging, 'admin-dashboard-panel admin-messaging-panel') !== false && strpos($messaging, 'panel-heading admin-dashboard-heading admin-recent-heading') !== false && strpos($messaging, 'admin-messaging-tabs') !== false && strpos($messaging, 'with-nav-tabs') === false, 'Messaging uses the same header layout and panel styling as Recent Activity.');
 $finance = (new ReflectionClass('Finance_read_model'))->newInstanceWithoutConstructor();
 $finance->db = $db;
 $finance->table = 'bookings';

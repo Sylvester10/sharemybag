@@ -84,15 +84,24 @@ class Dashboard_read_model extends MY_Model
                 // Customer Support must never receive links to hidden traveler records.
                 $name = $table === 'users' ? trim($row->firstname . ' ' . $row->lastname) : $row->fullname;
                 $details = $name . ' joined ShareMyBag';
+                $origin = '';
+                $destination = '';
+                $bookingPrefix = '';
                 if ($table === 'bookings') {
-                    $details = $row->tracking_id;
-                    if ((float) $row->selected_space > 0) $details .= ' · ' . (float) $row->selected_space . ' kg';
-                    if (trim((string) $row->traveller_destination) !== '') $details .= ' → ' . $row->traveller_destination;
+                    $parts = preg_split('/\s+/u', trim((string) $name), -1, PREG_SPLIT_NO_EMPTY) ?: array();
+                    $name = $parts ? $parts[0] : 'A customer';
+                    if (count($parts) > 1) $name .= ' ' . mb_strtoupper(mb_substr(end($parts), 0, 1)) . '.';
+                    $weight = (float) $row->selected_space > 0 ? rtrim(rtrim(number_format((float) $row->selected_space, 2, '.', ''), '0'), '.') . ' kg ' : '';
+                    $bookingPrefix = $name . ' booked a ' . $weight . 'parcel';
+                    $destination = trim((string) $row->traveller_destination);
+                    $details = $bookingPrefix . ($destination !== '' ? ' to ' . $destination : '');
                 } elseif ($table === 'travellers') {
-                    $route = implode(' → ', array_filter(array(trim((string) $row->location), trim((string) $row->destination)), 'strlen'));
+                    $origin = trim((string) $row->location);
+                    $destination = trim((string) $row->destination);
+                    $route = implode(' → ', array_filter(array($origin, $destination), 'strlen'));
                     $details = $name . ($route !== '' ? ' · ' . $route : '');
                 }
-                $recent[] = array('type' => $table, 'activity' => $source['label'], 'name' => $name, 'details' => $details, 'reference' => $table === 'bookings' ? $row->tracking_id : '', 'occurred_at' => $row->occurred_at, 'id' => (int) $row->id, 'url' => $url . (int) $row->id);
+                $recent[] = array('type' => $table, 'activity' => $source['label'], 'name' => $name, 'details' => $details, 'booking_prefix' => $bookingPrefix, 'origin' => $origin, 'destination' => $destination, 'reference' => $table === 'bookings' ? $row->tracking_id : '', 'occurred_at' => $row->occurred_at, 'id' => (int) $row->id, 'url' => $url . (int) $row->id);
             }
         }
         usort($recent, function ($a, $b) {

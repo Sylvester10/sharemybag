@@ -170,6 +170,13 @@ body [class*=" la"] {
 .admin-attention-item strong { color: #0872bd; }
 .admin-attention-item a { color: #0872bd; text-decoration: underline; }
 .admin-recent-heading { justify-content: flex-start; gap: 32px; }
+.admin-activity-country { display: inline-block; white-space: nowrap; }
+.admin-messaging-tabs { display: flex; flex-wrap: wrap; border-bottom: 0; margin: 0; }
+.admin-messaging-tabs > li { margin: 0; }
+.admin-messaging-tabs > li > a { padding: 5px 10px; margin: 0; border: 1px solid #ccc; border-radius: 3px; background: #fff; }
+.admin-messaging-tabs > li.active > a,
+.admin-messaging-tabs > li.active > a:hover,
+.admin-messaging-tabs > li.active > a:focus { background: #337ab7; border-color: #2e6da4; color: #fff; }
 .admin-recent-body { padding: 12px 16px; }
 .admin-recent-columns, .admin-recent-row { display: grid; grid-template-columns: 1.2fr 1.7fr .8fr .65fr; gap: 20px; padding: 12px; align-items: center; }
 .admin-recent-columns { background: #f3f5f8; border-radius: 6px; }

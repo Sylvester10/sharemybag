@@ -2,6 +2,15 @@
 $series = array();
 $labels = array('users' => 'New users', 'bookings' => 'Completed bookings', 'travellers' => 'Traveller submissions');
 $colors = array('users' => '#00b6a0', 'bookings' => '#087cff', 'travellers' => '#8153c6');
+$renderCountry = function ($country) {
+    $country = trim((string) $country);
+    $aliases = array('uk' => 'United Kingdom', 'united kingdom' => 'United Kingdom', 'nigeria' => 'Nigeria', 'canada' => 'Canada', 'norway' => 'Norway');
+    $canonical = $aliases[strtolower($country)] ?? $country;
+    $code = $canonical === 'Norway' ? 'no' : country_to_code($canonical);
+    $label = $canonical === 'United Kingdom' ? 'UK' : $canonical;
+    $flag = $code !== 'unknown' ? '<i class="cf-16 cf-' . html_escape($code) . '" aria-hidden="true"></i> ' : '';
+    return '<span class="admin-activity-country">' . $flag . html_escape($label) . '</span>';
+};
 foreach ($overview['sources'] as $type => $source) {
     $points = array();
     foreach (($overview['chart_daily'] ?? $overview['daily']) as $date => $day) $points[] = array('date' => $date, 'value' => (int) $day['values'][$type]);
@@ -73,7 +82,11 @@ $relativeTime = function ($date) {
             <?php foreach ($overview['recent'] as $index => $activity): ?>
             <div class="admin-recent-row" role="listitem" data-activity-type="<?= html_escape($activity['type']) ?>" <?= $index >= 10 ? 'hidden' : '' ?>>
                 <span><?= html_escape($activity['activity']) ?></span>
-                <span><?= html_escape($activity['details']) ?></span>
+                <span><?php if ($activity['type'] === 'bookings'): ?>
+                    <?= html_escape($activity['booking_prefix']) ?><?php if ($activity['destination'] !== ''): ?> to <?= $renderCountry($activity['destination']) ?><?php endif; ?>
+                <?php elseif ($activity['type'] === 'travellers'): ?>
+                    <?= html_escape($activity['name']) ?><?php if ($activity['origin'] !== '' || $activity['destination'] !== ''): ?> · <?php endif; ?><?= $renderCountry($activity['origin']) ?><?php if ($activity['origin'] !== '' && $activity['destination'] !== ''): ?> → <?php endif; ?><?= $renderCountry($activity['destination']) ?>
+                <?php else: ?><?= html_escape($activity['details']) ?><?php endif; ?></span>
                 <time datetime="<?= html_escape($activity['occurred_at']) ?>" title="<?= html_escape($activity['occurred_at']) ?>"><?= html_escape($relativeTime($activity['occurred_at'])) ?></time>
                 <a href="<?= base_url($activity['url']) ?>"><?= html_escape(array('users' => 'View user', 'bookings' => 'View booking', 'travellers' => 'View traveller')[$activity['type']]) ?></a>
             </div>
