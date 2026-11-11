@@ -51,15 +51,14 @@ class Arrivals_ajax extends CI_Model
             return;
         }
 
-        $this->db->group_start();
-        foreach ($this->column_search as $index => $column) {
-            if ($index === 0) {
-                $this->db->like($column, $searchValue);
-            } else {
-                $this->db->or_like($column, $searchValue);
-            }
+        // Search the grouped traveller without excluding their other bookings
+        // from the shipping totals used for lifecycle and Action button color.
+        $pattern = "'%" . $this->db->escape_like_str($searchValue) . "%'";
+        $matches = array();
+        foreach ($this->column_search as $column) {
+            $matches[] = "MAX(CASE WHEN {$column} LIKE {$pattern} ESCAPE '!' THEN 1 ELSE 0 END) = 1";
         }
-        $this->db->group_end();
+        $this->db->having('(' . implode(' OR ', $matches) . ')', null, false);
     }
 
     private function lifecycleSelect()
@@ -147,7 +146,11 @@ class Arrivals_ajax extends CI_Model
     {
         $id = (int) $traveller->id;
         $modalId = 'arrivalOptions' . $id;
-        $button = '<div class="text-center"><a href="#" class="btn btn-primary btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#' . $modalId . '" title="Options"><i class="las la-bars"></i></a></div>';
+        $bookingCount = (int) $traveller->booking_count;
+        $allShippingArranged = $bookingCount > 0 && (int) $traveller->shipping_count === $bookingCount;
+        $buttonClass = $allShippingArranged ? 'btn-success' : 'btn-danger';
+        $buttonLabel = $allShippingArranged ? 'Options: all shipping arranged' : 'Options: shipping still needed';
+        $button = '<div class="text-center"><a href="#" class="btn ' . $buttonClass . ' btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#' . $modalId . '" title="' . $buttonLabel . '" aria-label="' . $buttonLabel . '"><i class="las la-bars" aria-hidden="true"></i></a></div>';
         $modal = '<div class="modal fade" id="' . $modalId . '" role="dialog">
             <div class="modal-dialog"><div class="modal-content modal-width">
                 <div class="modal-header"><div class="pull-right"><button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close">&times;</button></div>
