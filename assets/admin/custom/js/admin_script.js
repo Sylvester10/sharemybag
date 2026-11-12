@@ -497,16 +497,21 @@ jQuery(document).ready(function ($) {
 
     $(document).on(
         'input change',
-        adminModalDelegatedFieldSelector,
+        adminModalFieldSelector,
         function () {
             var $field = $(this);
-            var $form = $field.closest('form.admin-form-modal__form');
+            var $form = $field.closest('form');
+            var $group = $field.closest('.form-group, .admin-parcel-field');
+            var parcelErrorId = $field.attr('data-parcel-error-id');
 
-            if (
-                $field.data('admin-validation-touched') ||
-                $form.data('admin-validation-submitted')
-            ) {
-                validateAdminModalField(this);
+            // Editing dismisses the previous error; blur/submit validates again.
+            clearAdminModalFieldError(this);
+            $field.data('admin-validation-touched', false);
+            $field.data('validation-touched', false);
+            $group.removeClass('has-error');
+            $group.children('.form-error').empty();
+            if (parcelErrorId) {
+                $('#' + parcelErrorId).addClass('d-none').text('');
             }
 
             if (!$form.find('[aria-invalid="true"]').length) {
@@ -1424,7 +1429,8 @@ jQuery(document).ready(function ($) {
         var $error = $(errorSelector);
         var shouldShow = !isValid && (showAll || $field.data('validation-touched'));
 
-        $field.attr('aria-invalid', isValid ? 'false' : 'true');
+        $field.attr('aria-invalid', shouldShow ? 'true' : 'false');
+        $field.attr('data-parcel-error-id', $error.attr('id'));
         $field.closest('.admin-parcel-field').toggleClass('has-error', shouldShow);
         $error.toggleClass('d-none', !shouldShow).text(shouldShow ? message : '');
     }
@@ -1515,7 +1521,7 @@ jQuery(document).ready(function ($) {
 
     $(document).on('input', '#cancellation_reason, #cancel_refund_amount, #cancel_refund_reference', syncCancelParcelSubmitState);
     $(document).on('change', '#confirm_cancel_parcel', function () {
-        $(this).data('validation-touched', true);
+        $(this).data('validation-touched', false);
         syncCancelParcelSubmitState();
     });
     $(document).on('blur', '#cancellation_reason, #cancel_refund_amount, #cancel_refund_reference', function () {
@@ -1742,7 +1748,7 @@ jQuery(document).ready(function ($) {
 
     $(document).on('input', '#move_parcel_reason', syncMoveParcelSubmitState);
     $(document).on('change', '#move_target_traveller_id, #confirm_move_parcel', function () {
-        $(this).data('validation-touched', true);
+        $(this).data('validation-touched', false);
         syncMoveParcelSubmitState();
     });
     $(document).on('blur', '#move_parcel_reason', function () {
