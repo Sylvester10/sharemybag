@@ -42,4 +42,7 @@ $this->load->view('admin/partials/datatable_shell', array(
     'columns' => $columns,
     'csrf_hash' => $this->security->get_csrf_hash(),
 ));
+if (!empty($can_record_payout)) {
+    $this->load->view('admin/travellers/modal/traveller_payout');
+}
 ?>

@@ -7,6 +7,9 @@
     <?php endif; ?>
     <a class="btn btn-primary btn-sm button-adjust" href="#" data-toggle="modal" data-target="#addTravellerBagSpaceModal"><i class="las la-plus"></i> Add Bag Space</a>
     <a class="btn btn-danger btn-sm button-adjust" href="#" data-toggle="modal" data-target="#removeTravellerBagSpaceModal"><i class="las la-minus"></i> Remove Bag Space</a>
+    <?php if ($is_arrival_profile && !empty($is_super_admin)): ?>
+    <button type="button" class="btn btn-primary btn-sm button-adjust open-traveller-payout" data-traveller-id="<?php echo (int) $y->id; ?>"><i class="las la-money-check"></i> Traveller Payout</button>
+    <?php endif; ?>
     <a class="btn btn-default btn-sm button-adjust admin-back-btn" data-traveller-back href="<?php echo base_url($is_arrival_profile ? 'shipping/arrivals' : 'admin_travellers'); ?>"><i
             class="las la-arrow-left"></i> Back</a>
 </div>

@@ -50,7 +50,7 @@ class Shipping extends MY_Controller
         $count = $this->arrivals_model->count_all_records();
         $pageTitle = 'Arrivals (' . $count . ')';
         $this->admin_header('Admin', $pageTitle);
-        $this->load->view('admin/travellers/arrivals');
+        $this->load->view('admin/travellers/arrivals', array('can_record_payout' => ($this->admin_details->role ?? '') === 'super_admin'));
         $this->admin_footer();
     }
 
@@ -58,10 +58,16 @@ class Shipping extends MY_Controller
     {
         $list = $this->arrivals_model->get_records();
         $data = array();
+        $canRecordPayout = ($this->admin_details->role ?? '') === 'super_admin';
+        $payoutStates = array();
+        if ($canRecordPayout) {
+            $this->load->model('traveller_payout_model');
+            $payoutStates = $this->traveller_payout_model->get_arrival_payout_statuses(array_map(function ($row) { return (int) $row->id; }, $list));
+        }
 
         foreach ($list as $traveller) {
             $data[] = array(
-                $this->arrivals_model->action_menu($traveller),
+                $this->arrivals_model->action_menu($traveller, $canRecordPayout, $payoutStates[(int) $traveller->id] ?? ''),
                 $traveller->arrival_date ? x_date($traveller->arrival_date) : 'N/A',
                 html_escape($traveller->fullname),
                 html_escape($traveller->phone),
@@ -143,6 +149,47 @@ class Shipping extends MY_Controller
             'data' => $data,
             'csrf_hash' => $this->security->get_csrf_hash(),
         ));
+    }
+
+    public function payout_context_ajax($travellerId)
+    {
+        if (!$this->payoutRequestAllowed()) return;
+        $this->load->model('traveller_payout_model');
+        $result = $this->traveller_payout_model->get_payout_context((int) $travellerId);
+        if (!empty($result['status'])) {
+            $result['context']['request_key'] = bin2hex(random_bytes(16));
+            $result['context']['history'] = array_map(function ($row) {
+                return array('amount' => $row->amount, 'currency' => $row->currency,
+                    'recorded_at' => x_datetime_full($row->recorded_at),
+                    'source' => $row->source === 'opening_balance' ? 'Opening Balance' : 'Marked as Paid');
+            }, $this->traveller_payout_model->get_traveller_history((int) $travellerId));
+        }
+        $this->jsonResponse(!empty($result['status']), $result['msg'] ?? '', $result);
+    }
+
+    public function mark_traveller_paid_ajax($travellerId)
+    {
+        if (!$this->payoutRequestAllowed()) return;
+        $this->load->model('traveller_payout_model');
+        $result = $this->traveller_payout_model->record_manual_payout((int) $travellerId, (int) $this->admin_details->id, array(
+            'confirm_paid' => $this->input->post('confirm_paid', true),
+            'request_key' => $this->input->post('request_key', true),
+            'snapshot_token' => $this->input->post('snapshot_token', true),
+        ));
+        $this->jsonResponse(!empty($result['status']), $result['msg'] ?? '', $result);
+    }
+
+    private function payoutRequestAllowed()
+    {
+        if (($this->admin_details->role ?? '') !== 'super_admin') {
+            show_error('Only Super Admin can record traveller payouts.', 403, 'Access Denied');
+            return false;
+        }
+        if ($this->input->method(true) !== 'POST') {
+            show_error('This action requires a valid form submission.', 405);
+            return false;
+        }
+        return true;
     }
 
     public function search_bookings_ajax()

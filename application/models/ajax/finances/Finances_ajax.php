@@ -39,8 +39,8 @@ class Finances_ajax extends CI_Model
 	}
 
 	var $table = 'bookings';
-	var $column_order = array(null, 'bookings.traveller_departure_date', 'bookings.traveller_name', null, 'bookings.total_amount', 'bookings.service_charge', null, null, 'bookings.insurance', null, null, 'bookings.traveller_commission', null, 'bookings.payment_method', 'bookings.tracking_id');
-	var $column_search = array('bookings.traveller_departure_date', 'bookings.traveller_name', 'bookings.total_amount', 'bookings.selected_price', 'bookings.service_charge', 'bookings.selected_space', 'bookings.vat', 'bookings.insurance', 'bookings.traveller_commission', 'bookings.payment_method', 'bookings.tracking_id');
+	var $column_order = array(null, 'bookings.traveller_departure_date', 'bookings.traveller_name', 'travellers.original_bag_space', null, 'bookings.total_amount', 'bookings.service_charge', null, null, 'bookings.insurance', null, null, 'bookings.traveller_commission', null, 'bookings.payment_method', 'bookings.tracking_id');
+	var $column_search = array('bookings.traveller_departure_date', 'bookings.traveller_name', 'travellers.original_bag_space', 'bookings.total_amount', 'bookings.selected_price', 'bookings.service_charge', 'bookings.selected_space', 'bookings.vat', 'bookings.insurance', 'bookings.traveller_commission', 'bookings.payment_method', 'bookings.tracking_id');
 	var $order = array('bookings.date_added' => 'desc', 'bookings.id' => 'desc');
 
 
@@ -87,7 +87,7 @@ class Finances_ajax extends CI_Model
 	function get_records($month = null, $year = null, $route = null)
 	{
 		$this->the_query();
-		$this->db->select('bookings.*, travellers.location AS traveller_route_origin, travellers.destination AS traveller_route_destination');
+		$this->db->select('bookings.*, travellers.original_bag_space AS traveller_kg_offered, travellers.location AS traveller_route_origin, travellers.destination AS traveller_route_destination');
 		$length = $this->requestLength();
 		if ($length !== -1) {
 			$this->db->limit($length, $this->requestStart());

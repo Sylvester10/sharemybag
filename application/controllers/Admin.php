@@ -36,7 +36,8 @@ class Admin extends MY_Controller
 	{ //admin dashboard, routed as dashboard
 		$this->admin_header('Admin', 'Dashboard');
 		$this->load->model('dashboard_read_model');
-		$data['overview'] = $this->dashboard_read_model->get_overview($this->get_admin_role());
+		// Activity Overview and Recent Activity are suspended on the dashboard.
+		$data['overview'] = $this->dashboard_read_model->get_overview($this->get_admin_role(), 7, false);
 		$data['can_message'] = in_array($this->get_admin_role(), array('super_admin', 'customer_support'), true);
 		$data['all_users'] = $data['can_message'] ? $this->user_read_model->count_users() : 0;
 		$data['approved_users'] = $data['can_message'] ? $this->user_read_model->count_approved_users() : 0;

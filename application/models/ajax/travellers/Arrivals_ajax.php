@@ -142,7 +142,7 @@ class Arrivals_ajax extends CI_Model
         return $this->db->get()->row();
     }
 
-    public function action_menu($traveller)
+    public function action_menu($traveller, $canRecordPayout = false, $payoutStatus = '')
     {
         $id = (int) $traveller->id;
         $modalId = 'arrivalOptions' . $id;
@@ -151,6 +151,13 @@ class Arrivals_ajax extends CI_Model
         $buttonClass = $allShippingArranged ? 'btn-success' : 'btn-danger';
         $buttonLabel = $allShippingArranged ? 'Options: all shipping arranged' : 'Options: shipping still needed';
         $button = '<div class="text-center"><a href="#" class="btn ' . $buttonClass . ' btn-sm modal-toggle-btn clickable" data-toggle="modal" data-target="#' . $modalId . '" title="' . $buttonLabel . '" aria-label="' . $buttonLabel . '"><i class="las la-bars" aria-hidden="true"></i></a></div>';
+        if ($canRecordPayout && in_array($payoutStatus, array('paid','unpaid','review'), true)) {
+            $label = $payoutStatus === 'paid' ? 'Paid' : ($payoutStatus === 'review' ? 'Payout Review' : 'Unpaid');
+            $button .= '<div class="text-center">' . smb_badge($label, $payoutStatus === 'paid' ? 'badge-success' : 'badge-warning') . '</div>';
+        }
+        $payoutAction = $canRecordPayout
+            ? '<p><a href="#" class="btn btn-default btn-sm btn-block action-btn clickable open-traveller-payout" data-traveller-id="' . $id . '"><i class="las la-money-check" style="color: green"></i> &nbsp; Traveller Payout</a></p>'
+            : '';
         $modal = '<div class="modal fade" id="' . $modalId . '" role="dialog">
             <div class="modal-dialog"><div class="modal-content modal-width">
                 <div class="modal-header"><div class="pull-right"><button class="btn btn-danger btn-sm modal_close_btn" data-dismiss="modal" title="Close">&times;</button></div>
@@ -158,6 +165,7 @@ class Arrivals_ajax extends CI_Model
                 </div>
                 <div class="modal-body">
                     <p><a href="' . base_url('shipping/arrival_traveller/' . $id) . '" class="btn btn-default btn-sm btn-block action-btn clickable"><i class="las la-user" style="color: green"></i> &nbsp; View Traveller</a></p>
+                    ' . $payoutAction . '
                 </div>
             </div></div>
         </div>';

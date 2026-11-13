@@ -9,10 +9,13 @@ $mail_hidden = array('admin_mail_token' => $mail_token);
 echo '<div class="admin-dashboard-summary">';
 $this->load->view('admin/partials/stat_tiles', array('tiles' => $overview['tiles']));
 echo '</div>';
-$this->load->view('admin/dashboard/activity', array('overview' => $overview));
+// Activity Overview and Recent Activity are suspended; keep the view for restoration.
+// $this->load->view('admin/dashboard/activity', array('overview' => $overview));
 ?>
 
+<div class="row admin-dashboard-row">
 <?php if ($can_message): ?>
+<div class="col-md-8 col-sm-12">
 <div class="panel panel-default admin-dashboard-panel admin-messaging-panel">
 	<div class="panel-heading admin-dashboard-heading admin-recent-heading">
 		<h4>Messaging</h4>
@@ -26,7 +29,7 @@ $this->load->view('admin/dashboard/activity', array('overview' => $overview));
 
 			<div class="tab-pane active" id="quick_email">
 				<div class="row">
-					<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
 						<?php
 						echo form_open('message/send_email', 'id="submit_button"', $mail_hidden); ?>
@@ -62,7 +65,7 @@ $this->load->view('admin/dashboard/activity', array('overview' => $overview));
 
 			<div class="tab-pane fade" id="bulk_email">
 				<div class="row">
-					<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
 						<?php
 						echo form_open('message/send_bulk_mail', 'id="submit_buttons"', $mail_hidden); ?>
@@ -103,4 +106,9 @@ $this->load->view('admin/dashboard/activity', array('overview' => $overview));
 		</div>
 	</div>
 </div>
+</div>
 <?php endif; ?>
+<div class="<?php echo $can_message ? 'col-md-4' : 'col-md-12'; ?> col-sm-12">
+    <?php $this->load->view('admin/dashboard/attention', array('overview' => $overview)); ?>
+</div>
+</div>

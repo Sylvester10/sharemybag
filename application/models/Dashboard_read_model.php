@@ -28,7 +28,7 @@ class Dashboard_read_model extends MY_Model
         }
     }
 
-    public function get_overview($role, $days = 7)
+    public function get_overview($role, $days = 7, $includeActivity = true)
     {
         $days = (int) $days === 30 ? 30 : 7;
         $sources = $this->sources($role);
@@ -36,7 +36,7 @@ class Dashboard_read_model extends MY_Model
         $start = $today->modify('-29 days');
         $end = $today->modify('+1 day')->format('Y-m-d');
         $daily = array();
-        for ($i = 0; $i < 30; $i++) {
+        for ($i = 0; $includeActivity && $i < 30; $i++) {
             $date = $start->modify('+' . $i . ' days');
             $daily[$date->format('Y-m-d')] = array('label' => $date->format('j M'), 'values' => array_fill_keys(array_keys($sources), 0));
         }
@@ -63,6 +63,8 @@ class Dashboard_read_model extends MY_Model
             } else {
                 $tiles[count($tiles) - 1]['detail'] = 'Departures in the next 7 days';
             }
+
+            if (!$includeActivity) continue;
 
             $this->sourceQuery($table, $role);
             $this->db->select('DATE(' . $source['date'] . ') AS activity_date, COUNT(*) AS total', false);
