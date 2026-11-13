@@ -26,6 +26,7 @@ class Admin_finances extends MY_Controller
         $this->load->model('shipping_model');
         $this->load->model('travellers_model');
         $this->load->model('finance_read_model');
+        $this->load->model('traveller_payout_model');
         $this->load->library('booking_presenter');
         $this->admin_details = $this->common_model->get_admin_details($this->session->admin_email);
     }
@@ -39,6 +40,7 @@ class Admin_finances extends MY_Controller
         $this->admin_header('Admin', $inner_page_title);
 
         $data['finance_cards'] = $this->finance_read_model->get_finance_cards('GBP');
+        $data['payout_summary'] = $this->traveller_payout_model->get_outstanding_summary();
 
         $this->load->view('admin/finances/pound_finances', $data);
         $this->admin_footer();
@@ -78,9 +80,10 @@ class Admin_finances extends MY_Controller
 
             $row = array();
             $row[] = $rowNumber++;
-            // Traveller's Date (Using Drop Date 1 as Travel Date)
+            // Traveller's departure date.
             $row[] = x_date_full($y->traveller_departure_date);
             $row[] = html_escape($y->traveller_name);
+            $row[] = $this->format_kg_offered($y->traveller_kg_offered ?? null);
             $row[] = $finance_metrics['total_kg'] . 'KG';
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->total_amount);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->service_charge);
@@ -116,6 +119,7 @@ class Admin_finances extends MY_Controller
         $this->admin_header('Admin', $inner_page_title);
 
         $data['finance_cards'] = $this->finance_read_model->get_finance_cards('CAD');
+        $data['payout_summary'] = $this->traveller_payout_model->get_outstanding_summary();
 
         $this->load->view('admin/finances/dollar_finances', $data);
         $this->admin_footer();
@@ -158,6 +162,7 @@ class Admin_finances extends MY_Controller
             // Traveller's Date
             $row[] = x_date_full($y->traveller_departure_date);
             $row[] = html_escape($y->traveller_name);
+            $row[] = $this->format_kg_offered($y->traveller_kg_offered ?? null);
             $row[] = $finance_metrics['total_kg'] . 'KG';
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->total_amount);
             $row[] = $this->booking_presenter->format_money_with_sign($sign, $y->service_charge);
@@ -184,6 +189,16 @@ class Admin_finances extends MY_Controller
         );
 
         echo json_encode($output);
+    }
+
+
+    private function format_kg_offered($value)
+    {
+        if ($value === null || !is_numeric($value) || (float) $value < 0) {
+            return 'N/A';
+        }
+
+        return rtrim(rtrim(number_format((float) $value, 2, '.', ''), '0'), '.') . 'KG';
     }
 
 

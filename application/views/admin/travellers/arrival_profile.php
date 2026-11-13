@@ -1,4 +1,7 @@
 <?php
+if (!empty($is_super_admin)) {
+    $this->load->view('admin/travellers/modal/traveller_payout');
+}
 $this->load->view('admin/travellers/traveller_profile', array(
     'y' => $y,
     'booking_details' => $booking_details,

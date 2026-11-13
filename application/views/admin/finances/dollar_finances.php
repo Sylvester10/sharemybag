@@ -22,6 +22,7 @@ $columns = array(
     array('label' => ''),
     array('label' => 'Travel Date', 'class' => 'min-w-200'),
     array('label' => 'Traveller', 'class' => 'min-w-200'),
+    array('label' => 'KG Offered'),
     array('label' => 'Total KG'),
     array('label' => 'Total Amount'),
     array('label' => 'Service Charge'),
@@ -35,7 +36,7 @@ $columns = array(
     array('label' => 'Payment Method'),
     array('label' => 'Booking ID', 'class' => 'min-w-150'),
 );
-$this->load->view('admin/finances/summary_cards', array('summary' => $finance_cards, 'sign' => '$'));
+$this->load->view('admin/finances/summary_cards', array('summary' => $finance_cards, 'sign' => '$', 'currency' => 'CAD', 'payout_summary' => $payout_summary ?? null));
 $this->load->view('admin/partials/filter_row', array('label' => 'Filter', 'filters' => $filters));
 $this->load->view('admin/partials/datatable_shell', array(
     'table_id' => 'finances_cad_table',

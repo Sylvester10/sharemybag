@@ -1830,6 +1830,126 @@ jQuery(document).ready(function ($) {
     });
 
     /////////////////////////////////////////////////////////
+    // TRAVELLER PAYOUT CONFIRMATION
+    var travellerPayoutContext = null;
+    var travellerPayoutRequest = null;
+    var travellerPayoutLoad = 0;
+    var travellerPayoutSaving = false;
+
+    function syncTravellerPayoutSubmit() {
+        $('#traveller_payout_submit').prop('disabled', travellerPayoutSaving || !travellerPayoutContext || !travellerPayoutContext.eligible || !$('#traveller_payout_confirm_paid').is(':checked'));
+    }
+
+    function loadTravellerPayout(travellerId) {
+        if (travellerPayoutSaving) return;
+        var load = ++travellerPayoutLoad;
+        if (travellerPayoutRequest) travellerPayoutRequest.abort();
+        travellerPayoutContext = null;
+        $('#traveller_payout_error').addClass('d-none').text('');
+        $('#traveller_payout_details').addClass('d-none');
+        $('#traveller_payout_loading').removeClass('d-none');
+        $('#traveller_payout_confirm_paid').prop('checked', false).prop('disabled', false);
+        window.AdminModalValidation.clear($('#travellerPayoutForm'));
+        syncTravellerPayoutSubmit();
+        $('#travellerPayoutModal').modal('show');
+        travellerPayoutRequest = $.ajax({
+            url: base_url + 'shipping/payout_context_ajax/' + travellerId,
+            type: 'POST', data: { q2r_secure: getCsrfHash() }, timeout: 20000,
+            success: function (response) {
+                if (load !== travellerPayoutLoad) return;
+                var result = parseJsonResponse(response) || {};
+                updateCsrfHash(result.csrf_hash);
+                if (!result.status || !result.context) {
+                    $('#traveller_payout_error').text(result.msg || 'Unable to load the payout details.').removeClass('d-none');
+                    return;
+                }
+                travellerPayoutContext = result.context;
+                $('#traveller_payout_name').text(result.context.traveller_name);
+                var $amounts = $('#traveller_payout_amounts').empty();
+                $.each(result.context.currencies, function (currency, group) {
+                    if (group.amount !== '0.00') $('<p>').text(currency + ' ' + group.amount).appendTo($amounts);
+                });
+                $('#traveller_payout_eligibility').text(result.context.eligibility_message || '');
+                $('#traveller_payout_confirmation').toggle(!!result.context.eligible);
+                $('#traveller_payout_confirm_paid').prop('disabled', !result.context.eligible);
+                var $history = $('#traveller_payout_history_rows').empty();
+                $.each(result.context.history || [], function (_, payout) {
+                    var $row = $('<tr>');
+                    $('<td>').text(payout.recorded_at).appendTo($row);
+                    $('<td>').text(payout.currency + ' ' + payout.amount).appendTo($row);
+                    $('<td>').text(payout.source).appendTo($row);
+                    $row.appendTo($history);
+                });
+                $('#traveller_payout_history').toggleClass('d-none', !$history.children().length);
+                $('#traveller_payout_details').removeClass('d-none');
+                syncTravellerPayoutSubmit();
+            },
+            error: function (xhr, status) {
+                if (status === 'abort' || load !== travellerPayoutLoad) return;
+                var result = parseJsonResponse(xhr.responseText) || {};
+                updateCsrfHash(result.csrf_hash);
+                $('#traveller_payout_error').text(result.msg || 'Unable to load the payout details. Please try again.').removeClass('d-none');
+            },
+            complete: function () {
+                if (load === travellerPayoutLoad) $('#traveller_payout_loading').addClass('d-none');
+            }
+        });
+    }
+
+    $(document).on('click', '.open-traveller-payout', function (event) {
+        event.preventDefault();
+        var id = parseInt($(this).data('traveller-id'), 10) || 0;
+        if (!id || travellerPayoutSaving) return;
+        var $options = $(this).closest('.modal');
+        if ($options.length && $options.hasClass('in')) {
+            $options.one('hidden.bs.modal', function () { loadTravellerPayout(id); }).modal('hide');
+        } else loadTravellerPayout(id);
+    });
+    $(document).on('change', '#traveller_payout_confirm_paid', syncTravellerPayoutSubmit);
+    $(document).on('submit', '#travellerPayoutForm', function (event) {
+        event.preventDefault();
+        if (travellerPayoutSaving || !travellerPayoutContext || !travellerPayoutContext.eligible) return;
+        if (!window.AdminModalValidation.validate(this)) return;
+        travellerPayoutSaving = true;
+        syncTravellerPayoutSubmit();
+        $('#traveller_payout_error').addClass('d-none').text('');
+        $('#traveller_payout_confirm_paid').prop('disabled', true);
+        $('#traveller_payout_submit').html('<i class="las la-spinner la-spin"></i> Saving...');
+        $.ajax({
+            url: base_url + 'shipping/mark_traveller_paid_ajax/' + travellerPayoutContext.traveller_id,
+            type: 'POST', timeout: 20000,
+            data: { confirm_paid: '1', request_key: travellerPayoutContext.request_key, snapshot_token: travellerPayoutContext.snapshot_token, q2r_secure: getCsrfHash() },
+            success: function (response) {
+                var result = parseJsonResponse(response) || {};
+                updateCsrfHash(result.csrf_hash);
+                if (result.status) {
+                    sessionStorage.setItem('parcel_success_msg', result.msg || 'Traveller payout recorded.');
+                    location.reload();
+                    return;
+                }
+                $.each(result.field_errors || {}, function (field, message) {
+                    if (field === 'confirm_paid') window.AdminModalValidation.setFieldError($('#traveller_payout_confirm_paid'), message);
+                });
+                $('#traveller_payout_error').text(result.msg || 'Unable to record the payout.').removeClass('d-none');
+            },
+            error: function (xhr) {
+                var result = parseJsonResponse(xhr.responseText) || {};
+                updateCsrfHash(result.csrf_hash);
+                $('#traveller_payout_error').text(result.msg || 'Unable to confirm the result. Retry to check whether the payout was recorded.').removeClass('d-none');
+            },
+            complete: function () {
+                travellerPayoutSaving = false;
+                $('#traveller_payout_confirm_paid').prop('disabled', false);
+                $('#traveller_payout_submit').html('<i class="las la-check"></i> Mark as Paid');
+                syncTravellerPayoutSubmit();
+            }
+        });
+    });
+    $(document).on('hidden.bs.modal', '#travellerPayoutModal', function () {
+        ++travellerPayoutLoad;
+        if (travellerPayoutRequest) travellerPayoutRequest.abort();
+    });
+
     // SHIPPING RECORDS
     // ------------------------------------------------------
     var shippingRecordsTable = null;

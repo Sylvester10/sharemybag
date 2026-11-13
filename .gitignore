@@ -91,6 +91,14 @@ PROJECT_REFERENCE.md
 !/tests/dashboard_overview_test.php
 !/tests/dashboard_chart_test.js
 !/tests/shipping_modal_ui_test.js
+!/tests/traveller_payout_foundation_test.php
+!/tests/traveller_payout_concurrency_test.php
+!/tests/traveller_payout_workflow_test.php
+!/tests/finance_payout_ui_test.php
+!/tests/traveller_payout_modal_test.js
+!/tests/traveller_payout_production_sql_test.php
+!/tests/manual_migration_record_test.php
+!/scripts/setup_traveller_payouts.php
 !/tests/support/
 /tests/support/*
 !/tests/support/email_render.php
