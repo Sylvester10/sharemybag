@@ -82,7 +82,8 @@ try {
     production_payout_execute($db, file_get_contents($root . '/database/028_traveller_payouts.sql'));
     $db->query("UPDATE traveller_payout_opening_balances SET status='applied',snapshot_booking_id=3,audit_snapshot='{\"fixture\":true}',applied_at='2026-11-13 12:00:00'");
     $db->query("INSERT INTO travellers VALUES (1,'Paid Other','2026-11-12','2026-11-13',NULL),(1458,'  Onyekachi Vitalis  ','2026-11-13','2026-11-13',NULL),(1457,'CHRIS IHEUWA','2026-11-12','2026-11-13',NULL),(4,'Upcoming','2026-11-15','2026-11-16',NULL),(5,'Historical blank arrival','2026-11-01','',NULL),
-        (1459,'Vitalis Onyekachi','2026-11-10','2026-11-11',NULL),(1460,'Vitalis Onyekachi','2026-11-15','2026-11-16',NULL),(1461,'Vitalis Onyekachi','2026-11-17','2026-11-17',NULL),(1456,'Chris Iheuwa','2026-11-08','2026-11-09',NULL)");
+        (1459,'Vitalis Onyekachi','2026-11-10','2026-11-11',NULL),(1460,'Vitalis Onyekachi','2026-11-15','2026-11-16',NULL),(1461,'Vitalis Onyekachi','2026-11-17','2026-11-17',NULL),(1456,'Chris Iheuwa','2026-11-08','2026-11-09',NULL),
+        (1440,'Vitalis Onyekachi','2026-10-09','2026-10-08',NULL),(6,'Historical NULL arrival','2026-10-08',NULL,NULL)");
     $db->query("INSERT INTO bookings VALUES
         (1,1,'FIX1',10.00,'GBP','completed','stripe','2026-11-13 12:00:00',NULL),
         (2,1,'FIX2',2.00,'POUNDS','completed','offline','2026-11-13 12:00:00',NULL),
@@ -97,7 +98,9 @@ try {
         (13,1459,'FIX13',4.00,'GBP','completed','stripe','2026-11-11 12:00:00',NULL),
         (14,1460,'FIX14',50.00,'GBP','completed','stripe','2026-11-13 12:00:00',NULL),
         (15,1461,'FIX15',60.00,'GBP','completed','stripe','2026-11-13 12:00:00',NULL),
-        (16,1456,'FIX16',6.00,'GBP','completed','stripe','2026-11-09 12:00:00',NULL)");
+        (16,1456,'FIX16',6.00,'GBP','completed','stripe','2026-11-09 12:00:00',NULL),
+        (17,1440,'FIX17',5.00,'GBP','completed','stripe','2026-10-08 12:00:00',NULL),
+        (18,6,'FIX18',1.00,'CAD','completed','stripe','2026-10-08 12:00:00',NULL)");
     $db->query("INSERT INTO traveller_payouts (operation_key,traveller_id,traveller_name,currency,amount,source,recorded_at,note) VALUES ('existing',1,'Paid Other','GBP',4,'manual','2026-11-13 12:00:00','Existing partial settlement')");
     $db->query("INSERT INTO traveller_payout_items (payout_id,booking_id,booking_reference,traveller_id,currency,commission_snapshot,amount) VALUES (1,1,'FIX1',1,'GBP',10,4)");
     $sql=str_replace('USE `u543551821_sharemybag`;', 'USE `' . $database . '`;', file_get_contents($root . '/database/029_arrivals_payout_reconciliation.sql'));
@@ -126,10 +129,10 @@ try {
     $failed('VITALIS_TRIP_1458_REQUIRES_REVIEW');
     $db->query("UPDATE travellers SET travel_date='2026-11-13' WHERE id=1458");
     $db->query("UPDATE travellers SET arrival_date='2026-11-20' WHERE id=1");
-    $failed('ARRIVAL_DATE_REQUIRES_REVIEW');
+    $failed('ARRIVAL_DATE_REQUIRES_REVIEW: traveller 1 departure 2026-11-12 arrival 2026-11-20');
     $db->query("UPDATE travellers SET arrival_date='2026-11-13' WHERE id=1");
     $db->query("UPDATE travellers SET arrival_date='2026-02-30' WHERE id=1");
-    $failed('ARRIVAL_DATE_REQUIRES_REVIEW');
+    $failed('ARRIVAL_DATE_REQUIRES_REVIEW: traveller 1 departure 2026-11-12 arrival 2026-02-30');
     $db->query("UPDATE travellers SET arrival_date='2026-11-13' WHERE id=1");
     production_payout_clock($db,'2026-11-13 12:00:00');
     $failed('HISTORICAL_SNAPSHOT_REQUIRED');
@@ -148,12 +151,18 @@ try {
     production_payout_execute($db,$sql);
     $marker=$db->query('SELECT * FROM traveller_payout_reconciliations')->fetch_assoc();
     $audit=json_decode($marker['audit_snapshot'],true);
-    production_payout_check($marker['status']==='applied' && $marker['snapshot_booking_id']==='16','Frozen highwater marker commits.');
-    production_payout_check($audit['paid_booking_ids']===[1,2,3,7,13,16] && $audit['excluded_booking_ids']===[4,5],'Only the two selected trips stay unpaid; older same-name trips are settled.');
-    production_payout_check($audit['excluded_traveller_ids']===[1458,1457] && $audit['blank_arrival_booking_ids']===[7],'Exact trip IDs and explicit historical blank-arrival basis audited.');
+    production_payout_check($marker['status']==='applied' && $marker['snapshot_booking_id']==='18','Frozen highwater marker commits.');
+    production_payout_check($audit['paid_booking_ids']===[1,2,3,7,13,16,17,18] && $audit['excluded_booking_ids']===[4,5],'Only the two selected trips stay unpaid; older same-name trips are settled.');
+    production_payout_check($audit['excluded_traveller_ids']===[1458,1457] && $audit['blank_arrival_booking_ids']===[7,18],'Exact trip IDs and existing blank/NULL historical missing-arrival declaration preserved.');
     $totals=[];
     foreach ($db->query("SELECT currency,SUM(amount) amount FROM traveller_payouts WHERE source='owner_reconciliation' GROUP BY currency")->fetch_all(MYSQLI_ASSOC) as $row) $totals[$row['currency']]=$row['amount'];
-    production_payout_check($totals===['CAD'=>'10.00','GBP'=>'18.00'],'Only remaining exact GBP/CAD amounts appended; previous partial allocation subtracted.');
+    production_payout_check($totals===['CAD'=>'11.00','GBP'=>'23.00'],'Only remaining exact GBP/CAD amounts appended; previous partial allocation subtracted.');
+    production_payout_check(count($audit['historical_date_declarations'])===1
+        && $audit['historical_date_declarations'][0]['booking_id']===17
+        && $audit['historical_date_declarations'][0]['traveller_id']===1440
+        && $audit['historical_date_declarations'][0]['travel_date']==='2026-10-09'
+        && $audit['historical_date_declarations'][0]['arrival_date']==='2026-10-08',
+        'Owner declaration resolves historical reversed dates with exact audit, without changing the trip dates.');
     production_payout_check($db->query('SELECT * FROM traveller_payouts WHERE id=1')->fetch_assoc()===$originalHeader,'Previous header immutable.');
     production_payout_check($db->query('SELECT * FROM traveller_payout_items WHERE id=1')->fetch_assoc()===$originalItem,'Previous allocation immutable.');
     production_payout_check(production_payout_opening($db)===$opening,'Opening audit unchanged.');

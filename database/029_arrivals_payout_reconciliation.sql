@@ -51,6 +51,8 @@ reconciliation: BEGIN
     DECLARE v_paid_ids LONGTEXT DEFAULT '[]';
     DECLARE v_excluded_ids LONGTEXT DEFAULT '[]';
     DECLARE v_blank_arrival_ids LONGTEXT DEFAULT '[]';
+    DECLARE v_historical_date_declarations LONGTEXT DEFAULT '[]';
+    DECLARE v_date_error VARCHAR(128);
     DECLARE v_recorded DATETIME;
     DECLARE booking_rows CURSOR FOR
         SELECT b.id,b.traveller_id,b.tracking_id,t.fullname,
@@ -155,8 +157,18 @@ reconciliation: BEGIN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='SMB_029_ARRIVAL_BOOKING_DATE_REQUIRES_REVIEW';
         END IF;
         IF v_traveller NOT IN (v_vitalis,v_chris) AND v_arrival_raw<>''
-            AND (v_arrival IS NULL OR v_arrival<v_travel OR v_arrival>'2026-11-14') THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='SMB_029_ARRIVAL_DATE_REQUIRES_REVIEW: no payouts were recorded';
+            AND (v_arrival IS NULL OR v_arrival>'2026-11-14') THEN
+            SET v_date_error=CONCAT('SMB_029_ARRIVAL_DATE_REQUIRES_REVIEW: traveller ',v_traveller,
+                ' departure ',LEFT(v_travel_raw,10),' arrival ',LEFT(v_arrival_raw,20));
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=v_date_error;
+        END IF;
+        -- Both dates are valid and historical. The owner's prior-payment declaration
+        -- resolves the settlement only; do not invent a corrected trip date.
+        IF v_traveller NOT IN (v_vitalis,v_chris) AND v_arrival<v_travel THEN
+            SET v_historical_date_declarations=JSON_ARRAY_APPEND(v_historical_date_declarations,'$',
+                JSON_OBJECT('booking_id',CAST(v_booking AS UNSIGNED),'traveller_id',CAST(v_traveller AS UNSIGNED),
+                    'travel_date',v_travel_raw,'arrival_date',v_arrival_raw,
+                    'basis','Owner confirmed historical Arrival was already paid; trip date inconsistency retained.'));
         END IF;
         IF v_traveller NOT IN (v_vitalis,v_chris) AND v_arrival_raw='' THEN
             SET v_blank_arrival_ids=JSON_ARRAY_APPEND(v_blank_arrival_ids,'$',v_booking);
@@ -206,6 +218,7 @@ reconciliation: BEGIN
             'basis','Owner declared all existing Arrivals previously paid except trips 1458 (Vitalis Onyekachi) and 1457 (Chris Iheuwa), both arriving 13 November. Existing allocations preserved; actual payment dates unknown.',
             'excluded_traveller_ids',JSON_ARRAY(CAST(v_vitalis AS UNSIGNED),CAST(v_chris AS UNSIGNED)),
             'paid_booking_ids',JSON_EXTRACT(v_paid_ids,'$'),'excluded_booking_ids',JSON_EXTRACT(v_excluded_ids,'$'),
+            'historical_date_declarations',JSON_EXTRACT(v_historical_date_declarations,'$'),
             'blank_arrival_booking_ids',JSON_EXTRACT(v_blank_arrival_ids,'$'))
     WHERE operation_key='arrivals-paid:2026-11-14';
     COMMIT;
