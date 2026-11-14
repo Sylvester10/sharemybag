@@ -1,4 +1,5 @@
 <?php
+$this->load->view('admin/travellers/modal/collection_address', array('y' => $y));
 if (!empty($is_super_admin)) {
     $this->load->view('admin/travellers/modal/traveller_payout');
 }

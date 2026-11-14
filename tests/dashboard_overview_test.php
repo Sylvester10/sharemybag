@@ -21,6 +21,7 @@ $db->insert('users', array('id' => 4, 'firstname' => 'Year Old', 'lastname' => '
 $db->where('id', 1)->update('travellers', array('fullname' => 'Upcoming Traveller', 'status' => 'Approved', 'travel_date' => date('Y-m-d', strtotime('+3 days')), 'date_added' => $now));
 $db->insert('travellers', array('id' => 2, 'fullname' => 'Private Pending Traveller', 'status' => 'Pending', 'travel_date' => date('Y-m-d', strtotime('+3 days')), 'date_added' => $now));
 $db->insert('travellers', array('id' => 3, 'fullname' => 'Past Traveller', 'status' => 'Approved', 'travel_date' => date('Y-m-d', strtotime('-3 days')), 'date_added' => $now));
+$db->insert('travellers', array('id' => 4, 'fullname' => 'Deleted Traveller', 'status' => 'Approved', 'travel_date' => date('Y-m-d', strtotime('+3 days')), 'date_added' => $now, 'deleted_at' => $now));
 $db->where('id', 1)->update('bookings', array('date_added' => $now, 'total_amount' => 100, 'selected_price' => 80, 'traveller_commission' => 30, 'vat' => 7, 'currency' => 'GBP', 'payment_method' => 'offline', 'user_fullname' => 'Alice Edokpayi', 'selected_space' => 5, 'traveller_destination' => 'Nigeria'));
 $db->where('id', 2)->update('bookings', array('date_added' => date('Y-m-d H:i:s', strtotime('-2 days')), 'total_amount' => 60, 'selected_price' => 50, 'traveller_commission' => 20, 'currency' => 'GBP', 'payment_method' => 'stripe'));
 $db->where('id', 3)->update('bookings', array('date_added' => $now, 'total_amount' => 500, 'selected_price' => 400, 'traveller_commission' => 100, 'currency' => 'GBP', 'payment_status' => 'canceled', 'payment_method' => 'paystack'));
@@ -48,11 +49,18 @@ foreach (array('super_admin', 'customer_support', 'traveller_support') as $role)
     support_check(strpos($html, 'Activity Overview') !== false && strpos($html, 'Recent Activity') !== false && strpos($html, 'Needs Attention') !== false, 'Actual activity view renders.');
     support_check(strpos($html, 'View All') === false && strpos($html, 'Total Revenue') === false, 'No unwanted view-all button or finance cards on dashboard.');
     if ($role === 'customer_support') {
+        support_check(array_column($result['tiles'], 'label') === array('Total Users', 'Upcoming Travellers', 'Total Bookings'), 'Customer Support retains only cards for its permitted records.');
+        support_check(array_column($result['tiles'], 'value') === array('3', '1', '3'), 'Customer Support cannot count historical, pending or deleted travellers.');
         support_check(strpos(json_encode($result), 'Private Pending Traveller') === false && strpos(json_encode($result), 'Past Traveller') === false, 'Customer Support activity cannot reveal hidden travelers.');
         support_check(count($result['attention']) === 1 && $result['attention'][0]['count'] === 1, 'Support receives new-signup attention only.');
     } elseif ($role === 'traveller_support') {
+        support_check(array_column($result['tiles'], 'label') === array('Approved Travellers', 'Pending Travellers'), 'Traveller Support sees only permitted original traveller cards.');
+        support_check(array_column($result['tiles'], 'value') === array('2', '1'), 'Traveller counts exclude archived records.');
         support_check(array_keys($result['sources']) === array('travellers') && !in_array('Total Users', array_column($result['tiles'], 'label'), true) && !in_array('Completed Bookings', array_column($result['tiles'], 'label'), true), 'Traveller Support sees no user or booking activity.');
     } else {
+        support_check(array_column($result['tiles'], 'label') === array('Total Users', 'Approved Travellers', 'Pending Travellers', 'Total Bookings'), 'Super Admin receives the four original stat cards in their original order.');
+        support_check(array_column($result['tiles'], 'value') === array('3', '2', '1', '3'), 'Original cards count all approved/pending travellers and completed bookings, excluding deleted rows.');
+        support_check(array_column($result['tiles'], 'icon') === array('las la-users', 'las la-suitcase-rolling', 'las la-history', 'las la-briefcase'), 'Original stat icons are retained.');
         support_check(count($result['sources']) === 3 && count($result['recent']) >= 6, 'Super Admin receives all three activity sources.');
         $bookingActivity = array_values(array_filter($result['recent'], function ($row) { return $row['type'] === 'bookings' && $row['id'] === 1; }))[0];
         support_check($bookingActivity['details'] === 'Alice E. booked a 5 kg parcel to Nigeria', 'Booking text abbreviates the last name and describes the parcel.');

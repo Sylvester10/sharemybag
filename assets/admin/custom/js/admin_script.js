@@ -1830,6 +1830,52 @@ jQuery(document).ready(function ($) {
     });
 
     /////////////////////////////////////////////////////////
+    // ARRIVAL COLLECTION ADDRESS
+    var collectionAddressSaving = false;
+    $('#travellerCollectionAddressModal').on('hide.bs.modal', function (event) {
+        if (collectionAddressSaving) event.preventDefault();
+    }).on('show.bs.modal', function () {
+        $('#traveller_collection_address_form_error').addClass('d-none').text('');
+    });
+    $(document).on('submit', '#travellerCollectionAddressForm', function (event) {
+        event.preventDefault();
+        if (collectionAddressSaving || !window.AdminModalValidation.validate(this)) return;
+        var $form = $(this);
+        var data = $form.serializeArray();
+        data.push({ name: 'q2r_secure', value: getCsrfHash() });
+        collectionAddressSaving = true;
+        var $button = $('#traveller_collection_address_submit');
+        var $error = $('#traveller_collection_address_form_error').addClass('d-none').text('');
+        $button.prop('disabled', true).html('<i class="las la-spinner la-spin"></i> Saving...');
+        function showCollectionAddressError(result) {
+            updateCsrfHash(result.csrf_hash);
+            if (result.field_errors && result.field_errors.collection_address) {
+                window.AdminModalValidation.setFieldError($('#traveller_collection_address'), result.field_errors.collection_address);
+            } else {
+                $error.text(result.msg || 'Unable to save the collection address. Please try again.').removeClass('d-none');
+            }
+        }
+        $.ajax({
+            url: base_url + 'shipping/update_collection_address_ajax/' + $form.data('traveller-id'),
+            type: 'POST', data: data, timeout: 20000,
+            success: function (response) {
+                var result = parseJsonResponse(response) || {};
+                updateCsrfHash(result.csrf_hash);
+                if (result.status) {
+                    sessionStorage.setItem('parcel_success_msg', result.msg || 'Collection address updated successfully.');
+                    location.reload();
+                    return;
+                }
+                showCollectionAddressError(result);
+            },
+            error: function (xhr) { showCollectionAddressError(parseJsonResponse(xhr.responseText) || {}); },
+            complete: function () {
+                collectionAddressSaving = false;
+                $button.prop('disabled', false).html('<i class="las la-check"></i> Save Address');
+            }
+        });
+    });
+
     // TRAVELLER PAYOUT CONFIRMATION
     var travellerPayoutContext = null;
     var travellerPayoutRequest = null;

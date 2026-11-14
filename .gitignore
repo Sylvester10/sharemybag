@@ -96,6 +96,8 @@ PROJECT_REFERENCE.md
 !/tests/traveller_payout_workflow_test.php
 !/tests/finance_payout_ui_test.php
 !/tests/traveller_payout_modal_test.js
+!/tests/arrival_collection_address_modal_test.js
+!/tests/arrivals_payout_reconciliation_test.php
 !/tests/traveller_payout_production_sql_test.php
 !/tests/manual_migration_record_test.php
 !/scripts/setup_traveller_payouts.php
