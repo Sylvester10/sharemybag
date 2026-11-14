@@ -40,30 +40,8 @@ class Dashboard_read_model extends MY_Model
             $date = $start->modify('+' . $i . ' days');
             $daily[$date->format('Y-m-d')] = array('label' => $date->format('j M'), 'values' => array_fill_keys(array_keys($sources), 0));
         }
-        $tiles = array();
         $recent = array();
         foreach ($sources as $table => $source) {
-            $this->sourceQuery($table, $role);
-            if ($table === 'travellers') {
-                $this->db->where('status', 'Approved');
-                $this->db->where('travel_date >=', $today->format('Y-m-d'));
-                $this->db->where('travel_date <', $today->modify('+7 days')->format('Y-m-d'));
-            }
-            $count = (int) $this->db->count_all_results();
-            $labels = array('users' => 'Total Users', 'bookings' => 'Completed Bookings', 'travellers' => 'Upcoming Travellers');
-            $icons = array('users' => 'las la-users', 'bookings' => 'las la-briefcase', 'travellers' => 'las la-suitcase-rolling');
-            $tiles[] = array('icon' => $icons[$table], 'value' => number_format($count), 'label' => $labels[$table], 'col' => count($sources) === 1 ? 12 : 4);
-            if ($table === 'users') {
-                $this->load->model('user_read_model');
-                $tiles[count($tiles) - 1]['detail'] = $this->user_read_model->count_recent_signups() . ' new in the last 5 days';
-            } elseif ($table === 'bookings') {
-                $this->sourceQuery($table, $role);
-                $this->db->where('date_added >=', $today->format('Y-m-d'))->where('date_added <', $end);
-                $tiles[count($tiles) - 1]['detail'] = $this->db->count_all_results() . ' created today';
-            } else {
-                $tiles[count($tiles) - 1]['detail'] = 'Departures in the next 7 days';
-            }
-
             if (!$includeActivity) continue;
 
             $this->sourceQuery($table, $role);
@@ -111,13 +89,39 @@ class Dashboard_read_model extends MY_Model
             return $dateOrder ?: ($b['id'] <=> $a['id']) ?: strcmp($a['type'], $b['type']);
         });
         $attention = $this->attention($role);
-        foreach ($attention as $item) {
-            if ($item['url'] === 'shipping/arrivals') $tiles[] = array('icon' => 'las la-box', 'label' => 'Needs Shipping', 'value' => number_format($item['count']), 'detail' => 'Paid parcels awaiting arrangement');
-        }
+        $tiles = $this->summaryTiles($role);
         foreach ($tiles as &$tile) $tile['col'] = count($tiles) === 4 ? 3 : (count($tiles) === 3 ? 4 : (count($tiles) === 2 ? 6 : 12));
         unset($tile);
         $attention = array_values(array_filter($attention, function ($item) { return (int) $item['count'] > 0; }));
         return array('tiles' => $tiles, 'sources' => $sources, 'chart_daily' => $daily, 'daily' => array_slice($daily, -$days, null, true), 'days' => $days, 'recent' => $recent, 'attention' => $attention);
+    }
+
+    private function summaryTiles($role)
+    {
+        $tiles = array();
+        if (in_array($role, array('super_admin', 'customer_support'), true)) {
+            $this->sourceQuery('users', $role);
+            $tiles[] = array('icon' => 'las la-users', 'value' => number_format($this->db->count_all_results()), 'label' => 'Total Users');
+        }
+        if (in_array($role, array('super_admin', 'traveller_support'), true)) {
+            $this->sourceQuery('travellers', $role);
+            $this->db->where('status', 'Approved');
+            $tiles[] = array('icon' => 'las la-suitcase-rolling', 'value' => number_format($this->db->count_all_results()), 'label' => 'Approved Travellers');
+            $this->sourceQuery('travellers', $role);
+            $this->db->where('status', 'Pending');
+            $tiles[] = array('icon' => 'las la-history', 'value' => number_format($this->db->count_all_results()), 'label' => 'Pending Travellers');
+        } elseif ($role === 'customer_support') {
+            // This role can see upcoming travellers only; retain its existing scope.
+            $this->sourceQuery('travellers', $role);
+            $this->db->where('travel_date <', date('Y-m-d', strtotime('+7 days')));
+            $tiles[] = array('icon' => 'las la-suitcase-rolling', 'value' => number_format($this->db->count_all_results()), 'label' => 'Upcoming Travellers');
+        }
+        if (in_array($role, array('super_admin', 'customer_support'), true)) {
+            // The original Total Bookings card counted completed bookings.
+            $this->sourceQuery('bookings', $role);
+            $tiles[] = array('icon' => 'las la-briefcase', 'value' => number_format($this->db->count_all_results()), 'label' => 'Total Bookings');
+        }
+        return $tiles;
     }
 
     private function attention($role)

@@ -151,6 +151,21 @@ class Shipping extends MY_Controller
         ));
     }
 
+    public function update_collection_address_ajax($travellerId)
+    {
+        if ($this->input->method(true) !== 'POST') {
+            show_error('This action requires a valid form submission.', 405);
+            return;
+        }
+        $result = $this->shipping_model->update_traveller_collection_address(
+            (int) $travellerId,
+            $this->input->post('collection_address', true),
+            $this->input->post('address_token', true),
+            (int) $this->admin_details->id
+        );
+        $this->jsonResponse(!empty($result['status']), $result['msg'] ?? '', $result);
+    }
+
     public function payout_context_ajax($travellerId)
     {
         if (!$this->payoutRequestAllowed()) return;

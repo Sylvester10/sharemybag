@@ -12,6 +12,46 @@ class Shipping_model extends \MY_Model
         $this->load->model('shipping_read_model');
     }
 
+    /** Correct the collection address without resaving trip dates or booked capacity. */
+    public function update_traveller_collection_address($travellerId, $address, $addressToken, $adminId)
+    {
+        $error = 'Enter the traveler\'s collection address (100 characters maximum).';
+        if (!is_string($address) || trim($address) === '' || mb_strlen(trim($address), 'UTF-8') > 100) {
+            return array('status' => false, 'field_errors' => array('collection_address' => $error));
+        }
+        if (!is_string($addressToken) || !preg_match('/^[a-f0-9]{64}$/D', $addressToken)) {
+            return array('status' => false, 'msg' => 'Reopen the collection address before saving.');
+        }
+        if (!$this->db->trans_begin()) return array('status' => false, 'msg' => 'Unable to save the collection address.');
+        try {
+            $lock = $this->db->dbdriver === 'mysqli' ? ' FOR UPDATE' : '';
+            $admin = $this->db->query('SELECT * FROM admins WHERE id = ?' . $lock, array((int) $adminId))->row();
+            if (!$admin || !admin_shipping_access_allowed($admin)) {
+                throw new RuntimeException('You do not have permission to update the collection address.');
+            }
+            $traveller = $this->db->query('SELECT * FROM travellers WHERE id = ?' . $lock, array((int) $travellerId))->row();
+            if (!$traveller || !empty($traveller->deleted_at) || empty($traveller->travel_date)
+                || $traveller->travel_date >= date('Y-m-d')) {
+                throw new RuntimeException('Select a traveler from Arrivals.');
+            }
+            $this->db->from('bookings')->where('traveller_id', (int) $travellerId)->where('payment_status', 'completed');
+            ci_where_not_deleted($this->db, 'bookings');
+            if (!$this->db->count_all_results()) throw new RuntimeException('Select a traveler with an active completed booking.');
+            if (!hash_equals(hash('sha256', (string) $traveller->additional_info), $addressToken)) {
+                throw new RuntimeException('The collection address changed. Refresh the page before editing it again.');
+            }
+            if (!$this->db->where('id', (int) $travellerId)->update('travellers', array('additional_info' => trim($address)))
+                || !$this->db->trans_status() || !$this->db->trans_commit()) {
+                throw new RuntimeException('Unable to save the collection address.');
+            }
+            return array('status' => true, 'msg' => 'Collection address updated successfully.');
+        } catch (Throwable $error) {
+            $this->db->trans_rollback();
+            log_message('error', 'Collection address update failed for traveler ' . (int) $travellerId . ': ' . $error->getMessage());
+            return array('status' => false, 'msg' => $error instanceof RuntimeException ? $error->getMessage() : 'Unable to save the collection address.');
+        }
+    }
+
     public function create_shipping_record($bookingId, array $payload)
     {
         $booking = $this->booking_read_model->get_booking_details_by_id($bookingId);

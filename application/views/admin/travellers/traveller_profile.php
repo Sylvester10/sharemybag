@@ -5,6 +5,9 @@
         href="<?php echo base_url('admin_travellers/update_traveller/' . $y->id); ?>"><i class="las la-pen"></i> Edit
         Traveller</a>
     <?php endif; ?>
+    <?php if ($is_arrival_profile): ?>
+    <button type="button" class="btn btn-default btn-sm button-adjust" data-toggle="modal" data-target="#travellerCollectionAddressModal"><i class="las la-map-marker"></i> Edit Collection Address</button>
+    <?php endif; ?>
     <a class="btn btn-primary btn-sm button-adjust" href="#" data-toggle="modal" data-target="#addTravellerBagSpaceModal"><i class="las la-plus"></i> Add Bag Space</a>
     <a class="btn btn-danger btn-sm button-adjust" href="#" data-toggle="modal" data-target="#removeTravellerBagSpaceModal"><i class="las la-minus"></i> Remove Bag Space</a>
     <?php if ($is_arrival_profile && !empty($is_super_admin)): ?>

@@ -88,4 +88,68 @@ foreach (array(null => 'btn-danger', 1 => 'btn-primary') as $shippingId => $butt
     $html = $render('admin/travellers/traveller_profile', array('y' => $profileTrip, 'booking_details' => array($booking), 'is_super_admin' => false, 'is_arrival_profile' => true, 'staff_options' => array(), 'courier_options' => array(), 'current_admin_id' => 9, 'lock_staff_selection' => false));
     support_check(strpos($html, 'class="btn ' . $buttonClass . ' btn-sm modal-toggle-btn clickable"') !== false, 'Arrival action uses ' . $buttonClass . ' for the shipping state.');
 }
-echo "PASS: collection address search/context/insert, missing-address inline error, existing address preservation, table ordering and Arrival action colors (in-memory database only).\n";
+// An arrived traveler can correct a missing address without editing dates/capacity or existing shipments.
+$shippingTestDb = $db;
+$db = DB(array('dbdriver' => 'sqlite3', 'database' => ':memory:', 'db_debug' => true), true);
+support_check($shippingTestDb->conn_id->backup($db->conn_id), 'Copy fixtures into a separate in-memory address test database.');
+foreach (array('travel_date TEXT', 'arrival_date TEXT', 'deleted_at TEXT', 'original_bag_space INTEGER') as $column) {
+    $db->query('ALTER TABLE travellers ADD COLUMN ' . $column);
+}
+$db->where('id', 1)->update('travellers', array('travel_date' => date('Y-m-d', strtotime('-2 days')), 'arrival_date' => date('Y-m-d', strtotime('-1 day')), 'original_bag_space' => 21));
+$model->db = $db;
+$read->db = $db;
+$before = $db->where('id', 1)->get('travellers')->row_array();
+$token = hash('sha256', $before['additional_info']);
+foreach (array('', '   ', str_repeat('a', 101), array('not a string')) as $invalid) {
+    $result = $model->update_traveller_collection_address(1, $invalid, $token, 9);
+    support_check(!$result['status'] && isset($result['field_errors']['collection_address']), 'Address validation returns a field error.');
+}
+$db->insert('admins', array('id' => 10, 'role' => 'customer_support', 'can_manage_shipping' => 1));
+support_check(!$model->update_traveller_collection_address(1, 'No access', $token, 10)['status'], 'Customer Support cannot change the address even with a shipping flag.');
+support_check(!$model->update_traveller_collection_address(1, 'No access', $token, 999)['status'], 'Unknown actors cannot change addresses.');
+support_check(!$model->update_traveller_collection_address(1, 'Stale address', str_repeat('a', 64), 9)['status'], 'Stale changes cannot overwrite another edit.');
+$result = $model->update_traveller_collection_address(1, '  New collection address, Benin  ', $token, 9);
+support_check($result['status'], 'Past travel dates do not block collection-address corrections.');
+$after = $db->where('id', 1)->get('travellers')->row_array();
+$expected = $before; $expected['additional_info'] = 'New collection address, Benin';
+support_check($after === $expected, 'Only Additional Information changes: original dates, route and capacity stay intact.');
+support_check($read->get_shipping_record_by_booking_id(1)->pickup_address === 'Collection address, Benin', 'Previously booked shipments keep their address snapshots.');
+$payload['carrier_tracking_id'] = 'CARRIER3';
+support_check($model->create_shipping_record(3, $payload)['status'], 'A new shipment can be booked after correcting the address.');
+support_check($read->get_shipping_record_by_booking_id(3)->pickup_address === 'New collection address, Benin', 'New shipping uses the corrected address.');
+$token = hash('sha256', $after['additional_info']);
+$db->insert('admins', array('id' => 11, 'role' => 'traveller_support', 'can_manage_shipping' => 0));
+support_check(!$model->update_traveller_collection_address(1, $after['additional_info'], $token, 11)['status'], 'Traveler Support without shipping access cannot edit collection addresses.');
+$db->where('id', 11)->update('admins', array('can_manage_shipping' => 1));
+support_check($model->update_traveller_collection_address(1, $after['additional_info'], $token, 11)['status'], 'Traveler Support with shipping access can correct an arrival collection address.');
+$db->where('traveller_id', 1)->update('bookings', array('payment_status' => 'cancelled'));
+support_check(!$model->update_traveller_collection_address(1, 'No active bookings', $token, 9)['status'], 'The address editor requires an active completed booking.');
+$db->where('traveller_id', 1)->update('bookings', array('payment_status' => 'completed'));
+$db->where('id', 1)->update('travellers', array('travel_date' => date('Y-m-d', strtotime('+1 day'))));
+support_check(!$model->update_traveller_collection_address(1, 'Future', $token, 9)['status'], 'Arrival-only editor rejects upcoming travelers.');
+$db->where('id', 1)->update('travellers', array('travel_date' => $before['travel_date'], 'deleted_at' => '2026-11-14'));
+support_check(!$model->update_traveller_collection_address(1, 'Archived', $token, 9)['status'], 'Archived travelers cannot be changed.');
+$db->where('id', 1)->update('travellers', array('deleted_at' => null));
+
+// Actual authenticated controller endpoint, including method guard and JSON/CSRF contract.
+$controller = support_controller('Shipping', 'update_collection_address_ajax', 'super_admin');
+$controller->shipping_model = $model;
+$controller->input = new class {
+    public $requestMethod = 'POST';
+    function method($upper = false) { return $upper ? $this->requestMethod : strtolower($this->requestMethod); }
+    function post($key, $clean = false) { return $_POST[$key] ?? null; }
+};
+$controller->input->requestMethod = 'GET';
+try { $controller->update_collection_address_ajax(1); throw new RuntimeException('GET write allowed.'); }
+catch (SupportDenied $error) { support_check($error->getCode() === 405, 'Address writes require POST.'); }
+$controller->input->requestMethod = 'POST';
+$_POST = array('collection_address' => '', 'address_token' => $token);
+ob_start(); $controller->update_collection_address_ajax(1); $response = json_decode(ob_get_clean(), true);
+support_check(!$response['status'] && isset($response['field_errors']['collection_address']) && $response['csrf_hash'] === 'test-token', 'Endpoint returns inline error and refreshed CSRF.');
+$_POST['collection_address'] = 'Saved through endpoint';
+ob_start(); $controller->update_collection_address_ajax(1); $response = json_decode(ob_get_clean(), true);
+support_check($response['status'] && $db->where('id', 1)->get('travellers')->row()->additional_info === 'Saved through endpoint', 'Endpoint persists the corrected address.');
+$db = $shippingTestDb;
+$model->db = $db;
+$read->db = $db;
+echo "PASS: shipping defaults/snapshots, arrived-address persistence, permissions, validation, stale writes, POST guard, JSON, table ordering and Arrival action colors (in-memory database only).\n";
