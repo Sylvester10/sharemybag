@@ -47,7 +47,7 @@
                             Super Admin (full access)
                         </option>
                         <option value="customer_support" <?php echo set_select('role', 'customer_support'); ?>>
-                            Customer Support (bookings + users, no finances)
+                            Customer Support (bookings + users + shipping)
                         </option>
                         <option value="traveller_support" <?php echo set_select('role', 'traveller_support'); ?>>
                             Traveller Support (travellers section only)
@@ -119,7 +119,7 @@
                         <tr>
                             <td>Shipping workspace</td>
                             <td class="text-center text-success"><i class="las la-check"></i></td>
-                            <td class="text-center"><span class="badge badge-info">Admin controlled</span></td>
+                            <td class="text-center text-success"><i class="las la-check"></i></td>
                             <td class="text-center"><span class="badge badge-info">Admin controlled</span></td>
                         </tr>
                         <tr>
@@ -173,7 +173,7 @@
 <script>
     var roleHints = {
         'super_admin': 'Full access to everything including finances and admin management.',
-        'customer_support': 'Can manage bookings and users. Cannot access finances, travellers, or admin accounts.',
+        'customer_support': 'Can manage bookings, users, shipping and permitted upcoming traveller actions. No access to arrivals, finances or admin accounts.',
         'traveller_support': 'Can only view and manage travellers. No access to users, bookings, or finances.'
     };
     var roleSelect = document.querySelector('select[name="role"]');
@@ -181,11 +181,11 @@
 
     function updateAdminAccessFields() {
         document.getElementById('role_hint').textContent = roleHints[roleSelect.value] || '';
-        var isSuperAdmin = roleSelect.value === 'super_admin';
-        if (isSuperAdmin) {
+        var automaticShipping = roleSelect.value === 'super_admin' || roleSelect.value === 'customer_support';
+        if (automaticShipping) {
             shippingAccess.checked = true;
         }
-        shippingAccess.disabled = isSuperAdmin;
+        shippingAccess.disabled = automaticShipping;
     }
 
     roleSelect.addEventListener('change', updateAdminAccessFields);

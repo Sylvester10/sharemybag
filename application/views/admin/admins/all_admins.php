@@ -31,10 +31,7 @@ $role_labels = [
                 <td><?php echo $role_labels[$a->role] ?? '<span class="badge badge-secondary">' . htmlspecialchars($a->role) . '</span>'; ?></td>
                 <td>
                     <?php
-                    $has_shipping_access = $a->role === 'super_admin'
-                        || (property_exists($a, 'can_manage_shipping')
-                            ? (int) $a->can_manage_shipping === 1
-                            : $a->role === 'customer_support');
+                    $has_shipping_access = admin_shipping_access_allowed($a);
                     ?>
                     <?php if ($has_shipping_access): ?>
                         <span class="badge badge-success"><i class="las la-check"></i> Allowed</span>

@@ -2,6 +2,10 @@
 
 The payout ledger records settlement declarations, not bank transfers. It never calls a payment provider or sends email. Phase 1 created the foundation; Phase 2 adds the Arrivals payout workflow and finance summary. Phase 3 simplifies the dashboard.
 
+## Shipping access — 16 November 2026
+
+Customer Support includes Shipping access for existing and new accounts, regardless of a legacy zero `can_manage_shipping` value. Staff can view, create, edit, update status and delete shipping records through the Shipping page; non-super staff remain assigned to their own identity. Arrivals, arrival collection-address corrections, payout confirmations, finances and sensitive documents retain their existing restrictions. Traveller Support still needs its account-level shipping permission. No schema or data migration is required for this role change.
+
 ## Data contract
 
 - `traveller_payouts` is append-only settlement history: traveller/name snapshot, currency, total, source, actor, actual payment date when known, recording date, and explanation. `operation_key` is unique for retry protection.

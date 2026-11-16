@@ -236,6 +236,7 @@ class Shipping_read_model extends \MY_Model
         } elseif ($hasPermissionColumn) {
             $this->db->group_start();
             $this->db->where('role', 'super_admin');
+            $this->db->or_where('role', 'customer_support');
             $this->db->or_where('can_manage_shipping', 1);
             $this->db->group_end();
         } else {

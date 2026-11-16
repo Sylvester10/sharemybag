@@ -13,6 +13,9 @@ class Customer_support_policy
         'admin_bookings' => array('index', 'all_bookings_ajax', 'completed_bookings',
             'completed_bookings_ajax', 'canceled_bookings', 'canceled_bookings_ajax',
             'view_booking', 'add_parcel_ajax'),
+        'shipping' => array('index', 'records_ajax', 'search_bookings_ajax',
+            'shipping_context_ajax', 'create_shipping_ajax', 'edit_shipping_ajax',
+            'update_status_ajax', 'view_shipping', 'delete_shipping'),
     );
 
     public function allows($controller, $method)

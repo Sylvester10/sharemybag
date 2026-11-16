@@ -140,7 +140,7 @@
 										<a><i class="las la-plane"></i> Travellers <?php if ($can_manage_travellers && $pending_travellers_count > 0): ?><span class="admin-sidebar-count" aria-label="<?php echo $pending_travellers_count; ?> pending travellers"><?php echo $pending_travellers_count; ?></span><?php endif; ?> <span class="las la-angle-down"></span></a>
 										<ul class="nav child_menu">
 											<?php if ($can_manage_travellers): ?><li><a href="<?php echo base_url('admin_travellers'); ?>">Upcoming Travellers</a></li><?php endif; ?>
-											<?php if ($can_manage_shipping): ?><li><a href="<?php echo base_url('shipping/arrivals'); ?>">Arrivals</a></li><?php endif; ?>
+											<?php if ($can_manage_shipping && $role !== 'customer_support'): ?><li><a href="<?php echo base_url('shipping/arrivals'); ?>">Arrivals</a></li><?php endif; ?>
 											<?php if ($can_manage_travellers && $role !== 'customer_support'): ?><li><a href="<?php echo base_url('admin_travellers/approved_travellers'); ?>">All Travellers</a></li><?php endif; ?>
 											<?php if ($can_manage_travellers && $role !== 'customer_support'): ?><li><a href="<?php echo base_url('admin_travellers/pending_travellers'); ?>">Pending Travellers<?php if ($pending_travellers_count > 0): ?> <span class="admin-sidebar-count" aria-label="<?php echo $pending_travellers_count; ?> pending travellers"><?php echo $pending_travellers_count; ?></span><?php endif; ?></a></li><?php endif; ?>
 										</ul>

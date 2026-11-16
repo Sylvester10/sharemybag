@@ -3047,7 +3047,7 @@ function admin_shipping_access_allowed($admin)
 		? (string) ($admin['role'] ?? '')
 		: (string) ($admin->role ?? '');
 
-	if ($role === 'super_admin') {
+	if (in_array($role, array('super_admin', 'customer_support'), true)) {
 		return true;
 	}
 
@@ -3059,9 +3059,9 @@ function admin_shipping_access_allowed($admin)
 		? array_key_exists('can_manage_shipping', $admin)
 		: property_exists($admin, 'can_manage_shipping');
 
-	// Compatibility only while migration 016 is being deployed.
+	// Traveller Support requires an explicit account permission.
 	if (!$hasPermissionField) {
-		return $role === 'customer_support';
+		return false;
 	}
 
 	$permission = is_array($admin)

@@ -13,6 +13,7 @@ function show_404() { throw new SupportDenied('Not found', 404); }
 function redirect($url) { throw new SupportDenied('Redirect: ' . $url, 403); }
 function base_url($path = '') { return 'http://smb.example.invalid/' . $path; }
 function site_url($path = '') { return base_url($path); }
+function current_url() { return base_url('shipping'); }
 function html_escape($value) { return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'); }
 function log_message($level, $message) {}
 function is_php($version) { return version_compare(PHP_VERSION, $version, '>='); }
@@ -60,7 +61,7 @@ $db->insert('users', array('id' => 2, 'email' => 'other@example.invalid', 'selfi
 $db->insert('travellers', array('id' => 1, 'email' => 'owner@example.invalid', 'itinerary_photo' => 'own-trip.pdf'));
 $db->insert('admins', array('id' => 9, 'role' => 'customer_support'));
 
-function support_controller($class, $method, $role = 'customer_support', $trip = null)
+function support_controller($class, $method, $role = 'customer_support', $trip = null, $shippingPermission = 1)
 {
     global $db;
     $trip = $trip ?: (object) array('id' => 1, 'status' => 'Approved', 'travel_date' => date('Y-m-d', time() + 86400), 'deleted_at' => null);
@@ -78,12 +79,13 @@ function support_controller($class, $method, $role = 'customer_support', $trip =
             public $values = array();
             function userdata($key) { return $this->values[$key] ?? null; }
             function set_flashdata($key, $value) { $this->values[$key] = $value; }
+            function set_userdata($values) { $this->values = array_merge($this->values, $values); }
             function flashdata($key) { return null; }
         },
-        'common_model' => new class($role) {
-            private $role;
-            function __construct($role) { $this->role = $role; }
-            function get_admin_details($email) { return (object) array('id' => 9, 'role' => $this->role, 'can_manage_shipping' => 1); }
+        'common_model' => new class($role, $shippingPermission) {
+            private $role, $shippingPermission;
+            function __construct($role, $shippingPermission) { $this->role = $role; $this->shippingPermission = $shippingPermission; }
+            function get_admin_details($email) { return (object) array('id' => 9, 'role' => $this->role, 'can_manage_shipping' => $this->shippingPermission); }
         },
         'load' => new class {
             public $views = array();
@@ -113,6 +115,7 @@ $allowed = array(
     'Admin_users' => array('index', 'user_ajax', 'user_profile', 'update_user_ajax', 'activity_history', 'send_registration_email', 'valid_user_phone'),
     'Admin_travellers' => array('index', 'upcoming_travellers_ajax', 'traveller_profile', 'get_user_details', 'add_traveller_bag_space', 'remove_traveller_bag_space', 'add_offline_booking', 'lock_traveller_bag'),
     'Admin_bookings' => array('index', 'all_bookings_ajax', 'completed_bookings', 'completed_bookings_ajax', 'canceled_bookings', 'canceled_bookings_ajax', 'view_booking', 'add_parcel_ajax'),
+    'Shipping' => array('index', 'records_ajax', 'search_bookings_ajax', 'shipping_context_ajax', 'create_shipping_ajax', 'edit_shipping_ajax', 'update_status_ajax', 'view_shipping', 'delete_shipping'),
 );
 $checked = 0;
 foreach ($allowed as $class => $methods) {
@@ -125,11 +128,20 @@ foreach ($allowed as $class => $methods) {
     }
     support_controller($class, 'index', 'super_admin');
 }
-foreach (array('Admin_exchange', 'Admin_finances', 'Admin_pricing', 'Shipping') as $class) {
+foreach (array('Admin_exchange', 'Admin_finances', 'Admin_pricing') as $class) {
     try { support_controller($class, 'index'); throw new RuntimeException($class . ' allowed Customer Support.'); }
     catch (SupportDenied $e) { support_check($e->getCode() === 403, $class . ' must deny.'); }
     support_controller($class, 'index', 'super_admin');
 }
+$controller = support_controller('Shipping', 'index', 'customer_support', null, 0);
+support_check($controller->admin_can_manage_shipping(), 'Existing Customer Support accounts pass the real Shipping guard with stored permission zero.');
+$controller->session->admin_loggedin = false;
+try { new Shipping(); throw new RuntimeException('Signed-out staff allowed into Shipping.'); }
+catch (SupportDenied $e) { support_check(strpos($e->getMessage(), 'admin_login') !== false, 'Shipping still requires an authenticated admin session.'); }
+$controller = support_controller('Shipping', 'delete_shipping');
+$controller->input = new class { function method($uppercase = false) { return $uppercase ? 'GET' : 'get'; } };
+try { $controller->delete_shipping(1); throw new RuntimeException('Customer Support GET deletion allowed.'); }
+catch (SupportDenied $e) { support_check($e->getCode() === 405, 'Customer Support shipping deletion remains POST-only.'); }
 support_controller('Admin_travellers', 'index', 'traveller_support');
 foreach (array(
     (object) array('status' => 'Approved', 'travel_date' => date('Y-m-d', time() - 86400)),

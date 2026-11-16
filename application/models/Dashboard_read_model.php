@@ -137,7 +137,7 @@ class Dashboard_read_model extends MY_Model
             $this->db->where('status', 'Pending');
             $items[] = array('label' => 'Pending Travellers', 'count' => (int) $this->db->count_all_results(), 'url' => 'admin_travellers/pending_travellers');
         }
-        if (admin_shipping_access_allowed(get_instance()->admin_details)) {
+        if ($role !== 'customer_support' && admin_shipping_access_allowed(get_instance()->admin_details)) {
             $this->db->from('bookings');
             $this->db->join('travellers', 'travellers.id = bookings.traveller_id');
             $this->db->join('shipping_records', 'shipping_records.booking_id = bookings.id', 'left');

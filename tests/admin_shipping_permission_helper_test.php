@@ -22,10 +22,10 @@ assert_shipping_access(true, (object) array(
     'can_manage_shipping' => 1,
 ), 'Customer Support should be allowed when explicitly enabled.');
 
-assert_shipping_access(false, (object) array(
+assert_shipping_access(true, (object) array(
     'role' => 'customer_support',
     'can_manage_shipping' => 0,
-), 'Customer Support should be denied when explicitly disabled.');
+), 'Customer Support shipping access is included in the role, including existing accounts with a zero flag.');
 
 assert_shipping_access(true, array(
     'role' => 'traveller_support',
@@ -52,4 +52,4 @@ assert_shipping_access(false, (object) array(
     'can_manage_shipping' => 1,
 ), 'An unknown role must remain denied even if a permission value is present.');
 
-fwrite(STDOUT, "PASS: Admin shipping permission decisions are role-safe and account-specific.\n");
+fwrite(STDOUT, "PASS: Shipping access is included for Customer Support and remains account-specific for Traveller Support.\n");

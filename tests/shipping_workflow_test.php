@@ -98,6 +98,34 @@ foreach (array('travel_date TEXT', 'arrival_date TEXT', 'deleted_at TEXT', 'orig
 $db->where('id', 1)->update('travellers', array('travel_date' => date('Y-m-d', strtotime('-2 days')), 'arrival_date' => date('Y-m-d', strtotime('-1 day')), 'original_bag_space' => 21));
 $model->db = $db;
 $read->db = $db;
+$model->booking_read_model = new class($db) {
+    private $db;
+    function __construct($db) { $this->db = $db; }
+    function get_booking_details_by_id($id) { return $this->db->where('id', $id)->get('bookings')->row(); }
+    function clearBookingCountCaches() {}
+};
+$db->insert('admins', array('id' => 12, 'name' => 'Customer Support Staff', 'email' => 'support@example.invalid', 'role' => 'customer_support', 'can_manage_shipping' => 0));
+support_check(in_array(12, array_map(function ($staff) { return (int) $staff->id; }, $read->get_staff_options(9, true)), true), 'Super Admin staff selection includes Customer Support even when an existing account has a zero shipping flag.');
+$selfStaff = $read->get_staff_options(12, false);
+support_check(count($selfStaff) === 1 && (int) $selfStaff[0]->id === 12, 'Non-super staff selection remains restricted to the signed-in staff account.');
+$customerBooking = $db->where('id', 1)->get('bookings')->row_array();
+$customerBooking['id'] = 4; $customerBooking['tracking_id'] = 'SMBTEST4';
+$db->insert('bookings', $customerBooking);
+$customerPayload = $payload;
+$customerPayload['carrier_tracking_id'] = 'CUSTOMER-SUPPORT-CARRIER';
+$customerPayload['staff_admin_id'] = 12;
+$customerPayload['status'] = 'Awaiting Collection';
+$customerShipping = $model->create_shipping_record(4, $customerPayload);
+support_check($customerShipping['status'] && (int) $customerShipping['record']->staff_admin_id === 12, 'Customer Support can create a persisted shipment with their own staff identity despite a legacy zero permission flag.');
+require_once APPPATH . 'models/Admin_model.php';
+$adminModel = (new ReflectionClass('Admin_model'))->newInstanceWithoutConstructor();
+$adminModel->db = $db;
+$adminModel->input = new class { function post($key, $clean = false) { return $_POST[$key] ?? ''; } };
+$db->query('ALTER TABLE admins ADD COLUMN phone TEXT');
+$_POST = array('name' => 'Customer Support Staff', 'email' => 'support@example.invalid', 'country_code' => '+44', 'phone' => '7424591497', 'role' => 'customer_support', 'can_manage_shipping' => '0');
+support_check($adminModel->update_admin(12) && (int) $db->where('id', 12)->get('admins')->row()->can_manage_shipping === 1, 'Saving Customer Support persists its automatic shipping access even when a disabled checkbox submits zero.');
+$_POST['role'] = 'traveller_support';
+support_check($adminModel->update_admin(12) && (int) $db->where('id', 12)->get('admins')->row()->can_manage_shipping === 0, 'Switching to Traveller Support restores the explicit account-level shipping choice.');
 $before = $db->where('id', 1)->get('travellers')->row_array();
 $token = hash('sha256', $before['additional_info']);
 foreach (array('', '   ', str_repeat('a', 101), array('not a string')) as $invalid) {
@@ -152,4 +180,5 @@ support_check($response['status'] && $db->where('id', 1)->get('travellers')->row
 $db = $shippingTestDb;
 $model->db = $db;
 $read->db = $db;
+$model->booking_read_model = $bookingRead;
 echo "PASS: shipping defaults/snapshots, arrived-address persistence, permissions, validation, stale writes, POST guard, JSON, table ordering and Arrival action colors (in-memory database only).\n";

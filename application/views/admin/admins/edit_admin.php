@@ -56,7 +56,7 @@
                             </option>
                             <option value="customer_support"
                                 <?php echo (set_value('role', $y->role) === 'customer_support') ? 'selected' : ''; ?>>
-                                Customer Support (bookings + users, no finances)
+                                Customer Support (bookings + users + shipping)
                             </option>
                             <option value="traveller_support"
                                 <?php echo (set_value('role', $y->role) === 'traveller_support') ? 'selected' : ''; ?>>
@@ -72,7 +72,8 @@
                 $stored_shipping_access = property_exists($y, 'can_manage_shipping')
                     ? (int) $y->can_manage_shipping === 1
                     : in_array($y->role, array('super_admin', 'customer_support'), true);
-                $shipping_access_checked = $selected_role === 'super_admin'
+                $automatic_shipping = in_array($selected_role, array('super_admin', 'customer_support'), true);
+                $shipping_access_checked = $automatic_shipping
                     || set_value('can_manage_shipping', $stored_shipping_access ? '1' : '0') === '1';
                 ?>
                 <div class="form-group">
@@ -81,11 +82,11 @@
                         <label for="canManageShippingEdit">
                             <input type="checkbox" id="canManageShippingEdit" name="can_manage_shipping" value="1"
                                 <?php echo $shipping_access_checked ? 'checked' : ''; ?>
-                                <?php echo $selected_role === 'super_admin' ? 'disabled' : ''; ?>>
+                                <?php echo $automatic_shipping ? 'disabled' : ''; ?>>
                             Allow access to the Shipping workspace
                         </label>
                     </div>
-                    <small class="form-text text-muted">Shipping access is account-specific for support staff. Super Admin access cannot be disabled.</small>
+                    <small class="form-text text-muted">Shipping is included for Super Admin and Customer Support. Traveller Support access is account-specific.</small>
                 </div>
 
                 <hr>
@@ -121,7 +122,7 @@
 <script>
     var roleHints = {
         'super_admin': 'Full access to everything including finances and admin management.',
-        'customer_support': 'Can manage bookings and users. Cannot access finances, travellers, or admin accounts.',
+        'customer_support': 'Can manage bookings, users, shipping and permitted upcoming traveller actions. No access to arrivals, finances or admin accounts.',
         'traveller_support': 'Can only view and manage travellers. No access to users, bookings, or finances.'
     };
     var roleSelect = document.querySelector('select[name="role"]');
@@ -131,11 +132,11 @@
 
         function updateHint() {
             hintEl.textContent = roleHints[roleSelect.value] || '';
-            var isSuperAdmin = roleSelect.value === 'super_admin';
-            if (isSuperAdmin) {
+            var automaticShipping = roleSelect.value === 'super_admin' || roleSelect.value === 'customer_support';
+            if (automaticShipping) {
                 shippingAccess.checked = true;
             }
-            shippingAccess.disabled = isSuperAdmin;
+            shippingAccess.disabled = automaticShipping;
         }
         roleSelect.addEventListener('change', updateHint);
         updateHint(); // show on load
