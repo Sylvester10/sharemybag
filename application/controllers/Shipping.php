@@ -17,6 +17,7 @@ class Shipping extends MY_Controller
         parent::__construct();
         $this->admin_restricted();
         $this->admin_shipping_restricted();
+        $this->customer_support_restricted();
         $this->load->model('shipping_model');
         $this->load->model('shipping_read_model');
         $this->load->model('booking_read_model');

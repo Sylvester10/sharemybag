@@ -26,7 +26,7 @@ class Shipping_model extends \MY_Model
         try {
             $lock = $this->db->dbdriver === 'mysqli' ? ' FOR UPDATE' : '';
             $admin = $this->db->query('SELECT * FROM admins WHERE id = ?' . $lock, array((int) $adminId))->row();
-            if (!$admin || !admin_shipping_access_allowed($admin)) {
+            if (!$admin || $admin->role === 'customer_support' || !admin_shipping_access_allowed($admin)) {
                 throw new RuntimeException('You do not have permission to update the collection address.');
             }
             $traveller = $this->db->query('SELECT * FROM travellers WHERE id = ?' . $lock, array((int) $travellerId))->row();

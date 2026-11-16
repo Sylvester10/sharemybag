@@ -143,10 +143,7 @@ class Admin_model extends \CI_Model
 
 	private function submittedShippingAccess($role)
 	{
-		if ($role === 'customer_support') {
-			return 0;
-		}
-		if ($role === 'super_admin') {
+		if (in_array($role, array('super_admin', 'customer_support'), true)) {
 			return 1;
 		}
 

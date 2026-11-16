@@ -2,6 +2,10 @@
 
 The payout ledger records settlement declarations, not bank transfers. It never calls a payment provider or sends email. Phase 1 created the foundation; Phase 2 adds the Arrivals payout workflow and finance summary. Phase 3 simplifies the dashboard.
 
+## Shipping access — 16 November 2026
+
+Customer Support includes Shipping access for existing and new accounts, regardless of a legacy zero `can_manage_shipping` value. Staff can view, create, edit, update status and delete shipping records through the Shipping page; non-super staff remain assigned to their own identity. Arrivals, arrival collection-address corrections, payout confirmations, finances and sensitive documents retain their existing restrictions. Traveller Support still needs its account-level shipping permission. No schema or data migration is required for this role change.
+
 ## Data contract
 
 - `traveller_payouts` is append-only settlement history: traveller/name snapshot, currency, total, source, actor, actual payment date when known, recording date, and explanation. `operation_key` is unique for retry protection.
@@ -89,3 +93,5 @@ Each exception is selected by its confirmed trip ID and checked against its name
 `php tests/arrivals_payout_reconciliation_test.php` verifies the actual pasteable script in a separate randomly named database, including a concurrent manual payout committed after the routine establishes its initial repeatable-read snapshot. The test passed on the isolated MariaDB socket with mixed source/routine collations; it leaves the application and live databases untouched.
 
 An authorized shipping administrator can use **Edit Collection Address** on the arrived traveler's profile. This updates only Additional Information (maximum 100 characters), preserving travel dates and existing shipping-address snapshots; reopening new booking shipping picks up the corrected address. Field validation is inline, and stale edits are rejected. Once every active booking has shipping, Super Admin can record payout normally.
+
+For this one-time owner-declared historical settlement, a valid past arrival date earlier than its valid past departure date does not block reconciliation. For example, live traveler 1440 has departure 9 October and arrival 8 October. The audit records the exact booking/traveler IDs and original dates under `historical_date_declarations`; operational dates are never corrected by this script. Invalid dates and future arrivals still stop the entire transaction, with the offending traveler ID and dates in the error. Normal future manual payout date checks are unchanged.
