@@ -6,6 +6,10 @@ The payout ledger records settlement declarations, not bank transfers. It never 
 
 Customer Support includes Shipping access for existing and new accounts, regardless of a legacy zero `can_manage_shipping` value. Staff can view, create, edit, update status and delete shipping records through the Shipping page; non-super staff remain assigned to their own identity. Arrivals, arrival collection-address corrections, payout confirmations, finances and sensitive documents retain their existing restrictions. Traveller Support still needs its account-level shipping permission. No schema or data migration is required for this role change.
 
+## Arrivals destination views — 18 November 2026
+
+Arrivals opens on **Nigeria Arrivals**, with **UK Arrivals** filtering the traveler's destination to `United Kingdom`. **All Arrivals** preserves access to other destinations. The existing table reloads through AJAX, retaining the lifecycle filter; the selected destination is remembered for the current browser tab so profile navigation and successful-action reloads return to the same view. Eligibility, grouped booking/shipping totals, action colors, permissions and payout calculations are unchanged. No database migration is needed.
+
 ## Data contract
 
 - `traveller_payouts` is append-only settlement history: traveller/name snapshot, currency, total, source, actor, actual payment date when known, recording date, and explanation. `operation_key` is unique for retry protection.

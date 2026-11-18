@@ -770,6 +770,27 @@ jQuery(document).ready(function ($) {
     });
 
     if ($('#arrivals_travellers_table').length) {
+        var arrivalsDestinations = ['Nigeria', 'United Kingdom', ''];
+        var arrivalsDestinationKey = 'smb_arrivals_destination';
+
+        function selectArrivalsDestination(destination) {
+            $('#arrivals_destination_filter').val(destination);
+            $('[data-arrivals-destination]').each(function () {
+                var selected = $(this).attr('data-arrivals-destination') === destination;
+                $(this).toggleClass('btn-primary', selected).toggleClass('btn-default', !selected)
+                    .attr('aria-pressed', selected ? 'true' : 'false');
+            });
+        }
+
+        try {
+            var savedArrivalsDestination = sessionStorage.getItem(arrivalsDestinationKey);
+            if (arrivalsDestinations.indexOf(savedArrivalsDestination) !== -1) {
+                selectArrivalsDestination(savedArrivalsDestination);
+            }
+        } catch (error) {
+            // Keep the default destination when session storage is unavailable.
+        }
+
         var arrivalsTravellerTable = initializeDataTable(
             '#arrivals_travellers_table',
             base_url + 'shipping/arrivals_ajax',
@@ -782,7 +803,15 @@ jQuery(document).ready(function ($) {
             .order([1, 'desc'])
             .draw();
 
-        $('#arrivals_destination_filter, #arrivals_lifecycle_filter').on('change', function () {
+        $('[data-arrivals-destination]').on('click', function () {
+            var destination = $(this).attr('data-arrivals-destination');
+            if (arrivalsDestinations.indexOf(destination) === -1 || destination === $('#arrivals_destination_filter').val()) return;
+            selectArrivalsDestination(destination);
+            try { sessionStorage.setItem(arrivalsDestinationKey, destination); } catch (error) {}
+            arrivalsTravellerTable.ajax.reload();
+        });
+
+        $('#arrivals_lifecycle_filter').on('change', function () {
             arrivalsTravellerTable.ajax.reload();
         });
     }

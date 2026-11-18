@@ -1,9 +1,10 @@
+<div class="new-item admin-page-actions" role="group" aria-label="Arrivals destination">
+    <button type="button" class="btn btn-primary btn-sm button-adjust" data-arrivals-destination="Nigeria" aria-pressed="true" aria-controls="arrivals_travellers_table">Nigeria Arrivals</button>
+    <button type="button" class="btn btn-default btn-sm button-adjust" data-arrivals-destination="United Kingdom" aria-pressed="false" aria-controls="arrivals_travellers_table">UK Arrivals</button>
+    <button type="button" class="btn btn-default btn-sm button-adjust" data-arrivals-destination="" aria-pressed="false" aria-controls="arrivals_travellers_table">All Arrivals</button>
+</div>
+<input type="hidden" id="arrivals_destination_filter" value="Nigeria">
 <?php
-$country_options = array('' => 'All Countries');
-foreach (countries() as $country) {
-    $country_options[$country] = $country;
-}
-
 $filters = array(
     array(
         'id' => 'arrivals_lifecycle_filter',
@@ -15,12 +16,6 @@ $filters = array(
             'Fully Arranged' => 'Fully Arranged',
             'Cleared' => 'Cleared Arrivals',
         ),
-        'wrapper_class' => 'col-md-3',
-    ),
-    array(
-        'id' => 'arrivals_destination_filter',
-        'label' => 'Filter by Destination:',
-        'options' => $country_options,
         'wrapper_class' => 'col-md-3',
     ),
 );
