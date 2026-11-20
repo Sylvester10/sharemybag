@@ -394,7 +394,7 @@ echo form_open_multipart('admin_travellers/recycle_traveller_ajax/' . $y->id, 'i
 
         <div class="form-group">
             <label class="form-control-label">Additional Information</label>
-            <textarea class="form-control t200" name="additional_info"><?php echo set_value('additional_info', strip_tags($y->additional_info)); ?></textarea>
+            <textarea class="form-control t200" name="additional_info" maxlength="100"><?php echo set_value('additional_info', strip_tags($y->additional_info)); ?></textarea>
             <div class="form-error"><?php echo form_error('additional_info'); ?></div>
         </div>
     </div>
