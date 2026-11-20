@@ -88,6 +88,7 @@ PROJECT_REFERENCE.md
 !/tests/booking_checkout_concurrency_test.php
 !/tests/customer_support_permissions_test.php
 !/tests/shipping_workflow_test.php
+!/tests/recycled_traveller_pickup_test.php
 !/tests/dashboard_overview_test.php
 !/tests/dashboard_chart_test.js
 !/tests/shipping_modal_ui_test.js

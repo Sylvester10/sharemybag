@@ -597,6 +597,7 @@ class Admin_travellers extends MY_Controller
     {
         $this->check_data_exists($id, 'id', 'travellers', 'admin');
 
+        $this->form_validation->set_rules('additional_info', 'Additional Information', 'trim|max_length[100]');
         $this->form_validation->set_rules('fullname', 'Name', 'trim|min_length[2]|max_length[500]|required');
         $this->form_validation->set_rules('c_code1', 'Country code', 'trim|required');
         $this->form_validation->set_rules('phone', 'Mobile', 'trim|required');

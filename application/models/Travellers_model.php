@@ -217,6 +217,7 @@ class Travellers_model extends \MY_Model
 		$data['address'] = ucfirst($this->input->post('address', TRUE));
 		$data['available_space'] = $this->input->post('available_space', TRUE);
 		$data['original_bag_space'] = $this->input->post('available_space', TRUE);
+		$data['additional_info'] = trim((string) $this->input->post('additional_info', TRUE));
 		$unwanted_items_post = $this->input->post('unwanted_items', TRUE);
 		$data['unwanted_items'] = is_array($unwanted_items_post) ? implode(", ", $unwanted_items_post) : '';
 		$data['itinerary_photo'] = $itinerary_photo;
